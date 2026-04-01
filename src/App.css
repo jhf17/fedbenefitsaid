@@ -242,6 +242,10 @@ img { max-width: 100%; }
 ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
 
+/* ---- Auth aside panel ---- */
+.auth-aside { display: none; }
+@media (min-width: 960px) { .auth-aside { display: block; } }
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .section { padding: 56px 0; }

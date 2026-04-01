@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../App'
 import { SYSTEM_PROMPT } from '../data/systemPrompt'
 import ConsultantCTA from '../components/ConsultantCTA'
@@ -15,12 +15,21 @@ What would you like to know?`,
 
 export default function Chat() {
   const { user } = useAuth()
+  const location = useLocation()
   const [messages, setMessages] = useState([WELCOME_MESSAGE])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
+
+  // Pre-fill input when arriving from Quiz "Ask AI" button
+  useEffect(() => {
+    if (location.state?.preloadMessage) {
+      setInput(location.state.preloadMessage)
+      setTimeout(() => inputRef.current?.focus(), 150)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -90,7 +99,7 @@ export default function Chat() {
       {/* Sidebar */}
       <div style={styles.sidebar}>
         <div style={styles.sidebarTop}>
-          <div style={styles.sidebarTitle}>Federal Benefits AI</div>
+          <div style={styles.sidebarTitle}>Benefits Assistant</div>
           <div style={styles.sidebarUser}>
             Signed in as<br />
             <strong>{user?.email}</strong>
@@ -129,7 +138,7 @@ export default function Chat() {
               }}
             >
               {msg.role === 'assistant' && (
-                <div style={styles.avatar}>🤖</div>
+                <div style={styles.avatar}>AI</div>
               )}
               <div
                 style={{
@@ -149,7 +158,7 @@ export default function Chat() {
 
           {loading && (
             <div style={{ ...styles.messageRow, justifyContent: 'flex-start' }}>
-              <div style={styles.avatar}>🤖</div>
+              <div style={styles.avatar}>AI</div>
               <div style={{ ...styles.bubble, ...styles.bubbleAI, ...styles.typingBubble }}>
                 <TypingIndicator />
               </div>
@@ -199,19 +208,55 @@ export default function Chat() {
   )
 }
 
-// Renders message content with basic markdown-like formatting
+// Renders message content with markdown formatting
 function MessageContent({ content }) {
   if (!content) return null
 
-  // Split on double newlines to get paragraphs
+  // Split on double newlines to get paragraphs/blocks
   const paragraphs = content.split(/\n\n+/)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {paragraphs.map((para, i) => {
-        // Bullet list detection
+        // H1 heading: # Heading
+        if (/^# /.test(para)) {
+          return (
+            <p key={i} style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0f172a', margin: 0, paddingTop: i > 0 ? 2 : 0 }}>
+              <FormattedText text={para.replace(/^# /, '')} />
+            </p>
+          )
+        }
+
+        // H2 heading: ## Heading
+        if (/^## /.test(para)) {
+          return (
+            <p key={i} style={{ fontWeight: 700, fontSize: '0.97rem', color: '#1e3a5f', margin: 0, borderBottom: '1px solid #e2e8f0', paddingBottom: 4 }}>
+              <FormattedText text={para.replace(/^## /, '')} />
+            </p>
+          )
+        }
+
+        // H3 heading: ### Heading
+        if (/^### /.test(para)) {
+          return (
+            <p key={i} style={{ fontWeight: 700, fontSize: '0.93rem', color: '#334155', margin: 0 }}>
+              <FormattedText text={para.replace(/^### /, '')} />
+            </p>
+          )
+        }
+
+        // Full-paragraph bold (legacy heading style: **text**)
+        if (para.startsWith('**') && para.endsWith('**') && !para.slice(2, -2).includes('**')) {
+          return (
+            <p key={i} style={{ fontWeight: 700, fontSize: '0.95rem', margin: 0 }}>
+              {para.replace(/\*\*/g, '')}
+            </p>
+          )
+        }
+
+        // Bullet or numbered list
         if (para.match(/^[-•*]\s/m) || para.match(/^\d+\.\s/m)) {
-          const lines = para.split('\n')
+          const lines = para.split('\n').filter(l => l.trim())
           return (
             <ul key={i} style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
               {lines.map((line, j) => {
@@ -226,15 +271,7 @@ function MessageContent({ content }) {
           )
         }
 
-        // Heading detection (lines starting with **)
-        if (para.startsWith('**') && para.endsWith('**')) {
-          return (
-            <p key={i} style={{ fontWeight: 700, fontSize: '0.95rem', margin: 0 }}>
-              {para.replace(/\*\*/g, '')}
-            </p>
-          )
-        }
-
+        // Regular paragraph
         return (
           <p key={i} style={{ margin: 0, fontSize: '0.93rem', lineHeight: 1.65 }}>
             <FormattedText text={para} />
@@ -366,11 +403,14 @@ const styles = {
     width: 32,
     height: 32,
     borderRadius: '50%',
-    background: '#eff6ff',
+    background: '#1e3a5f',
+    color: 'white',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1rem',
+    fontSize: '0.65rem',
+    fontWeight: 800,
+    letterSpacing: '0.03em',
     flexShrink: 0,
     marginBottom: 2,
   },

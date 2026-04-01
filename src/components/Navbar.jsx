@@ -15,35 +15,32 @@ export default function Navbar() {
     setMenuOpen(false)
   }
 
-  const isActive = (path) => location.pathname === path
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
 
   return (
     <nav style={styles.nav}>
       <div style={styles.inner}>
         {/* Logo */}
         <Link to="/" style={styles.logo}>
-          <span style={styles.logoIcon}>🏛️</span>
+          <span style={styles.logoMark}>FBA</span>
           <span style={styles.logoText}>FedBenefitsAid</span>
         </Link>
 
         {/* Desktop Nav Links */}
-        <div style={styles.links}>
-          <Link
-            to="/reference"
-            style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }}
-          >
+        <div data-navbar-links="" style={styles.links}>
+          <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }}>
             Reference Guide
           </Link>
-          <Link
-            to="/chat"
-            style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}
-          >
+          <Link to="/training" style={{ ...styles.link, ...(isActive('/training') ? styles.linkActive : {}) }}>
+            Training
+          </Link>
+          <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
             AI Chat
           </Link>
         </div>
 
         {/* Desktop Auth */}
-        <div style={styles.authArea}>
+        <div data-navbar-auth="" style={styles.authArea}>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={styles.userEmail}>{user.email?.split('@')[0]}</span>
@@ -61,6 +58,7 @@ export default function Navbar() {
 
         {/* Mobile Hamburger */}
         <button
+          data-hamburger=""
           style={styles.hamburger}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
@@ -73,12 +71,15 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div style={styles.mobileMenu}>
+        <div data-mobile-menu="" style={styles.mobileMenu}>
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            📚 Reference Guide
+            Reference Guide
+          </Link>
+          <Link to="/training" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            Training
           </Link>
           <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            🤖 AI Chat
+            AI Chat
           </Link>
           <div style={styles.mobileDivider} />
           {user ? (
@@ -109,7 +110,7 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    background: 'rgba(255,255,255,0.95)',
+    background: 'rgba(255,255,255,0.97)',
     backdropFilter: 'blur(12px)',
     borderBottom: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
@@ -126,16 +127,22 @@ const styles = {
   logo: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     textDecoration: 'none',
     flexShrink: 0,
   },
-  logoIcon: {
-    fontSize: '1.4rem',
+  logoMark: {
+    background: '#1e3a5f',
+    color: 'white',
+    fontWeight: 800,
+    fontSize: '0.72rem',
+    letterSpacing: '0.06em',
+    padding: '4px 7px',
+    borderRadius: 6,
   },
   logoText: {
     fontWeight: 800,
-    fontSize: '1.1rem',
+    fontSize: '1.05rem',
     color: '#1e3a5f',
     letterSpacing: '-0.02em',
   },
@@ -179,7 +186,6 @@ const styles = {
     cursor: 'pointer',
     padding: 4,
     marginLeft: 'auto',
-    '@media (max-width: 768px)': { display: 'flex' },
   },
   bar: {
     width: 22,
@@ -219,7 +225,7 @@ const styles = {
   },
 }
 
-// Apply mobile styles via a style tag injection
+// Mobile responsive via injected CSS using data attributes
 if (typeof document !== 'undefined') {
   const style = document.createElement('style')
   style.textContent = `

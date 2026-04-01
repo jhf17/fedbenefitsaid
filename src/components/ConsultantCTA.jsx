@@ -11,7 +11,6 @@ export default function ConsultantCTA({ compact = false }) {
     return (
       <div style={styles.compact}>
         <div style={styles.compactText}>
-          <span style={styles.compactIcon}>👨‍💼</span>
           <div>
             <div style={styles.compactTitle}>Prefer a human expert?</div>
             <div style={styles.compactSub}>Book a free 30-min consultation</div>
@@ -32,7 +31,6 @@ export default function ConsultantCTA({ compact = false }) {
   return (
     <div style={styles.banner}>
       <div style={styles.bannerLeft}>
-        <div style={styles.bannerIcon}>👨‍💼</div>
         <div>
           <div style={styles.bannerTitle}>Want personalized guidance from a real expert?</div>
           <div style={styles.bannerSub}>
@@ -49,7 +47,7 @@ export default function ConsultantCTA({ compact = false }) {
           className="btn btn-navy btn-lg"
           style={{ flexShrink: 0 }}
         >
-          📅 Book Free Consultation
+          Book Free Consultation
         </a>
         <div style={styles.bannerNote}>No cost. No obligation. 30 minutes.</div>
       </div>

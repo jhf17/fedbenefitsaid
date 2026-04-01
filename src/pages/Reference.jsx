@@ -2,8 +2,10 @@ import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { REF_DATA } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
+import { useAuth } from '../App'
 
 export default function Reference() {
+  const { user } = useAuth()
   const [selectedCat, setSelectedCat] = useState(null)
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [search, setSearch] = useState('')
@@ -60,7 +62,7 @@ export default function Reference() {
                   onClick={() => setSelectedTopic(null)}
                   style={{ ...styles.breadcrumbBtn, ...(selectedTopic ? {} : styles.breadcrumbActive) }}
                 >
-                  {currentCat?.icon} {selectedCat}
+                  {selectedCat}
                 </button>
               )}
               {selectedTopic && <span style={styles.breadcrumbSep}>›</span>}
@@ -72,8 +74,8 @@ export default function Reference() {
 
           <h1 style={styles.h1}>
             {showDetail ? selectedTopic.title :
-             showTopics ? `${currentCat.icon} ${selectedCat}` :
-             '📚 Federal Benefits Reference Guide'}
+             showTopics ? selectedCat :
+             'Federal Benefits Reference Guide'}
           </h1>
           <p style={styles.sub}>
             {showDetail ? selectedTopic.summary :
@@ -128,7 +130,7 @@ export default function Reference() {
                     onClick={() => openTopic(topic, topic.cat)}
                     style={{ ...styles.searchCard, borderLeftColor: topic.color }}
                   >
-                    <div style={styles.searchCardCat}>{topic.icon} {topic.cat}</div>
+                    <div style={styles.searchCardCat}>{topic.cat}</div>
                     <div style={styles.searchCardTitle}>{topic.title}</div>
                     <div style={styles.searchCardSub}>{topic.summary}</div>
                   </button>
@@ -147,7 +149,7 @@ export default function Reference() {
                 onClick={() => setSelectedCat(cat.cat)}
                 style={{ ...styles.catCard, borderTopColor: cat.color }}
               >
-                <div style={styles.catIcon}>{cat.icon}</div>
+                <div style={{ ...styles.catAccent, background: cat.color }} />
                 <div style={styles.catName}>{cat.cat}</div>
                 <div style={styles.catCount}>{cat.topics.length} topics</div>
                 <div style={styles.catArrow}>→</div>
@@ -190,7 +192,7 @@ export default function Reference() {
             {/* Key Numbers */}
             {selectedTopic.numbers?.length > 0 && (
               <div style={styles.detailCard}>
-                <h3 style={styles.detailSection}>📊 Key Numbers</h3>
+                <h3 style={styles.detailSection}>Key Numbers</h3>
                 <div style={styles.numbersGrid}>
                   {selectedTopic.numbers.map((n, i) => (
                     <div key={i} style={{ ...styles.numberCard, borderTopColor: currentCat?.color }}>
@@ -205,7 +207,7 @@ export default function Reference() {
             {/* Rules */}
             {selectedTopic.rules?.length > 0 && (
               <div style={styles.detailCard}>
-                <h3 style={styles.detailSection}>📋 Rules & Requirements</h3>
+                <h3 style={styles.detailSection}>Rules & Requirements</h3>
                 <ul style={styles.rulesList}>
                   {selectedTopic.rules.map((rule, i) => (
                     <li key={i} style={styles.rule}>
@@ -220,7 +222,7 @@ export default function Reference() {
             {/* Watch Out */}
             {selectedTopic.watch?.length > 0 && (
               <div style={{ ...styles.detailCard, ...styles.watchCard }}>
-                <h3 style={styles.detailSection}>⚠️ Watch Out For</h3>
+                <h3 style={styles.detailSection}>Watch Out For</h3>
                 <ul style={styles.watchList}>
                   {selectedTopic.watch.map((w, i) => (
                     <li key={i} style={styles.watchItem}>
@@ -238,10 +240,11 @@ export default function Reference() {
                 <div style={styles.detailActionIcon}>🤖</div>
                 <div>
                   <div style={styles.detailActionTitle}>Have a specific question about {selectedTopic.title}?</div>
+
                   <div style={styles.detailActionSub}>Ask the AI — it will tailor the answer to your specific years of service, salary, and retirement goals.</div>
                 </div>
-                <Link to="/signup" className="btn btn-primary" style={{ flexShrink: 0 }}>
-                  Ask AI →
+                <Link to={user ? '/chat' : '/signup'} className="btn btn-primary" style={{ flexShrink: 0 }}>
+                  Ask AI
                 </Link>
               </div>
             </div>
@@ -390,7 +393,7 @@ const styles = {
     flexDirection: 'column',
     gap: 4,
   },
-  catIcon: { fontSize: '2rem', marginBottom: 6 },
+  catAccent: { width: 28, height: 4, borderRadius: 2, marginBottom: 14 },
   catName: { fontWeight: 700, fontSize: '1rem', color: '#0f172a' },
   catCount: { fontSize: '0.8rem', color: '#64748b' },
   catArrow: { color: '#94a3b8', fontSize: '1.1rem', marginTop: 8 },

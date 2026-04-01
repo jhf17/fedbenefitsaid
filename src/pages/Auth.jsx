@@ -16,11 +16,13 @@ export default function Auth({ mode = 'login' }) {
 
   const from = location.state?.from?.pathname || '/chat'
   const flashMessage = location.state?.message || ''
-  
+
+  // If already logged in, redirect
   useEffect(() => {
     if (user) navigate(from, { replace: true })
   }, [user, navigate, from])
 
+  // Sync mode prop
   useEffect(() => {
     setIsLogin(mode === 'login')
     setError('')
@@ -42,17 +44,25 @@ export default function Auth({ mode = 'login' }) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + '/chat' },
+          options: {
+            emailRedirectTo: window.location.origin + '/chat',
+          },
         })
         if (error) throw error
         setSuccess('Account created! Check your email to confirm, then come back to log in.')
       }
     } catch (err) {
+      // Make error messages more human-friendly
       const msg = err.message || 'Something went wrong.'
-      if (msg.includes('Invalid login')) setError('Incorrect email or password. Please try again.')
-      else if (msg.includes('Email not confirmed')) setError('Please check your email and click the confirmation link before logging in.')
-      else if (msg.includes('already registered')) setError('An account with this email already exists. Try logging in instead.')
-      else setError(msg)
+      if (msg.includes('Invalid login')) {
+        setError('Incorrect email or password. Please try again.')
+      } else if (msg.includes('Email not confirmed')) {
+        setError('Please check your email and click the confirmation link before logging in.')
+      } else if (msg.includes('already registered')) {
+        setError('An account with this email already exists. Try logging in instead.')
+      } else {
+        setError(msg)
+      }
     } finally {
       setLoading(false)
     }
@@ -61,43 +71,152 @@ export default function Auth({ mode = 'login' }) {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
+        {/* Logo */}
         <div style={styles.logoWrap}>
-          <span style={styles.logo}>🏛️</span>
+          <span style={styles.logoMark}>FBA</span>
           <span style={styles.logoText}>FedBenefitsAid</span>
         </div>
-        {flashMessage && <div style={styles.flashMsg}>🔒 {flashMessage}</div>}
+
+        {/* Flash message from redirect */}
+        {flashMessage && (
+          <div style={styles.flashMsg}>
+            🔒 {flashMessage}
+          </div>
+        )}
+
+        {/* Tab switcher */}
         <div style={styles.tabs}>
-          <button onClick={() => { setIsLogin(true); setError(''); setSuccess('') }} style={{ ...styles.tab, ...(isLogin ? styles.tabActive : {}) }}>Log In</button>
-          <button onClick={() => { setIsLogin(false); setError(''); setSuccess('') }} style={{ ...styles.tab, ...(!isLogin ? styles.tabActive : {}) }}>Create Account</button>
+          <button
+            onClick={() => { setIsLogin(true); setError(''); setSuccess('') }}
+            style={{ ...styles.tab, ...(isLogin ? styles.tabActive : {}) }}
+          >
+            Log In
+          </button>
+          <button
+            onClick={() => { setIsLogin(false); setError(''); setSuccess('') }}
+            style={{ ...styles.tab, ...(!isLogin ? styles.tabActive : {}) }}
+          >
+            Create Account
+          </button>
         </div>
+
+        {/* Heading */}
         <div style={styles.heading}>
-          <h1 style={styles.h1}>{isLogin ? 'Welcome back' : 'Create your free account'}</h1>
-          <p style={styles.sub}>{isLogin ? 'Log in to access your AI federal benefits assistant.' : 'Get free access to the AI chat. No credit card required.'}</p>
+          <h1 style={styles.h1}>
+            {isLogin ? 'Welcome back' : 'Create your free account'}
+          </h1>
+          <p style={styles.sub}>
+            {isLogin
+              ? 'Log in to access your AI federal benefits assistant.'
+              : 'Get free access to the AI chat. No credit card required.'}
+          </p>
         </div>
-        {success && <div style={styles.successBox}>✅ {success}</div>}
-        {error && <div style={styles.errorBox}>⚠️ {error}</div>}
+
+        {/* Success message */}
+        {success && (
+          <div style={styles.successBox}>
+            ✅ {success}
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div style={styles.errorBox}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Form */}
         {!success && (
           <form onSubmit={handleSubmit} style={styles.form}>
             <div className="form-group">
               <label className="form-label">Email address</label>
-              <input type="email" className="form-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.gov" required autoFocus autoComplete="email" />
+              <input
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.gov"
+                required
+                autoFocus
+                autoComplete="email"
+              />
             </div>
+
             <div className="form-group">
               <label className="form-label">Password</label>
-              <input type="password" className="form-input" value={password} onChange={e => setPassword(e.target.value)} placeholder={isLogin ? '••••••••' : 'At least 8 characters'} required minLength={6} autoComplete={isLogin ? 'current-password' : 'new-password'} />
+              <input
+                type="password"
+                className="form-input"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={isLogin ? '••••••••' : 'At least 8 characters'}
+                required
+                minLength={8}
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
+              />
             </div>
-            <button type="submit" disabled={loading} className="btn btn-navy btn-full" style={{ marginTop: 8, padding: '13px 0', fontSize: '1rem' }}>
-              {loading ? <><span className="spinner" style={{ width: 16, height: 16 }} /> Processing…</> : isLogin ? 'Log In' : 'Create Free Account'}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-navy btn-full"
+              style={{ marginTop: 8, padding: '13px 0', fontSize: '1rem' }}
+            >
+              {loading
+                ? <><span className="spinner" style={{ width: 16, height: 16 }} /> Processing…</>
+                : isLogin ? 'Log In' : 'Create Free Account'
+              }
             </button>
           </form>
         )}
+
+        {/* Switch mode */}
         {!success && (
           <div style={styles.switchMode}>
-            {isLogin ? (<>Don't have an account?{' '}<button onClick={() => { setIsLogin(false); setError('') }} style={styles.switchLink}>Sign up free</button></>) : (<>Already have an account?{' '}<button onClick={() => { setIsLogin(true); setError('') }} style={styles.switchLink}>Log in</button></>)}
+            {isLogin ? (
+              <>Don't have an account?{' '}
+                <button onClick={() => { setIsLogin(false); setError('') }} style={styles.switchLink}>
+                  Sign up free
+                </button>
+              </>
+            ) : (
+              <>Already have an account?{' '}
+                <button onClick={() => { setIsLogin(true); setError('') }} style={styles.switchLink}>
+                  Log in
+                </button>
+              </>
+            )}
           </div>
         )}
+
+        {/* Reference Mode link */}
         <div style={styles.guestNote}>
-          <Link to="/reference" style={{ color: '#2563eb', fontWeight: 500 }}>Browse the free reference guide</Link>{' '}without an account
+          <Link to="/reference" style={{ color: '#2563eb', fontWeight: 500 }}>
+            Browse the free reference guide
+          </Link>
+          {' '}without an account
+        </div>
+      </div>
+
+      {/* Side benefits reminder */}
+      <div style={styles.aside} className="auth-aside">
+        <div style={styles.asideInner}>
+          <div style={styles.asideTitle}>What you get with a free account</div>
+          {[
+            { title: 'AI Benefits Chat', desc: 'Ask anything about FERS, TSP, FEHB, FEGLI, Medicare, and Social Security. Get precise, cited answers.' },
+            { title: 'Personalized to Your Situation', desc: 'The AI remembers your years of service, your goals, and your family situation to tailor every answer.' },
+            { title: 'Full Reference Guide', desc: 'Access all 11 benefit categories with key numbers, rules, and pitfalls to avoid.' },
+            { title: 'Free Consultant Booking', desc: 'Book a free 30-minute call with a federal retirement expert. Always free.' },
+          ].map((item, i) => (
+            <div key={i} style={styles.asideBenefit}>
+              <span style={styles.asideAccent} />
+              <div>
+                <div style={styles.asideBenTitle}>{item.title}</div>
+                <div style={styles.asideBenDesc}>{item.desc}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -105,22 +224,181 @@ export default function Auth({ mode = 'login' }) {
 }
 
 const styles = {
-  page: { minHeight: 'calc(100vh - 64px)', background: 'linear-gradient(160deg, #f0f4ff 0%, #f8fafc 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, padding: '48px 24px' },
-  card: { background: 'white', borderRadius: 20, border: '1.5px solid #e2e8f0', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', padding: '40px 36px', width: '100%', maxWidth: 420, flexShrink: 0 },
-  logoWrap: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 24 },
-  logo: { fontSize: '1.6rem' },
+  page: {
+    minHeight: 'calc(100vh - 64px)',
+    background: 'linear-gradient(160deg, #f0f4ff 0%, #f8fafc 100%)',
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    gap: 32,
+    padding: '48px 24px',
+  },
+  card: {
+    background: 'white',
+    borderRadius: 20,
+    border: '1.5px solid #e2e8f0',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+    padding: '40px 36px',
+    width: '100%',
+    maxWidth: 420,
+    flexShrink: 0,
+  },
+  logoWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 24,
+  },
+  logoMark: {
+    background: '#1e3a5f',
+    color: 'white',
+    fontWeight: 800,
+    fontSize: '0.68rem',
+    letterSpacing: '0.06em',
+    padding: '4px 7px',
+    borderRadius: 5,
+  },
   logoText: { fontWeight: 800, fontSize: '1.1rem', color: '#1e3a5f' },
-  flashMsg: { background: '#eff6ff', border: '1px solid #c7d7fc', borderRadius: 10, padding: '10px 14px', fontSize: '0.88rem', color: '#1e3a5f', marginBottom: 20, textAlign: 'center' },
-  tabs: { display: 'flex', background: '#f1f5f9', borderRadius: 10, padding: 4, marginBottom: 24 },
-  tab: { flex: 1, padding: '8px 0', border: 'none', background: 'transparent', borderRadius: 7, fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: 500, color: '#64748b', cursor: 'pointer' },
-  tabActive: { background: 'white', color: '#1e3a5f', fontWeight: 700, boxShadow: '0 1px 4px rgba(0,0,0,0.08)' },
-  heading: { textAlign: 'center', marginBottom: 24 },
-  h1: { fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: 6, letterSpacing: '-0.02em' },
-  sub: { fontSize: '0.88rem', color: '#64748b', lineHeight: 1.5 },
-  successBox: { background: '#ecfdf5', border: '1.5px solid #86efac', borderRadius: 10, padding: '14px 16px', fontSize: '0.9rem', color: '#065f46', marginBottom: 20, lineHeight: 1.5 },
-  errorBox: { background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: 10, padding: '12px 16px', fontSize: '0.88rem', color: '#dc2626', marginBottom: 16 },
-  form: { display: 'flex', flexDirection: 'column', gap: 16 },
-  switchMode: { textAlign: 'center', marginTop: 20, fontSize: '0.88rem', color: '#64748b' },
-  switchLink: { background: 'none', border: 'none', color: '#2563eb', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.88rem' },
-  guestNote: { textAlign: 'center', marginTop: 16, fontSize: '0.82rem', color: '#94a3b8', paddingTop: 16, borderTop: '1px solid #f1f5f9' },
+  flashMsg: {
+    background: '#eff6ff',
+    border: '1px solid #c7d7fc',
+    borderRadius: 10,
+    padding: '10px 14px',
+    fontSize: '0.88rem',
+    color: '#1e3a5f',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  tabs: {
+    display: 'flex',
+    background: '#f1f5f9',
+    borderRadius: 10,
+    padding: 4,
+    marginBottom: 24,
+  },
+  tab: {
+    flex: 1,
+    padding: '8px 0',
+    border: 'none',
+    background: 'transparent',
+    borderRadius: 7,
+    fontFamily: 'inherit',
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    color: '#64748b',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  tabActive: {
+    background: 'white',
+    color: '#1e3a5f',
+    fontWeight: 700,
+    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+  },
+  heading: {
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  h1: {
+    fontSize: '1.4rem',
+    fontWeight: 800,
+    color: '#0f172a',
+    marginBottom: 6,
+    letterSpacing: '-0.02em',
+  },
+  sub: {
+    fontSize: '0.88rem',
+    color: '#64748b',
+    lineHeight: 1.5,
+  },
+  successBox: {
+    background: '#ecfdf5',
+    border: '1.5px solid #86efac',
+    borderRadius: 10,
+    padding: '14px 16px',
+    fontSize: '0.9rem',
+    color: '#065f46',
+    marginBottom: 20,
+    lineHeight: 1.5,
+  },
+  errorBox: {
+    background: '#fef2f2',
+    border: '1.5px solid #fecaca',
+    borderRadius: 10,
+    padding: '12px 16px',
+    fontSize: '0.88rem',
+    color: '#dc2626',
+    marginBottom: 16,
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
+  },
+  switchMode: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: '0.88rem',
+    color: '#64748b',
+  },
+  switchLink: {
+    background: 'none',
+    border: 'none',
+    color: '#2563eb',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    fontSize: '0.88rem',
+  },
+  guestNote: {
+    textAlign: 'center',
+    marginTop: 16,
+    fontSize: '0.82rem',
+    color: '#94a3b8',
+    paddingTop: 16,
+    borderTop: '1px solid #f1f5f9',
+  },
+  aside: {
+    width: 340,
+    flexShrink: 0,
+  },
+  asideInner: {
+    background: 'white',
+    borderRadius: 20,
+    border: '1.5px solid #e2e8f0',
+    padding: '32px 28px',
+  },
+  asideTitle: {
+    fontWeight: 800,
+    fontSize: '1rem',
+    color: '#0f172a',
+    marginBottom: 24,
+    letterSpacing: '-0.01em',
+  },
+  asideBenefit: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 14,
+    marginBottom: 20,
+  },
+  asideAccent: {
+    width: 4,
+    height: 36,
+    background: '#1e3a5f',
+    borderRadius: 2,
+    flexShrink: 0,
+    marginTop: 2,
+  },
+  asideBenTitle: {
+    fontWeight: 700,
+    fontSize: '0.9rem',
+    color: '#0f172a',
+    marginBottom: 3,
+  },
+  asideBenDesc: {
+    fontSize: '0.82rem',
+    color: '#64748b',
+    lineHeight: 1.5,
+  },
 }
