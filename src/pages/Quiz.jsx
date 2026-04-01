@@ -186,4 +186,336 @@ export default function Quiz() {
                   <span style={styles.optionText}>{option}</span>
                 </button>
               )
-   
+            })}
+          </div>
+
+          {/* Feedback panel */}
+          {answered && (
+            <div style={{ ...styles.feedback, ...(isCorrect ? styles.feedbackCorrect : styles.feedbackWrong) }}>
+              <div style={styles.feedbackHeader}>
+                <span style={{ ...styles.feedbackBadge, background: isCorrect ? '#059669' : '#dc2626' }}>
+                  {isCorrect ? 'Correct' : 'Incorrect'}
+                </span>
+                {currentQ.citation && (
+                  <span style={styles.citation}>{currentQ.citation}</span>
+                )}
+              </div>
+              <p style={styles.feedbackText}>{currentQ.explanation}</p>
+
+              <button onClick={handleAskAI} style={styles.askAIBtn}>
+                Ask the AI about this topic
+              </button>
+            </div>
+          )}
+
+          {/* Next button */}
+          {answered && (
+            <div style={styles.nextWrap}>
+              <button onClick={handleNext} className="btn btn-navy" style={{ minWidth: 160 }}>
+                {currentIdx + 1 >= questions.length ? 'See Results' : 'Next Question'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Running score */}
+        <div style={styles.scoreBar}>
+          <span style={styles.scoreBarLabel}>Score</span>
+          <span style={styles.scoreBarValue}>{score} / {currentIdx + (answered ? 1 : 0)}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const styles = {
+  center: {
+    minHeight: 'calc(100vh - 64px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#f8fafc',
+  },
+  errorTitle: {
+    fontSize: '1.2rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    marginBottom: 8,
+  },
+  topBar: {
+    background: 'white',
+    borderBottom: '1px solid #e2e8f0',
+    position: 'sticky',
+    top: 64,
+    zIndex: 10,
+  },
+  topBarInner: {
+    maxWidth: 720,
+    margin: '0 auto',
+    padding: '0 24px',
+    height: 52,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 16,
+  },
+  backBtn: {
+    fontSize: '0.85rem',
+    color: '#64748b',
+    textDecoration: 'none',
+    fontWeight: 500,
+    flexShrink: 0,
+  },
+  moduleLabel: {
+    flex: 1,
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    color: '#1e3a5f',
+    textAlign: 'center',
+  },
+  questionCount: {
+    fontSize: '0.82rem',
+    color: '#94a3b8',
+    fontWeight: 600,
+    flexShrink: 0,
+  },
+  progressTrack: {
+    height: 3,
+    background: '#e2e8f0',
+  },
+  progressFill: {
+    height: '100%',
+    background: '#1e3a5f',
+    transition: 'width 0.3s ease',
+  },
+  quizWrap: {
+    flex: 1,
+    maxWidth: 720,
+    width: '100%',
+    margin: '0 auto',
+    padding: '40px 24px 60px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+  },
+  quizCard: {
+    background: 'white',
+    borderRadius: 16,
+    border: '1.5px solid #e2e8f0',
+    padding: '36px 36px 28px',
+  },
+  questionLabel: {
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    marginBottom: 12,
+  },
+  questionText: {
+    fontSize: '1.1rem',
+    fontWeight: 700,
+    color: '#0f172a',
+    lineHeight: 1.5,
+    marginBottom: 28,
+  },
+  options: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    marginBottom: 4,
+  },
+  option: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+    padding: '14px 16px',
+    borderRadius: 10,
+    border: '1.5px solid #e2e8f0',
+    background: 'white',
+    textAlign: 'left',
+    cursor: 'pointer',
+    transition: 'all 0.12s ease',
+    fontFamily: 'inherit',
+  },
+  optionSelected: {
+    border: '1.5px solid #1e3a5f',
+    background: '#f0f4ff',
+  },
+  optionCorrect: {
+    border: '1.5px solid #059669',
+    background: '#ecfdf5',
+    cursor: 'default',
+  },
+  optionWrong: {
+    border: '1.5px solid #dc2626',
+    background: '#fef2f2',
+    cursor: 'default',
+  },
+  optionDimmed: {
+    opacity: 0.5,
+    cursor: 'default',
+  },
+  optionLabel: {
+    width: 28,
+    height: 28,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    flexShrink: 0,
+    transition: 'all 0.12s ease',
+  },
+  optionText: {
+    fontSize: '0.93rem',
+    color: '#1e293b',
+    lineHeight: 1.45,
+  },
+  feedback: {
+    marginTop: 20,
+    borderRadius: 12,
+    padding: '20px 22px',
+    border: '1.5px solid',
+  },
+  feedbackCorrect: {
+    background: '#ecfdf5',
+    borderColor: '#a7f3d0',
+  },
+  feedbackWrong: {
+    background: '#fef2f2',
+    borderColor: '#fecaca',
+  },
+  feedbackHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 10,
+    flexWrap: 'wrap',
+  },
+  feedbackBadge: {
+    color: 'white',
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    padding: '3px 12px',
+    borderRadius: 20,
+  },
+  citation: {
+    fontSize: '0.75rem',
+    color: '#64748b',
+    fontStyle: 'italic',
+  },
+  feedbackText: {
+    fontSize: '0.9rem',
+    color: '#334155',
+    lineHeight: 1.65,
+    marginBottom: 16,
+  },
+  askAIBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    background: '#1e3a5f',
+    color: 'white',
+    border: 'none',
+    borderRadius: 8,
+    padding: '8px 16px',
+    fontSize: '0.83rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    transition: 'opacity 0.15s',
+  },
+  nextWrap: {
+    marginTop: 24,
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  scoreBar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: '8px 0',
+  },
+  scoreBarLabel: {
+    fontSize: '0.8rem',
+    color: '#94a3b8',
+    fontWeight: 500,
+  },
+  scoreBarValue: {
+    fontSize: '0.88rem',
+    color: '#1e3a5f',
+    fontWeight: 700,
+  },
+  // Score screen
+  scoreCard: {
+    background: 'white',
+    borderRadius: 20,
+    border: '1.5px solid #e2e8f0',
+    padding: '48px 40px 40px',
+    maxWidth: 480,
+    width: '100%',
+    textAlign: 'center',
+  },
+  scoreHeader: {
+    marginBottom: 32,
+  },
+  scoreLabel: {
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    marginBottom: 6,
+  },
+  moduleTitle: {
+    fontSize: '1.15rem',
+    fontWeight: 700,
+    color: '#0f172a',
+  },
+  scoreCircle: {
+    marginBottom: 20,
+  },
+  scoreNumber: {
+    fontSize: '3.5rem',
+    fontWeight: 800,
+    letterSpacing: '-0.04em',
+    lineHeight: 1,
+    marginBottom: 6,
+  },
+  scoreDetail: {
+    fontSize: '0.9rem',
+    color: '#64748b',
+    fontWeight: 500,
+  },
+  gradeBadge: {
+    display: 'inline-block',
+    padding: '5px 18px',
+    borderRadius: 20,
+    fontSize: '0.82rem',
+    fontWeight: 700,
+    marginBottom: 20,
+  },
+  scoreMsg: {
+    fontSize: '0.9rem',
+    color: '#475569',
+    lineHeight: 1.6,
+    marginBottom: 28,
+  },
+  scoreActions: {
+    display: 'flex',
+    gap: 10,
+    marginBottom: 20,
+  },
+  backLink: {
+    display: 'block',
+    fontSize: '0.85rem',
+    color: '#94a3b8',
+    textDecoration: 'none',
+    fontWeight: 500,
+  },
+}
