@@ -10,7 +10,7 @@ import Course from './pages/Course'
 import Quiz from './pages/Quiz'
 import ProtectedRoute from './components/ProtectedRoute'
 
-// Auth context — available throughout the app
+// Auth context â available throughout the app
 export const AuthContext = createContext(null)
 export const useAuth = () => useContext(AuthContext)
 
