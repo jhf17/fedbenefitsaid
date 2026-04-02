@@ -59,7 +59,7 @@ exports.handler = async function (event) {
     }
   }
 
-  const { messages, systemPrompt } = body
+  const { messages, department, systemPrompt } = body
 
   // Validate
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -98,7 +98,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
-        system: systemPrompt || 'You are a helpful federal benefits assistant.',
+        system: systemPrompt || ('You are a knowledgeable federal benefits assistant helping users understand FERS, FEHB, TSP, FEGLI, and other federal employee benefits.' + (department ? ' The user works at ' + department + '. Tailor your answers to their agency when relevant.' : '')),
         messages: sanitizedMessages,
       }),
     })

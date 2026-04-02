@@ -39,6 +39,23 @@ const STARTER_PROMPTS = [
   'What is the MRA+10 option?',
 ]
 
+function getStoredQuestions() {
+  try {
+    const stored = localStorage.getItem('fbaChatUsage')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      const today = new Date().toISOString().slice(0, 10)
+      if (parsed.date === today) return parsed.count
+    }
+  } catch { /* ignore bad data */ }
+  return 0
+}
+
+function setStoredQuestions(count) {
+  const today = new Date().toISOString().slice(0, 10)
+  localStorage.setItem('fbaChatUsage', JSON.stringify({ date: today, count }))
+}
+
 export default function Chat() {
   const { user } = useAuth()
   const isAdmin = user && ADMIN_EMAILS.includes(user.email)
@@ -47,7 +64,7 @@ export default function Chat() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [questionsUsed, setQuestionsUsed] = useState(0)
+  const [questionsUsed, setQuestionsUsed] = useState(() => getStoredQuestions())
   const [showPaywall, setShowPaywall] = useState(false)
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
@@ -61,7 +78,7 @@ export default function Chat() {
     setConfirmed(true)
     setMessages([{
       role: 'assistant',
-      text: `Hi! I'm your federal benefits AI assistant. I see you're with **${department}** Ã¢ÂÂ I'll keep that context in mind as we talk.\n\nYou have **${isAdmin ? 'unlimited' : FREE_LIMIT + ' free'} questions**. What would you like to know about your federal benefits?`,
+      text: 'Hi! I\'m your federal benefits AI assistant. I see you\'re with **' + department + '** &mdash; I\'ll keep that context in mind as we talk.\n\nYou have **' + (isAdmin ? 'unlimited' : FREE_LIMIT + ' free') + ' questions**. What would you like to know about your federal benefits?',
       ts: Date.now(),
     }])
     setTimeout(() => inputRef.current?.focus(), 100)
@@ -70,23 +87,49 @@ export default function Chat() {
   const handleSend = async (text) => {
     const q = (text || input).trim()
     if (!q || loading) return
-    if (questionsUsed >= FREE_LIMIT) { setShowPaywall(true); return }
+    if (!isAdmin && questionsUsed >= FREE_LIMIT) { setShowPaywall(true); return }
 
     setInput('')
     const newMessages = [...messages, { role: 'user', text: q, ts: Date.now() }]
     setMessages(newMessages)
     setLoading(true)
 
-    // Simulate AI response (replace with real Claude API call)
-    await new Promise(r => setTimeout(r, 1200))
-    const reply = await getFakeReply(q, department)
-    const used = questionsUsed + 1
-    setQuestionsUsed(used)
-    setMessages(prev => [...prev, { role: 'assistant', text: reply, ts: Date.now() }])
-    setLoading(false)
+    try {
+      const apiMessages = newMessages
+        .filter(m => m.role === 'user' || (m.role === 'assistant' && messages.indexOf(m) > 0))
+        .map(m => ({ role: m.role, content: m.text }))
 
-    if (used >= FREE_LIMIT) {
-      setTimeout(() => setShowPaywall(true), 800)
+      const res = await fetch('/.netlify/functions/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: apiMessages, department }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Something went wrong')
+      }
+
+      const reply = data.content || 'Sorry, I could not generate a response. Please try again.'
+      const used = questionsUsed + 1
+      if (!isAdmin) {
+        setQuestionsUsed(used)
+        setStoredQuestions(used)
+      }
+      setMessages(prev => [...prev, { role: 'assistant', text: reply, ts: Date.now() }])
+
+      if (!isAdmin && used >= FREE_LIMIT) {
+        setTimeout(() => setShowPaywall(true), 800)
+      }
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        text: 'Sorry, something went wrong. Please try again in a moment.',
+        ts: Date.now(),
+      }])
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -96,15 +139,15 @@ export default function Chat() {
     return (
       <div style={styles.page}>
         <div style={styles.setupCard}>
-          <div style={styles.setupIcon}>Ã°ÂÂ¤Â</div>
+          <div style={styles.setupIcon}>AI</div>
           <h1 style={styles.setupTitle}>Federal Benefits AI Chat</h1>
           <p style={styles.setupSub}>
             Get personalized answers about your FERS annuity, TSP, FEHB, FEGLI,
-            and retirement eligibility Ã¢ÂÂ tailored to your specific situation.
+            and retirement eligibility &mdash; tailored to your specific situation.
           </p>
 
           <div style={styles.freeTag}>
-            Ã¢ÂÂ &nbsp;{FREE_LIMIT} free questions Ã¢ÂÂ no account required
+            &#10003; &nbsp;{FREE_LIMIT} free questions &mdash; no account required
           </div>
 
           <div style={styles.fieldWrap}>
@@ -130,7 +173,7 @@ export default function Chat() {
             className="btn btn-primary"
             style={{ width: '100%', fontSize: '1rem', padding: '13px 0', marginTop: 8 }}
           >
-            Start Chatting Ã¢ÂÂ
+            Start Chatting &rarr;
           </button>
 
           <p style={styles.legalNote}>
@@ -152,16 +195,18 @@ export default function Chat() {
             <div style={styles.chatDept}>{department}</div>
           </div>
           <div style={styles.counterPill}>
-            {remaining > 0
-              ? `${remaining} free question${remaining !== 1 ? 's' : ''} left`
-              : 'Free questions used'}
+            {isAdmin
+              ? 'Unlimited (admin)'
+              : remaining > 0
+                ? `${remaining} free question${remaining !== 1 ? 's' : ''} left`
+                : 'Free questions used'}
           </div>
         </div>
-        {remaining <= 1 && remaining > 0 && (
+        {!isAdmin && remaining <= 1 && remaining > 0 && (
           <div style={styles.upgradeBar}>
-            Almost there Ã¢ÂÂ <strong>1 free question left.</strong>{' '}
+            Almost there &mdash; <strong>1 free question left.</strong>{' '}
             <button onClick={() => setShowPaywall(true)} style={styles.upgradeBarBtn}>
-              Unlock unlimited Ã¢ÂÂ
+              Unlock unlimited &rarr;
             </button>
           </div>
         )}
@@ -208,29 +253,28 @@ export default function Chat() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder={questionsUsed >= FREE_LIMIT ? 'Upgrade to continue chattingÃ¢ÂÂ¦' : 'Ask about your retirement, TSP, FEHBÃ¢ÂÂ¦'}
-            disabled={questionsUsed >= FREE_LIMIT || loading}
+            placeholder={!isAdmin && questionsUsed >= FREE_LIMIT ? 'Upgrade to continue chatting...' : 'Ask about your retirement, TSP, FEHB...'}
+            disabled={(!isAdmin && questionsUsed >= FREE_LIMIT) || loading}
             style={styles.input}
           />
           <button
             onClick={() => handleSend()}
-            disabled={!input.trim() || loading || questionsUsed >= FREE_LIMIT}
+            disabled={!input.trim() || loading || (!isAdmin && questionsUsed >= FREE_LIMIT)}
             style={styles.sendBtn}
           >
-            Ã¢ÂÂ
+            &rarr;
           </button>
         </div>
-        <p style={styles.inputNote}>AI can make mistakes Ã¢ÂÂ verify important decisions with OPM or your HR office.</p>
+        <p style={styles.inputNote}>AI can make mistakes &mdash; verify important decisions with OPM or your HR office.</p>
       </div>
 
       {/* Paywall Modal */}
       {showPaywall && (
         <div style={styles.paywallOverlay} onClick={e => e.target === e.currentTarget && setShowPaywall(false)}>
           <div style={styles.paywallCard}>
-            <div style={styles.paywallEmoji}>Ã°ÂÂÂ</div>
             <h2 style={styles.paywallTitle}>You've used your {FREE_LIMIT} free questions</h2>
             <p style={styles.paywallSub}>
-              Unlock unlimited AI chat Ã¢ÂÂ personalized answers to every benefits question,
+              Unlock unlimited AI chat &mdash; personalized answers to every benefits question,
               any time, for just a few dollars a month.
             </p>
 
@@ -239,10 +283,10 @@ export default function Chat() {
                 <div style={styles.planName}>AI Chat</div>
                 <div style={styles.planPrice}><span style={styles.planDollar}>$</span>9.99<span style={styles.planPer}>/mo</span></div>
                 <ul style={styles.planFeatures}>
-                  <li>Ã¢ÂÂ Unlimited questions</li>
-                  <li>Ã¢ÂÂ Retirement calculations</li>
-                  <li>Ã¢ÂÂ FEHB, TSP, FEGLI guidance</li>
-                  <li>Ã¢ÂÂ Agency-tailored answers</li>
+                  <li>&#10003; Unlimited questions</li>
+                  <li>&#10003; Retirement calculations</li>
+                  <li>&#10003; FEHB, TSP, FEGLI guidance</li>
+                  <li>&#10003; Agency-tailored answers</li>
                 </ul>
                 <Link to="/signup" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', marginTop: 16 }}>
                   Get AI Chat
@@ -254,10 +298,10 @@ export default function Chat() {
                 <div style={styles.planName}>Training + AI Chat</div>
                 <div style={styles.planPrice}><span style={styles.planDollar}>$</span>29.99<span style={styles.planPer}>/mo</span></div>
                 <ul style={styles.planFeatures}>
-                  <li>Ã¢ÂÂ Everything in AI Chat</li>
-                  <li>Ã¢ÂÂ 350+ quiz questions</li>
-                  <li>Ã¢ÂÂ 11 benefit modules</li>
-                  <li>Ã¢ÂÂ Progress tracking</li>
+                  <li>&#10003; Everything in AI Chat</li>
+                  <li>&#10003; 350+ quiz questions</li>
+                  <li>&#10003; 11 benefit modules</li>
+                  <li>&#10003; Progress tracking</li>
                 </ul>
                 <Link to="/signup" className="btn btn-navy" style={{ display: 'block', textAlign: 'center', marginTop: 16 }}>
                   Get Bundle
@@ -273,24 +317,6 @@ export default function Chat() {
       )}
     </div>
   )
-}
-
-// Placeholder AI response Ã¢ÂÂ replace with real Claude API call
-async function getFakeReply(question, department) {
-  const q = question.toLowerCase()
-  if (q.includes('retire') && (q.includes('when') || q.includes('eligible'))) {
-    return `**FERS Retirement Eligibility** (${department})\n\nYour eligibility depends on your age and years of creditable service:\n\nÃ¢ÂÂ¢ **Immediate unreduced annuity:** Age 62 with 5 years, age 60 with 20 years, or MRA (56Ã¢ÂÂ57) with 30 years\nÃ¢ÂÂ¢ **MRA+10 option:** At your MRA with 10Ã¢ÂÂ29 years Ã¢ÂÂ available now, but annuity reduced 5% per year under 62 unless you postpone\nÃ¢ÂÂ¢ **Early out / VERA:** Check with your agency Ã¢ÂÂ sometimes offered with reduced penalties\n\nWhat are your current age and years of service? I can give you a more specific answer.`
-  }
-  if (q.includes('fehb') || q.includes('health')) {
-    return `**FEHB in Retirement**\n\nTo keep FEHB coverage into retirement, you must:\n\nÃ¢ÂÂ¢ **Be enrolled** in FEHB for the **5 consecutive years** immediately before retirement (or since your first opportunity)\nÃ¢ÂÂ¢ Retire on an **immediate annuity** (not deferred)\n\nOnce you meet the 5-year rule, you keep the same coverage with the same government share of premiums Ã¢ÂÂ typically 72% of the weighted average.\n\nIf you're under 62 and receiving the FERS supplement, your FEHB premiums come out of your annuity, not a paycheck.`
-  }
-  if (q.includes('tsp') || q.includes('thrift')) {
-    return `**TSP in Retirement**\n\nYour TSP options at retirement:\n\nÃ¢ÂÂ¢ **Leave it** in TSP Ã¢ÂÂ low fees, good fund options\nÃ¢ÂÂ¢ **Withdraw** via monthly payments, life annuity, or lump sum\nÃ¢ÂÂ¢ **Roll over** to IRA (traditional Ã¢ÂÂ traditional, Roth Ã¢ÂÂ Roth)\n\nAt 73 you must start **Required Minimum Distributions (RMDs)** unless still working.\n\n**Key tip:** The TSP G Fund is unique Ã¢ÂÂ it earns long-term bond rates with no risk of loss. Most outside IRAs don't offer anything comparable.\n\nWould you like to talk through withdrawal strategies or contribution limits?`
-  }
-  if (q.includes('supplement') || q.includes('fers supplement')) {
-    return `**FERS Supplement**\n\nThe FERS supplement bridges the gap between your retirement date and age 62 (when Social Security becomes available).\n\nÃ¢ÂÂ¢ **Who gets it:** FERS employees who retire on an immediate annuity before 62 with 30 years at MRA, or at 60 with 20 years\nÃ¢ÂÂ¢ **Amount:** Roughly equal to the Social Security benefit you earned while a federal employee\nÃ¢ÂÂ¢ **Earnings test applies:** Reduced $1 for every $2 earned above ~$22,320/yr (2025 limit) if you work after retirement\nÃ¢ÂÂ¢ **Ends at 62:** Not a permanent benefit\n\nDo you want help estimating what your supplement might be worth?`
-  }
-  return `That's a great question about **${question.length > 60 ? question.substring(0, 60) + '...' : question}**.\n\nFor ${department} employees, this involves several FERS-specific rules I'd be happy to walk through. Could you share a bit more context Ã¢ÂÂ specifically your approximate age, years of federal service, and whether you're FERS or CSRS? That'll help me give you the most accurate answer.\n\n*(Note: This is a preview response. Full AI integration powered by Claude API coming soon.)*`
 }
 
 const styles = {
@@ -311,7 +337,12 @@ const styles = {
     width: '100%',
     boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
   },
-  setupIcon: { fontSize: '2.5rem', marginBottom: 16 },
+  setupIcon: {
+    fontSize: '1.8rem', fontWeight: 800, color: '#1e3a5f',
+    background: '#e8f0fe', width: 56, height: 56, borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    marginBottom: 16,
+  },
   setupTitle: { fontSize: '1.7rem', fontWeight: 800, color: '#0f172a', marginBottom: 10, letterSpacing: '-0.02em' },
   setupSub: { color: '#475569', lineHeight: 1.6, fontSize: '0.97rem', marginBottom: 20 },
   freeTag: {
@@ -426,7 +457,6 @@ const styles = {
     maxWidth: 580, width: '100%', textAlign: 'center',
     boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
   },
-  paywallEmoji: { fontSize: '2.5rem', marginBottom: 12 },
   paywallTitle: { fontSize: '1.4rem', fontWeight: 800, color: '#0f172a', marginBottom: 10 },
   paywallSub: { color: '#475569', fontSize: '0.93rem', lineHeight: 1.6, marginBottom: 28 },
 

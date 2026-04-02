@@ -4,16 +4,16 @@ import { useAuth } from '../App'
 
 const TOPICS = [
   'FERS Annuity Calculation',
-  'TSP & Investment Strategy',
+  'TSP &amp; Investment Strategy',
   'FEHB in Retirement',
   'FEGLI Life Insurance',
   'FERS Supplement',
   'Social Security Coordination',
-  'Medicare & FEHB',
+  'Medicare &amp; FEHB',
   'Survivor Benefits',
   'Special Provisions (LEO/FF/ATC)',
   'Disability Retirement',
-  'Federal Pay & Leave',
+  'Federal Pay &amp; Leave',
 ]
 
 const STATS = [
@@ -36,13 +36,14 @@ export default function Course() {
         <div className="container" style={styles.heroInner}>
           <div style={styles.heroBadge}>Federal Benefits Training</div>
           <h1 style={styles.heroTitle}>
-            Master Your Federal Benefits.<br />
-            <span style={styles.heroTitleAccent}>Before You Need Them.</span>
+            Advise Federal Clients<br />
+            <span style={styles.heroTitleAccent}>With Confidence.</span>
           </h1>
           <p style={styles.heroSub}>
-            The most comprehensive FERS/FEHB/TSP training program built
-            specifically for federal employees — with real regulations, real numbers,
-            and real exam-style practice questions.
+            The most comprehensive FERS/FEHB/TSP training platform built
+            for financial advisors, benefits consultants, and HR professionals
+            who serve federal employees &mdash; with real regulations, real numbers,
+            and exam-style practice questions.
           </p>
 
           <div style={styles.stats}>
@@ -58,10 +59,10 @@ export default function Course() {
 
       {/* Topics */}
       <div className="container" style={{ padding: '48px 24px 0' }}>
-        <div style={styles.sectionLabel}>What You'll Learn</div>
+        <div style={styles.sectionLabel}>What You'll Master</div>
         <div style={styles.topicTags}>
           {TOPICS.map(t => (
-            <span key={t} style={styles.topicTag}>{t}</span>
+            <span key={t} style={styles.topicTag} dangerouslySetInnerHTML={{ __html: t }} />
           ))}
         </div>
       </div>
@@ -76,12 +77,12 @@ export default function Course() {
 
         <div style={styles.pricingGrid}>
 
-          {/* Individual */}
+          {/* Professional */}
           <div style={styles.pricingCard}>
             <div style={styles.cardHeader}>
-              <div style={styles.cardIcon}>👤</div>
-              <div style={styles.cardTitle}>Individual</div>
-              <div style={styles.cardSubtitle}>For federal employees</div>
+              <div style={styles.cardIcon}>Pro</div>
+              <div style={styles.cardTitle}>Professional</div>
+              <div style={styles.cardSubtitle}>For individual advisors &amp; consultants</div>
             </div>
             <div style={styles.cardPrice}>
               <span style={styles.priceDollar}>$</span>
@@ -95,11 +96,11 @@ export default function Course() {
               </div>
             )}
             <ul style={styles.featureList}>
-              <li style={styles.feature}><span style={styles.check}>✓</span> Full access to all 11 modules</li>
-              <li style={styles.feature}><span style={styles.check}>✓</span> 350+ practice questions</li>
-              <li style={styles.feature}><span style={styles.check}>✓</span> Progress tracking & scoring</li>
-              <li style={styles.feature}><span style={styles.check}>✓</span> CFR regulatory references</li>
-              <li style={styles.feature}><span style={styles.check}>✓</span> Updated for 2026 rules</li>
+              <li style={styles.feature}><span style={styles.check}>&#10003;</span> Full access to all 11 modules</li>
+              <li style={styles.feature}><span style={styles.check}>&#10003;</span> 350+ practice questions</li>
+              <li style={styles.feature}><span style={styles.check}>&#10003;</span> Progress tracking &amp; scoring</li>
+              <li style={styles.feature}><span style={styles.check}>&#10003;</span> CFR regulatory references</li>
+              <li style={styles.feature}><span style={styles.check}>&#10003;</span> Updated for 2026 rules</li>
             </ul>
 
             <div style={styles.addonBox}>
@@ -123,7 +124,7 @@ export default function Course() {
               className="btn btn-outline"
               style={{ display: 'block', textAlign: 'center', marginTop: 20, padding: '12px 0', fontSize: '0.95rem' }}
             >
-              {user ? 'Start Training' : 'Get Started'}
+              {user ? 'Start Training' : 'Start Free Trial'}
             </Link>
           </div>
 
@@ -131,9 +132,9 @@ export default function Course() {
           <div style={{ ...styles.pricingCard, ...styles.pricingCardFeatured }}>
             <div style={styles.bestBadge}>BEST VALUE</div>
             <div style={styles.cardHeader}>
-              <div style={styles.cardIcon}>🏛️</div>
-              <div style={{ ...styles.cardTitle, color: 'white' }}>Agency</div>
-              <div style={{ ...styles.cardSubtitle, color: 'rgba(255,255,255,0.7)' }}>For HR offices & consultants</div>
+              <div style={{ ...styles.cardIcon, background: 'rgba(255,255,255,0.15)', color: 'white' }}>Firm</div>
+              <div style={{ ...styles.cardTitle, color: 'white' }}>Agency / Firm</div>
+              <div style={{ ...styles.cardSubtitle, color: 'rgba(255,255,255,0.7)' }}>For teams, HR offices &amp; consulting firms</div>
             </div>
             <div style={{ ...styles.cardPrice, color: 'white' }}>
               <span style={{ ...styles.priceDollar, color: 'rgba(255,255,255,0.8)' }}>$</span>
@@ -147,11 +148,11 @@ export default function Course() {
               </div>
             )}
             <ul style={styles.featureList}>
-              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Up to <strong>10 seats</strong></li>
-              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Everything in Individual</li>
-              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Admin dashboard</li>
-              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Team progress reports</li>
-              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Priority support</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>&#10003;</span> Up to <strong>10 seats</strong></li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>&#10003;</span> Everything in Professional</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>&#10003;</span> Admin dashboard</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>&#10003;</span> Team progress reports</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>&#10003;</span> Priority support</li>
             </ul>
 
             <div style={{ ...styles.addonBox, borderColor: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)' }}>
@@ -186,7 +187,7 @@ export default function Course() {
 
         {/* Footer note */}
         <p style={styles.footerNote}>
-          🔒 Secure checkout · Cancel anytime · Questions? Email us at{' '}
+          Secure checkout &middot; Cancel anytime &middot; Questions? Email us at{' '}
           <a href="mailto:support@fedbenefitsaid.com" style={{ color: '#1e3a5f' }}>support@fedbenefitsaid.com</a>
         </p>
       </div>
@@ -253,7 +254,12 @@ const styles = {
     padding: '3px 12px', borderRadius: 20, whiteSpace: 'nowrap',
   },
   cardHeader: { marginBottom: 20 },
-  cardIcon: { fontSize: '1.6rem', marginBottom: 10 },
+  cardIcon: {
+    fontSize: '0.85rem', fontWeight: 800, color: '#1e3a5f',
+    background: '#e8f0fe', width: 40, height: 40, borderRadius: '50%',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    marginBottom: 10,
+  },
   cardTitle: { fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginBottom: 4 },
   cardSubtitle: { fontSize: '0.82rem', color: '#64748b' },
   cardPrice: {
