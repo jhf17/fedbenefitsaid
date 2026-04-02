@@ -120,7 +120,7 @@ export default function Course() {
             </div>
 
             <Link
-              to={user ? '/training/quiz/fers-annuity' : '/signup'}
+              to="/signup"
               className="btn btn-outline"
               style={{ display: 'block', textAlign: 'center', marginTop: 20, padding: '12px 0', fontSize: '0.95rem' }}
             >

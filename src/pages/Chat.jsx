@@ -44,16 +44,16 @@ function getStoredQuestions() {
     const stored = localStorage.getItem('fbaChatUsage')
     if (stored) {
       const parsed = JSON.parse(stored)
-      const today = new Date().toISOString().slice(0, 10)
-      if (parsed.date === today) return parsed.count
+      // Support both old {date,count} format and new plain number
+      if (typeof parsed === 'number') return parsed
+      if (parsed && typeof parsed.count === 'number') return parsed.count
     }
   } catch { /* ignore bad data */ }
   return 0
 }
 
 function setStoredQuestions(count) {
-  const today = new Date().toISOString().slice(0, 10)
-  localStorage.setItem('fbaChatUsage', JSON.stringify({ date: today, count }))
+  localStorage.setItem('fbaChatUsage', JSON.stringify(count))
 }
 
 export default function Chat() {
@@ -268,9 +268,9 @@ export default function Chat() {
         <p style={styles.inputNote}>AI can make mistakes &mdash; verify important decisions with OPM or your HR office.</p>
       </div>
 
-      {/* Paywall Modal */}
+      {/* Paywall Modal (non-dismissible) */}
       {showPaywall && (
-        <div style={styles.paywallOverlay} onClick={e => e.target === e.currentTarget && setShowPaywall(false)}>
+        <div style={styles.paywallOverlay}>
           <div style={styles.paywallCard}>
             <h2 style={styles.paywallTitle}>You've used your {FREE_LIMIT} free questions</h2>
             <p style={styles.paywallSub}>
@@ -308,10 +308,6 @@ export default function Chat() {
                 </Link>
               </div>
             </div>
-
-            <button onClick={() => setShowPaywall(false)} style={styles.paywallClose}>
-              Maybe later
-            </button>
           </div>
         </div>
       )}
@@ -482,8 +478,4 @@ const styles = {
     fontSize: '0.82rem', color: '#475569',
   },
 
-  paywallClose: {
-    background: 'none', border: 'none', color: '#94a3b8',
-    cursor: 'pointer', fontSize: '0.88rem', padding: 8,
-  },
 }
