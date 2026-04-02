@@ -27,7 +27,9 @@ const DEPARTMENTS = [
   'Other Federal Agency',
 ]
 
-const FREE_LIMIT = 3
+const ADMIN_EMAILS = ['jhf17@icloud.com']
+const isAdmin = user && ADMIN_EMAILS.includes(user.email)
+const FREE_LIMIT = isAdmin ? 9999 : 3
 
 const STARTER_PROMPTS = [
   'When can I retire with full benefits?',
@@ -59,7 +61,7 @@ export default function Chat() {
     setConfirmed(true)
     setMessages([{
       role: 'assistant',
-      text: `Hi! I'm your federal benefits AI assistant. I see you're with **${department}** — I'll keep that context in mind as we talk.\n\nYou have **${FREE_LIMIT} free questions** to start. What would you like to know about your federal benefits?`,
+      text: `Hi! I'm your federal benefits AI assistant. I see you're with **${department}** â I'll keep that context in mind as we talk.\n\nYou have **${isAdmin ? 'unlimited' : FREE_LIMIT + ' free'} questions**. What would you like to know about your federal benefits?`,
       ts: Date.now(),
     }])
     setTimeout(() => inputRef.current?.focus(), 100)
@@ -94,15 +96,15 @@ export default function Chat() {
     return (
       <div style={styles.page}>
         <div style={styles.setupCard}>
-          <div style={styles.setupIcon}>🤖</div>
+          <div style={styles.setupIcon}>ð¤</div>
           <h1 style={styles.setupTitle}>Federal Benefits AI Chat</h1>
           <p style={styles.setupSub}>
             Get personalized answers about your FERS annuity, TSP, FEHB, FEGLI,
-            and retirement eligibility — tailored to your specific situation.
+            and retirement eligibility â tailored to your specific situation.
           </p>
 
           <div style={styles.freeTag}>
-            ✓ &nbsp;{FREE_LIMIT} free questions — no account required
+            â &nbsp;{FREE_LIMIT} free questions â no account required
           </div>
 
           <div style={styles.fieldWrap}>
@@ -128,7 +130,7 @@ export default function Chat() {
             className="btn btn-primary"
             style={{ width: '100%', fontSize: '1rem', padding: '13px 0', marginTop: 8 }}
           >
-            Start Chatting →
+            Start Chatting â
           </button>
 
           <p style={styles.legalNote}>
@@ -157,9 +159,9 @@ export default function Chat() {
         </div>
         {remaining <= 1 && remaining > 0 && (
           <div style={styles.upgradeBar}>
-            Almost there — <strong>1 free question left.</strong>{' '}
+            Almost there â <strong>1 free question left.</strong>{' '}
             <button onClick={() => setShowPaywall(true)} style={styles.upgradeBarBtn}>
-              Unlock unlimited →
+              Unlock unlimited â
             </button>
           </div>
         )}
@@ -206,7 +208,7 @@ export default function Chat() {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder={questionsUsed >= FREE_LIMIT ? 'Upgrade to continue chatting…' : 'Ask about your retirement, TSP, FEHB…'}
+            placeholder={questionsUsed >= FREE_LIMIT ? 'Upgrade to continue chattingâ¦' : 'Ask about your retirement, TSP, FEHBâ¦'}
             disabled={questionsUsed >= FREE_LIMIT || loading}
             style={styles.input}
           />
@@ -215,20 +217,20 @@ export default function Chat() {
             disabled={!input.trim() || loading || questionsUsed >= FREE_LIMIT}
             style={styles.sendBtn}
           >
-            ↑
+            â
           </button>
         </div>
-        <p style={styles.inputNote}>AI can make mistakes — verify important decisions with OPM or your HR office.</p>
+        <p style={styles.inputNote}>AI can make mistakes â verify important decisions with OPM or your HR office.</p>
       </div>
 
       {/* Paywall Modal */}
       {showPaywall && (
         <div style={styles.paywallOverlay} onClick={e => e.target === e.currentTarget && setShowPaywall(false)}>
           <div style={styles.paywallCard}>
-            <div style={styles.paywallEmoji}>🔒</div>
+            <div style={styles.paywallEmoji}>ð</div>
             <h2 style={styles.paywallTitle}>You've used your {FREE_LIMIT} free questions</h2>
             <p style={styles.paywallSub}>
-              Unlock unlimited AI chat — personalized answers to every benefits question,
+              Unlock unlimited AI chat â personalized answers to every benefits question,
               any time, for just a few dollars a month.
             </p>
 
@@ -237,10 +239,10 @@ export default function Chat() {
                 <div style={styles.planName}>AI Chat</div>
                 <div style={styles.planPrice}><span style={styles.planDollar}>$</span>9.99<span style={styles.planPer}>/mo</span></div>
                 <ul style={styles.planFeatures}>
-                  <li>✓ Unlimited questions</li>
-                  <li>✓ Retirement calculations</li>
-                  <li>✓ FEHB, TSP, FEGLI guidance</li>
-                  <li>✓ Agency-tailored answers</li>
+                  <li>â Unlimited questions</li>
+                  <li>â Retirement calculations</li>
+                  <li>â FEHB, TSP, FEGLI guidance</li>
+                  <li>â Agency-tailored answers</li>
                 </ul>
                 <Link to="/signup" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', marginTop: 16 }}>
                   Get AI Chat
@@ -252,10 +254,10 @@ export default function Chat() {
                 <div style={styles.planName}>Training + AI Chat</div>
                 <div style={styles.planPrice}><span style={styles.planDollar}>$</span>29.99<span style={styles.planPer}>/mo</span></div>
                 <ul style={styles.planFeatures}>
-                  <li>✓ Everything in AI Chat</li>
-                  <li>✓ 350+ quiz questions</li>
-                  <li>✓ 11 benefit modules</li>
-                  <li>✓ Progress tracking</li>
+                  <li>â Everything in AI Chat</li>
+                  <li>â 350+ quiz questions</li>
+                  <li>â 11 benefit modules</li>
+                  <li>â Progress tracking</li>
                 </ul>
                 <Link to="/signup" className="btn btn-navy" style={{ display: 'block', textAlign: 'center', marginTop: 16 }}>
                   Get Bundle
@@ -273,22 +275,22 @@ export default function Chat() {
   )
 }
 
-// Placeholder AI response — replace with real Claude API call
+// Placeholder AI response â replace with real Claude API call
 async function getFakeReply(question, department) {
   const q = question.toLowerCase()
   if (q.includes('retire') && (q.includes('when') || q.includes('eligible'))) {
-    return `**FERS Retirement Eligibility** (${department})\n\nYour eligibility depends on your age and years of creditable service:\n\n• **Immediate unreduced annuity:** Age 62 with 5 years, age 60 with 20 years, or MRA (56–57) with 30 years\n• **MRA+10 option:** At your MRA with 10–29 years — available now, but annuity reduced 5% per year under 62 unless you postpone\n• **Early out / VERA:** Check with your agency — sometimes offered with reduced penalties\n\nWhat are your current age and years of service? I can give you a more specific answer.`
+    return `**FERS Retirement Eligibility** (${department})\n\nYour eligibility depends on your age and years of creditable service:\n\nâ¢ **Immediate unreduced annuity:** Age 62 with 5 years, age 60 with 20 years, or MRA (56â57) with 30 years\nâ¢ **MRA+10 option:** At your MRA with 10â29 years â available now, but annuity reduced 5% per year under 62 unless you postpone\nâ¢ **Early out / VERA:** Check with your agency â sometimes offered with reduced penalties\n\nWhat are your current age and years of service? I can give you a more specific answer.`
   }
   if (q.includes('fehb') || q.includes('health')) {
-    return `**FEHB in Retirement**\n\nTo keep FEHB coverage into retirement, you must:\n\n• **Be enrolled** in FEHB for the **5 consecutive years** immediately before retirement (or since your first opportunity)\n• Retire on an **immediate annuity** (not deferred)\n\nOnce you meet the 5-year rule, you keep the same coverage with the same government share of premiums — typically 72% of the weighted average.\n\nIf you're under 62 and receiving the FERS supplement, your FEHB premiums come out of your annuity, not a paycheck.`
+    return `**FEHB in Retirement**\n\nTo keep FEHB coverage into retirement, you must:\n\nâ¢ **Be enrolled** in FEHB for the **5 consecutive years** immediately before retirement (or since your first opportunity)\nâ¢ Retire on an **immediate annuity** (not deferred)\n\nOnce you meet the 5-year rule, you keep the same coverage with the same government share of premiums â typically 72% of the weighted average.\n\nIf you're under 62 and receiving the FERS supplement, your FEHB premiums come out of your annuity, not a paycheck.`
   }
   if (q.includes('tsp') || q.includes('thrift')) {
-    return `**TSP in Retirement**\n\nYour TSP options at retirement:\n\n• **Leave it** in TSP — low fees, good fund options\n• **Withdraw** via monthly payments, life annuity, or lump sum\n• **Roll over** to IRA (traditional → traditional, Roth → Roth)\n\nAt 73 you must start **Required Minimum Distributions (RMDs)** unless still working.\n\n**Key tip:** The TSP G Fund is unique — it earns long-term bond rates with no risk of loss. Most outside IRAs don't offer anything comparable.\n\nWould you like to talk through withdrawal strategies or contribution limits?`
+    return `**TSP in Retirement**\n\nYour TSP options at retirement:\n\nâ¢ **Leave it** in TSP â low fees, good fund options\nâ¢ **Withdraw** via monthly payments, life annuity, or lump sum\nâ¢ **Roll over** to IRA (traditional â traditional, Roth â Roth)\n\nAt 73 you must start **Required Minimum Distributions (RMDs)** unless still working.\n\n**Key tip:** The TSP G Fund is unique â it earns long-term bond rates with no risk of loss. Most outside IRAs don't offer anything comparable.\n\nWould you like to talk through withdrawal strategies or contribution limits?`
   }
   if (q.includes('supplement') || q.includes('fers supplement')) {
-    return `**FERS Supplement**\n\nThe FERS supplement bridges the gap between your retirement date and age 62 (when Social Security becomes available).\n\n• **Who gets it:** FERS employees who retire on an immediate annuity before 62 with 30 years at MRA, or at 60 with 20 years\n• **Amount:** Roughly equal to the Social Security benefit you earned while a federal employee\n• **Earnings test applies:** Reduced $1 for every $2 earned above ~$22,320/yr (2025 limit) if you work after retirement\n• **Ends at 62:** Not a permanent benefit\n\nDo you want help estimating what your supplement might be worth?`
+    return `**FERS Supplement**\n\nThe FERS supplement bridges the gap between your retirement date and age 62 (when Social Security becomes available).\n\nâ¢ **Who gets it:** FERS employees who retire on an immediate annuity before 62 with 30 years at MRA, or at 60 with 20 years\nâ¢ **Amount:** Roughly equal to the Social Security benefit you earned while a federal employee\nâ¢ **Earnings test applies:** Reduced $1 for every $2 earned above ~$22,320/yr (2025 limit) if you work after retirement\nâ¢ **Ends at 62:** Not a permanent benefit\n\nDo you want help estimating what your supplement might be worth?`
   }
-  return `That's a great question about **${question.length > 60 ? question.substring(0, 60) + '...' : question}**.\n\nFor ${department} employees, this involves several FERS-specific rules I'd be happy to walk through. Could you share a bit more context — specifically your approximate age, years of federal service, and whether you're FERS or CSRS? That'll help me give you the most accurate answer.\n\n*(Note: This is a preview response. Full AI integration powered by Claude API coming soon.)*`
+  return `That's a great question about **${question.length > 60 ? question.substring(0, 60) + '...' : question}**.\n\nFor ${department} employees, this involves several FERS-specific rules I'd be happy to walk through. Could you share a bit more context â specifically your approximate age, years of federal service, and whether you're FERS or CSRS? That'll help me give you the most accurate answer.\n\n*(Note: This is a preview response. Full AI integration powered by Claude API coming soon.)*`
 }
 
 const styles = {
