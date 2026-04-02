@@ -31,13 +31,10 @@ export default function Navbar() {
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }}>
             Reference Guide
           </Link>
-<Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
+          <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
             AI Chat
           </Link>
-<Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            AI Chat
-          </Link>
-                              <Link to="/training" style={{ ...styles.link, ...(isActive('/training') ? styles.linkActive : {}) }}>
+          <Link to="/training" style={{ ...styles.link, ...(isActive('/training') ? styles.linkActive : {}) }}>
             Training
           </Link>
         </div>
@@ -78,6 +75,9 @@ export default function Navbar() {
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Reference Guide
           </Link>
+          <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            AI Chat
+          </Link>
           <Link to="/training" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Training
           </Link>
@@ -107,125 +107,51 @@ export default function Navbar() {
 
 const styles = {
   nav: {
-    position: 'sticky',
-    top: 0,
-    zIndex: 100,
+    position: 'sticky', top: 0, zIndex: 100,
     background: 'rgba(255,255,255,0.97)',
     backdropFilter: 'blur(12px)',
     borderBottom: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   },
   inner: {
-    maxWidth: 1140,
-    margin: '0 auto',
-    padding: '0 24px',
-    height: 64,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 32,
+    maxWidth: 1140, margin: '0 auto', padding: '0 24px',
+    height: 64, display: 'flex', alignItems: 'center', gap: 32,
   },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    textDecoration: 'none',
-    flexShrink: 0,
-  },
+  logo: { display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', flexShrink: 0 },
   logoMark: {
-    background: '#1e3a5f',
-    color: 'white',
-    fontWeight: 800,
-    fontSize: '0.72rem',
-    letterSpacing: '0.06em',
-    padding: '4px 7px',
-    borderRadius: 6,
+    background: '#1e3a5f', color: 'white', fontWeight: 800,
+    fontSize: '0.72rem', letterSpacing: '0.06em',
+    padding: '4px 7px', borderRadius: 6,
   },
-  logoText: {
-    fontWeight: 800,
-    fontSize: '1.05rem',
-    color: '#1e3a5f',
-    letterSpacing: '-0.02em',
-  },
-  links: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 4,
-    flex: 1,
-  },
+  logoText: { fontWeight: 800, fontSize: '1.05rem', color: '#1e3a5f', letterSpacing: '-0.02em' },
+  links: { display: 'flex', alignItems: 'center', gap: 4, flex: 1 },
   link: {
-    padding: '6px 14px',
-    borderRadius: 8,
-    fontSize: '0.9rem',
-    fontWeight: 500,
-    color: '#475569',
-    textDecoration: 'none',
+    padding: '6px 14px', borderRadius: 8, fontSize: '0.9rem',
+    fontWeight: 500, color: '#475569', textDecoration: 'none',
     transition: 'all 0.15s ease',
   },
-  linkActive: {
-    color: '#1e3a5f',
-    background: '#eff6ff',
-    fontWeight: 600,
-  },
-  authArea: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    flexShrink: 0,
-  },
-  userEmail: {
-    fontSize: '0.85rem',
-    color: '#64748b',
-    fontWeight: 500,
-  },
+  linkActive: { color: '#1e3a5f', background: '#eff6ff', fontWeight: 600 },
+  authArea: { display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 },
+  userEmail: { fontSize: '0.85rem', color: '#64748b', fontWeight: 500 },
   hamburger: {
-    display: 'none',
-    flexDirection: 'column',
-    gap: 5,
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: 4,
-    marginLeft: 'auto',
+    display: 'none', flexDirection: 'column', gap: 5,
+    background: 'none', border: 'none', cursor: 'pointer', padding: 4, marginLeft: 'auto',
   },
-  bar: {
-    width: 22,
-    height: 2,
-    background: '#1e3a5f',
-    borderRadius: 2,
-    transition: 'all 0.2s ease',
-  },
+  bar: { width: 22, height: 2, background: '#1e3a5f', borderRadius: 2, transition: 'all 0.2s ease' },
   barOpen1: { transform: 'rotate(45deg) translate(5px, 5px)' },
   barOpen2: { transform: 'rotate(-45deg) translate(5px, -5px)' },
   mobileMenu: {
-    display: 'none',
-    padding: '16px 24px 24px',
-    borderTop: '1px solid #e2e8f0',
-    flexDirection: 'column',
-    gap: 4,
-    background: 'white',
+    display: 'none', padding: '16px 24px 24px',
+    borderTop: '1px solid #e2e8f0', flexDirection: 'column', gap: 4, background: 'white',
   },
   mobileLink: {
-    display: 'block',
-    padding: '10px 12px',
-    borderRadius: 8,
-    fontSize: '0.95rem',
-    fontWeight: 500,
-    color: '#334155',
-    textDecoration: 'none',
+    display: 'block', padding: '10px 12px', borderRadius: 8,
+    fontSize: '0.95rem', fontWeight: 500, color: '#334155', textDecoration: 'none',
   },
-  mobileDivider: {
-    height: 1,
-    background: '#e2e8f0',
-    margin: '8px 0',
-  },
-  mobileUserEmail: {
-    fontSize: '0.85rem',
-    color: '#64748b',
-    padding: '4px 12px',
-  },
+  mobileDivider: { height: 1, background: '#e2e8f0', margin: '8px 0' },
+  mobileUserEmail: { fontSize: '0.85rem', color: '#64748b', padding: '4px 12px' },
 }
 
-// Mobile responsive via injected CSS using data attributes
 if (typeof document !== 'undefined') {
   const style = document.createElement('style')
   style.textContent = `
