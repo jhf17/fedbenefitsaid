@@ -31,11 +31,14 @@ export default function Navbar() {
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }}>
             Reference Guide
           </Link>
-          <Link to="/training" style={{ ...styles.link, ...(isActive('/training') ? styles.linkActive : {}) }}>
-            Training
-          </Link>
-          <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
+<Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
             AI Chat
+          </Link>
+<Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            AI Chat
+          </Link>
+                              <Link to="/training" style={{ ...styles.link, ...(isActive('/training') ? styles.linkActive : {}) }}>
+            Training
           </Link>
         </div>
 
@@ -77,9 +80,6 @@ export default function Navbar() {
           </Link>
           <Link to="/training" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Training
-          </Link>
-          <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            AI Chat
           </Link>
           <div style={styles.mobileDivider} />
           {user ? (

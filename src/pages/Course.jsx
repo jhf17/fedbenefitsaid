@@ -1,184 +1,287 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../App'
-import { QUIZ_MODULES, QUIZ_QUESTIONS } from '../data/quizData'
 
-const DIFFICULTY_COLOR = {
-  Beginner:     { bg: '#ecfdf5', text: '#065f46', border: '#a7f3d0' },
-  Intermediate: { bg: '#eff6ff', text: '#1e40af', border: '#bfdbfe' },
-  Advanced:     { bg: '#fef3c7', text: '#92400e', border: '#fde68a' },
-}
+const TOPICS = [
+  'FERS Annuity Calculation',
+  'TSP & Investment Strategy',
+  'FEHB in Retirement',
+  'FEGLI Life Insurance',
+  'FERS Supplement',
+  'Social Security Coordination',
+  'Medicare & FEHB',
+  'Survivor Benefits',
+  'Special Provisions (LEO/FF/ATC)',
+  'Disability Retirement',
+  'Federal Pay & Leave',
+]
+
+const STATS = [
+  { value: '350+', label: 'Practice Questions' },
+  { value: '11', label: 'Benefit Modules' },
+  { value: '2026', label: 'Updated for' },
+  { value: 'CFR', label: 'Regulatory Citations' },
+]
 
 export default function Course() {
   const { user } = useAuth()
+  const [chatAddon1, setChatAddon1] = useState(false)
+  const [chatAddon2, setChatAddon2] = useState(false)
 
   return (
     <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f8fafc' }}>
-      {/* Header */}
-      <div style={styles.header}>
-        <div className="container">
-          <div style={styles.headerBadge}>Training</div>
-          <h1 style={styles.h1}>Federal Benefits Training</h1>
-          <p style={styles.sub}>
-            Test and reinforce your knowledge across all major federal benefit areas.
-            Each module ends with an option to ask the AI for deeper explanations.
+
+      {/* Hero */}
+      <div style={styles.hero}>
+        <div className="container" style={styles.heroInner}>
+          <div style={styles.heroBadge}>Federal Benefits Training</div>
+          <h1 style={styles.heroTitle}>
+            Master Your Federal Benefits.<br />
+            <span style={styles.heroTitleAccent}>Before You Need Them.</span>
+          </h1>
+          <p style={styles.heroSub}>
+            The most comprehensive FERS/FEHB/TSP training program built
+            specifically for federal employees — with real regulations, real numbers,
+            and real exam-style practice questions.
           </p>
-          <div style={styles.headerMeta}>
-            <span style={styles.metaItem}>{QUIZ_MODULES.length} modules</span>
-            <span style={styles.metaDot} />
-            <span style={styles.metaItem}>
-              {Object.values(QUIZ_QUESTIONS).reduce((sum, qs) => sum + qs.length, 0)} questions
-            </span>
-            <span style={styles.metaDot} />
-            <span style={styles.metaItem}>Requires login</span>
+
+          <div style={styles.stats}>
+            {STATS.map(s => (
+              <div key={s.label} style={styles.statItem}>
+                <div style={styles.statValue}>{s.value}</div>
+                <div style={styles.statLabel}>{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Module Grid */}
-      <div className="container" style={{ padding: '48px 24px 80px' }}>
-        <div style={styles.grid}>
-          {QUIZ_MODULES.map(module => {
-            const questions = QUIZ_QUESTIONS[module.id] || []
-            const diff = DIFFICULTY_COLOR[module.difficulty]
-            return (
-              <div key={module.id} style={styles.card}>
-                <div style={styles.cardTop}>
-                  <div style={styles.cardTitle}>{module.title}</div>
-                  <span style={{ ...styles.diffBadge, background: diff.bg, color: diff.text, border: `1px solid ${diff.border}` }}>
-                    {module.difficulty}
-                  </span>
-                </div>
-                <p style={styles.cardDesc}>{module.description}</p>
-                <div style={styles.cardMeta}>
-                  {questions.length} question{questions.length !== 1 ? 's' : ''}
-                </div>
-                <Link
-                  to={`/training/quiz/${module.id}`}
-                  className="btn btn-navy btn-full"
-                  style={{ marginTop: 'auto' }}
-                >
-                  Start Quiz
-                </Link>
+      {/* Topics */}
+      <div className="container" style={{ padding: '48px 24px 0' }}>
+        <div style={styles.sectionLabel}>What You'll Learn</div>
+        <div style={styles.topicTags}>
+          {TOPICS.map(t => (
+            <span key={t} style={styles.topicTag}>{t}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Pricing */}
+      <div className="container" style={{ padding: '48px 24px 64px' }}>
+        <div style={styles.sectionLabel}>Choose Your Plan</div>
+        <h2 style={styles.pricingTitle}>Simple, Transparent Pricing</h2>
+        <p style={styles.pricingSubtitle}>
+          Cancel anytime. No long-term contracts. Access to all modules from day one.
+        </p>
+
+        <div style={styles.pricingGrid}>
+
+          {/* Individual */}
+          <div style={styles.pricingCard}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardIcon}>👤</div>
+              <div style={styles.cardTitle}>Individual</div>
+              <div style={styles.cardSubtitle}>For federal employees</div>
+            </div>
+            <div style={styles.cardPrice}>
+              <span style={styles.priceDollar}>$</span>
+              {chatAddon1 ? '29' : '19'}
+              <span style={styles.priceCents}>{chatAddon1 ? '.99' : '.99'}</span>
+              <span style={styles.pricePer}>/mo</span>
+            </div>
+            {chatAddon1 && (
+              <div style={styles.addonBreakdown}>
+                $19.99 Training + $10.00 AI Chat
               </div>
-            )
-          })}
+            )}
+            <ul style={styles.featureList}>
+              <li style={styles.feature}><span style={styles.check}>✓</span> Full access to all 11 modules</li>
+              <li style={styles.feature}><span style={styles.check}>✓</span> 350+ practice questions</li>
+              <li style={styles.feature}><span style={styles.check}>✓</span> Progress tracking & scoring</li>
+              <li style={styles.feature}><span style={styles.check}>✓</span> CFR regulatory references</li>
+              <li style={styles.feature}><span style={styles.check}>✓</span> Updated for 2026 rules</li>
+            </ul>
+
+            <div style={styles.addonBox}>
+              <label style={styles.addonLabel}>
+                <input
+                  type="checkbox"
+                  checked={chatAddon1}
+                  onChange={() => setChatAddon1(!chatAddon1)}
+                  style={{ marginRight: 8, accentColor: '#1e3a5f' }}
+                />
+                <span>
+                  <strong>Add AI Chat</strong>
+                  <span style={styles.addonPrice}> +$10/mo</span>
+                </span>
+              </label>
+              <p style={styles.addonNote}>Unlimited AI answers to any benefits question</p>
+            </div>
+
+            <Link
+              to={user ? '/training/quiz/fers-annuity' : '/signup'}
+              className="btn btn-outline"
+              style={{ display: 'block', textAlign: 'center', marginTop: 20, padding: '12px 0', fontSize: '0.95rem' }}
+            >
+              {user ? 'Start Training' : 'Get Started'}
+            </Link>
+          </div>
+
+          {/* Agency */}
+          <div style={{ ...styles.pricingCard, ...styles.pricingCardFeatured }}>
+            <div style={styles.bestBadge}>BEST VALUE</div>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardIcon}>🏛️</div>
+              <div style={{ ...styles.cardTitle, color: 'white' }}>Agency</div>
+              <div style={{ ...styles.cardSubtitle, color: 'rgba(255,255,255,0.7)' }}>For HR offices & consultants</div>
+            </div>
+            <div style={{ ...styles.cardPrice, color: 'white' }}>
+              <span style={{ ...styles.priceDollar, color: 'rgba(255,255,255,0.8)' }}>$</span>
+              {chatAddon2 ? '199' : '149'}
+              <span style={{ ...styles.priceCents, color: 'rgba(255,255,255,0.8)' }}>.00</span>
+              <span style={{ ...styles.pricePer, color: 'rgba(255,255,255,0.6)' }}>/mo</span>
+            </div>
+            {chatAddon2 && (
+              <div style={{ ...styles.addonBreakdown, color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.1)' }}>
+                $149 Training + $50 AI Chat (all seats)
+              </div>
+            )}
+            <ul style={styles.featureList}>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Up to <strong>10 seats</strong></li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Everything in Individual</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Admin dashboard</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Team progress reports</li>
+              <li style={{ ...styles.feature, color: 'rgba(255,255,255,0.9)' }}><span style={styles.checkWhite}>✓</span> Priority support</li>
+            </ul>
+
+            <div style={{ ...styles.addonBox, borderColor: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.08)' }}>
+              <label style={{ ...styles.addonLabel, color: 'white' }}>
+                <input
+                  type="checkbox"
+                  checked={chatAddon2}
+                  onChange={() => setChatAddon2(!chatAddon2)}
+                  style={{ marginRight: 8, accentColor: '#fbbf24' }}
+                />
+                <span>
+                  <strong>Add AI Chat for all seats</strong>
+                  <span style={{ ...styles.addonPrice, color: '#fbbf24' }}> +$50/mo</span>
+                </span>
+              </label>
+              <p style={{ ...styles.addonNote, color: 'rgba(255,255,255,0.5)' }}>Unlimited AI chat for all 10 seats</p>
+            </div>
+
+            <Link
+              to="/signup"
+              className="btn btn-primary"
+              style={{
+                display: 'block', textAlign: 'center', marginTop: 20,
+                padding: '12px 0', fontSize: '0.95rem',
+                background: 'white', color: '#1e3a5f',
+              }}
+            >
+              Contact Sales
+            </Link>
+          </div>
         </div>
 
         {/* Footer note */}
-        <div style={styles.footerNote}>
-          More questions are being added across all modules. Have a question about a topic?{' '}
-          <Link to="/chat" style={{ color: '#2563eb', fontWeight: 600 }}>Ask the AI</Link>
-          {' '}or{' '}
-          <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', fontWeight: 600 }}>
-            book a free consultation
-          </a>.
-        </div>
+        <p style={styles.footerNote}>
+          🔒 Secure checkout · Cancel anytime · Questions? Email us at{' '}
+          <a href="mailto:support@fedbenefitsaid.com" style={{ color: '#1e3a5f' }}>support@fedbenefitsaid.com</a>
+        </p>
       </div>
     </div>
   )
 }
 
 const styles = {
-  header: {
-    background: 'linear-gradient(160deg, #1e3a5f 0%, #2d4f7c 100%)',
+  hero: {
+    background: 'linear-gradient(160deg, #1e3a5f 0%, #2d5f8a 100%)',
     color: 'white',
-    padding: '52px 0 44px',
+    padding: '64px 0 56px',
   },
-  headerBadge: {
+  heroInner: { maxWidth: 760, padding: '0 24px' },
+  heroBadge: {
     display: 'inline-block',
-    background: 'rgba(255,255,255,0.15)',
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: '0.75rem',
-    fontWeight: 700,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-    padding: '4px 12px',
-    borderRadius: 20,
-    marginBottom: 16,
+    background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: 20, padding: '5px 14px', fontSize: '0.8rem',
+    fontWeight: 600, letterSpacing: '0.04em', marginBottom: 20,
   },
-  h1: {
-    fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
-    fontWeight: 800,
-    letterSpacing: '-0.02em',
-    marginBottom: 12,
+  heroTitle: {
+    fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800,
+    letterSpacing: '-0.03em', marginBottom: 16, lineHeight: 1.15,
   },
-  sub: {
-    fontSize: '1rem',
-    opacity: 0.85,
-    lineHeight: 1.65,
-    maxWidth: 600,
-    marginBottom: 20,
+  heroTitleAccent: { color: '#93c5fd' },
+  heroSub: {
+    fontSize: '1.05rem', opacity: 0.82, lineHeight: 1.7,
+    maxWidth: 620, marginBottom: 40,
   },
-  headerMeta: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    flexWrap: 'wrap',
+  stats: { display: 'flex', gap: 32, flexWrap: 'wrap' },
+  statItem: { textAlign: 'left' },
+  statValue: { fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1 },
+  statLabel: { fontSize: '0.8rem', opacity: 0.65, marginTop: 4, fontWeight: 500 },
+
+  sectionLabel: {
+    fontSize: '0.78rem', fontWeight: 700, color: '#1e3a5f',
+    letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16,
   },
-  metaItem: {
-    fontSize: '0.82rem',
-    opacity: 0.75,
-    fontWeight: 500,
+  topicTags: { display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 8 },
+  topicTag: {
+    background: 'white', border: '1.5px solid #e2e8f0',
+    borderRadius: 20, padding: '7px 14px', fontSize: '0.85rem',
+    color: '#334155', fontWeight: 500,
   },
-  metaDot: {
-    width: 4,
-    height: 4,
-    borderRadius: '50%',
-    background: 'rgba(255,255,255,0.4)',
-    display: 'inline-block',
+
+  pricingTitle: { fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginBottom: 8, letterSpacing: '-0.02em' },
+  pricingSubtitle: { color: '#64748b', fontSize: '0.95rem', marginBottom: 36 },
+  pricingGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: 24, maxWidth: 760,
   },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-    gap: 20,
+  pricingCard: {
+    background: 'white', border: '1.5px solid #e2e8f0',
+    borderRadius: 18, padding: '32px 28px', position: 'relative',
   },
-  card: {
-    background: 'white',
-    borderRadius: 14,
-    padding: '24px 24px 20px',
-    border: '1.5px solid #e2e8f0',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-    transition: 'box-shadow 0.15s ease, border-color 0.15s ease',
+  pricingCardFeatured: {
+    background: 'linear-gradient(160deg, #1e3a5f 0%, #2d5f8a 100%)',
+    border: '2px solid #1e3a5f',
   },
-  cardTop: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 8,
+  bestBadge: {
+    position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)',
+    background: '#fbbf24', color: '#0f172a',
+    fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em',
+    padding: '3px 12px', borderRadius: 20, whiteSpace: 'nowrap',
   },
-  cardTitle: {
-    fontWeight: 700,
-    fontSize: '1rem',
-    color: '#0f172a',
-    lineHeight: 1.3,
-    flex: 1,
+  cardHeader: { marginBottom: 20 },
+  cardIcon: { fontSize: '1.6rem', marginBottom: 10 },
+  cardTitle: { fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginBottom: 4 },
+  cardSubtitle: { fontSize: '0.82rem', color: '#64748b' },
+  cardPrice: {
+    fontSize: '2.6rem', fontWeight: 800, color: '#0f172a',
+    letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 20,
   },
-  diffBadge: {
-    fontSize: '0.72rem',
-    fontWeight: 600,
-    padding: '3px 10px',
-    borderRadius: 20,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
+  priceDollar: { fontSize: '1.2rem', fontWeight: 700, color: '#64748b', verticalAlign: 'super' },
+  priceCents: { fontSize: '1.2rem', fontWeight: 700, color: '#64748b' },
+  pricePer: { fontSize: '0.9rem', fontWeight: 500, color: '#94a3b8' },
+  addonBreakdown: {
+    fontSize: '0.78rem', color: '#64748b', background: '#f1f5f9',
+    borderRadius: 8, padding: '5px 10px', marginBottom: 16, marginTop: -12,
   },
-  cardDesc: {
-    fontSize: '0.85rem',
-    color: '#64748b',
-    lineHeight: 1.55,
-    flex: 1,
+  featureList: { listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 },
+  feature: { display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: '0.88rem', color: '#334155' },
+  check: { color: '#22c55e', fontWeight: 700, flexShrink: 0 },
+  checkWhite: { color: '#86efac', fontWeight: 700, flexShrink: 0 },
+  addonBox: {
+    border: '1.5px dashed #cbd5e1', borderRadius: 10,
+    padding: '12px 14px', background: '#f8fafc',
   },
-  cardMeta: {
-    fontSize: '0.78rem',
-    color: '#94a3b8',
-    fontWeight: 600,
+  addonLabel: {
+    display: 'flex', alignItems: 'center', cursor: 'pointer',
+    fontSize: '0.88rem', color: '#0f172a', fontWeight: 500,
   },
+  addonPrice: { color: '#1e3a5f', fontWeight: 700 },
+  addonNote: { fontSize: '0.75rem', color: '#94a3b8', margin: '4px 0 0 24px' },
   footerNote: {
-    marginTop: 48,
-    textAlign: 'center',
-    fontSize: '0.88rem',
-    color: '#64748b',
-    lineHeight: 1.6,
+    marginTop: 32, textAlign: 'center', fontSize: '0.82rem', color: '#94a3b8',
   },
 }
