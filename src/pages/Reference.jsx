@@ -101,12 +101,12 @@ export default function Reference() {
           )}
 
           {selectedTopic && (
-            <button onClick={back} className="btn btn-outline btn-sm" style={{ marginTop: 12 }}>
+            <button onClick={back} className="btn btn-outline btn-sm" style={{ marginTop: 12, color: 'white', borderColor: 'rgba(255,255,255,0.6)' }}>
               â Back to {selectedCat}
             </button>
           )}
           {showTopics && (
-            <button onClick={back} className="btn btn-outline btn-sm" style={{ marginTop: 12 }}>
+            <button onClick={back} className="btn btn-outline btn-sm" style={{ marginTop: 12, color: 'white', borderColor: 'rgba(255,255,255,0.6)' }}>
               â All Categories
             </button>
           )}
