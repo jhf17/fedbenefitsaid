@@ -80,7 +80,7 @@ export default function Reference() {
           <p style={styles.sub}>
             {showDetail ? selectedTopic.summary :
              showTopics ? `${currentCat.topics.length} topics covered` :
-             'Free, comprehensive reference for all U.S. federal employee benefits &mdash; updated for 2026.'}
+             'Free, comprehensive reference for all U.S. federal employee benefits - updated for 2026.'}
           </p>
 
           {/* Search (only on category grid view) */}
