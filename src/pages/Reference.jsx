@@ -56,7 +56,7 @@ export default function Reference() {
               <button onClick={() => { setSelectedCat(null); setSelectedTopic(null); }} style={styles.breadcrumbBtn}>
                 Reference
               </button>
-              {selectedCat && <span style={styles.breadcrumbSep}>›</span>}
+              {selectedCat && <span style={styles.breadcrumbSep}>âº</span>}
               {selectedCat && (
                 <button
                   onClick={() => setSelectedTopic(null)}
@@ -65,7 +65,7 @@ export default function Reference() {
                   {selectedCat}
                 </button>
               )}
-              {selectedTopic && <span style={styles.breadcrumbSep}>›</span>}
+              {selectedTopic && <span style={styles.breadcrumbSep}>âº</span>}
               {selectedTopic && (
                 <span style={styles.breadcrumbActive}>{selectedTopic.title}</span>
               )}
@@ -80,7 +80,7 @@ export default function Reference() {
           <p style={styles.sub}>
             {showDetail ? selectedTopic.summary :
              showTopics ? `${currentCat.topics.length} topics covered` :
-             'Free, comprehensive reference for all U.S. federal employee benefits — updated for 2026.'}
+             'Free, comprehensive reference for all U.S. federal employee benefits â updated for 2026.'}
           </p>
 
           {/* Search (only on category grid view) */}
@@ -95,19 +95,19 @@ export default function Reference() {
                 style={styles.searchInput}
               />
               {search && (
-                <button onClick={() => setSearch('')} style={styles.searchClear}>✕</button>
+                <button onClick={() => setSearch('')} style={styles.searchClear}>â</button>
               )}
             </div>
           )}
 
           {selectedTopic && (
             <button onClick={back} className="btn btn-outline btn-sm" style={{ marginTop: 12 }}>
-              ← Back to {selectedCat}
+              â Back to {selectedCat}
             </button>
           )}
           {showTopics && (
             <button onClick={back} className="btn btn-outline btn-sm" style={{ marginTop: 12 }}>
-              ← All Categories
+              â All Categories
             </button>
           )}
         </div>
@@ -152,7 +152,7 @@ export default function Reference() {
                 <div style={{ ...styles.catAccent, background: cat.color }} />
                 <div style={styles.catName}>{cat.cat}</div>
                 <div style={styles.catCount}>{cat.topics.length} topics</div>
-                <div style={styles.catArrow}>→</div>
+                <div style={styles.catArrow}>â</div>
               </button>
             ))}
           </div>
@@ -171,10 +171,10 @@ export default function Reference() {
                   <div style={styles.topicTitle}>{topic.title}</div>
                   <div style={styles.topicSummary}>{topic.summary}</div>
                   <div style={styles.topicMeta}>
-                    {topic.numbers.length} key figures · {topic.rules.length} rules · {topic.watch.length} pitfalls
+                    {topic.numbers.length} key figures Â· {topic.rules.length} rules Â· {topic.watch.length} pitfalls
                   </div>
                 </div>
-                <div style={{ ...styles.topicArrow, color: currentCat.color }}>→</div>
+                <div style={{ ...styles.topicArrow, color: currentCat.color }}>â</div>
               </button>
             ))}
           </div>
@@ -237,11 +237,11 @@ export default function Reference() {
             {/* CTAs */}
             <div style={styles.detailActions}>
               <div style={styles.detailActionCard}>
-                <div style={styles.detailActionIcon}>🤖</div>
+                <div style={styles.detailActionIcon}>ð¤</div>
                 <div>
                   <div style={styles.detailActionTitle}>Have a specific question about {selectedTopic.title}?</div>
 
-                  <div style={styles.detailActionSub}>Ask the AI — it will tailor the answer to your specific years of service, salary, and retirement goals.</div>
+                  <div style={styles.detailActionSub}>Ask the AI â it will tailor the answer to your specific years of service, salary, and retirement goals.</div>
                 </div>
                 <Link to={user ? '/chat' : '/signup'} className="btn btn-primary" style={{ flexShrink: 0 }}>
                   Ask AI
