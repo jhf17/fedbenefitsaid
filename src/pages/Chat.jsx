@@ -2,31 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../App'
 
-const DEPARTMENTS = [
-  'Department of Defense (DoD)',
-  'Department of Veterans Affairs (VA)',
-  'Department of Homeland Security (DHS)',
-  'Department of Health and Human Services (HHS)',
-  'Department of the Treasury',
-  'Department of Justice (DOJ)',
-  'Department of State',
-  'Department of Agriculture (USDA)',
-  'Department of Transportation (DOT)',
-  'Department of Energy (DOE)',
-  'Department of the Interior (DOI)',
-  'Department of Labor (DOL)',
-  'Department of Commerce',
-  'Department of Education',
-  'Department of Housing and Urban Development (HUD)',
-  'U.S. Postal Service (USPS)',
-  'Social Security Administration (SSA)',
-  'Office of Personnel Management (OPM)',
-  'Environmental Protection Agency (EPA)',
-  'National Aeronautics and Space Administration (NASA)',
-  'General Services Administration (GSA)',
-  'Other Federal Agency',
-]
-
 const ADMIN_EMAILS = ['jhf17@icloud.com']
 const FREE_LIMIT = 3
 
@@ -59,9 +34,11 @@ function setStoredQuestions(count) {
 export default function Chat() {
   const { user } = useAuth()
   const isAdmin = user && ADMIN_EMAILS.includes(user.email)
-  const [department, setDepartment] = useState('')
-  const [confirmed, setConfirmed] = useState(false)
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState([{
+    role: 'assistant',
+    text: 'Hi! I\'m your federal benefits AI assistant. You have **' + (isAdmin ? 'unlimited' : FREE_LIMIT + ' free') + ' questions**. What would you like to know about your federal benefits?',
+    ts: Date.now(),
+  }])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [questionsUsed, setQuestionsUsed] = useState(() => getStoredQuestions())
@@ -73,16 +50,9 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  const handleConfirm = () => {
-    if (!department) return
-    setConfirmed(true)
-    setMessages([{
-      role: 'assistant',
-      text: 'Hi! I\'m your federal benefits AI assistant. I see you\'re with **' + department + '** &mdash; I\'ll keep that context in mind as we talk.\n\nYou have **' + (isAdmin ? 'unlimited' : FREE_LIMIT + ' free') + ' questions**. What would you like to know about your federal benefits?',
-      ts: Date.now(),
-    }])
-    setTimeout(() => inputRef.current?.focus(), 100)
-  }
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
 
   const handleSend = async (text) => {
     const q = (text || input).trim()
@@ -102,7 +72,7 @@ export default function Chat() {
       const res = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: apiMessages, department }),
+        body: JSON.stringify({ messages: apiMessages }),
       })
 
       const data = await res.json()
@@ -135,56 +105,6 @@ export default function Chat() {
 
   const remaining = FREE_LIMIT - questionsUsed
 
-  if (!confirmed) {
-    return (
-      <div style={styles.page}>
-        <div style={styles.setupCard}>
-          <div style={styles.setupIcon}>AI</div>
-          <h1 style={styles.setupTitle}>Federal Benefits AI Chat</h1>
-          <p style={styles.setupSub}>
-            Get personalized answers about your FERS annuity, TSP, FEHB, FEGLI,
-            and retirement eligibility &mdash; tailored to your specific situation.
-          </p>
-
-          <div style={styles.freeTag}>
-            &#10003; &nbsp;{FREE_LIMIT} free questions &mdash; no account required
-          </div>
-
-          <div style={styles.fieldWrap}>
-            <label style={styles.label}>Your Agency / Department <span style={{ color: '#ef4444' }}>*</span></label>
-            <select
-              value={department}
-              onChange={e => setDepartment(e.target.value)}
-              style={styles.select}
-            >
-              <option value="">Select your department...</option>
-              {DEPARTMENTS.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-            <p style={styles.fieldNote}>
-              This helps tailor answers to your agency's specific rules and retirement options.
-            </p>
-          </div>
-
-          <button
-            onClick={handleConfirm}
-            disabled={!department}
-            className="btn btn-primary"
-            style={{ width: '100%', fontSize: '1rem', padding: '13px 0', marginTop: 8 }}
-          >
-            Start Chatting &rarr;
-          </button>
-
-          <p style={styles.legalNote}>
-            AI answers are for informational purposes only and do not constitute official benefits advice.
-            Always verify with your HR office or OPM.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div style={styles.chatPage}>
       {/* Header */}
@@ -192,7 +112,6 @@ export default function Chat() {
         <div style={styles.chatHeaderInner}>
           <div>
             <div style={styles.chatTitle}>Federal Benefits AI</div>
-            <div style={styles.chatDept}>{department}</div>
           </div>
           <div style={styles.counterPill}>
             {isAdmin
@@ -316,48 +235,6 @@ export default function Chat() {
 }
 
 const styles = {
-  page: {
-    minHeight: 'calc(100vh - 64px)',
-    background: '#f8fafc',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '32px 16px',
-  },
-  setupCard: {
-    background: 'white',
-    borderRadius: 20,
-    border: '1.5px solid #e2e8f0',
-    padding: '48px 40px',
-    maxWidth: 520,
-    width: '100%',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-  },
-  setupIcon: {
-    fontSize: '1.8rem', fontWeight: 800, color: '#1e3a5f',
-    background: '#e8f0fe', width: 56, height: 56, borderRadius: '50%',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    marginBottom: 16,
-  },
-  setupTitle: { fontSize: '1.7rem', fontWeight: 800, color: '#0f172a', marginBottom: 10, letterSpacing: '-0.02em' },
-  setupSub: { color: '#475569', lineHeight: 1.6, fontSize: '0.97rem', marginBottom: 20 },
-  freeTag: {
-    display: 'inline-flex', alignItems: 'center',
-    background: '#f0fdf4', border: '1px solid #bbf7d0',
-    color: '#166534', borderRadius: 20, padding: '6px 14px',
-    fontSize: '0.83rem', fontWeight: 600, marginBottom: 28,
-  },
-  fieldWrap: { marginBottom: 20 },
-  label: { display: 'block', fontWeight: 600, fontSize: '0.9rem', color: '#0f172a', marginBottom: 8 },
-  select: {
-    width: '100%', padding: '11px 14px', borderRadius: 10,
-    border: '1.5px solid #e2e8f0', fontSize: '0.95rem',
-    color: '#0f172a', background: 'white', cursor: 'pointer',
-    outline: 'none',
-  },
-  fieldNote: { fontSize: '0.78rem', color: '#94a3b8', marginTop: 6 },
-  legalNote: { fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center', marginTop: 20, lineHeight: 1.5 },
-
   chatPage: { display: 'flex', flexDirection: 'column', height: 'calc(100vh - 64px)', background: '#f8fafc' },
   chatHeader: {
     background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5f8a 100%)',
@@ -368,7 +245,6 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   },
   chatTitle: { fontWeight: 700, fontSize: '1rem' },
-  chatDept: { fontSize: '0.78rem', opacity: 0.7, marginTop: 2 },
   counterPill: {
     background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)',
     borderRadius: 20, padding: '4px 12px', fontSize: '0.78rem', fontWeight: 600,
