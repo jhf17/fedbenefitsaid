@@ -28,6 +28,22 @@ const SP_LOW  = 0.010   // 1.0% — all years thereafter
 // Medicare Part B premium 2026
 const MEDICARE_B_MONTHLY = 185.00
 
+// 2026 FEHB biweekly enrollee premiums (employee/retiree share)
+// Source: OPM 2026 FEHB Premium Tables. Biweekly × 26 / 12 = monthly deduction.
+// Rates marked * are estimates — verify at opm.gov/premiums
+const FEHB_PLANS = [
+  { id: 'bcbs_standard', label: 'BCBS FEP Standard Option',  self: 188.32, s1: 410.88, fam: 457.66, verified: true },
+  { id: 'bcbs_basic',    label: 'BCBS FEP Basic Option',      self: 133.77, s1: 291.50, fam: 356.86, verified: true },
+  { id: 'bcbs_focus',    label: 'BCBS FEP Blue Focus',        self: 66.81,  s1: 143.63, fam: 157.97, verified: true },
+  { id: 'geha_standard', label: 'GEHA Standard *',            self: 94.07,  s1: 186.36, fam: 210.00, verified: false },
+  { id: 'geha_high',     label: 'GEHA High *',                self: 233.00, s1: 416.00, fam: 458.00, verified: false },
+  { id: 'aetna_direct',  label: 'Aetna Direct CDHP *',        self: 122.00, s1: 261.00, fam: 287.00, verified: false },
+  { id: 'custom',        label: 'Other / Enter Custom Amount', self: 0,      s1: 0,      fam: 0,      verified: true },
+]
+// Monthly deduction from pension = biweekly rate × 26 ÷ 12
+function fehbMonthlyAmt(biweekly) { return biweekly * 26 / 12 }
+
+
 function fmt(n) {
   if (n == null || isNaN(n)) return '$0'
   return '$' + Math.round(n).toLocaleString('en-US')
@@ -176,6 +192,12 @@ export default function Calculator() {
   const [ssClaimAge, setSsClaimAge] = useState('67')
   const [includeMedicare, setIncludeMedicare] = useState(true)
 
+  // FEHB health insurance deduction
+  const [includeFEHB, setIncludeFEHB] = useState(false)
+  const [fehbPlan, setFehbPlan] = useState('bcbs_standard')
+  const [fehbCoverage, setFehbCoverage] = useState('self')
+  const [fehbCustom, setFehbCustom] = useState('')
+
   // FERS-specific
   const [earlyRetirement, setEarlyRetirement] = useState('immediate')
 
@@ -236,7 +258,22 @@ export default function Calculator() {
     const pensionMonthly = pensionResult.netAnnual / 12
     const medicareDeduct = includeMedicare ? MEDICARE_B_MONTHLY : 0
 
-    const totalMonthly = pensionMonthly + tspMonthly4pct + ssMonthly + supplementMonthly - medicareDeduct
+    let fehbDeduct = 0
+    if (includeFEHB) {
+      const plan = FEHB_PLANS.find(p => p.id === fehbPlan)
+      if (plan) {
+        if (fehbPlan === 'custom') {
+          fehbDeduct = parseFloat(fehbCustom) || 0
+        } else {
+          const bw = fehbCoverage === 'self' ? plan.self : fehbCoverage === 'self1' ? plan.s1 : plan.fam
+          fehbDeduct = fehbMonthlyAmt(bw)
+        }
+      }
+    }
+    const fehbPlanLabel = FEHB_PLANS.find(p => p.id === fehbPlan)?.label || ''
+    const fehbCoverageLabel = fehbCoverage === 'self' ? 'Self Only' : fehbCoverage === 'self1' ? 'Self + One' : 'Self + Family'
+
+    const totalMonthly = pensionMonthly + tspMonthly4pct + ssMonthly + supplementMonthly - medicareDeduct - fehbDeduct
     const totalAnnual = totalMonthly * 12
 
     // FIA income projections (conservative range)
@@ -250,12 +287,15 @@ export default function Calculator() {
       tab,
       pensionResult,
       pensionMonthly,
-      pensionAnnual: pensionResult.netAnnual,
+      pensionAmnual: pensionResult.netAnnual,
       supplementMonthly,
       tspAtRetirement,
       tspMonthly4pct,
       ssMonthly,
       medicareDeduct,
+      fehbDeduct,
+      fehbPlanLabel,
+      fehbCoverageLabel,
       totalMonthly,
       totalAnnual,
       fiaPayouts,
@@ -416,7 +456,7 @@ export default function Calculator() {
             </Field>
           </div>
           <div style={{ marginTop: 16 }}>
-            <Field label={`Assumed Annual Growth Rate: ${tspGrowthRate}%`} hint="TSP C Fund has averaged ~10%/yr long-term. Use 5-7% for conservative planning.">
+            <Field label={`Assumed Annual Growth Rate: ${tspGrowthRate}%`} hint=ive planning.">
               <div style={s.sliderRow}>
                 <input
                   type="range" min="3" max="10" step="0.5"
@@ -486,6 +526,64 @@ export default function Calculator() {
               Deduct Medicare Part B premium ($185/mo in 2026) from total income
             </label>
           </div>
+
+
+          {/* FEHB Health Insurance */}
+          <div style={{ marginTop: 12 }}>
+            <label style={s.checkLabel}>
+              <input
+                type="checkbox"
+                checked={includeFEHB}
+                onChange={e => setIncludeFEHB(e.target.checked)}
+                style={{ marginRight: 8 }}
+              />
+              Deduct FEHB health insurance premium from total income
+            </label>
+          </div>
+          {includeFEHB && (
+            <div style={{ marginTop: 14, padding: '18px 20px', background: '#f0f9ff', borderRadius: 12, border: '1.5px solid #bae6fd' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+                <Field label="FEHB Plan" hint="2026 OPM rates. * = estimated — verify at opm.gov/premiums">
+                  <select value={fehbPlan} onChange={e => setFehbPlan(e.target.value)} style={s.select}>
+                    {FEHB_PLANS.map(p => (
+                      <option key={p.id} value={p.id}>{p.label}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Coverage Type">
+                  <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
+                    <option value="self">Self Only</option>
+                    <option value="self1">Self + One</option>
+                    <option value="fam">Self + Family</option>
+                  </select>
+                </Field>
+              </div>
+              {fehbPlan === 'custom' && (
+                <div style={{ marginTop: 12 }}>
+                  <Field label="Monthly Premium Amount ($)" hint="Enter the monthly amount deducted from your pension">
+                    <input
+                      type="number" min="0"
+                      value={fehbCustom}
+                      onChange={e => setFehbCustom(e.target.value)}
+                      placeholder="e.g. 350"
+                      style={s.input}
+                    />
+                  </Field>
+                </div>
+              )}
+              {fehbPlan !== 'custom' && (() => {
+                const plan = FEHB_PLANS.find(p => p.id === fehbPlan)
+                const bw = plan ? (fehbCoverage === 'self' ? plan.self : fehbCoverage === 'self1' ? plan.s1 : plan.fam) : 0
+                const mo = fehbMonthlyAmt(bw)
+                return (
+                  <div style={{ marginTop: 10, fontSize: '0.82rem', color: '#0369a1' }}>
+                    Estimated monthly deduction: <strong>{fmt(mo)}/mo</strong> ({fmt(bw)}/biweekly × 26 ÷ 12)
+                    {plan && !plan.verified && <span style={{ color: '#d97706', marginLeft: 6 }}>*estimate — verify at opm.gov</span>}
+                  </div>
+                )
+              })()}
+            </div>
+          )}
 
           {/* Errors */}
           {errors.length > 0 && (
@@ -564,7 +662,7 @@ export default function Calculator() {
                 <div style={s.bCardSub}>4% rule from {fmt(results.tspAtRetirement)}</div>
                 <div style={s.bCardDetail}>
                   At {fmtDec(results.growthRate, 1)}% growth over {results.yearsToRetire} yrs
-                  {' '}- variable, market-dependent
+                  {'+'+{' '})- variable, market-dependent
                 </div>
               </div>
 
@@ -589,6 +687,19 @@ export default function Calculator() {
                   <div style={s.bCardDetail}>Typically deducted from SS or pension</div>
                 </div>
               )}
+
+              {/* FEHB deduction */}
+              {results.fehbDeduct > 0 && (
+                <div style={{ ...s.breakdownCard, borderColor: '#fca5a5' }}>
+                  <div style={{ ...s.bCardIcon, background: '#fee2e2', color: '#dc2626' }}>H</div>
+                  <div style={s.bCardLabel}>FEHB Premium</div>
+                  <div style={{ ...s.bCardValue, color: '#dc2626' }}>-{fmt(results.fehbDeduct)}</div>
+                  <div style={s.bCardSub}>monthly deduction</div>
+                  <div style={s.bCardDetail}>{results.fehbPlanLabel}</div>
+                  <div style={s.bCardDetail}>{results.fehbCoverageLabel}</div>
+                </div>
+              )}
+
             </div>
 
             {/* Income Breakdown Table */}
@@ -600,6 +711,7 @@ export default function Calculator() {
                 { label: 'TSP Income (4% safe withdrawal rate - variable)', value: '+' + fmt(results.tspMonthly4pct), sub: 'from ' + fmt(results.tspAtRetirement), pos: true },
                 results.ssMonthly > 0 && { label: `Social Security (claiming at ${results.claimAge})`, value: '+' + fmt(results.ssMonthly), sub: fmt(results.ssMonthly * 12) + '/yr', pos: true },
                 results.medicareDeduct > 0 && { label: 'Medicare Part B Premium (2026)', value: '-' + fmt(results.medicareDeduct), sub: 'monthly deduction', pos: false },
+                results.fehbDeduct > 0 && { label: `FEHB Premium — ${results.fehbPlanLabel} (${results.fehbCoverageLabel})`, value: '-' + fmt(results.fehbDeduct), sub: 'monthly deduction', pos: false },
                 { label: 'Total Estimated Monthly Income', value: fmt(results.totalMonthly), sub: fmt(results.totalAnnual) + '/yr', bold: true },
               ].filter(Boolean).map((row, i) => (
                 <div key={i} style={{ ...s.tableRow, ...(row.bold ? s.tableRowBold : {}) }}>
@@ -688,6 +800,9 @@ export default function Calculator() {
                 </div>
                 <div style={s.assumptionItem}>
                   <strong>MRA+10 Penalty:</strong> 5% reduction for each year you are under age 62 at retirement, up to 50%.
+                </div>
+                <div style={s.assumptionItem}>
+                  <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
                 </div>
               </div>
             </div>
