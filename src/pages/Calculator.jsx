@@ -287,7 +287,7 @@ export default function Calculator() {
       tab,
       pensionResult,
       pensionMonthly,
-      pensionAmnual: pensionResult.netAnnual,
+      pensionAnnual: pensionResult.netAnnual,
       supplementMonthly,
       tspAtRetirement,
       tspMonthly4pct,
@@ -456,7 +456,7 @@ export default function Calculator() {
             </Field>
           </div>
           <div style={{ marginTop: 16 }}>
-            <Field label={`Assumed Annual Growth Rate: ${tspGrowthRate}%`} hint=ive planning.">
+            <Field label={`Assumed Annual Growth Rate: ${tspGrowthRate}%`} hint="TSP C Fund has averaged ~10%/yr long-term. Use 5-7% for conservative planning.">
               <div style={s.sliderRow}>
                 <input
                   type="range" min="3" max="10" step="0.5"
@@ -548,7 +548,7 @@ export default function Calculator() {
                     {FEHB_PLANS.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
-                  </select>
+            3     </select>
                 </Field>
                 <Field label="Coverage Type">
                   <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
@@ -647,7 +647,7 @@ export default function Calculator() {
               {results.supplementMonthly > 0 && (
                 <div style={s.breakdownCard}>
                   <div style={s.bCardIcon}>+</div>
-                  <div style={s.bCardLabel}>FERS Supplement</div>
+              2   <div style={s.bCardLabel}>FERS Supplement</div>
                   <div style={s.bCardValue}>{fmt(results.supplementMonthly)}</div>
                   <div style={s.bCardSub}>Until age 62</div>
                   <div style={s.bCardDetail}>({yrsServiceLabel(results.yrs)} / 40) x SS at 62</div>
@@ -662,7 +662,7 @@ export default function Calculator() {
                 <div style={s.bCardSub}>4% rule from {fmt(results.tspAtRetirement)}</div>
                 <div style={s.bCardDetail}>
                   At {fmtDec(results.growthRate, 1)}% growth over {results.yearsToRetire} yrs
-                  {'+'+{' '})- variable, market-dependent
+                  {' '}- variable, market-dependent
                 </div>
               </div>
 
