@@ -1,329 +1,498 @@
 import { useState, useRef, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../App'
+import ConsultantCTA from '../components/ConsultantCTA'
 
-const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
+const WELCOME_MESSAGE = {
+  role: 'assistant',
+  content: `Hi! I'm your federal benefits assistant. I'm here to give you precise, sourced answers about your FERS pension, TSP, FEHB, FEGLI, Medicare, Social Security, and more.
 
-const STARTER_PROMPTS = [
-  'When can I retire with full benefits?',
-  'How does the FERS supplement work?',
-  'What happens to my FEHB in retirement?',
-  'How is my annuity calculated?',
-  'What should I do with my TSP at retirement?',
-  'What is the MRA+10 option?',
-  'How does Social Security coordinate with FERS?',
-  'What are my survivor benefit options?',
-]
+The more you tell me about your situation, the better I can tailor my answers — things like your years of service, your agency, your retirement timeline, and your family situation all affect your benefits significantly.
+
+What would you like to know?`,
+}
 
 export default function Chat() {
   const { user } = useAuth()
-  const [messages, setMessages] = useState([{
-    role: 'assistant',
-    text: "Hi! I'm your federal benefits AI assistant. Ask me anything about FERS, TSP, FEHB, FEGLI, Social Security, Medicare, military benefits, or any other federal retirement topic. What would you like to know?",
-    ts: Date.now(),
-  }])
+  const location = useLocation()
+  const [messages, setMessages] = useState([WELCOME_MESSAGE])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
+  const calcSentRef = useRef(false)
+
+  // If navigated from calculator with results, auto-send them
+  useEffect(() => {
+    const calcResults = location.state?.calculatorResults
+    if (calcResults && !calcSentRef.current) {
+      calcSentRef.current = true
+      const msg = `Here are my retirement calculator results — can you help me understand them and point out anything I should be aware of?\n\n${calcResults}`
+      setTimeout(() => sendMessage(msg), 400)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
+  const sendMessage = async (text) => {
+    const userText = (text || input).trim()
+    if (!userText || loading) return
 
-  const handleSend = async (text) => {
-    const q = (text || input).trim()
-    if (!q || loading) return
-
-    setInput('')
-    const newMessages = [...messages, { role: 'user', text: q, ts: Date.now() }]
+    const newMessages = [...messages, { role: 'user', content: userText }]
     setMessages(newMessages)
+    setInput('')
+    setError('')
     setLoading(true)
+    if (inputRef.current) inputRef.current.style.height = 'auto'
 
     try {
-      const apiMessages = newMessages
-        .filter((m, i) => i > 0)
-        .map(m => ({ role: m.role, content: m.text }))
-
       const res = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+        }),
       })
 
-      const data = await res.json()
-
       if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong')
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || `Server error: ${res.status}`)
       }
 
-      const reply = data.content || 'Sorry, I could not generate a response. Please try again.'
-      setMessages(prev => [...prev, { role: 'assistant', text: reply, ts: Date.now() }])
-
+      const data = await res.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.content }])
     } catch (err) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        text: 'Sorry, something went wrong. Please try again in a moment.',
-        ts: Date.now(),
-      }])
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
+      setTimeout(() => inputRef.current?.focus(), 100)
     }
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendMessage()
+    }
+  }
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value)
+    // Auto-resize textarea
+    e.target.style.height = 'auto'
+    e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
+  }
+
+  const suggestions = [
+    'How is my FERS pension calculated?',
+    'What is the FEHB 5-year rule?',
+    'Should I contribute Traditional or Roth TSP?',
+    'When should I claim Social Security?',
+    'What happens to my FEHB in retirement?',
+    'Explain the FERS Supplement',
+  ]
+
   return (
-    <div style={styles.chatPage}>
-      {/* Header */}
-      <div style={styles.chatHeader}>
-        <div style={styles.chatHeaderInner}>
-          <div>
-            <div style={styles.chatTitle}>Federal Benefits AI</div>
-            <div style={styles.chatSubtitle}>Sourced from OPM, SSA, and verified 2026 figures</div>
+    <div style={styles.page}>
+      {/* Sidebar */}
+      <div style={styles.sidebar}>
+        <div style={styles.sidebarTop}>
+          <div style={styles.sidebarTitle}>Federal Benefits AI</div>
+          <div style={styles.sidebarUser}>
+            Signed in as<br />
+            <strong>{user?.email}</strong>
           </div>
-          <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={styles.consultBtn}>
-            Book Free Consultation
-          </a>
         </div>
-      </div>
 
-      {/* Messages */}
-      <div style={styles.messages}>
-        {messages.map((m, i) => (
-          <div key={i} style={{ ...styles.msgRow, justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
-            {m.role === 'assistant' && <div style={styles.avatar}>AI</div>}
-            <div style={m.role === 'user' ? styles.userBubble : styles.aiBubble}>
-              {m.text.split('\n').map((line, j) => {
-                const bold = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                return <p key={j} style={{ margin: j > 0 ? '6px 0 0' : 0 }} dangerouslySetInnerHTML={{ __html: bold }} />
-              })}
-            </div>
-          </div>
-        ))}
-        {loading && (
-          <div style={{ ...styles.msgRow, justifyContent: 'flex-start' }}>
-            <div style={styles.avatar}>AI</div>
-            <div style={styles.aiBubble}>
-              <div style={styles.typing}>
-                <span style={styles.dot} /><span style={styles.dot} /><span style={styles.dot} />
-              </div>
-            </div>
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Starter prompts (only before first user message) */}
-      {messages.length === 1 && (
-        <div style={styles.starters}>
-          {STARTER_PROMPTS.map(p => (
-            <button key={p} onClick={() => handleSend(p)} style={styles.starterBtn}>{p}</button>
+        <div style={styles.sidebarSection}>
+          <div style={styles.sidebarLabel}>Quick Questions</div>
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => sendMessage(s)}
+              disabled={loading}
+              style={styles.suggestionBtn}
+            >
+              {s}
+            </button>
           ))}
         </div>
-      )}
 
-      {/* Input */}
-      <div style={styles.inputArea}>
-        <div style={styles.inputRow}>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="Ask about your retirement, TSP, FEHB, or any federal benefit..."
-            disabled={loading}
-            style={styles.input}
-          />
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || loading}
-            style={{ ...styles.sendBtn, ...((!input.trim() || loading) ? styles.sendBtnDisabled : {}) }}
-          >
-            &rarr;
-          </button>
+        <div style={{ marginTop: 'auto', padding: '0 16px 16px' }}>
+          <ConsultantCTA compact />
         </div>
-        <p style={styles.inputNote}>
-          AI can make mistakes - verify important decisions with OPM or your HR office.{' '}
-          <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={styles.noteLink}>
-            Book a free expert consultation
-          </a>
-          {' '}for personalized guidance.
-        </p>
+      </div>
+
+      {/* Chat Area */}
+      <div style={styles.chatArea}>
+        {/* Messages */}
+        <div style={styles.messages}>
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              style={{
+                ...styles.messageRow,
+                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+              }}
+            >
+              {msg.role === 'assistant' && (
+                <div style={styles.avatar}>🤖</div>
+              )}
+              <div
+                style={{
+                  ...styles.bubble,
+                  ...(msg.role === 'user' ? styles.bubbleUser : styles.bubbleAI),
+                }}
+              >
+                <MessageContent content={msg.content} />
+              </div>
+              {msg.role === 'user' && (
+                <div style={styles.userAvatar}>
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {loading && (
+            <div style={{ ...styles.messageRow, justifyContent: 'flex-start' }}>
+              <div style={styles.avatar}>🤖</div>
+              <div style={{ ...styles.bubble, ...styles.bubbleAI, ...styles.typingBubble }}>
+                <TypingIndicator />
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div style={styles.errorMsg}>
+              ⚠️ {error}
+              <button onClick={() => setError('')} style={styles.errorDismiss}>Dismiss</button>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input Area */}
+        <div style={styles.inputArea}>
+          <div style={styles.inputWrap}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything about your federal benefits... (Enter to send, Shift+Enter for new line)"
+              disabled={loading}
+              style={styles.textarea}
+              rows={1}
+            />
+            <button
+              onClick={() => sendMessage()}
+              disabled={loading || !input.trim()}
+              style={styles.sendBtn}
+              aria-label="Send message"
+            >
+              {loading ? <span className="spinner" /> : '↑'}
+            </button>
+          </div>
+          <div style={styles.inputNote}>
+            AI answers are for educational purposes. Always verify with OPM or a qualified advisor for official decisions.
+            <span style={{ margin: '0 8px', color: '#cbd5e1' }}>·</span>
+            <Link to="/reference" style={{ color: '#2563eb' }}>Browse Reference Guide</Link>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
+// Renders message content with basic markdown-like formatting
+function MessageContent({ content }) {
+  if (!content) return null
+
+  // Split on double newlines to get paragraphs
+  const paragraphs = content.split(/\n\n+/)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {paragraphs.map((para, i) => {
+        // Bullet list detection
+        if (para.match(/^[-•*]\s/m) || para.match(/^\d+\.\s/m)) {
+          const lines = para.split('\n')
+          return (
+            <ul key={i} style={{ paddingLeft: 18, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {lines.map((line, j) => {
+                const clean = line.replace(/^[-•*\d.]+\s/, '')
+                return clean ? (
+                  <li key={j} style={{ fontSize: '0.93rem', lineHeight: 1.6 }}>
+                    <FormattedText text={clean} />
+                  </li>
+                ) : null
+              })}
+            </ul>
+          )
+        }
+
+        // Heading detection (lines starting with **)
+        if (para.startsWith('**') && para.endsWith('**')) {
+          return (
+            <p key={i} style={{ fontWeight: 700, fontSize: '0.95rem', margin: 0 }}>
+              {para.replace(/\*\*/g, '')}
+            </p>
+          )
+        }
+
+        return (
+          <p key={i} style={{ margin: 0, fontSize: '0.93rem', lineHeight: 1.65 }}>
+            <FormattedText text={para} />
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
+function FormattedText({ text }) {
+  // Bold text: **text**
+  const parts = text.split(/\*\*(.*?)\*\*/g)
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+      )}
+    </>
+  )
+}
+
+function TypingIndicator() {
+  return (
+    <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '4px 0' }}>
+      {[0, 1, 2].map(i => (
+        <div
+          key={i}
+          style={{
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: '#94a3b8',
+            animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-6px); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 const styles = {
-  chatPage: {
+  page: {
     display: 'flex',
-    flexDirection: 'column',
     height: 'calc(100vh - 64px)',
     background: '#f8fafc',
+    overflow: 'hidden',
   },
-  chatHeader: {
-    background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5f8a 100%)',
-    color: 'white',
-    flexShrink: 0,
-  },
-  chatHeaderInner: {
-    maxWidth: 760,
-    margin: '0 auto',
-    padding: '14px 20px',
+  sidebar: {
+    width: 280,
+    background: 'white',
+    borderRight: '1px solid #e2e8f0',
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
-  chatTitle: { fontWeight: 700, fontSize: '1rem' },
-  chatSubtitle: { fontSize: '0.75rem', color: 'rgba(255,255,255,0.65)', marginTop: 2 },
-  consultBtn: {
-    background: '#22c55e',
-    color: '#fff',
-    padding: '8px 16px',
-    borderRadius: 8,
-    fontSize: '0.8rem',
-    fontWeight: 700,
-    textDecoration: 'none',
-    whiteSpace: 'nowrap',
+    flexDirection: 'column',
     flexShrink: 0,
+    overflow: 'auto',
   },
-
+  sidebarTop: {
+    padding: '24px 16px 16px',
+    borderBottom: '1px solid #e2e8f0',
+  },
+  sidebarTitle: {
+    fontWeight: 800,
+    fontSize: '1rem',
+    color: '#1e3a5f',
+    marginBottom: 8,
+  },
+  sidebarUser: {
+    fontSize: '0.8rem',
+    color: '#64748b',
+    lineHeight: 1.5,
+  },
+  sidebarSection: {
+    padding: '16px',
+    flex: 1,
+  },
+  sidebarLabel: {
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.06em',
+    marginBottom: 8,
+  },
+  suggestionBtn: {
+    display: 'block',
+    width: '100%',
+    textAlign: 'left',
+    background: 'none',
+    border: 'none',
+    padding: '8px 10px',
+    borderRadius: 8,
+    fontSize: '0.82rem',
+    color: '#334155',
+    cursor: 'pointer',
+    lineHeight: 1.4,
+    marginBottom: 2,
+    transition: 'background 0.1s',
+  },
+  chatArea: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    maxWidth: 820,
+    margin: '0 auto',
+    width: '100%',
+  },
   messages: {
     flex: 1,
     overflowY: 'auto',
-    padding: '24px 16px',
+    padding: '24px 24px 8px',
     display: 'flex',
     flexDirection: 'column',
     gap: 16,
-    maxWidth: 760,
-    width: '100%',
-    margin: '0 auto',
-    boxSizing: 'border-box',
   },
-  msgRow: { display: 'flex', alignItems: 'flex-end', gap: 10 },
+  messageRow: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 8,
+  },
   avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: '50%',
+    background: '#eff6ff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1rem',
+    flexShrink: 0,
+    marginBottom: 2,
+  },
+  userAvatar: {
     width: 32,
     height: 32,
     borderRadius: '50%',
     background: '#1e3a5f',
     color: 'white',
-    fontWeight: 700,
-    fontSize: '0.65rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    fontSize: '0.85rem',
+    fontWeight: 700,
     flexShrink: 0,
+    marginBottom: 2,
   },
-  aiBubble: {
-    background: 'white',
-    border: '1.5px solid #e2e8f0',
-    borderRadius: '18px 18px 18px 4px',
+  bubble: {
+    maxWidth: '72%',
     padding: '12px 16px',
-    maxWidth: '78%',
-    fontSize: '0.9rem',
-    color: '#1e293b',
-    lineHeight: 1.65,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+    borderRadius: 16,
+    lineHeight: 1.6,
   },
-  userBubble: {
+  bubbleUser: {
     background: '#1e3a5f',
     color: 'white',
-    borderRadius: '18px 18px 4px 18px',
+    borderBottomRightRadius: 4,
+    fontSize: '0.93rem',
+  },
+  bubbleAI: {
+    background: 'white',
+    color: '#1e293b',
+    borderBottomLeftRadius: 4,
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+  },
+  typingBubble: {
     padding: '12px 16px',
-    maxWidth: '78%',
-    fontSize: '0.9rem',
-    lineHeight: 1.65,
   },
-  typing: {
+  errorMsg: {
+    background: '#fef2f2',
+    border: '1px solid #fecaca',
+    borderRadius: 10,
+    padding: '12px 16px',
+    fontSize: '0.88rem',
+    color: '#dc2626',
     display: 'flex',
-    gap: 5,
     alignItems: 'center',
-    height: 20,
-    padding: '0 4px',
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  dot: {
-    width: 7,
-    height: 7,
-    borderRadius: '50%',
-    background: '#94a3b8',
-    display: 'inline-block',
-    animation: 'pulse 1.2s infinite',
-  },
-
-  starters: {
-    maxWidth: 760,
-    width: '100%',
-    margin: '0 auto',
-    padding: '0 16px 12px',
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  starterBtn: {
-    background: 'white',
-    border: '1.5px solid #e2e8f0',
-    borderRadius: 20,
-    padding: '7px 14px',
-    fontSize: '0.82rem',
-    color: '#334155',
+  errorDismiss: {
+    background: 'none',
+    border: 'none',
+    color: '#dc2626',
     cursor: 'pointer',
-    fontWeight: 500,
-  },
-
-  inputArea: {
-    background: 'white',
-    borderTop: '1px solid #e2e8f0',
-    padding: '12px 16px 16px',
+    fontWeight: 600,
+    fontSize: '0.83rem',
+    fontFamily: 'inherit',
     flexShrink: 0,
   },
-  inputRow: {
-    display: 'flex',
-    gap: 10,
-    maxWidth: 760,
-    margin: '0 auto',
-    alignItems: 'center',
+  inputArea: {
+    padding: '12px 24px 16px',
+    borderTop: '1px solid #e2e8f0',
+    background: 'white',
   },
-  input: {
-    flex: 1,
-    padding: '12px 16px',
-    borderRadius: 12,
+  inputWrap: {
+    display: 'flex',
+    gap: 8,
+    alignItems: 'flex-end',
+    background: '#f8fafc',
     border: '1.5px solid #e2e8f0',
-    fontSize: '0.95rem',
+    borderRadius: 14,
+    padding: '8px 8px 8px 14px',
+    transition: 'border-color 0.15s',
+  },
+  textarea: {
+    flex: 1,
+    border: 'none',
+    background: 'transparent',
+    resize: 'none',
     outline: 'none',
     fontFamily: 'inherit',
+    fontSize: '0.95rem',
+    color: '#1e293b',
+    lineHeight: 1.6,
+    minHeight: 24,
+    maxHeight: 160,
+    overflowY: 'auto',
   },
   sendBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: '50%',
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     background: '#1e3a5f',
     color: 'white',
     border: 'none',
-    fontSize: '1.2rem',
     cursor: 'pointer',
-    flexShrink: 0,
+    fontSize: '1.1rem',
+    fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontWeight: 700,
-  },
-  sendBtnDisabled: {
-    background: '#cbd5e1',
-    cursor: 'not-allowed',
+    flexShrink: 0,
+    transition: 'opacity 0.15s',
   },
   inputNote: {
-    fontSize: '0.72rem',
+    fontSize: '0.75rem',
     color: '#94a3b8',
     textAlign: 'center',
-    maxWidth: 760,
-    margin: '8px auto 0',
-  },
-  noteLink: {
-    color: '#1e3a5f',
-    fontWeight: 600,
-    textDecoration: 'underline',
+    marginTop: 8,
+    lineHeight: 1.4,
   },
 }
