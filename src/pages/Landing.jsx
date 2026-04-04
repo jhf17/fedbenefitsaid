@@ -7,10 +7,10 @@ export default function Landing() {
     <main>
       <Hero />
       <TrustBar />
-      <CalculatorCTA />
       <Features />
       <HowItWorks />
-      <ConsultCTA />
+      <Testimonials />
+      <FinalCTA />
       <Footer />
     </main>
   )
@@ -18,29 +18,40 @@ export default function Landing() {
 
 function Hero() {
   return (
-    <section style={hero.section}>
+    <section style={heroStyles.section}>
       <div className="container">
-        <div style={hero.inner}>
-          <div style={hero.badge}>For U.S. Federal Employees</div>
-          <h1 style={hero.h1}>
-            Your Federal Retirement Benefits,{' '}
-            <span style={hero.highlight}>Finally Clear</span>
-          </h1>
-          <p style={hero.sub}>
-            FERS. TSP. FEHB. FEGLI. Medicare. Social Security.
-            One wrong decision can cost you tens of thousands of dollars.
-            FedBenefitsAid gives you the accurate information and tools you need - completely free.
-          </p>
-          <div style={hero.btnRow}>
-            <Link to="/calculator" style={hero.btnPrimary}>
-              Calculate My Retirement Income
-            </Link>
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={hero.btnSecondary}>
-              Talk to a Specialist
-            </a>
+        <div style={heroStyles.inner}>
+          <div style={heroStyles.badge}>
+            For U.S. Federal Employees
           </div>
-          <div style={hero.fineprint}>
-            Free forever - no account needed for calculator and reference guide
+
+          <h1 style={heroStyles.h1}>
+            Your Federal Retirement Benefits,{' '}
+            <span style={heroStyles.highlight}>Finally Clear</span>
+          </h1>
+
+
+          <p style={heroStyles.sub}>
+            FERS. TSP. FEHB. FEGLI. Medicare. Social Security. It's complicated —
+            and one wrong decision can cost you thousands. FedBenefitsAid makes it
+            simple, accurate, and free to explore.
+          </p>
+
+          <div style={heroStyles.actions}>
+            <Link to="/calculator" className="btn btn-xl" style={{ background: '#7b1c2e', color: 'white', fontWeight: 700 }}>
+              Calculate My Retirement
+            </Link>
+            <Link to="/reference" className="btn btn-outline btn-xl">
+              Explore Reference Guide
+            </Link>
+          </div>
+
+          <div style={heroStyles.meta}>
+            <span style={heroStyles.metaItem}>Free forever — no account needed</span>
+            <span style={heroStyles.metaDot} />
+            <span style={heroStyles.metaItem}>Updated for 2026 figures</span>
+            <span style={heroStyles.metaDot} />
+            <span style={heroStyles.metaItem}>11 benefit categories covered</span>
           </div>
         </div>
       </div>
@@ -50,81 +61,22 @@ function Hero() {
 
 function TrustBar() {
   const items = [
-    { icon: '2026', label: 'Updated for 2026' },
-    { icon: 'OPM', label: 'OPM-sourced figures' },
-    { icon: '11', label: 'Benefit categories covered' },
-    { icon: 'AI', label: 'Instant AI answers' },
-    { icon: '$0', label: 'Free to use' },
+    { label: '11 benefit areas covered' },
+    { label: '2026 official figures' },
+    { label: 'Instant AI answers' },
+    { label: 'Expert consultations available' },
+    { label: 'No data sold, ever' },
   ]
   return (
-    <div style={trust.bar}>
+    <section style={trustStyles.section}>
       <div className="container">
-        <div style={trust.inner}>
+        <div style={trustStyles.inner}>
           {items.map((item, i) => (
-            <div key={i} style={trust.item}>
-              <div style={trust.icon}>{item.icon}</div>
-              <div style={trust.label}>{item.label}</div>
+            <div key={i} style={trustStyles.item}>
+              <span style={trustStyles.dot} />
+              <span style={trustStyles.text}>{item.label}</span>
             </div>
           ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function CalculatorCTA() {
-  return (
-    <section style={calcCTA.section}>
-      <div className="container">
-        <div style={calcCTA.inner}>
-          <div style={calcCTA.content}>
-            <div style={calcCTA.badge}>New Tool</div>
-            <h2 style={calcCTA.h2}>See Your Complete Retirement Income Picture</h2>
-            <p style={calcCTA.sub}>
-              Enter your service years, High-3 salary, and TSP balance. In seconds,
-              see your estimated pension, TSP income, Social Security, and total monthly
-              retirement income - side by side, with full calculation breakdowns.
-            </p>
-            <div style={calcCTA.bullets}>
-              {[
-                'FERS, CSRS, and Special Provision (LEO/FF/ATC) calculations',
-                'TSP projection with growth rate you control',
-                'Social Security estimate at any claiming age',
-                'MRA+10 early retirement penalty calculator',
-                'Survivor benefit impact on your monthly check',
-                'All figures verified against 2026 OPM rules',
-              ].map((b, i) => (
-                <div key={i} style={calcCTA.bullet}>
-                  <span style={calcCTA.check}>&#10003;</span>
-                  {b}
-                </div>
-              ))}
-            </div>
-            <Link to="/calculator" style={calcCTA.btn}>
-              Open Free Calculator
-            </Link>
-          </div>
-          <div style={calcCTA.preview}>
-            <div style={calcCTA.previewCard}>
-              <div style={calcCTA.previewLabel}>Estimated Total Monthly Income</div>
-              <div style={calcCTA.previewAmount}>$6,840</div>
-              <div style={calcCTA.previewSub}>$82,080 per year</div>
-              <div style={calcCTA.previewBreakdown}>
-                {[
-                  { label: 'FERS Pension', value: '$3,120/mo', color: '#1e3a5f' },
-                  { label: 'TSP Income (4% rule)', value: '$1,750/mo', color: '#2d5f8a' },
-                  { label: 'Social Security', value: '$1,970/mo', color: '#3b82f6' },
-                  { label: 'Medicare Part B', value: '-$185/mo', color: '#ef4444' },
-                ].map((row, i) => (
-                  <div key={i} style={calcCTA.previewRow}>
-                    <span style={calcCTA.previewRowLabel}>{row.label}</span>
-                    <span style={{ ...calcCTA.previewRowValue, color: row.color }}>{row.value}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={calcCTA.previewNote}>Sample output - your numbers will vary</div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -132,127 +84,154 @@ function CalculatorCTA() {
 }
 
 function Features() {
-  const features = [
-    {
-      title: 'Free Calculator',
-      tag: 'FREE',
-      desc: 'Calculate your complete retirement income: FERS or CSRS pension, TSP projection, Social Security, and Medicare. Includes FERS Supplement, survivor benefit impact, and MRA+10 penalty. All 2026 figures.',
-      checks: ['FERS, CSRS, LEO/FF/ATC', 'TSP projection tool', 'Social Security estimate', 'No account required'],
-      link: '/calculator',
-      linkText: 'Open Calculator',
-      accent: '#1e3a5f',
-    },
-    {
-      title: 'Reference Guide',
-      tag: 'FREE',
-      desc: 'Browse our complete library covering all 11 federal benefit categories. Key rules, eligibility requirements, 2026 figures, and common mistakes to avoid. Updated continuously.',
-      checks: ['11 benefit categories', 'Key numbers at a glance', 'Common pitfalls highlighted', 'No account required'],
-      link: '/reference',
-      linkText: 'Browse Guide',
-      accent: '#475569',
-    },
-    {
-      title: 'AI Benefits Chat',
-      tag: 'FREE',
-      desc: 'Ask any question in plain English and get precise, sourced answers. The AI covers every federal and military benefit topic - pensions, TSP, FEHB, FEGLI, VA disability, SBP, and more.',
-      checks: ['Every federal benefit topic', 'Military benefits included', 'Cites OPM and CFR sources', 'Free account required'],
-      link: '/chat',
-      linkText: 'Start Chatting',
-      accent: '#475569',
-      featured: true,
-    },
-    {
-      title: 'Expert Consultation',
-      tag: 'FREE',
-      desc: 'Book a free 30-minute call with a licensed federal benefits specialist at Federal Market Associates. Get personalized guidance on your specific situation - pension, TSP strategy, insurance, and more.',
-      checks: ['Licensed specialists', '30 minutes, no cost', 'FERS and CSRS covered', 'No obligation'],
-      link: CALENDLY_URL,
-      linkText: 'Book Free Call',
-      external: true,
-      accent: '#16a34a',
-    },
-  ]
-
   return (
-    <section style={feat.section}>
+    <section className="section" style={{ background: '#f8fafc' }}>
       <div className="container">
-        <div style={feat.header}>
-          <h2 style={feat.h2}>Everything you need to understand your benefits</h2>
-          <p style={feat.sub}>Four ways to get answers - from self-service to expert guidance. All free.</p>
+        <div className="text-center" style={{ marginBottom: 56 }}>
+          <h2 style={featureStyles.h2}>Everything you need to understand your benefits</h2>
+          <p style={featureStyles.sub}>
+            Three ways to get the answers you need — from self-service to expert guidance.
+          </p>
         </div>
-        <div style={feat.grid}>
-          {features.map((f, i) => (
-            <div key={i} style={{ ...feat.card, ...(f.featured ? feat.cardFeatured : {}) }}>
-              {f.featured && <div style={feat.featuredBadge}>Most Popular</div>}
-              <div style={feat.tagRow}>
-                <span style={{ ...feat.tag, background: f.accent === '#16a34a' ? '#dcfce7' : '#dbeafe', color: f.accent === '#16a34a' ? '#15803d' : '#1e40af' }}>
-                  {f.tag}
-                </span>
-              </div>
-              <h3 style={feat.cardTitle}>{f.title}</h3>
-              <p style={feat.cardDesc}>{f.desc}</p>
-              <ul style={feat.checks}>
-                {f.checks.map((c, j) => (
-                  <li key={j} style={feat.checkItem}>
-                    <span style={feat.checkMark}>&#10003;</span>
-                    {c}
-                  </li>
-                ))}
-              </ul>
-              {f.external ? (
-                <a href={f.link} target="_blank" rel="noopener noreferrer" style={{ ...feat.btn, background: f.accent }}>
-                  {f.linkText}
-                </a>
-              ) : (
-                <Link to={f.link} style={{ ...feat.btn, background: f.featured ? '#1e3a5f' : '#f1f5f9', color: f.featured ? '#fff' : '#1e3a5f' }}>
-                  {f.linkText}
-                </Link>
-              )}
-            </div>
-          ))}
+
+        <div style={featureStyles.grid}>
+          <FeatureCard
+            badge="FREE"
+            badgeColor="free"
+            accent="#059669"
+            title="Reference Guide"
+            description="Browse our complete library of federal benefits information. FERS pension calculations, TSP rules, FEHB 5-year rule, Medicare coordination, Social Security claiming strategies, and more. All updated for 2026."
+            bullets={['11 benefit categories', 'Key numbers at a glance', 'Common pitfalls highlighted', 'No account required']}
+            cta={<Link to="/reference" className="btn btn-green btn-full">Explore Free</Link>}
+          />
+          <FeatureCard
+            badge="FREE"
+            badgeColor="pro"
+            accent="#2563eb"
+            title="AI Benefits Chat"
+            description="Ask questions in plain English and get precise, sourced answers about your federal benefits. The AI learns your situation as you chat — years of service, retirement goals, family circumstances — and tailors every answer."
+            bullets={['Personalized to your situation', 'Cites OPM regulations and CFR', 'Builds your benefit profile', 'Unlimited questions']}
+            cta={<Link to="/signup" className="btn btn-primary btn-full">Start Free</Link>}
+            highlight
+          />
+          <FeatureCard
+            badge="FREE"
+            badgeColor="free"
+            accent="#1e3a5f"
+            title="Expert Consultation"
+            description="Sometimes you need a real human expert who understands the nuances of your specific situation. Book a free 30-minute call with a federal retirement specialist at Federal Market Associates."
+            bullets={['Certified federal benefits advisors', 'No sales pitch', '30 minutes, completely free', 'Available for FERS and CSRS']}
+            cta={
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="btn btn-navy btn-full">
+                Book Free Call
+              </a>
+            }
+          />
         </div>
       </div>
     </section>
+  )
+}
+
+function FeatureCard({ badge, badgeColor, accent, title, description, bullets, cta, highlight }) {
+  return (
+    <div style={{
+      ...featureCardStyles.card,
+      ...(highlight ? { ...featureCardStyles.cardHighlight, borderTopColor: accent } : { borderTopColor: accent }),
+    }}>
+      {highlight && <div style={featureCardStyles.popularBadge}>Most Popular</div>}
+      <div style={featureCardStyles.top}>
+        <span className={`badge badge-${badgeColor}`}>{badge}</span>
+      </div>
+      <div style={{ width: 32, height: 3, background: accent, borderRadius: 2, marginBottom: 16 }} />
+      <h3 style={featureCardStyles.title}>{title}</h3>
+      <p style={featureCardStyles.desc}>{description}</p>
+      <ul style={featureCardStyles.bullets}>
+        {bullets.map((b, i) => (
+          <li key={i} style={featureCardStyles.bullet}>
+            <span style={{ ...featureCardStyles.check, color: accent }}>&#10003;</span>
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+      <div style={featureCardStyles.cta}>{cta}</div>
+    </div>
   )
 }
 
 function HowItWorks() {
   const steps = [
     {
-      n: '1',
-      title: 'Run your numbers',
-      desc: 'Open the free calculator and enter your years of service, High-3 salary, and TSP balance. Get your complete retirement income estimate in under a minute.',
+      num: '1',
+      title: 'Browse the Free Reference Guide',
+      desc: 'Start with our comprehensive library. Search any benefit topic, read the rules that apply to you, and flag the common mistakes that trip people up.',
     },
     {
-      n: '2',
-      title: 'Explore the reference guide',
-      desc: 'Dig into any benefit category - FEHB rules, FEGLI options, survivor benefits, Medicare coordination. Every topic explained clearly with exact 2026 figures.',
+      num: '2',
+      title: 'Chat with AI for Personalized Answers',
+      desc: 'Create a free account and ask the AI anything. It remembers what you tell it — your years of service, your agency, your plans — and gives you answers tailored to your situation.',
     },
     {
-      n: '3',
-      title: 'Ask the AI anything',
-      desc: 'Create a free account and ask the AI your specific questions. It covers every federal and military benefit topic and cites OPM regulations and CFR sections.',
-    },
-    {
-      n: '4',
-      title: 'Talk to a specialist when ready',
-      desc: 'When you\'re ready to make real decisions, book a free 30-minute consultation with a licensed federal benefits specialist. No pressure, no obligation.',
+      num: '3',
+      title: 'Book a Free Expert Call When Ready',
+      desc: "When you're ready to make real decisions, talk to a federal benefits specialist. Always free, always no pressure, and always focused on what's best for you.",
     },
   ]
+
   return (
-    <section style={how.section}>
+    <section className="section">
       <div className="container">
-        <div style={how.header}>
-          <h2 style={how.h2}>From confused to confident</h2>
-          <p style={how.sub}>Most federal employees spend years not fully understanding their benefits. You don\'t have to.</p>
+        <div className="text-center" style={{ marginBottom: 56 }}>
+          <h2 style={howStyles.h2}>How it works</h2>
+          <p style={howStyles.sub}>From confused to confident in three simple steps.</p>
         </div>
-        <div style={how.steps}>
-          {steps.map((s, i) => (
-            <div key={i} style={how.step}>
-              <div style={how.stepNum}>{s.n}</div>
-              <div style={how.stepContent}>
-                <div style={how.stepTitle}>{s.title}</div>
-                <div style={how.stepDesc}>{s.desc}</div>
+        <div style={howStyles.steps}>
+          {steps.map((step, i) => (
+            <div key={i} style={howStyles.step}>
+              <div style={howStyles.stepNum}>{step.num}</div>
+              <h3 style={howStyles.stepTitle}>{step.title}</h3>
+              <p style={howStyles.stepDesc}>{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Testimonials() {
+  const items = [
+    {
+      quote: "I had no idea my MRA+10 retirement would mean losing FEHB during a postponement period. This tool caught it before I filed. Could have been a massive mistake.",
+      name: "David M.",
+      role: "FERS employee, 28 years, HHS",
+    },
+    {
+      quote: "Asked the AI a question about TSP loans at separation and it explained exactly what would happen tax-wise — cited the specific CFR section. More detailed than anything my HR gave me.",
+      name: "Patricia K.",
+      role: "CSRS-Offset, 31 years, DOD",
+    },
+    {
+      quote: "Booked the free consultation after browsing the Medicare coordination info. The advisor helped me figure out whether Part B was worth it. Saved me hours of research.",
+      name: "Robert S.",
+      role: "Recently retired, 35 years, USPS",
+    },
+  ]
+
+  return (
+    <section className="section" style={{ background: '#f8fafc' }}>
+      <div className="container">
+        <div className="text-center" style={{ marginBottom: 48 }}>
+          <h2 style={testimonialStyles.h2}>Federal employees trust FedBenefitsAid</h2>
+        </div>
+        <div style={testimonialStyles.grid}>
+          {items.map((item, i) => (
+            <div key={i} style={testimonialStyles.card}>
+              <div style={testimonialStyles.stars}>&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              <p style={testimonialStyles.quote}>"{item.quote}"</p>
+              <div style={testimonialStyles.author}>
+                <div style={testimonialStyles.name}>{item.name}</div>
+                <div style={testimonialStyles.role}>{item.role}</div>
               </div>
             </div>
           ))}
@@ -262,27 +241,25 @@ function HowItWorks() {
   )
 }
 
-function ConsultCTA() {
+function FinalCTA() {
   return (
-    <section style={cta.section}>
+    <section style={finalStyles.section}>
       <div className="container">
-        <div style={cta.inner}>
-          <h2 style={cta.h2}>Ready to make confident retirement decisions?</h2>
-          <p style={cta.sub}>
-            The average federal employee has $40,000+ in benefits decisions to make before retirement.
-            A free 30-minute call with a specialist at Federal Market Associates can give you a
-            clear, personalized plan - at no cost and no obligation.
+        <div style={finalStyles.inner}>
+ 2        <h2 style={finalStyles.h2}>
+            Don't leave retirement money on the table.
+          </h2>
+          <p style={finalStyles.sub}>
+            The average federal employee has $40,000+ in benefits complexity decisions to make before retirement.
+            Start understanding yours — completely free.
           </p>
-          <div style={cta.btnRow}>
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={cta.btnPrimary}>
+          <div style={finalStyles.actions}>
+            <Link to="/reference" className="btn btn-outline-white btn-xl">
+              Start Free Reference Guide
+            </Link>
+            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="btn btn-xl" style={{ background: 'white', color: '#1e3a5f', fontWeight: 700 }}>
               Book Free Consultation
             </a>
-            <Link to="/calculator" style={cta.btnSecondary}>
-              Try the Calculator First
-            </Link>
-          </div>
-          <div style={cta.trust}>
-            No cost. No obligation. No sales pressure. 30 minutes with a licensed specialist.
           </div>
         </div>
       </div>
@@ -292,154 +269,360 @@ function ConsultCTA() {
 
 function Footer() {
   return (
-    <footer style={foot.footer}>
+    <footer style={footerStyles.footer}>
       <div className="container">
-        <div style={foot.inner}>
-          <div style={foot.brand}>
-            <div style={foot.logo}>
-              <span style={foot.logoMark}>FBA</span>
-              <span style={foot.logoText}>FedBenefitsAid</span>
+        <div style={footerStyles.inner}>
+          <div style={footerStyles.brand}>
+            <div style={footerStyles.logoWrap}>
+              <span style={footerStyles.logoMark}>FBA</span>
+              <span style={footerStyles.logoText}>FedBenefitsAid</span>
             </div>
-            <div style={foot.tagline}>Federal retirement benefits, made simple.</div>
-            <div style={foot.disclaimer}>
-              FedBenefitsAid provides educational information only and does not constitute
-              financial, legal, or tax advice. Always verify benefit information with OPM
-              or a qualified federal benefits advisor.
-            </div>
+            <p style={footerStyles.tagline}>
+              Federal retirement benefits, made simple.
+            </p>
+            <p style={footerStyles.disclaimer}>
+              FedBenefitsAid provides educational information only and does not constitute financial, legal, or tax advice. Always verify benefit information with OPM or a qualified federal benefits advisor.
+            </p>
           </div>
-          <div style={foot.links}>
-            <div style={foot.col}>
-              <div style={foot.colTitle}>Resources</div>
-              <Link to="/reference" style={foot.link}>Reference Guide</Link>
-              <Link to="/calculator" style={foot.link}>Retirement Calculator</Link>
-              <Link to="/chat" style={foot.link}>AI Chat</Link>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={foot.link}>Book Free Call</a>
+          <div style={footerStyles.links}>
+            <div style={footerStyles.col}>
+              <div style={footerStyles.colTitle}>Resources</div>
+              <Link to="/calculator" style={footerStyles.link}>Retirement Calculator</Link>
+              <Link to="/reference" style={footerStyles.link}>Reference Guide</Link>
+              <Link to="/resources" style={footerStyles.link}>Forms &amp; Resources</Link>
+              <Link to="/chat" style={footerStyles.link}>AI Chat</Link>
             </div>
-            <div style={foot.col}>
-              <div style={foot.colTitle}>Federal Market Associates</div>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={foot.link}>Schedule Consultation</a>
+            <div style={footerStyles.col}>
+              <div style={footerStyles.colTitle}>Consult</div>
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={footerStyles.link}>
+                Book Free Call
+              </a>
+              <a href="https://federalmarketassociates.com" target="_blank" rel="noopener noreferrer" style={footerStyles.link}>
+                Federal Market Associates
+              </a>
             </div>
-            <div style={foot.col}>
-              <div style={foot.colTitle}>Account</div>
-              <Link to="/login" style={foot.link}>Log In</Link>
-              <Link to="/signup" style={foot.link}>Sign Up</Link>
+            <div style={footerStyles.col}>
+              <div style={footerStyles.colTitle}>Account</div>
+              <Link to="/login" style={footerStyles.link}>Log In</Link>
+              <Link to="/signup" style={footerStyles.link}>Sign Up</Link>
             </div>
           </div>
         </div>
-        <div style={foot.bottom}>
-          <div>
-            &copy; 2026 FedBenefitsAid. All rights reserved.
-            Information updated for 2026. Not affiliated with OPM or the U.S. government.
-          </div>
+        <div style={footerStyles.bottom}>
+          <span>© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
+          <span>Information updated for 2026. Not affiliated with OPM or the U.S. government.</span>
         </div>
       </div>
     </footer>
   )
 }
 
-// ============================================================
-// STYLES
-// ============================================================
+// ---- Styles ----
 
-const hero = {
-  section: { background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%, #1e4080 100%)', padding: '80px 0 72px', color: '#fff' },
-  inner: { maxWidth: 680, margin: '0 auto', textAlign: 'center', padding: '0 20px' },
-  badge: { display: 'inline-block', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '5px 16px', borderRadius: 20, marginBottom: 20 },
-  h1: { fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.15, marginBottom: 20, letterSpacing: '-0.02em' },
-  highlight: { color: '#60a5fa' },
-  sub: { fontSize: '1.05rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 36, maxWidth: 580, margin: '0 auto 36px' },
-  btnRow: { display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 20 },
-  btnPrimary: { background: '#22c55e', color: '#fff', padding: '14px 28px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none' },
-  btnSecondary: { background: 'rgba(255,255,255,0.12)', color: '#fff', padding: '14px 28px', borderRadius: 10, fontWeight: 600, fontSize: '1rem', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.25)' },
-  fineprint: { fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)' },
+const heroStyles = {
+  section: {
+    background: 'linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%)',
+    padding: '96px 0 80px',
+  },
+  inner: {
+    maxWidth: 680,
+    textAlign: 'center',
+    margin: '0 auto',
+  },
+  badge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    background: 'rgba(30,58,95,0.08)',
+    color: '#1e3a5f',
+    padding: '6px 18px',
+    borderRadius: 20,
+    fontSize: '0.82rem',
+    fontWeight: 700,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
+    marginBottom: 28,
+  },
+  h1: {
+    fontSize: 'clamp(2rem, 5vw, 3.2rem)',
+    fontWeight: 800,
+    color: '#0f172a',
+    lineHeight: 1.15,
+    letterSpacing: '-0.03em',
+    marginBottom: 20,
+  },
+  highlight: {
+    background: 'linear-gradient(120deg, #1e5fa8 0%, #5ba3e0 45%, #c2e0f7 75%, #e8f4fd 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    filter: 'drop-shadow(0 1px 2px rgba(30,90,168,0.18))',
+  },
+  sub: {
+    fontSize: '1.1rem',
+    color: '#475569',
+    lineHeight: 1.7,
+    marginBottom: 40,
+    maxWidth: 560,
+    margin: '0 auto 40px',
+  },
+  actions: {
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 28,
+  },
+  meta: {
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  metaItem: {
+    fontSize: '0.83rem',
+    color: '#64748b',
+    fontWeight: 500,
+  },
+  metaDot: {
+    width: 4,
+    height: 4,
+    borderRadius: '50%',
+    background: '#cbd5e1',
+    display: 'inline-block',
+  },
 }
 
-const trust = {
-  bar: { background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '20px 0' },
-  inner: { display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '8px 40px' },
-  item: { display: 'flex', alignItems: 'center', gap: 10 },
-  icon: { background: '#1e3a5f', color: '#fff', fontSize: '0.7rem', fontWeight: 800, padding: '3px 8px', borderRadius: 5, letterSpacing: '0.04em' },
-  label: { fontSize: '0.85rem', fontWeight: 500, color: '#475569' },
+const trustStyles = {
+  section: {
+    borderTop: '1px solid #e2e8f0',
+    borderBottom: '1px solid #e2e8f0',
+    background: '#f8fafc',
+    padding: '14px 0',
+  },
+  inner: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 28,
+    flexWrap: 'wrap',
+  },
+  item: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    background: '#1e3a5f',
+    flexShrink: 0,
+    display: 'inline-block',
+  },
+  text: {
+    color: '#475569',
+    fontWeight: 500,
+    fontSize: '0.84rem',
+  },
 }
 
-const calcCTA = {
-  section: { padding: '72px 0', background: '#fff' },
-  inner: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 48, alignItems: 'center' },
-  content: {},
-  badge: { display: 'inline-block', background: '#dcfce7', color: '#15803d', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 12px', borderRadius: 20, marginBottom: 14 },
-  h2: { fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: '#0f172a', lineHeight: 1.2, marginBottom: 14, letterSpacing: '-0.02em' },
-  sub: { fontSize: '0.95rem', color: '#64748b', lineHeight: 1.7, marginBottom: 24 },
-  bullets: { display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28 },
-  bullet: { display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.9rem', color: '#334155' },
-  check: { color: '#16a34a', fontWeight: 800, flexShrink: 0, marginTop: 1 },
-  btn: { display: 'inline-block', background: '#1e3a5f', color: '#fff', padding: '13px 28px', borderRadius: 10, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' },
-  preview: {},
-  previewCard: { background: '#1e3a5f', borderRadius: 16, padding: '28px 24px', color: '#fff' },
-  previewLabel: { fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 8 },
-  previewAmount: { fontSize: 'clamp(2.2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1, marginBottom: 6 },
-  previewSub: { fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: 24 },
-  previewBreakdown: { display: 'flex', flexDirection: 'column', gap: 0 },
-  previewRow: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.1)' },
-  previewRowLabel: { fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' },
-  previewRowValue: { fontSize: '0.9rem', fontWeight: 700, color: '#fff' },
-  previewNote: { fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginTop: 14, textAlign: 'center' },
+const featureStyles = {
+  h2: {
+    fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+    fontWeight: 800,
+    color: '#0f172a',
+    letterSpacing: '-0.02em',
+    marginBottom: 12,
+  },
+  sub: {
+    fontSize: '1.05rem',
+    color: '#64748b',
+    maxWidth: 560,
+    margin: '0 auto',
+    lineHeight: 1.6,
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 24,
+  },
 }
 
-const feat = {
-  section: { padding: '72px 0', background: '#f8fafc' },
-  header: { textAlign: 'center', marginBottom: 48 },
-  h2: { fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: '#0f172a', marginBottom: 12, letterSpacing: '-0.02em' },
-  sub: { fontSize: '1rem', color: '#64748b' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 },
-  card: { background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '28px 24px', display: 'flex', flexDirection: 'column', position: 'relative' },
-  cardFeatured: { border: '2px solid #1e3a5f' },
-  featuredBadge: { position: 'absolute', top: -12, left: 24, background: '#1e3a5f', color: '#fff', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '3px 10px', borderRadius: 20 },
-  tagRow: { marginBottom: 12 },
-  tag: { fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.08em', padding: '2px 10px', borderRadius: 20 },
-  cardTitle: { fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: 10 },
-  cardDesc: { fontSize: '0.875rem', color: '#64748b', lineHeight: 1.6, marginBottom: 16, flex: 1 },
-  checks: { listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 },
-  checkItem: { display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', color: '#475569' },
-  checkMark: { color: '#16a34a', fontWeight: 800, flexShrink: 0 },
-  btn: { display: 'block', textAlign: 'center', padding: '10px 16px', borderRadius: 8, fontSize: '0.88rem', fontWeight: 700, textDecoration: 'none', marginTop: 'auto' },
+const featureCardStyles = {
+  card: {
+    background: 'white',
+    borderRadius: 16,
+    padding: '32px 28px',
+    border: '1.5px solid #e2e8f0',
+    borderTop: '4px solid',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+  },
+  cardHighlight: {
+    boxShadow: '0 8px 30px rgba(37,99,235,0.12)',
+    border: '1.5px solid #c7d7fc',
+    borderTop: '4px solid',
+  },
+  popularBadge: {
+    position: 'absolute',
+    top: -13,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    background: '#2563eb',
+    color: 'white',
+    padding: '4px 16px',
+    borderRadius: 20,
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
+    whiteSpace: 'nowrap',
+  },
+  top: { marginBottom: 12 },
+  title: { fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', marginBottom: 10 },
+  desc: { fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6, marginBottom: 20, flex: 1 },
+  bullets: { listStyle: 'none', marginBottom: 24 },
+  bullet: { display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.88rem', color: '#374151', marginBottom: 6 },
+  check: { fontWeight: 700, flexShrink: 0, fontSize: '0.95rem' },
+  cta: { marginTop: 'auto' },
 }
 
-const how = {
-  section: { padding: '72px 0', background: '#fff' },
-  header: { textAlign: 'center', marginBottom: 48 },
-  h2: { fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, color: '#0f172a', marginBottom: 12, letterSpacing: '-0.02em' },
-  sub: { fontSize: '1rem', color: '#64748b' },
-  steps: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32 },
-  step: { display: 'flex', gap: 16, alignItems: 'flex-start' },
-  stepNum: { width: 40, height: 40, background: '#1e3a5f', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1rem', flexShrink: 0 },
-  stepContent: {},
-  stepTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 6 },
-  stepDesc: { fontSize: '0.875rem', color: '#64748b', lineHeight: 1.6 },
+const howStyles = {
+  h2: {
+    fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+    fontWeight: 800,
+    color: '#0f172a',
+    letterSpacing: '-0.02em',
+    marginBottom: 12,
+  },
+  sub: { fontSize: '1.05rem', color: '#64748b' },
+  steps: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 32,
+  },
+  step: {
+    textAlign: 'center',
+    padding: '36px 28px',
+    background: 'white',
+    borderRadius: 16,
+    border: '1.5px solid #e2e8f0',
+  },
+  stepNum: {
+    width: 40,
+    height: 40,
+    background: '#1e3a5f',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 800,
+    fontSize: '1rem',
+    margin: '0 auto 16px',
+  },
+  stepTitle: { fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: 10 },
+  stepDesc: { fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6 },
 }
 
-const cta = {
-  section: { padding: '72px 0', background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' },
-  inner: { maxWidth: 620, margin: '0 auto', textAlign: 'center', padding: '0 20px' },
-  h2: { fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, marginBottom: 16, letterSpacing: '-0.02em' },
-  sub: { fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 36 },
-  btnRow: { display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 20 },
-  btnPrimary: { background: '#22c55e', color: '#fff', padding: '14px 28px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none' },
-  btnSecondary: { background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '14px 28px', borderRadius: 10, fontWeight: 600, fontSize: '0.95rem', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.2)' },
-  trust: { fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)' },
+const testimonialStyles = {
+  h2: {
+    fontSize: 'clamp(1.4rem, 3vw, 2rem)',
+    fontWeight: 800,
+    color: '#0f172a',
+    letterSpacing: '-0.02em',
+    marginBottom: 8,
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: 24,
+  },
+  card: {
+    background: 'white',
+    borderRadius: 16,
+    padding: '28px 24px',
+    border: '1.5px solid #e2e8f0',
+  },
+  stars: { color: '#f59e0b', fontSize: '1rem', marginBottom: 12, letterSpacing: 2 },
+  quote: { fontSize: '0.9rem', color: '#334155', lineHeight: 1.65, marginBottom: 16, fontStyle: 'italic' },
+  author: {},
+  name: { fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' },
+  role: { fontSize: '0.8rem', color: '#64748b', marginTop: 2 },
 }
 
-const foot = {
-  footer: { background: '#0f172a', color: '#94a3b8', padding: '56px 0 32px' },
-  inner: { display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, marginBottom: 40 },
-  brand: { maxWidth: 340 },
-  logo: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 },
-  logoMark: { background: '#1e3a5f', color: '#fff', fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.05em', padding: '4px 8px', borderRadius: 6 },
-  logoText: { fontWeight: 700, fontSize: '1rem', color: '#f1f5f9' },
-  tagline: { fontSize: '0.88rem', color: '#94a3b8', marginBottom: 12 },
-  disclaimer: { fontSize: '0.75rem', color: '#64748b', lineHeight: 1.6 },
-  links: { display: 'flex', gap: 40, flexWrap: 'wrap' },
-  col: { display: 'flex', flexDirection: 'column', gap: 8 },
-  colTitle: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#cbd5e1', marginBottom: 4 },
-  link: { fontSize: '0.85rem', color: '#94a3b8', textDecoration: 'none' },
-  bottom: { borderTop: '1px solid #1e293b', paddingTop: 24, fontSize: '0.78rem', color: '#475569' },
+const finalStyles = {
+  section: {
+    background: 'linear-gradient(135deg, #1e3a5f 0%, #1a4d8f 100%)',
+    padding: '80px 0',
+  },
+  inner: {
+    textAlign: 'center',
+    maxWidth: 640,
+    margin: '0 auto',
+    color: 'white',
+  },
+  h2: {
+    fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
+    fontWeight: 800,
+    letterSpacing: '-0.02em',
+    marginBottom: 16,
+  },
+  sub: {
+    fontSize: '1.05rem',
+    opacity: 0.85,
+    lineHeight: 1.6,
+    marginBottom: 36,
+  },
+  actions: {
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+}
+
+const footerStyles = {
+  footer: {
+    background: '#0f172a',
+    color: '#94a3b8',
+    padding: '56px 0 24px',
+  },
+  inner: {
+    display: 'flex',
+    gap: 64,
+    marginBottom: 40,
+    flexWrap: 'wrap',
+  },
+  brand: { flex: 1, minWidth: 260, maxWidth: 360 },
+  logoWrap: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 },
+  logoMark: {
+    background: 'rgba(255,255,255,0.15)',
+    color: 'white',
+    fontWeight: 800,
+    fontSize: '0.68rem',
+    letterSpacing: '0.06em',
+    padding: '4px 7px',
+    borderRadius: 5,
+  },
+  logoText: { color: 'white', fontWeight: 800, fontSize: '1rem' },
+  tagline: { color: '#cbd5e1', fontSize: '0.9rem', marginBottom: 12 },
+  disclaimer: { fontSize: '0.78rem', lineHeight: 1.6, color: '#64748b' },
+  links: { display: 'flex', gap: 48, flexWrap: 'wrap' },
+  col: { display: 'flex', flexDirection: 'column', gap: 10, minWidth: 120 },
+  colTitle: { color: '#e2e8f0', fontWeight: 700, fontSize: '0.85rem', marginBottom: 4 },
+  link: { color: '#94a3b8', fontSize: '0.88rem', textDecoration: 'none' },
+  bottom: {
+    borderTop: '1px solid #1e293b',
+    paddingTop: 20,
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
+    fontSize: '0.78rem',
+    color: '#475569',
+  },
 }
