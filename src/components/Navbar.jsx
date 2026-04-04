@@ -15,8 +15,7 @@ export default function Navbar() {
     setMenuOpen(false)
   }
 
-  const isActive = (path) =>
-    location.pathname === path || location.pathname.startsWith(path + '/')
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
 
   return (
     <nav style={styles.nav}>
@@ -29,11 +28,14 @@ export default function Navbar() {
 
         {/* Desktop Nav Links */}
         <div data-navbar-links="" style={styles.links}>
+          <Link to="/calculator" style={{ ...styles.link, ...(isActive('/calculator') ? styles.linkActive : {}) }}>
+            Calculator
+          </Link>
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }}>
             Reference Guide
           </Link>
-          <Link to="/calculator" style={{ ...styles.link, ...(isActive('/calculator') ? styles.linkActive : {}) }}>
-            Calculator
+          <Link to="/resources" style={{ ...styles.link, ...(isActive('/resources') ? styles.linkActive : {}) }}>
+            Resources
           </Link>
           <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
             AI Chat
@@ -60,29 +62,47 @@ export default function Navbar() {
         {/* Mobile Hamburger */}
         <button
           data-hamburger=""
-          onClick={() => setMenuOpen(!menuOpen)}
           style={styles.hamburger}
+          onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
-          <span style={styles.bar} />
-          <span style={styles.bar} />
-          <span style={styles.bar} />
+          <div style={{ ...styles.bar, ...(menuOpen ? styles.barOpen1 : {}) }} />
+          <div style={{ ...styles.bar, opacity: menuOpen ? 0 : 1 }} />
+          <div style={{ ...styles.bar, ...(menuOpen ? styles.barOpen2 : {}) }} />
         </button>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div style={styles.mobileMenu}>
-          <Link to="/reference" onClick={() => setMenuOpen(false)} style={styles.mobileLink}>Reference Guide</Link>
-          <Link to="/calculator" onClick={() => setMenuOpen(false)} style={styles.mobileLink}>Calculator</Link>
-          <Link to="/chat" onClick={() => setMenuOpen(false)} style={styles.mobileLink}>AI Chat</Link>
+        <div data-mobile-menu="" style={styles.mobileMenu}>
+          <Link to="/calculator" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            Calculator
+          </Link>
+          <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            Reference Guide
+          </Link>
+          <Link to="/resources" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            Forms &amp; Resources
+          </Link>
+          <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            AI Chat
+          </Link>
           <div style={styles.mobileDivider} />
           {user ? (
-            <button onClick={handleLogout} style={styles.mobileLink}>Sign Out</button>
+            <>
+              <span style={styles.mobileUserEmail}>{user.email}</span>
+              <button onClick={handleLogout} className="btn btn-outline btn-sm btn-full" style={{ marginTop: 8 }}>
+                Sign Out
+              </button>
+            </>
           ) : (
             <>
-              <Link to="/login" onClick={() => setMenuOpen(false)} style={styles.mobileLink}>Log In</Link>
-              <Link to="/signup" onClick={() => setMenuOpen(false)} style={{ ...styles.mobileLink, ...styles.mobileLinkCTA }}>Get Started Free</Link>
+              <Link to="/login" className="btn btn-outline btn-full" onClick={() => setMenuOpen(false)}>
+                Log In
+              </Link>
+              <Link to="/signup" className="btn btn-navy btn-full" onClick={() => setMenuOpen(false)} style={{ marginTop: 8 }}>
+                Get Started Free
+              </Link>
             </>
           )}
         </div>
@@ -96,19 +116,19 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    background: '#fff',
+    background: 'rgba(255,255,255,0.97)',
+    backdropFilter: 'blur(12px)',
     borderBottom: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   },
   inner: {
-    maxWidth: 1100,
+    maxWidth: 1140,
     margin: '0 auto',
     padding: '0 24px',
     height: 64,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 24,
+    gap: 32,
   },
   logo: {
     display: 'flex',
@@ -119,49 +139,48 @@ const styles = {
   },
   logoMark: {
     background: '#1e3a5f',
-    color: '#fff',
+    color: 'white',
     fontWeight: 800,
-    fontSize: '0.8rem',
-    letterSpacing: '0.05em',
-    padding: '4px 8px',
+    fontSize: '0.72rem',
+    letterSpacing: '0.06em',
+    padding: '4px 7px',
     borderRadius: 6,
   },
   logoText: {
-    fontWeight: 700,
-    fontSize: '1rem',
-    color: '#0f172a',
-    letterSpacing: '-0.01em',
+    fontWeight: 800,
+    fontSize: '1.05rem',
+    color: '#1e3a5f',
+    letterSpacing: '-0.02em',
   },
   links: {
     display: 'flex',
     alignItems: 'center',
     gap: 4,
     flex: 1,
-    justifyContent: 'center',
   },
   link: {
     padding: '6px 14px',
-    borderRadius: 7,
-    textDecoration: 'none',
+    borderRadius: 8,
     fontSize: '0.9rem',
     fontWeight: 500,
     color: '#475569',
-    transition: 'all 0.15s',
+    textDecoration: 'none',
+    transition: 'all 0.15s ease',
   },
   linkActive: {
-    background: '#f1f5f9',
     color: '#1e3a5f',
-    fontWeight: 700,
+    background: '#eff6ff',
+    fontWeight: 600,
   },
   authArea: {
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
     flexShrink: 0,
   },
   userEmail: {
     fontSize: '0.85rem',
-    color: '#475569',
+    color: '#64748b',
     fontWeight: 500,
   },
   hamburger: {
@@ -172,42 +191,56 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     padding: 4,
+    marginLeft: 'auto',
   },
   bar: {
-    display: 'block',
     width: 22,
     height: 2,
-    background: '#475569',
+    background: '#1e3a5f',
     borderRadius: 2,
+    transition: 'all 0.2s ease',
   },
+  barOpen1: { transform: 'rotate(45deg) translate(5px, 5px)' },
+  barOpen2: { transform: 'rotate(-45deg) translate(5px, -5px)' },
   mobileMenu: {
+    display: 'none',
+    padding: '16px 24px 24px',
     borderTop: '1px solid #e2e8f0',
-    padding: '12px 24px 20px',
-    display: 'flex',
     flexDirection: 'column',
     gap: 4,
+    background: 'white',
   },
   mobileLink: {
+    display: 'block',
     padding: '10px 12px',
     borderRadius: 8,
-    textDecoration: 'none',
     fontSize: '0.95rem',
     fontWeight: 500,
-    color: '#475569',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    textAlign: 'left',
-  },
-  mobileLinkCTA: {
-    background: '#1e3a5f',
-    color: '#fff',
-    fontWeight: 700,
-    marginTop: 4,
+    color: '#334155',
+    textDecoration: 'none',
   },
   mobileDivider: {
     height: 1,
     background: '#e2e8f0',
     margin: '8px 0',
   },
+  mobileUserEmail: {
+    fontSize: '0.85rem',
+    color: '#64748b',
+    padding: '4px 12px',
+  },
+}
+
+// Mobile responsive via injected CSS using data attributes
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style')
+  style.textContent = `
+    @media (max-width: 768px) {
+      [data-navbar-links] { display: none !important; }
+      [data-navbar-auth] { display: none !important; }
+      [data-hamburger] { display: flex !important; }
+      [data-mobile-menu] { display: flex !important; }
+    }
+  `
+  document.head.appendChild(style)
 }
