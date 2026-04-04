@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -175,6 +176,7 @@ function calcTSPFutureValue(balance, monthlyContrib, yearsToRetirement, annualRa
 // ============================================================
 
 export default function Calculator() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState('fers')
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
@@ -548,7 +550,7 @@ export default function Calculator() {
                     {FEHB_PLANS.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
-            3     </select>
+                  </select>
                 </Field>
                 <Field label="Coverage Type">
                   <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
@@ -647,7 +649,7 @@ export default function Calculator() {
               {results.supplementMonthly > 0 && (
                 <div style={s.breakdownCard}>
                   <div style={s.bCardIcon}>+</div>
-              2   <div style={s.bCardLabel}>FERS Supplement</div>
+                  <div style={s.bCardLabel}>FERS Supplement</div>
                   <div style={s.bCardValue}>{fmt(results.supplementMonthly)}</div>
                   <div style={s.bCardSub}>Until age 62</div>
                   <div style={s.bCardDetail}>({yrsServiceLabel(results.yrs)} / 40) x SS at 62</div>
@@ -805,6 +807,35 @@ export default function Calculator() {
                   <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
                 </div>
               </div>
+            </div>
+
+            {/* Discuss with AI CTA */}
+            <div style={{ textAlign: 'center', marginTop: 28, padding: '24px', background: '#f0f9ff', borderRadius: 14, border: '1.5px solid #bae6fd' }}>
+              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0c4a6e', marginBottom: 8 }}>
+                Want personalized guidance on these numbers?
+              </div>
+              <div style={{ fontSize: '0.88rem', color: '#0369a1', marginBottom: 16, lineHeight: 1.5 }}>
+                Share your results with the AI for a plain-English explanation, catch anything you may have missed, and get next steps tailored to your situation.
+              </div>
+              <button
+                onClick={() => {
+                  const lines = [
+                    'Retirement System: ' + (tab === 'fers' ? 'FERS' : tab === 'csrs' ? 'CSRS' : 'Special Category FERS'),
+                    'Total Monthly Income: ' + (results.totalMonthly ? ('$' + results.totalMonthly.toFixed(0)) : 'N/A'),
+                    'Total Annual Income: ' + (results.totalAnnual ? ('$' + results.totalAnnual.toFixed(0)) : 'N/A'),
+                    results.pension ? ('Pension (monthly): $' + (results.pension / 12).toFixed(0)) : null,
+                    results.supplement ? ('FERS Supplement (monthly): $' + results.supplement.toFixed(0)) : null,
+                    results.ssMonthly ? ('Social Security (monthly): $' + results.ssMonthly.toFixed(0)) : null,
+                    results.tspMonthly ? ('TSP Drawdown (monthly): $' + results.tspMonthly.toFixed(0)) : null,
+                    results.fehbMonthly ? ('FEHB Premium (monthly): -$' + results.fehbMonthly.toFixed(0)) : null,
+                    results.medicareDeduct ? ('Medicare Part B (monthly): -$' + results.medicareDeduct.toFixed(0)) : null,
+                  ].filter(Boolean).join('\n')
+                  navigate('/chat', { state: { calculatorResults: lines } })
+                }}
+                style={{ background: '#0369a1', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+              >
+                Discuss My Results with AI →
+              </button>
             </div>
 
           </div>
