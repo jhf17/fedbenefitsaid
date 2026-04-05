@@ -129,7 +129,7 @@ function Features() {
             badgeColor="free"
             accent="#7b1c2e"
             title="Retirement Calculator"
-            description="Get a detailed breakdown of your FERS pension, FERS Supplement eligibility, TSP projections, and FEHB premium impact ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ all tailored to your inputs."
+            description="Get a detailed breakdown of your FERS pension, FERS Supplement eligibility, TSP projections, and FEHB premium impact — all tailored to your inputs."
             bullets={['FERS & CSRS pension estimate', 'FERS Supplement eligibility', 'TSP & FEHB included', 'No account required']}
             cta={<Link to="/calculator" className="btn btn-full" style={{ background: '#7b1c2e', color: 'white' }}>Calculate My Retirement</Link>}
           />
@@ -278,7 +278,7 @@ function Footer() {
           </div>
         </div>
         <div style={footerStyles.bottom}>
-          <span>ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
           <span>Information updated for 2026. Not affiliated with OPM or the U.S. government.</span>
         </div>
       </div>
