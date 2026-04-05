@@ -175,7 +175,7 @@ function HowItWorks() {
     {
       num: '2',
       title: 'Run the Retirement Calculator',
-      desc: 'Enter your years of service, salary, and retirement date to get a full breakdown â FERS pension, FERS Supplement, TSP projections, FEHB premiums, and Social Security.',
+      desc: 'Enter your years of service, salary, and retirement date to get a full breakdown — FERS pension, FERS Supplement, TSP projections, FEHB premiums, and Social Security.',
     },
     {
       num: '3',
