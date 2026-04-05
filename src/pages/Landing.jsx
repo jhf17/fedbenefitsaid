@@ -31,7 +31,7 @@ function Hero() {
 
 
           <p style={heroStyles.sub}>
-            FERS. TSP. FEHB. FEGLI. Medicare. Social Security. It's complicated —
+            FERS. TSP. FEHB. FEGLI. Medicare. Social Security. It's complicated â
             and one wrong decision can cost you thousands. FedBenefitsAid makes it
             simple, accurate, and free to explore.
           </p>
@@ -46,7 +46,7 @@ function Hero() {
           </div>
 
           <div style={heroStyles.meta}>
-            <span style={heroStyles.metaItem}>Free forever — no account needed</span>
+            <span style={heroStyles.metaItem}>Free forever â no account needed</span>
             <span style={heroStyles.metaDot} />
             <span style={heroStyles.metaItem}>Updated for 2026 figures</span>
           </div>
@@ -87,7 +87,7 @@ function Features() {
         <div className="text-center" style={{ marginBottom: 56 }}>
           <h2 style={featureStyles.h2}>Everything you need to understand your benefits</h2>
           <p style={featureStyles.sub}>
-            Four ways to get the answers you need — from self-service to expert guidance.
+            Four ways to get the answers you need â from self-service to expert guidance.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ function Features() {
             badgeColor="pro"
             accent="#2563eb"
             title="AI Benefits Chat"
-            description="Ask questions in plain English and get precise, sourced answers about your federal benefits. The AI learns your situation as you chat — years of service, retirement goals, family circumstances — and tailors every answer."
+            description="Ask questions in plain English and get precise, sourced answers about your federal benefits. The AI learns your situation as you chat â years of service, retirement goals, family circumstances â and tailors every answer."
             bullets={['Personalized to your situation', 'Cites OPM regulations and CFR', 'Builds your benefit profile', 'Unlimited questions']}
             cta={<Link to="/signup" className="btn btn-primary btn-full">Start Free</Link>}
             highlight
@@ -129,7 +129,7 @@ function Features() {
             badgeColor="free"
             accent="#7b1c2e"
             title="Retirement Calculator"
-            description="Get a detailed breakdown of your FERS pension, FERS Supplement eligibility, TSP projections, and FEHB premium impact Ã¢ÂÂ all tailored to your inputs."
+            description="Get a detailed breakdown of your FERS pension, FERS Supplement eligibility, TSP projections, and FEHB premium impact ÃÂ¢ÃÂÃÂ all tailored to your inputs."
             bullets={['FERS & CSRS pension estimate', 'FERS Supplement eligibility', 'TSP & FEHB included', 'No account required']}
             cta={<Link to="/calculator" className="btn btn-full" style={{ background: '#7b1c2e', color: 'white' }}>Calculate My Retirement</Link>}
           />
@@ -174,11 +174,16 @@ function HowItWorks() {
     },
     {
       num: '2',
-      title: 'Chat with AI for Personalized Answers',
-      desc: 'Create a free account and ask the AI anything. It remembers what you tell it — your years of service, your agency, your plans — and gives you answers tailored to your situation.',
+      title: 'Run the Retirement Calculator',
+      desc: 'Enter your years of service, salary, and retirement date to get a full breakdown — FERS pension, FERS Supplement, TSP projections, FEHB premiums, and Social Security.',
     },
     {
       num: '3',
+      title: 'Chat with AI for Personalized Answers',
+      desc: 'Create a free account and ask the AI anything. It remembers what you tell it â your years of service, your agency, your plans â and gives you answers tailored to your situation.',
+    },
+    {
+      num: '4',
       title: 'Book a Free Expert Call When Ready',
       desc: "When you're ready to make real decisions, talk to a federal benefits specialist. Always free, always no pressure, and always focused on what's best for you.",
     },
@@ -189,7 +194,7 @@ function HowItWorks() {
       <div className="container">
         <div className="text-center" style={{ marginBottom: 56 }}>
           <h2 style={howStyles.h2}>How it works</h2>
-          <p style={howStyles.sub}>From confused to confident in three simple steps.</p>
+          <p style={howStyles.sub}>From confused to confident in four simple steps.</p>
         </div>
         <div style={howStyles.steps}>
           {steps.map((step, i) => (
@@ -215,7 +220,7 @@ function FinalCTA() {
           </h2>
           <p style={finalStyles.sub}>
             The average federal employee has $40,000+ in benefits complexity decisions to make before retirement.
-            Start understanding yours — completely free.
+            Start understanding yours â completely free.
           </p>
           <div style={finalStyles.actions}>
             <Link to="/reference" className="btn btn-outline-white btn-xl">
@@ -273,7 +278,7 @@ function Footer() {
           </div>
         </div>
         <div style={footerStyles.bottom}>
-          <span>ÃÂÃÂ© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
+          <span>ÃÂÃÂÃÂÃÂ© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
           <span>Information updated for 2026. Not affiliated with OPM or the U.S. government.</span>
         </div>
       </div>
