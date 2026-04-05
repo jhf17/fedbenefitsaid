@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import emailjs from '@emailjs/browser'
 import { useAuth } from '../App'
 
 export default function Auth({ mode = 'login' }) {
@@ -13,6 +14,8 @@ export default function Auth({ mode = 'login' }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
 
   const from = location.state?.from?.pathname || '/chat'
   const flashMessage = location.state?.message || ''
@@ -28,6 +31,19 @@ export default function Auth({ mode = 'login' }) {
     setError('')
     setSuccess('')
   }, [mode])
+
+  const sendLeadEmail = (fullName, userEmail, userPhone) => {
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    if (!serviceId || !templateId || !publicKey) return
+    emailjs.send(serviceId, templateId, {
+      lead_name: fullName || 'Not provided',
+      lead_email: userEmail,
+      lead_phone: userPhone || 'Not provided',
+      signup_time: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
+    }, publicKey).catch(() => {})
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -46,9 +62,11 @@ export default function Auth({ mode = 'login' }) {
           password,
           options: {
             emailRedirectTo: window.location.origin + '/chat',
+            data: { full_name: name, phone: phone },
           },
         })
         if (error) throw error
+        sendLeadEmail(name, email, phone)
         setSuccess('Account created! Check your email to confirm, then come back to log in.')
       }
     } catch (err) {
@@ -142,6 +160,34 @@ export default function Auth({ mode = 'login' }) {
                 autoComplete="email"
               />
             </div>
+
+            {!isLogin && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Full name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Jane Smith"
+                    required={!isLogin}
+                    autoComplete="name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Phone number</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="(555) 123-4567"
+                    autoComplete="tel"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="form-group">
               <label className="form-label">Password</label>
