@@ -31,7 +31,7 @@ function Hero() {
 
 
           <p style={heroStyles.sub}>
-            FERS. TSP. FEHB. FEGLI. Medicare. Social Security. It's complicated â
+            FERS. TSP. FEHB. FEGLI. Medicare. Social Security. It's complicated Ã¢ÂÂ
             and one wrong decision can cost you thousands. FedBenefitsAid makes it
             simple, accurate, and free to explore.
           </p>
@@ -46,7 +46,7 @@ function Hero() {
           </div>
 
           <div style={heroStyles.meta}>
-            <span style={heroStyles.metaItem}>Free forever â no account needed</span>
+            <span style={heroStyles.metaItem}>Free forever Ã¢ÂÂ no account needed</span>
             <span style={heroStyles.metaDot} />
             <span style={heroStyles.metaItem}>Updated for 2026 figures</span>
           </div>
@@ -87,7 +87,7 @@ function Features() {
         <div className="text-center" style={{ marginBottom: 56 }}>
           <h2 style={featureStyles.h2}>Everything you need to understand your benefits</h2>
           <p style={featureStyles.sub}>
-            Four ways to get the answers you need â from self-service to expert guidance.
+            Four ways to get the answers you need Ã¢ÂÂ from self-service to expert guidance.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ function Features() {
             badgeColor="pro"
             accent="#2563eb"
             title="AI Benefits Chat"
-            description="Ask questions in plain English and get precise, sourced answers about your federal benefits. The AI learns your situation as you chat â years of service, retirement goals, family circumstances â and tailors every answer."
+            description="Ask questions in plain English and get precise, sourced answers about your federal benefits. The AI learns your situation as you chat Ã¢ÂÂ years of service, retirement goals, family circumstances Ã¢ÂÂ and tailors every answer."
             bullets={['Personalized to your situation', 'Cites OPM regulations and CFR', 'Builds your benefit profile', 'Unlimited questions']}
             cta={<Link to="/signup" className="btn btn-primary btn-full">Start Free</Link>}
             highlight
@@ -129,7 +129,7 @@ function Features() {
             badgeColor="free"
             accent="#7b1c2e"
             title="Retirement Calculator"
-            description="Get a detailed breakdown of your FERS pension, FERS Supplement eligibility, TSP projections, and FEHB premium impact — all tailored to your inputs."
+            description="Get a detailed breakdown of your FERS pension, FERS Supplement eligibility, TSP projections, and FEHB premium impact â all tailored to your inputs."
             bullets={['FERS & CSRS pension estimate', 'FERS Supplement eligibility', 'TSP & FEHB included', 'No account required']}
             cta={<Link to="/calculator" className="btn btn-full" style={{ background: '#7b1c2e', color: 'white' }}>Calculate My Retirement</Link>}
           />
@@ -175,7 +175,7 @@ function HowItWorks() {
     {
       num: '2',
       title: 'Chat with AI for Personalized Answers',
-      desc: 'Create a free account and ask the AI anything. It remembers what you tell it â your years of service, your agency, your plans â and gives you answers tailored to your situation.',
+      desc: 'Create a free account and ask the AI anything. It remembers what you tell it Ã¢ÂÂ your years of service, your agency, your plans Ã¢ÂÂ and gives you answers tailored to your situation.',
     },
     {
       num: '3',
@@ -215,7 +215,7 @@ function FinalCTA() {
           </h2>
           <p style={finalStyles.sub}>
             The average federal employee has $40,000+ in benefits complexity decisions to make before retirement.
-            Start understanding yours â completely free.
+            Start understanding yours Ã¢ÂÂ completely free.
           </p>
           <div style={finalStyles.actions}>
             <Link to="/reference" className="btn btn-outline-white btn-xl">
@@ -273,7 +273,7 @@ function Footer() {
           </div>
         </div>
         <div style={footerStyles.bottom}>
-          <span>Â© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
+          <span>ÃÂ© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
           <span>Information updated for 2026. Not affiliated with OPM or the U.S. government.</span>
         </div>
       </div>
@@ -285,7 +285,7 @@ function Footer() {
 
 const heroStyles = {
   section: {
-    background: 'linear-gradient(160deg, #f0f4ff 0%, #ffffff 60%)',
+    background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
     padding: '96px 0 80px',
   },
   inner: {
@@ -297,8 +297,8 @@ const heroStyles = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 8,
-    background: 'rgba(30,58,95,0.08)',
-    color: '#1e3a5f',
+    background: 'rgba(255,255,255,0.12)',
+    color: 'white',
     padding: '6px 18px',
     borderRadius: 20,
     fontSize: '0.82rem',
@@ -310,7 +310,7 @@ const heroStyles = {
   h1: {
     fontSize: 'clamp(2rem, 5vw, 3.2rem)',
     fontWeight: 800,
-    color: '#0f172a',
+    color: '#ffffff',
     lineHeight: 1.15,
     letterSpacing: '-0.03em',
     marginBottom: 20,
@@ -324,7 +324,7 @@ const heroStyles = {
   },
   sub: {
     fontSize: '1.1rem',
-    color: '#475569',
+    color: 'rgba(255,255,255,0.82)',
     lineHeight: 1.7,
     marginBottom: 40,
     maxWidth: 560,
@@ -353,7 +353,7 @@ const heroStyles = {
     width: 4,
     height: 4,
     borderRadius: '50%',
-    background: '#cbd5e1',
+    background: 'rgba(255,255,255,0.35)',
     display: 'inline-block',
   },
 }
