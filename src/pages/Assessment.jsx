@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../App'
 
@@ -380,6 +380,7 @@ export default function Assessment() {
   const [capturePhone, setCapturePhone] = useState('')
   const [captureLoading, setCaptureLoading] = useState(false)
   const [captureError, setCaptureError] = useState('')
+  useEffect(() => { document.title = 'Retirement Readiness Assessment | FedBenefitsAid' }, [])
 
   const question = QUESTIONS[step]
   const totalSteps = QUESTIONS.length
