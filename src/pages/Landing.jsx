@@ -17,7 +17,7 @@ export default function Landing() {
 
 function Hero() {
   return (
-    <section style={heroStyles.section}>
+    <section data-hero-section="" style={heroStyles.section}>
       <div className="container">
         <div style={heroStyles.inner}>
           <div style={heroStyles.badge}>
@@ -36,7 +36,7 @@ function Hero() {
             simple, accurate, and free to explore.
           </p>
 
-          <div style={heroStyles.actions}>
+          <div data-hero-actions="" style={heroStyles.actions}>
             <Link to="/calculator" className="btn btn-xl" style={{ background: '#7b1c2e', color: 'white', fontWeight: 700 }}>
               Calculate My Retirement
             </Link>
@@ -73,7 +73,7 @@ function TrustBar() {
   return (
     <section style={trustStyles.section}>
       <div className="container">
-        <div style={trustStyles.inner}>
+        <div data-trust-inner="" style={trustStyles.inner}>
           {items.map((item, i) => (
             <div key={i} style={trustStyles.item}>
               <span style={trustStyles.dot} />
@@ -97,7 +97,7 @@ function Features() {
           </p>
         </div>
 
-        <div style={featureStyles.grid}>
+        <div data-feature-grid="" style={featureStyles.grid}>
           <FeatureCard
             badge="FREE"
             badgeColor="free"
@@ -202,7 +202,7 @@ function HowItWorks() {
           <h2 style={howStyles.h2}>How it works</h2>
           <p style={howStyles.sub}>From confused to confident in four simple steps.</p>
         </div>
-        <div style={howStyles.steps}>
+        <div data-how-steps="" style={howStyles.steps}>
           {steps.map((step, i) => (
             <div key={i} style={howStyles.step}>
               <div style={howStyles.stepNum}>{step.num}</div>
@@ -218,7 +218,7 @@ function HowItWorks() {
 
 function FinalCTA() {
   return (
-    <section style={finalStyles.section}>
+    <section data-final-section="" style={finalStyles.section}>
       <div className="container">
         <div style={finalStyles.inner}>
  2        <h2 style={finalStyles.h2}>
@@ -228,7 +228,7 @@ function FinalCTA() {
             The average federal employee has $40,000+ in benefits complexity decisions to make before retirement.
             Start understanding yours — completely free.
           </p>
-          <div style={finalStyles.actions}>
+          <div data-final-actions="" style={finalStyles.actions}>
             <Link to="/reference" className="btn btn-outline-white btn-xl">
               Start Free Reference Guide
             </Link>
@@ -246,7 +246,7 @@ function Footer() {
   return (
     <footer style={footerStyles.footer}>
       <div className="container">
-        <div style={footerStyles.inner}>
+        <div data-footer-inner="" style={footerStyles.inner}>
           <div style={footerStyles.brand}>
             <div style={footerStyles.logoWrap}>
               <span style={footerStyles.logoMark}>FBA</span>
@@ -259,7 +259,7 @@ function Footer() {
               FedBenefitsAid provides educational information only and does not constitute financial, legal, or tax advice. Always verify benefit information with OPM or a qualified federal benefits advisor.
             </p>
           </div>
-          <div style={footerStyles.links}>
+          <div data-footer-links="" style={footerStyles.links}>
             <div style={footerStyles.col}>
               <div style={footerStyles.colTitle}>Resources</div>
               <Link to="/calculator" style={footerStyles.link}>Retirement Calculator</Link>
@@ -283,7 +283,7 @@ function Footer() {
             </div>
           </div>
         </div>
-        <div style={footerStyles.bottom}>
+        <div data-footer-bottom="" style={footerStyles.bottom}>
           <span>© {new Date().getFullYear()} FedBenefitsAid. All rights reserved.</span>
           <span>Information updated for 2026. Not affiliated with OPM or the U.S. government.</span>
         </div>
@@ -600,4 +600,103 @@ const footerStyles = {
     fontSize: '0.78rem',
     color: '#475569',
   },
+}
+
+
+// Mobile responsive styles
+if (typeof document !== 'undefined') {
+  const landingStyle = document.createElement('style')
+  landingStyle.setAttribute('data-landing-responsive', '')
+  landingStyle.textContent = `
+    @media (max-width: 768px) {
+      /* Hero section */
+      [data-hero-section] {
+        padding: 56px 0 48px !important;
+      }
+      [data-hero-actions] {
+        flex-direction: column !important;
+        align-items: center !important;
+      }
+      [data-hero-actions] a,
+      [data-hero-actions] .btn {
+        width: 100% !important;
+        max-width: 320px !important;
+        text-align: center !important;
+        justify-content: center !important;
+      }
+
+      /* Trust bar */
+      [data-trust-inner] {
+        flex-direction: column !important;
+        gap: 10px !important;
+        align-items: flex-start !important;
+        padding: 4px 16px !important;
+      }
+
+      /* Feature cards - stack to single column */
+      [data-feature-grid] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+
+      /* How it works - stack to single column */
+      [data-how-steps] {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+
+      /* Final CTA */
+      [data-final-section] {
+        padding: 56px 0 !important;
+      }
+      [data-final-actions] {
+        flex-direction: column !important;
+        align-items: center !important;
+      }
+      [data-final-actions] a,
+      [data-final-actions] .btn {
+        width: 100% !important;
+        max-width: 320px !important;
+        text-align: center !important;
+        justify-content: center !important;
+      }
+
+      /* Footer */
+      [data-footer-inner] {
+        flex-direction: column !important;
+        gap: 32px !important;
+      }
+      [data-footer-links] {
+        gap: 28px !important;
+      }
+      [data-footer-bottom] {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 4px !important;
+      }
+
+      /* Global container override */
+      .container {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+      .section {
+        padding-top: 48px !important;
+        padding-bottom: 48px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      /* Extra small screens - further adjustments */
+      [data-hero-section] {
+        padding: 40px 0 36px !important;
+      }
+      [data-trust-inner] {
+        gap: 8px !important;
+      }
+    }
+  `
+  if (!document.querySelector('[data-landing-responsive]')) {
+    document.head.appendChild(landingStyle)
+  }
 }
