@@ -5,8 +5,6 @@ import { useAuth } from '../App'
 
 const ADMIN_EMAIL = 'jhf17@icloud.com'
 
-const ADMIN_EMAIL = 'jhf17@icloud.com'
-
 export default function Navbar() {
   const { user } = useAuth()
   const navigate = useNavigate()
