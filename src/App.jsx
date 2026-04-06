@@ -11,6 +11,7 @@ import Quiz from './pages/Quiz'
 import Calculator from './pages/Calculator'
 import Resources from './pages/Resources'
 import Admin from './pages/Admin'
+import Assessment from './pages/Assessment'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Auth context — available throughout the app
@@ -94,6 +95,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/assessment" element={<Assessment />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
