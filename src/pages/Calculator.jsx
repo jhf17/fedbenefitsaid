@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
@@ -210,6 +210,7 @@ export default function Calculator() {
   const [specialCat, setSpecialCat] = useState('leo')
 
   const [errors, setErrors] = useState([])
+  useEffect(() => { document.title = 'FERS Retirement Calculator | FedBenefitsAid' }, [])
 
   function validate() {
     const errs = []
