@@ -38,10 +38,10 @@ const QUESTIONS = [
     id: 'retirement_system',
     category: 'pension',
     question: 'Which federal retirement system are you under?',
-    sub: 'Most employees hired after 1987 are under FERS. Employees hired after 2013 are FERS-FRAE.',
+    sub: 'Most employees hired after 1987 are under FERS. Employees hired in 2013 are FERS-RAE; 2014 or later are FERS-FRAE.',
     options: [
       { label: 'FERS (hired 1987–2012)', value: 'fers', weight: 2 },
-      { label: 'FERS-FRAE (hired after 2013)', value: 'frae', weight: 2 },
+      { label: 'FERS-RAE/FRAE (hired 2013 or later)', value: 'frae', weight: 2 },
       { label: 'CSRS (hired before 1987)', value: 'csrs', weight: 2 },
       { label: "I'm not sure", value: 'unknown', weight: 0 },
     ]
@@ -300,13 +300,13 @@ function getChecklist(answers) {
     items.push({
       priority: 'high',
       category: 'healthcare',
-      task: 'Understand how Medicare and FEHB work together. Most federal retirees should enroll in Medicare Part A (free) and Part B ($185/mo in 2026) at 65. Medicare becomes your primary insurer, and FEHB becomes secondary \u2014 this combination often results in little to no out-of-pocket costs.',
+      task: 'Understand how Medicare and FEHB work together. Most federal retirees should enroll in Medicare Part A (free) and Part B ($202.90/mo in 2026) at 65. Medicare becomes your primary insurer, and FEHB becomes secondary \u2014 this combination often results in little to no out-of-pocket costs.',
     })
   } else if (answers.medicare_coordination === 'partial') {
     items.push({
       priority: 'medium',
       category: 'healthcare',
-      task: 'Decide whether to enroll in Medicare Part B at 65. If you have FEHB, Part B is optional but recommended \u2014 the combination virtually eliminates out-of-pocket medical costs. Compare the $185/mo premium against your current FEHB copays.',
+      task: 'Decide whether to enroll in Medicare Part B at 65. If you have FEHB, Part B is optional but recommended \u2014 the combination virtually eliminates out-of-pocket medical costs. Compare the $202.90/mo premium against your current FEHB copays.',
     })
   }
 
