@@ -19,6 +19,7 @@ export default function Chat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  useEffect(() => { document.title = 'AI Retirement Assistant | FedBenefitsAid' }, [])
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
   const calcSentRef = useRef(false)
