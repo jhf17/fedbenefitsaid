@@ -27,7 +27,7 @@ const SP_HIGH = 0.017   // 1.7% — LEO/FF/ATC first 20 yrs; Congressional first
 const SP_LOW  = 0.010   // 1.0% — all years thereafter
 
 // Medicare Part B premium 2026
-const MEDICARE_B_MONTHLY = 185.00
+const MEDICARE_B_MONTHLY = 202.90
 
 // 2026 FEHB biweekly enrollee premiums (employee/retiree share)
 // Source: OPM 2026 FEHB Premium Tables. Biweekly × 26 / 12 = monthly deduction.
@@ -526,7 +526,7 @@ export default function Calculator() {
                 onChange={e => setIncludeMedicare(e.target.checked)}
                 style={{ marginRight: 8 }}
               />
-              Deduct Medicare Part B premium ($185/mo in 2026) from total income
+              Deduct Medicare Part B premium ($202.90/mo in 2026) from total income
             </label>
           </div>
 
@@ -799,7 +799,7 @@ export default function Calculator() {
                   <strong>Social Security:</strong> Based on your entered age-62 estimate. Adjustments for claiming age use SSA reduction/credit factors.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>Medicare Part B:</strong> 2026 standard premium $185.00/mo (CMS verified). Higher earners may pay more (IRMAA).
+                  <strong>Medicare Part B:</strong> 2026 standard premium $202.90/mo (CMS verified). Higher earners may pay more (IRMAA).
                 </div>
                 <div style={s.assumptionItem}>
                   <strong>MRA+10 Penalty:</strong> 5% reduction for each year you are under age 62 at retirement, up to 50%.
