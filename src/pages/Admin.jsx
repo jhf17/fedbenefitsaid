@@ -111,8 +111,8 @@ const Admin = () => {
     const accountSignups = leads.filter(l => l.fields?.['Source'] === 'Website Signup').length;
     const assessmentLeads = leads.filter(l => l.fields?.['Source'] === 'Retirement Checklist').length;
     const consultationBooked = leads.filter(l => l.fields?.['Consultation Booked']).length;
-    const addedToCRM = leads.filter(l => l.fields?.['Status'] === 'Added to CRM').length;
-    return { total, accountSignups, assessmentLeads, consultationBooked, addedToCRM };
+    const apolloLeads = leads.filter(l => l.fields?.['Source'] === 'Apollo Outbound').length;
+    return { total, accountSignups, assessmentLeads, consultationBooked, apolloLeads };
   };
 
   // Update lead field
@@ -318,7 +318,7 @@ const Admin = () => {
                 { label: 'Account Signups', value: stats.accountSignups, color: '#1e3a5f' },
                 { label: 'Assessment Leads', value: stats.assessmentLeads, color: '#1e3a5f' },
                 { label: 'Consultations Booked', value: stats.consultationBooked, color: '#1e3a5f' },
-                { label: 'Added to CRM', value: stats.addedToCRM, color: '#1e3a5f' }
+                { label: 'Apollo Outbound', value: stats.apolloLeads, color: '#1e3a5f' }
               ].map((stat, idx) => (
                 <div
                   key={idx}
