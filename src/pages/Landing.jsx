@@ -45,6 +45,12 @@ function Hero() {
             </a>
           </div>
 
+          <div style={{ marginTop: 16, textAlign: 'center' }}>
+            <Link to="/assessment" style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.35)', paddingBottom: 2, fontWeight: 500 }}>
+              Not sure where to start? Take the free Retirement Readiness Assessment →
+            </Link>
+          </div>
+
           <div style={heroStyles.meta}>
             <span style={heroStyles.metaItem}>Free forever — no account needed</span>
             <span style={heroStyles.metaDot} />
