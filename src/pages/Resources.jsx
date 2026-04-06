@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 export default function Resources() {
+  useEffect(() => { document.title = 'Retirement Resources | FedBenefitsAid' }, [])
+
   return (
     <main style={s.page}>
       <div style={s.container}>
