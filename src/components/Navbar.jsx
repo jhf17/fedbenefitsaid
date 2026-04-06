@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../App'
 
+const ADMIN_EMAIL = 'jhf17@icloud.com'
+
 export default function Navbar() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -40,6 +42,11 @@ export default function Navbar() {
           <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }}>
             AI Chat
           </Link>
+          {user && user.email === ADMIN_EMAIL && (
+            <Link to="/admin" style={{ ...styles.link, ...(isActive('/admin') ? styles.linkActive : {}), color: isActive('/admin') ? '#7b1c2e' : '#7b1c2e', fontWeight: 600 }}>
+              Admin
+            </Link>
+          )}
         </div>
 
         {/* Desktop Auth */}
@@ -87,6 +94,11 @@ export default function Navbar() {
           <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             AI Chat
           </Link>
+          {user && user.email === ADMIN_EMAIL && (
+            <Link to="/admin" style={{ ...styles.mobileLink, color: '#7b1c2e', fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
+              Admin
+            </Link>
+          )}
           <div style={styles.mobileDivider} />
           {user ? (
             <>
