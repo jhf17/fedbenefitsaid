@@ -10,6 +10,7 @@ import Course from './pages/Course'
 import Quiz from './pages/Quiz'
 import Calculator from './pages/Calculator'
 import Resources from './pages/Resources'
+import Admin from './pages/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Auth context — available throughout the app
@@ -93,6 +94,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthContext.Provider>
