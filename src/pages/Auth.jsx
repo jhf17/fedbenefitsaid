@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import emailjs from '@emailjs/browser'
 import { useAuth } from '../App'
 
 export default function Auth({ mode = 'login' }) {
@@ -32,17 +31,16 @@ export default function Auth({ mode = 'login' }) {
     setSuccess('')
   }, [mode])
 
-  const sendLeadEmail = (fullName, userEmail, userPhone) => {
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
-    if (!serviceId || !templateId || !publicKey) return
-    emailjs.send(serviceId, templateId, {
-      lead_name: fullName || 'Not provided',
-      lead_email: userEmail,
-      lead_phone: userPhone || 'Not provided',
-      signup_time: new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
-    }, publicKey).catch(() => {})
+  const addLeadToCRM = async (fullName, userEmail, userPhone) => {
+    try {
+      await fetch('/.netlify/functions/add-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: fullName, email: userEmail, phone: userPhone, source: 'Website Signup' }),
+      })
+    } catch {
+      // Silent fail — don't block the user experience
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -66,7 +64,7 @@ export default function Auth({ mode = 'login' }) {
           },
         })
         if (error) throw error
-        sendLeadEmail(name, email, phone)
+        addLeadToCRM(name, email, phone)
         setSuccess('Account created! Check your email to confirm, then come back to log in.')
       }
     } catch (err) {
