@@ -739,7 +739,7 @@ export default function Calculator() {
                 </div>
               </div>
 
-              <div style={s.fiaCompareGrid}>
+              <div data-fia-grid="" style={s.fiaCompareGrid}>
                 <div style={s.fiaCompareCard}>
                   <div style={s.fiaCompareLabel}>TSP - 4% Rule (Variable)</div>
                   <div style={s.fiaCompareAmount}>{fmt(results.tspMonthly4pct)}/mo</div>
@@ -950,4 +950,22 @@ const styles = {
   assumptionsTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 16 },
   assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 },
   assumptionItem: { fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 },
+}
+
+
+// Mobile responsive styles for Calculator
+if (typeof document !== 'undefined') {
+  const calcStyle = document.createElement('style')
+  calcStyle.setAttribute('data-calc-responsive', '')
+  calcStyle.textContent = `
+    @media (max-width: 768px) {
+      [data-fia-grid] {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+    }
+  `
+  if (!document.querySelector('[data-calc-responsive]')) {
+    document.head.appendChild(calcStyle)
+  }
 }
