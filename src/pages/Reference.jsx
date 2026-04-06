@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo } { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { REF_DATA } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
@@ -9,6 +9,7 @@ export default function Reference() {
   const [selectedCat, setSelectedCat] = useState(null)
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [search, setSearch] = useState('')
+  useEffect(() => { document.title = 'Federal Benefits Reference Guide | FedBenefitsAid' }, [])
 
   const allTopics = useMemo(() =>
     REF_DATA.flatMap(cat => cat.topics.map(t => ({ ...t, cat: cat.cat, color: cat.color, icon: cat.icon }))),
