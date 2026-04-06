@@ -22,6 +22,7 @@ const Admin = () => {
   const [editValue, setEditValue] = useState('');
   const [addingNote, setAddingNote] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
 
   // Redirect non-admin users
   useEffect(() => {
@@ -82,17 +83,36 @@ const Admin = () => {
       });
     }
 
+    // Sort
+    filtered.sort((a, b) => {
+      const fa = a.fields || {};
+      const fb = b.fields || {};
+      if (sortBy === 'newest') {
+        return new Date(fb['Signed Up'] || 0) - new Date(fa['Signed Up'] || 0);
+      } else if (sortBy === 'oldest') {
+        return new Date(fa['Signed Up'] || 0) - new Date(fb['Signed Up'] || 0);
+      } else if (sortBy === 'name') {
+        return (fa.Name || '').localeCompare(fb.Name || '');
+      } else if (sortBy === 'status') {
+        const order = { 'New': 0, 'Contacted': 1, 'Consultation Booked': 2, 'Added to CRM': 3, 'Not Interested': 4 };
+        return (order[fa.Status] ?? 99) - (order[fb.Status] ?? 99);
+      } else if (sortBy === 'score') {
+        return (fb['Assessment Score'] || 0) - (fa['Assessment Score'] || 0);
+      }
+      return 0;
+    });
+
     return filtered;
   };
 
   // Get stat values
   const getStats = () => {
     const total = leads.length;
-    const newLeads = leads.filter(l => l.fields?.['Status'] === 'New').length;
+    const accountSignups = leads.filter(l => l.fields?.['Source'] === 'Website Signup').length;
     const assessmentLeads = leads.filter(l => l.fields?.['Source'] === 'Retirement Checklist').length;
     const consultationBooked = leads.filter(l => l.fields?.['Consultation Booked']).length;
     const addedToCRM = leads.filter(l => l.fields?.['Status'] === 'Added to CRM').length;
-    return { total, newLeads, assessmentLeads, consultationBooked, addedToCRM };
+    return { total, accountSignups, assessmentLeads, consultationBooked, addedToCRM };
   };
 
   // Update lead field
@@ -295,7 +315,7 @@ const Admin = () => {
             >
               {[
                 { label: 'Total Leads', value: stats.total, color: '#0f172a' },
-                { label: 'New', value: stats.newLeads, color: '#1e3a5f' },
+                { label: 'Account Signups', value: stats.accountSignups, color: '#1e3a5f' },
                 { label: 'Assessment Leads', value: stats.assessmentLeads, color: '#1e3a5f' },
                 { label: 'Consultations Booked', value: stats.consultationBooked, color: '#1e3a5f' },
                 { label: 'Added to CRM', value: stats.addedToCRM, color: '#1e3a5f' }
@@ -391,15 +411,16 @@ const Admin = () => {
               })}
             </div>
 
-            {/* Search Bar */}
-            <div style={{ marginBottom: '20px' }}>
+            {/* Search + Sort */}
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <input
                 type="text"
                 placeholder="Search by name, email, or federal agency..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
-                  width: '100%',
+                  flex: 1,
+                  minWidth: '200px',
                   padding: '10px 14px',
                   border: '1px solid #d1d5db',
                   borderRadius: '6px',
@@ -408,6 +429,27 @@ const Admin = () => {
                   fontFamily: 'inherit'
                 }}
               />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{
+                  padding: '10px 14px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  backgroundColor: '#fff',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  minWidth: '160px'
+                }}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name">Name A–Z</option>
+                <option value="status">Pipeline Stage</option>
+                <option value="score">Assessment Score</option>
+              </select>
             </div>
 
             {/* Leads Table */}
