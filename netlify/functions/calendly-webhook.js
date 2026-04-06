@@ -1,0 +1,280 @@
+/**
+ * Calendly Webhook Handler
+ *
+ * Receives webhook events from Calendly when consultations are booked/cancelled.
+ * Auto-creates or updates lead profiles in Airtable with "Consultation Booked" activity.
+ *
+ * Calendly webhook setup:
+ *   URL: https://fedbenefitsaid.com/.netlify/functions/calendly-webhook
+ *   Events: invitee.created, invitee.canceled
+ *   Signing key: stored in CALENDLY_WEBHOOK_SIGNING_KEY env var (optional but recommended)
+ */
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, Calendly-Webhook-Signature',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json',
+}
+
+exports.handler = async (event) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: CORS_HEADERS, body: '' }
+  }
+
+  // Only accept POST
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Method Not Allowed' }),
+    }
+  }
+
+  const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY
+  const BASE_ID = 'appnihKPbDBxVQK4c'
+  const LEADS_TABLE = 'tblXc7syn4pXZNhon'
+  const CONSULTATIONS_TABLE = 'tblRKlgXnO3MoSGOs'
+
+  if (!AIRTABLE_API_KEY) {
+    console.error('Missing AIRTABLE_API_KEY')
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Server configuration error' }),
+    }
+  }
+
+  let payload
+  try {
+    payload = JSON.parse(event.body)
+  } catch {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Invalid JSON' }),
+    }
+  }
+
+  // Calendly sends { event: "invitee.created", payload: { ... } }
+  const eventType = payload.event
+  const data = payload.payload
+
+  if (!data) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Missing payload data' }),
+    }
+  }
+
+  console.log(`Calendly webhook received: ${eventType}`)
+
+  try {
+    if (eventType === 'invitee.created') {
+      // Extract invitee info
+      const invitee = data.invitee || data
+      const scheduledEvent = data.scheduled_event || data.event || {}
+
+      const name = invitee.name || ''
+      const email = invitee.email || ''
+      const phone = extractPhone(invitee.questions_and_answers || [])
+      const scheduledTime = scheduledEvent.start_time || ''
+      const eventName = scheduledEvent.name || 'Free Consultation'
+      const cancelUrl = invitee.cancel_url || ''
+      const rescheduleUrl = invitee.reschedule_url || ''
+
+      if (!email) {
+        console.error('No email in Calendly webhook payload')
+        return {
+          statusCode: 400,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ error: 'No email provided' }),
+        }
+      }
+
+      // 1. Add/update lead in Leads table
+      await upsertLead({
+        apiKey: AIRTABLE_API_KEY,
+        baseId: BASE_ID,
+        tableId: LEADS_TABLE,
+        name,
+        email,
+        phone,
+        source: 'Calendly Booking',
+        activity: 'Consultation Booked',
+      })
+
+      // 2. Create consultation record
+      await createConsultation({
+        apiKey: AIRTABLE_API_KEY,
+        baseId: BASE_ID,
+        tableId: CONSULTATIONS_TABLE,
+        name,
+        email,
+        phone,
+        scheduledTime,
+        eventName,
+        cancelUrl,
+        rescheduleUrl,
+      })
+
+      console.log(`Lead upserted and consultation created for ${email}`)
+
+      return {
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ success: true, action: 'consultation_booked', email }),
+      }
+    }
+
+    if (eventType === 'invitee.canceled') {
+      const invitee = data.invitee || data
+      const email = invitee.email || ''
+
+      if (email) {
+        console.log(`Consultation canceled for ${email}`)
+        // Optionally update the lead status — but don't remove them
+        // They're still a warm lead even if they cancel
+      }
+
+      return {
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ success: true, action: 'cancellation_noted' }),
+      }
+    }
+
+    // Unknown event type — acknowledge but do nothing
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ success: true, action: 'ignored', event: eventType }),
+    }
+  } catch (err) {
+    console.error('Webhook processing error:', err)
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Internal server error' }),
+    }
+  }
+}
+
+/**
+ * Extract phone number from Calendly custom questions
+ */
+function extractPhone(questionsAndAnswers) {
+  if (!Array.isArray(questionsAndAnswers)) return ''
+  const phoneQ = questionsAndAnswers.find(
+    (q) => q.question && q.question.toLowerCase().includes('phone')
+  )
+  return phoneQ ? phoneQ.answer || '' : ''
+}
+
+/**
+ * Upsert a lead in Airtable (search by email, update if exists, create if not)
+ */
+async function upsertLead({ apiKey, baseId, tableId, name, email, phone, source, activity }) {
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  // Search for existing lead
+  const encodedFormula = encodeURIComponent(`{Email}='${email}'`)
+  const searchUrl = `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${encodedFormula}`
+
+  const searchRes = await fetch(searchUrl, { method: 'GET', headers: { Authorization: `Bearer ${apiKey}` } })
+  if (!searchRes.ok) {
+    console.error('Airtable search failed:', await searchRes.text())
+    throw new Error('Failed to search Airtable')
+  }
+
+  const searchData = await searchRes.json()
+  const existing = searchData.records && searchData.records[0]
+
+  if (existing) {
+    // Update existing lead — add activity, update status
+    const currentFields = existing.fields
+    let activities = currentFields.Activities || []
+    if (Array.isArray(activities)) {
+      if (!activities.includes(activity)) {
+        activities = [...activities, activity]
+      }
+    } else {
+      activities = [activity]
+    }
+
+    const updateFields = {
+      Activities: activities,
+      Status: 'Consultation Booked',
+    }
+
+    // Fill in name/phone if empty
+    if (!currentFields.Name && name) updateFields.Name = name
+    if (!currentFields.Phone && phone) updateFields.Phone = phone
+
+    await fetch(`https://api.airtable.com/v0/${baseId}/${tableId}/${existing.id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ fields: updateFields }),
+    })
+  } else {
+    // Create new lead
+    const createFields = {
+      Name: name,
+      Email: email,
+      Phone: phone || '',
+      Source: 'Calendly Booking',
+      Status: 'Consultation Booked',
+      'Signed Up': new Date().toISOString(),
+      Activities: [activity],
+    }
+
+    await fetch(`https://api.airtable.com/v0/${baseId}/${tableId}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ fields: createFields }),
+    })
+  }
+}
+
+/**
+ * Create a record in the Consultations table
+ */
+async function createConsultation({ apiKey, baseId, tableId, name, email, phone, scheduledTime, eventName, cancelUrl, rescheduleUrl }) {
+  const headers = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+
+  const fields = {
+    Name: name,
+    Email: email,
+  }
+
+  // Only add fields that have values (avoids Airtable field-not-found errors for optional fields)
+  if (phone) fields.Phone = phone
+  if (scheduledTime) fields['Scheduled Time'] = scheduledTime
+  if (eventName) fields['Event Type'] = eventName
+  if (cancelUrl) fields['Cancel URL'] = cancelUrl
+  if (rescheduleUrl) fields['Reschedule URL'] = rescheduleUrl
+  fields['Created At'] = new Date().toISOString()
+
+  try {
+    const res = await fetch(`https://api.airtable.com/v0/${baseId}/${tableId}`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ fields }),
+    })
+
+    if (!res.ok) {
+      // Non-critical — lead was still upserted even if consultation record fails
+      console.error('Consultation record creation failed:', await res.text())
+    }
+  } catch (err) {
+    console.error('Consultation record error:', err)
+  }
+}

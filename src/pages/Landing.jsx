@@ -224,7 +224,7 @@ function FinalCTA() {
     <section data-final-section="" style={finalStyles.section}>
       <div className="container">
         <div style={finalStyles.inner}>
- 2        <h2 style={finalStyles.h2}>
+          <h2 style={finalStyles.h2}>
             Don't leave retirement money on the table.
           </h2>
           <p style={finalStyles.sub}>
@@ -265,6 +265,7 @@ function Footer() {
           <div data-footer-links="" style={footerStyles.links}>
             <div style={footerStyles.col}>
               <div style={footerStyles.colTitle}>Resources</div>
+              <Link to="/assessment" style={footerStyles.link}>Retirement Assessment</Link>
               <Link to="/calculator" style={footerStyles.link}>Retirement Calculator</Link>
               <Link to="/reference" style={footerStyles.link}>Reference Guide</Link>
               <Link to="/resources" style={footerStyles.link}>Forms &amp; Resources</Link>
@@ -283,6 +284,7 @@ function Footer() {
               <div style={footerStyles.colTitle}>Account</div>
               <Link to="/login" style={footerStyles.link}>Log In</Link>
               <Link to="/signup" style={footerStyles.link}>Sign Up</Link>
+              <Link to="/disclaimer" style={footerStyles.link}>Disclaimer</Link>
             </div>
           </div>
         </div>
@@ -504,32 +506,6 @@ const howStyles = {
   },
   stepTitle: { fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: 10 },
   stepDesc: { fontSize: '0.9rem', color: '#64748b', lineHeight: 1.6 },
-}
-
-const testimonialStyles = {
-  h2: {
-    fontSize: 'clamp(1.4rem, 3vw, 2rem)',
-    fontWeight: 800,
-    color: '#0f172a',
-    letterSpacing: '-0.02em',
-    marginBottom: 8,
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: 24,
-  },
-  card: {
-    background: 'white',
-    borderRadius: 16,
-    padding: '28px 24px',
-    border: '1.5px solid #e2e8f0',
-  },
-  stars: { color: '#f59e0b', fontSize: '1rem', marginBottom: 12, letterSpacing: 2 },
-  quote: { fontSize: '0.9rem', color: '#334155', lineHeight: 1.65, marginBottom: 16, fontStyle: 'italic' },
-  author: {},
-  name: { fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' },
-  role: { fontSize: '0.8rem', color: '#64748b', marginTop: 2 },
 }
 
 const finalStyles = {

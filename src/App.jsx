@@ -12,6 +12,7 @@ import Calculator from './pages/Calculator'
 import Resources from './pages/Resources'
 import Admin from './pages/Admin'
 import Assessment from './pages/Assessment'
+import Disclaimer from './pages/Disclaimer'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Auth context — available throughout the app
@@ -96,6 +97,7 @@ export default function App() {
           }
         />
         <Route path="/assessment" element={<Assessment />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
