@@ -40,18 +40,18 @@ function Hero() {
           </p>
 
           <div data-hero-actions="" style={heroStyles.actions}>
-            <Link to="/calculator" className="btn btn-xl" style={{ background: '#7b1c2e', color: 'white', fontWeight: 700 }}>
+            <Link to="/assessment" className="btn btn-xl" style={{ background: '#7b1c2e', color: 'white', fontWeight: 700 }}>
+              Take the Retirement Assessment
+            </Link>
+            <Link to="/calculator" className="btn btn-outline btn-xl" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}>
               Calculate My Retirement
             </Link>
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-xl" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}>
-              Book Free Consultation
-            </a>
           </div>
 
           <div style={{ marginTop: 16, textAlign: 'center' }}>
-            <Link to="/assessment" style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.35)', paddingBottom: 2, fontWeight: 500 }}>
-              Not sure where to start? Take the free Retirement Readiness Assessment →
-            </Link>
+            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.35)', paddingBottom: 2, fontWeight: 500 }}>
+              Want to talk to an expert? Book a free 30-minute consultation →
+            </a>
           </div>
 
           <div style={heroStyles.meta}>

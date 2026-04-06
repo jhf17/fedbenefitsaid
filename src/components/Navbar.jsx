@@ -30,6 +30,9 @@ export default function Navbar() {
 
         {/* Desktop Nav Links */}
         <div data-navbar-links="" style={styles.links}>
+          <Link to="/assessment" style={{ ...styles.link, ...(isActive('/assessment') ? { ...styles.linkActive, color: '#7b1c2e', background: '#fef2f2' } : {}) }}>
+            Assessment
+          </Link>
           <Link to="/calculator" style={{ ...styles.link, ...(isActive('/calculator') ? styles.linkActive : {}) }}>
             Calculator
           </Link>
@@ -82,6 +85,9 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div data-mobile-menu="" style={styles.mobileMenu}>
+          <Link to="/assessment" style={{ ...styles.mobileLink, color: '#7b1c2e', fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
+            Retirement Assessment
+          </Link>
           <Link to="/calculator" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Calculator
           </Link>

@@ -11,6 +11,18 @@ const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 // ============================================================
 const QUESTIONS = [
   {
+    id: 'current_age',
+    category: 'income',
+    question: 'How old are you?',
+    sub: 'Your age determines your MRA, Medicare eligibility, Social Security options, and FEGLI costs.',
+    options: [
+      { label: 'Under 50', value: 'lt50', weight: 0 },
+      { label: '50–56', value: '50to56', weight: 1 },
+      { label: '57–61', value: '57to61', weight: 2 },
+      { label: '62 or older', value: 'gte62', weight: 3 },
+    ]
+  },
+  {
     id: 'years_until',
     category: 'income',
     question: 'How many years until you plan to retire?',
@@ -126,6 +138,18 @@ const QUESTIONS = [
       { label: "I know costs go up but haven't reviewed options", value: 'partial', weight: 1 },
       { label: "No, I haven't looked at FEGLI", value: 'no', weight: 0 },
       { label: "I didn't know FEGLI changes in retirement", value: 'unknown', weight: 0 },
+    ]
+  },
+  {
+    id: 'vera_vsip',
+    category: 'pension',
+    question: 'Are you aware of VERA and VSIP early retirement options?',
+    sub: 'Many federal agencies are currently offering Voluntary Early Retirement Authority (VERA) and Voluntary Separation Incentive Payments (VSIP) as part of workforce restructuring.',
+    options: [
+      { label: 'Yes, I know my agency\'s current offerings', value: 'yes', weight: 3 },
+      { label: 'I\'ve heard of them but don\'t know the details', value: 'partial', weight: 1 },
+      { label: 'No, this is new to me', value: 'no', weight: 0 },
+      { label: 'Not applicable — I\'m not considering early retirement', value: 'na', weight: 2 },
     ]
   },
 ]
@@ -327,6 +351,36 @@ function getChecklist(answers) {
     })
   }
 
+  // --- VERA/VSIP ---
+  if (['no'].includes(answers.vera_vsip)) {
+    items.push({
+      priority: 'high',
+      category: 'pension',
+      task: 'Learn about VERA and VSIP immediately. Many federal agencies are actively offering early retirement incentives as part of workforce restructuring. VERA allows retirement at age 50 with 20 years or any age with 25 years. VSIP offers up to $25,000 as a separation incentive. Check with your HR office whether your agency is offering these.',
+    })
+  } else if (answers.vera_vsip === 'partial') {
+    items.push({
+      priority: 'medium',
+      category: 'pension',
+      task: 'Get specific details on your agency\'s VERA/VSIP offerings. Key questions: What are the eligibility dates? Is there a VSIP amount offered? How does VERA affect your FERS Supplement (it starts at MRA, not at early retirement)? What happens to your FEHB?',
+    })
+  }
+
+  // --- AGE-BASED ---
+  if (answers.current_age === 'gte62') {
+    items.push({
+      priority: 'medium',
+      category: 'income',
+      task: 'At 62+, you may qualify for the enhanced 1.1% FERS multiplier (requires 20+ years of service). If you\'re close to 20 years, staying a bit longer could significantly boost your pension. Also review your Social Security claiming strategy \u2014 delaying past 62 increases your benefit.',
+    })
+  } else if (answers.current_age === '57to61') {
+    items.push({
+      priority: 'medium',
+      category: 'income',
+      task: 'You\'ve reached or passed your Minimum Retirement Age (MRA of 57). If you have 30+ years of service, you\'re eligible for an immediate unreduced FERS pension. With 20+ years, you can retire at 60 with no reduction. Use the calculator to see your numbers.',
+    })
+  }
+
   // --- TIMELINE-BASED ---
   if (yearsUntil === 'lt2') {
     items.push({
@@ -407,6 +461,14 @@ export default function Assessment() {
     }
   }
 
+  // Calculate overall score percentage for CRM
+  const getScorePercent = () => {
+    if (!catScores) return 0
+    const totalScore = Object.values(catScores).reduce((s, c) => s + c.score, 0)
+    const totalMax = Object.values(catScores).reduce((s, c) => s + c.max, 0)
+    return totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0
+  }
+
   const handleUnlockChecklist = async () => {
     if (!captureEmail) {
       setCaptureError('Please enter your email address.')
@@ -422,7 +484,8 @@ export default function Assessment() {
           name: captureName,
           email: captureEmail,
           phone: capturePhone,
-          source: 'Assessment',
+          source: 'Retirement Checklist',
+          assessmentScore: getScorePercent(),
         }),
       })
     } catch {
@@ -432,8 +495,23 @@ export default function Assessment() {
     setShowChecklist(true)
   }
 
-  // If user is already logged in, auto-fill and skip gate
-  const handleUnlockForUser = () => {
+  // If user is already logged in, send score to CRM and show checklist
+  const handleUnlockForUser = async () => {
+    try {
+      await fetch('/.netlify/functions/add-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: user?.user_metadata?.full_name || '',
+          email: user?.email || '',
+          phone: user?.user_metadata?.phone || '',
+          source: 'Retirement Checklist',
+          assessmentScore: getScorePercent(),
+        }),
+      })
+    } catch {
+      // Silent fail
+    }
     setShowChecklist(true)
   }
 
