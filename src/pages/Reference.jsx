@@ -1,4 +1,4 @@
-import { useState, useMemo } { useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { REF_DATA } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
