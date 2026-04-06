@@ -85,7 +85,7 @@ export default function Auth({ mode = 'login' }) {
   }
 
   return (
-    <div style={styles.page}>
+    <div data-auth-page="" style={styles.page}>
       <div style={styles.card}>
         {/* Logo */}
         <div style={styles.logoWrap}>
@@ -244,7 +244,7 @@ export default function Auth({ mode = 'login' }) {
       </div>
 
       {/* Side benefits reminder */}
-      <div style={styles.aside} className="auth-aside">
+      <div data-auth-aside="" style={styles.aside} className="auth-aside">
         <div style={styles.asideInner}>
           <div style={styles.asideTitle}>What you get with a free account</div>
           {[
@@ -445,4 +445,28 @@ const styles = {
     color: '#64748b',
     lineHeight: 1.5,
   },
+}
+
+
+// Mobile responsive styles for Auth
+if (typeof document !== 'undefined') {
+  const authStyle = document.createElement('style')
+  authStyle.setAttribute('data-auth-responsive', '')
+  authStyle.textContent = `
+    @media (max-width: 768px) {
+      [data-auth-page] {
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 24px 16px !important;
+        gap: 24px !important;
+      }
+      [data-auth-aside] {
+        width: 100% !important;
+        max-width: 420px !important;
+      }
+    }
+  `
+  if (!document.querySelector('[data-auth-responsive]')) {
+    document.head.appendChild(authStyle)
+  }
 }
