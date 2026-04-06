@@ -15,6 +15,7 @@ export default function Auth({ mode = 'login' }) {
   const [success, setSuccess] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  useEffect(() => { document.title = 'Sign In | FedBenefitsAid' }, [])
 
   const from = location.state?.from?.pathname || '/chat'
   const flashMessage = location.state?.message || ''
