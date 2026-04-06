@@ -43,6 +43,12 @@ export default function Resources() {
               tag="Service Credit"
             />
             <ResourceCard
+              title="SF-3106"
+              desc="Application for Refund of Retirement Deductions — used when you leave federal service before retirement eligibility and want your FERS pension contributions returned."
+              href="https://www.opm.gov/forms/pdf_fill/sf3106.pdf"
+              tag="Refund"
+            />
+            <ResourceCard
               title="RI 92-19"
               desc="Election of Insurable Interest Annuity or Survivor Annuity — used to add or change survivor benefits after retirement."
               href="https://www.opm.gov/forms/pdf_fill/ri92-19.pdf"
