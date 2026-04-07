@@ -177,7 +177,9 @@ function calcTSPFutureValue(balance, monthlyContrib, yearsToRetirement, annualRa
 
 export default function Calculator() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState('fers')
+  const [hireEra, setHireEra] = useState('post87')
+  const [isSpecial, setIsSpecial] = useState(false)
+  const tab = hireEra === 'pre84' ? 'csrs' : isSpecial ? 'special' : 'fers'
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
 
@@ -357,30 +359,27 @@ export default function Calculator() {
           </p>
         </div>
 
-        {/* System Tabs */}
-        <div style={s.tabRow}>
-          {[
-            { id: 'fers',    label: 'FERS' },
-            { id: 'csrs',    label: 'CSRS' },
-            { id: 'special', label: 'FERS Special (LEO/FF/ATC)' },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setTab(t.id); setResults(null); setErrors([]) }}
-              style={{ ...s.tabBtn, ...(tab === t.id ? s.tabBtnActive : {}) }}
-            >
-              {t.label}
-            </button>
-          ))}
+        {/* Retirement System Detection */}
+        <Field label="When did you start federal service?" hint="Determines your retirement system (FERS or CSRS)">
+          <select value={hireEra} onChange={e => { setHireEra(e.target.value); setResults(null); setErrors([]) }} style={s.select}>
+            <option value="post87">1987 or later (FERS)</option>
+            <option value="84to86">1984–1986 (CSRS Offset / FERS)</option>
+            <option value="pre84">Before 1984 (CSRS)</option>
+          </select>
+        </Field>
+        {hireEra !== 'pre84' && (
+          <Field label="Special provision?" hint="Law enforcement, firefighter, or air traffic control">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 6 }}>
+              <input type="checkbox" checked={isSpecial} onChange={e => { setIsSpecial(e.target.checked); setResults(null) }} style={{ width: 18, height: 18, accentColor: '#1e3a5f' }} />
+              <span style={{ fontSize: '0.9rem', color: '#475569' }}>Yes, I'm LEO / Firefighter / ATC</span>
+            </div>
+          </Field>
+        )}
+        <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '10px 14px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}>{"Calculating as: " + (tab === 'csrs' ? 'CSRS' : tab === 'special' ? 'FERS Special Provision' : 'FERS')}</span>
         </div>
 
-        {/* Input Form */}
-        <div style={s.card}>
-
-          {/* Service & Salary */}
-          <div style={s.cardTitle}>Your Service Information</div>
-          <div style={s.grid2}>
-            <Field label="Years of Federal Service" hint="Total creditable service years">
+        <Field label="Years of Federal Service" hint="Total creditable service years">
               <input
                 type="number" min="1" max="50"
                 value={yearsService}
@@ -751,55 +750,27 @@ export default function Calculator() {
               ))}
             </div>
 
-            {/* FIA Comparison Panel */}
-            <div style={s.fiaPanel}>
-              <div style={s.fiaPanelHeader}>
-                <div>
-                  <div style={s.fiaBadge}>TSP Strategy Comparison</div>
-                  <div style={s.fiaTitle}>What if your TSP generated guaranteed income?</div>
-                  <div style={s.fiaSub}>
-                    Your TSP income above uses the 4% rule - a widely used guideline, but not guaranteed.
-                    A Fixed Indexed Annuity (FIA) with an income rider can convert your TSP into
-                    predictable, guaranteed monthly income you cannot outlive - regardless of market conditions.
+            {/* TSP Income Strategy CTA */}
+                <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderRadius: 16, padding: '32px', marginBottom: 24 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>📈</div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#22c55e', marginBottom: 4 }}>TSP Strategy</div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>Could your TSP generate more retirement income?</div>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.7, margin: '0 0 24px 0' }}>
+                    Your estimate above uses the 4% withdrawal rule \u2014 a common guideline, but not your only option.
+                    There are strategies that could increase your monthly TSP income while reducing the risk of running out.
+                    A quick conversation can show you what\u2019s possible with your specific balance.
+                  </p>
+                  <div style={{ textAlign: 'center' }}>
+                    <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#22c55e', color: '#fff', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', marginBottom: 8 }}>
+                      Book a Free Meeting
+                    </a>
+                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>30 minutes. No cost. No obligation.</div>
                   </div>
                 </div>
-              </div>
-
-              <div data-fia-grid="" style={s.fiaCompareGrid}>
-                <div style={s.fiaCompareCard}>
-                  <div style={s.fiaCompareLabel}>TSP - 4% Rule (Variable)</div>
-                  <div style={s.fiaCompareAmount}>{fmt(results.tspMonthly4pct)}/mo</div>
-                  <div style={s.fiaCompareNote}>Market dependent. Could increase or decrease. Depletes over time.</div>
-                </div>
-                <div style={s.fiaVs}>vs.</div>
-                <div style={{ ...s.fiaCompareCard, ...s.fiaCompareCardHighlight }}>
-                  <div style={{ ...s.fiaCompareLabel, color: '#1e3a5f' }}>FIA Income Rider (Guaranteed)</div>
-                  <div style={{ ...s.fiaCompareAmount, color: '#1e3a5f' }}>
-                    {fmt(results.fiaPayouts.conservative)} - {fmt(results.fiaPayouts.aggressive)}/mo
-                  </div>
-                  <div style={{ ...s.fiaCompareNote, color: '#475569' }}>
-                    Guaranteed for life. 4.5%-6.5% payout rate typical. Cannot run out.
-                  </div>
-                </div>
-              </div>
-
-              <div style={s.fiaDisclaimer}>
-                FIA payout rates vary by carrier, product, and age. Illustration assumes a 4.5%-6.5%
-                annual income rider payout on your TSP balance of {fmt(results.tspAtRetirement)} at retirement.
-                This is for educational comparison only and does not constitute a product recommendation.
-                Actual guaranteed income amounts require a full illustration from a licensed advisor.
-              </div>
-
-              <div style={s.fiaCTA}>
-                <div style={s.fiaCTAText}>
-                  Want to see exactly what guaranteed income your TSP could generate?
-                </div>
-                <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={s.fiaCTABtn}>
-                  Book Your Free Consultation
-                </a>
-                <div style={s.fiaCTASub}>30 minutes. No cost. No obligation. Federal Market Associates.</div>
-              </div>
-            </div>
 
             {/* Important Assumptions */}
             <div style={s.assumptionsBox}>
@@ -833,21 +804,6 @@ export default function Calculator() {
                   <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
                 </div>
               </div>
-            </div>
-
-            {/* Book Consultation CTA */}
-            <div style={{ textAlign: 'center', marginTop: 28, padding: '24px', background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderRadius: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff', marginBottom: 8 }}>
-                Want personalized guidance on these numbers?
-              </div>
-              <div style={{ fontSize: '0.88rem', color: '#94a3b8', marginBottom: 16, lineHeight: 1.5 }}>
-                Walk through your results with a federal retirement expert — completely free, no obligation.
-              </div>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-block', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', textDecoration: 'none' }}
-              >
-                Book a Free Meeting
-              </a>
             </div>
 
             {/* Email capture for calculator results */}
