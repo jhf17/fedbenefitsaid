@@ -756,7 +756,7 @@ export default function Assessment() {
       <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
         <div style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Free Tool</div>
         <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px' }}>Retirement Readiness Assessment</h1>
-        <p style={{ color: '#cbd5e1', fontSize: 14, margin: 0 }}>12 questions. Get your personalized federal retirement action plan.</p>
+        <p style={{ color: '#cbd5e1', fontSize: 14, margin: 0 }}>14 questions. Get your personalized federal retirement action plan.</p>
       </div>
 
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '32px 24px' }}>
