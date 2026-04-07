@@ -96,8 +96,45 @@ function Features() {
         <div className="text-center" style={{ marginBottom: 56 }}>
           <h2 style={featureStyles.h2}>Everything you need to understand your benefits</h2>
           <p style={featureStyles.sub}>
-            Four ways to get the answers you need — from self-service to expert guidance.
+            Five ways to get the answers you need — from self-service to expert guidance.
           </p>
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <Link to="/assessment" style={{ textDecoration: 'none' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #7b1c2e 0%, #a62845 100%)',
+              borderRadius: 16,
+              padding: '36px 32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 32,
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  display: 'inline-block',
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                  letterSpacing: '0.05em',
+                  marginBottom: 12,
+                }}>START HERE</div>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'white', marginBottom: 8 }}>
+                  Retirement Readiness Assessment
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1rem', lineHeight: 1.6, margin: 0 }}>
+                  Answer 6 quick questions about your federal career and get a personalized retirement readiness checklist. See exactly where you stand and what steps to take next.
+                </p>
+              </div>
+              <div style={{ fontSize: '2.5rem', color: 'white', fontWeight: 300 }}>→</div>
+            </div>
+          </Link>
         </div>
 
         <div data-feature-grid="" style={featureStyles.grid}>
@@ -178,23 +215,28 @@ function HowItWorks() {
   const steps = [
     {
       num: '1',
-      title: 'Browse the Free Reference Guide',
-      desc: 'Start with our comprehensive library. Search any benefit topic, read the rules that apply to you, and flag the common mistakes that trip people up.',
+      title: 'Take the Retirement Assessment',
+      desc: 'Answer 6 quick questions to get a personalized retirement readiness score and action checklist — takes about 60 seconds.',
     },
     {
       num: '2',
-      title: 'Run the Retirement Calculator',
-      desc: 'Enter your years of service, salary, and retirement date to get a full breakdown — FERS pension, FERS Supplement, TSP projections, FEHB premiums, and Social Security.',
+      title: 'Browse the Free Reference Guide',
+      desc: 'Dive into our comprehensive library. Search any benefit topic, read the rules, and flag the common mistakes that trip people up.',
     },
     {
       num: '3',
-      title: 'Chat with AI for Personalized Answers',
-      desc: 'Create a free account and ask the AI anything. It remembers what you tell it — your years of service, your agency, your plans — and gives you answers tailored to your situation.',
+      title: 'Run the Retirement Calculator',
+      desc: 'Enter your service years, salary, and retirement date for a full breakdown — FERS pension, Supplement, TSP, FEHB, and Social Security.',
     },
     {
       num: '4',
-      title: 'Book a Free Expert Call When Ready',
-      desc: "When you're ready to make real decisions, talk to a federal benefits specialist. Always free, always no pressure, and always focused on what's best for you.",
+      title: 'Chat with AI for Personalized Answers',
+      desc: 'Ask the AI anything about your benefits. It tailors answers to your specific federal career situation.',
+    },
+    {
+      num: '5',
+      title: 'Book a Free Expert Call',
+      desc: "Ready for real decisions? Talk to a federal benefits specialist. Free, confidential, no sales pitch.",
     },
   ]
 
@@ -481,8 +523,8 @@ const howStyles = {
   sub: { fontSize: '1.05rem', color: '#64748b' },
   steps: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: 20,
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    gap: 16,
   },
   step: {
     textAlign: 'center',
