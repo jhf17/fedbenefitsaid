@@ -81,9 +81,9 @@ export default function Disclaimer() {
           </p>
         </section>
 
-        <div style={styles.backWrap}>
+        <nav style={styles.backWrap}>
           <Link to="/" style={styles.backLink}>Back to Home</Link>
-        </div>
+        </nav>
       </div>
     </main>
   )
