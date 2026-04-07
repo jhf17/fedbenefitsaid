@@ -132,6 +132,7 @@ export default function Chat() {
       <div style={styles.chatArea}>
         {/* Messages */}
         <div style={styles.messages}>
+          <div style={{ flex: '1 1 auto' }} />
           {messages.map((msg, i) => (
             <div
               key={i}
