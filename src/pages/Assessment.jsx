@@ -434,6 +434,26 @@ export default function Assessment() {
   const [capturePhone, setCapturePhone] = useState('')
   const [captureLoading, setCaptureLoading] = useState(false)
   const [captureError, setCaptureError] = useState('')
+  const [captureSent, setCaptureSent] = useState(false)
+
+  const handleEmailCapture = async (e) => {
+    e.preventDefault()
+    if (!captureEmail) { setCaptureError('Please enter your email.'); return }
+    setCaptureLoading(true)
+    setCaptureError('')
+    try {
+      await fetch('/.netlify/functions/add-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: captureName || 'Assessment Lead', email: captureEmail, phone: capturePhone || '', source: 'Assessment' }),
+      })
+      setCaptureSent(true)
+    } catch (err) {
+      setCaptureError('Something went wrong. Please try again.')
+    } finally {
+      setCaptureLoading(false)
+    }
+  }
   useEffect(() => { document.title = 'Retirement Readiness Assessment | FedBenefitsAid' }, [])
 
   const question = QUESTIONS[step]
@@ -666,7 +686,34 @@ export default function Assessment() {
 
           {/* Retake */}
           <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <button onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCapturePhone('') }} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+            {/* Email capture */}
+          <div style={{ maxWidth: 600, margin: '0 auto 32px', padding: '28px 24px', background: 'white', borderRadius: 12, border: '1.5px solid #e2e8f0' }}>
+            {captureSent ? (
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+                <p style={{ color: navy, fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Checklist sent!</p>
+                <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your personalized retirement checklist.</p>
+              </div>
+            ) : (
+              <>
+                <p style={{ color: navy, fontWeight: 700, fontSize: 16, margin: '0 0 4px', textAlign: 'center' }}>Get your personalized checklist sent to your email</p>
+                <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 16px', textAlign: 'center' }}>We will send your results and action items. No spam, ever.</p>
+                <form onSubmit={handleEmailCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <input type="text" placeholder="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none' }} />
+                    <input type="tel" placeholder="Phone (optional)" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none' }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <input type="email" placeholder="Your email" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} required style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none' }} />
+                    <button type="submit" disabled={captureLoading} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>{captureLoading ? 'Sending...' : 'Send My Checklist'}</button>
+                  </div>
+                  {captureError && <p style={{ color: '#ef4444', fontSize: 13, margin: 0 }}>{captureError}</p>}
+                </form>
+              </>
+            )}
+          </div>
+
+          <button onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCapturePhone('') }} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
               Retake assessment
             </button>
           </div>
