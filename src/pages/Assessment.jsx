@@ -676,9 +676,9 @@ export default function Assessment() {
                   <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 10, padding: '14px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
                     Book Free Consultation
                   </a>
-                  <button onClick={() => navigate(user ? '/chat' : '/signup')} style={{ background: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '14px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                    {user ? 'Ask the AI' : 'Create Free Account'}
-                  </button>
+                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '14px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
+                    Book a Free Meeting
+                  </a>
                 </div>
               </div>
             </>
