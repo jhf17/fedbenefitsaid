@@ -245,7 +245,7 @@ function HowItWorks() {
       <div className="container">
         <div className="text-center" style={{ marginBottom: 56 }}>
           <h2 style={howStyles.h2}>How it works</h2>
-          <p style={howStyles.sub}>From confused to confident in four simple steps.</p>
+          <p style={howStyles.sub}>From confused to confident in five simple steps.</p>
         </div>
         <div data-how-steps="" style={howStyles.steps}>
           {steps.map((step, i) => (
