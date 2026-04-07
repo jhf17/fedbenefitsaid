@@ -379,7 +379,13 @@ export default function Calculator() {
           <span style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}>{"Calculating as: " + (tab === 'csrs' ? 'CSRS' : tab === 'special' ? 'FERS Special Provision' : 'FERS')}</span>
         </div>
 
-        <Field label="Years of Federal Service" hint="Total creditable service years">
+        {/* Input Form */}
+        <div style={s.card}>
+
+          {/* Service & Salary */}
+          <div style={s.cardTitle}>Your Service Information</div>
+          <div style={s.grid2}>
+<Field label="Years of Federal Service" hint="Total creditable service years">
               <input
                 type="number" min="1" max="50"
                 value={yearsService}
@@ -628,6 +634,7 @@ export default function Calculator() {
             Calculations use verified 2026 OPM figures. This tool provides estimates for educational
             purposes. Consult OPM or a licensed benefits specialist for official projections.
           </div>
+        </div>
 
         {/* RESULTS */}
         {results && (
@@ -759,9 +766,9 @@ export default function Calculator() {
                     </div>
                   </div>
                   <p style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.7, margin: '0 0 24px 0' }}>
-                    Your estimate above uses the 4% withdrawal rule \u2014 a common guideline, but not your only option.
+                    Your estimate above uses the 4% withdrawal rule — a common guideline, but not your only option.
                     There are strategies that could increase your monthly TSP income while reducing the risk of running out.
-                    A quick conversation can show you what\u2019s possible with your specific balance.
+                    A quick conversation can show you what’s possible with your specific balance.
                   </p>
                   <div style={{ textAlign: 'center' }}>
                     <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#22c55e', color: '#fff', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', marginBottom: 8 }}>
