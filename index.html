@@ -102,7 +102,54 @@
     </script>
   </head>
   <body>
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <style>
+      /* ADA: Skip-to-content link */
+      .skip-to-content {
+        position: absolute;
+        left: -9999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        z-index: 9999;
+        padding: 12px 24px;
+        background: #1e3a5f;
+        color: white;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        border-radius: 0 0 8px 0;
+      }
+      .skip-to-content:focus {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: auto;
+        height: auto;
+        overflow: visible;
+      }
+      /* ADA: Global focus indicators */
+      *:focus-visible {
+        outline: 2px solid #1e3a5f;
+        outline-offset: 2px;
+      }
+      /* ADA: Keep textarea/input focus subtle but visible */
+      input:focus-visible, textarea:focus-visible, select:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 0;
+      }
+      button:focus-visible {
+        outline: 2px solid #1e3a5f;
+        outline-offset: 2px;
+      }
+      a:focus-visible {
+        outline: 2px solid #1e3a5f;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+    </style>
   </body>
 </html>
