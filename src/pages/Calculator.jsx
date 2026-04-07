@@ -210,7 +210,32 @@ export default function Calculator() {
   const [specialCat, setSpecialCat] = useState('leo')
 
   const [errors, setErrors] = useState([])
+  const [captureEmail, setCaptureEmail] = useState('')
+  const [captureName, setCaptureName] = useState('')
+  const [capturePhone, setCapturePhone] = useState('')
+  const [captureLoading, setCaptureLoading] = useState(false)
+  const [captureSent, setCaptureSent] = useState(false)
+  const [captureError, setCaptureError] = useState('')
   useEffect(() => { document.title = 'FERS Retirement Calculator | FedBenefitsAid' }, [])
+
+  const handleEmailCapture = async (e) => {
+    e.preventDefault()
+    setCaptureError('')
+    setCaptureLoading(true)
+    try {
+      const res = await fetch('/.netlify/functions/add-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: captureName, email: captureEmail, phone: capturePhone, source: 'Calculator' }),
+      })
+      if (!res.ok) throw new Error('Failed to save')
+      setCaptureSent(true)
+    } catch {
+      setCaptureError('Something went wrong. Please try again.')
+    } finally {
+      setCaptureLoading(false)
+    }
+  }
 
   function validate() {
     const errs = []
@@ -810,33 +835,46 @@ export default function Calculator() {
               </div>
             </div>
 
-            {/* Discuss with AI CTA */}
-            <div style={{ textAlign: 'center', marginTop: 28, padding: '24px', background: '#f0f9ff', borderRadius: 14, border: '1.5px solid #bae6fd' }}>
-              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0c4a6e', marginBottom: 8 }}>
+            {/* Book Consultation CTA */}
+            <div style={{ textAlign: 'center', marginTop: 28, padding: '24px', background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderRadius: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff', marginBottom: 8 }}>
                 Want personalized guidance on these numbers?
               </div>
-              <div style={{ fontSize: '0.88rem', color: '#0369a1', marginBottom: 16, lineHeight: 1.5 }}>
-                Share your results with the AI for a plain-English explanation, catch anything you may have missed, and get next steps tailored to your situation.
+              <div style={{ fontSize: '0.88rem', color: '#94a3b8', marginBottom: 16, lineHeight: 1.5 }}>
+                Walk through your results with a federal retirement expert — completely free, no obligation.
               </div>
-              <button
-                onClick={() => {
-                  const lines = [
-                    'Retirement System: ' + (tab === 'fers' ? 'FERS' : tab === 'csrs' ? 'CSRS' : 'Special Category FERS'),
-                    'Total Monthly Income: ' + (results.totalMonthly ? ('$' + results.totalMonthly.toFixed(0)) : 'N/A'),
-                    'Total Annual Income: ' + (results.totalAnnual ? ('$' + results.totalAnnual.toFixed(0)) : 'N/A'),
-                    results.pension ? ('Pension (monthly): $' + (results.pension / 12).toFixed(0)) : null,
-                    results.supplement ? ('FERS Supplement (monthly): $' + results.supplement.toFixed(0)) : null,
-                    results.ssMonthly ? ('Social Security (monthly): $' + results.ssMonthly.toFixed(0)) : null,
-                    results.tspMonthly ? ('TSP Drawdown (monthly): $' + results.tspMonthly.toFixed(0)) : null,
-                    results.fehbMonthly ? ('FEHB Premium (monthly): -$' + results.fehbMonthly.toFixed(0)) : null,
-                    results.medicareDeduct ? ('Medicare Part B (monthly): -$' + results.medicareDeduct.toFixed(0)) : null,
-                  ].filter(Boolean).join('\n')
-                  navigate('/chat', { state: { calculatorResults: lines } })
-                }}
-                style={{ background: '#0369a1', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-block', background: '#22c55e', color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', textDecoration: 'none' }}
               >
-                Discuss My Results with AI →
-              </button>
+                Book a Free Meeting
+              </a>
+            </div>
+
+            {/* Email capture for calculator results */}
+            <div style={{ marginTop: 20, padding: '24px', background: 'white', borderRadius: 12, border: '1.5px solid #e2e8f0' }}>
+              {captureSent ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+                  <p style={{ color: '#1e3a5f', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
+                  <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your calculator results summary.</p>
+                </div>
+              ) : (
+                <>
+                  <p style={{ color: '#1e3a5f', fontWeight: 700, fontSize: 16, margin: '0 0 4px', textAlign: 'center' }}>Get your results emailed to you</p>
+                  <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 16px', textAlign: 'center' }}>We'll send a summary of your retirement estimate. No spam, ever.</p>
+                  <form onSubmit={handleEmailCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <input type="text" placeholder="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none' }} />
+                      <input type="tel" placeholder="Phone (optional)" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <input type="email" placeholder="Your email" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} required style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none' }} />
+                      <button type="submit" disabled={captureLoading} style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>{captureLoading ? 'Sending...' : 'Email My Results'}</button>
+                    </div>
+                    {captureError && <p style={{ color: '#ef4444', fontSize: 13, margin: 0 }}>{captureError}</p>}
+                  </form>
+                </>
+              )}
             </div>
 
           </div>
