@@ -628,7 +628,6 @@ export default function Calculator() {
             Calculations use verified 2026 OPM figures. This tool provides estimates for educational
             purposes. Consult OPM or a licensed benefits specialist for official projections.
           </div>
-        </div>
 
         {/* RESULTS */}
         {results && (
