@@ -10,6 +10,7 @@ const SOURCE_TO_ACTIVITY = {
   'Retirement Checklist': 'Assessment Completed',
   'Calendly Booking': 'Consultation Booked',
   'Assessment': 'Assessment Completed',
+  'Calculator': 'Calculator Completed',
 }
 
 exports.handler = async (event) => {
