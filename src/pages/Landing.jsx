@@ -43,9 +43,9 @@ function Hero() {
             <Link to="/assessment" className="btn btn-xl" style={{ background: '#7b1c2e', color: 'white', fontWeight: 700 }}>
               Take the Retirement Assessment
             </Link>
-            <Link to="/calculator" className="btn btn-outline btn-xl" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}>
-              Calculate My Retirement
-            </Link>
+            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-xl" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}>
+              Book Free Consultation
+            </a>
           </div>
 
           <div style={{ marginTop: 16, textAlign: 'center' }}>
