@@ -49,9 +49,9 @@ function Hero() {
           </div>
 
           <div style={{ marginTop: 16, textAlign: 'center' }}>
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.35)', paddingBottom: 2, fontWeight: 500 }}>
-              Want to talk to an expert? Book a free 30-minute consultation →
-            </a>
+            <Link to="/signup" style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14, textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.35)', paddingBottom: 2, fontWeight: 500 }}>
+              Create a free account to unlock AI Chat & more →
+            </Link>
           </div>
 
           <div style={heroStyles.meta}>
