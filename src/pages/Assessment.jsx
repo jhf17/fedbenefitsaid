@@ -7,7 +7,7 @@ const maroon = '#7b1c2e'
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
 // ============================================================
-// 10 QUESTIONS — organized by retirement planning category
+// 14 QUESTIONS — organized by retirement planning category
 // ============================================================
 const QUESTIONS = [
   {
@@ -152,6 +152,30 @@ const QUESTIONS = [
       { label: 'Not applicable — I\'m not considering early retirement', value: 'na', weight: 2 },
     ]
   },
+  {
+    id: 'survivor_benefits',
+    category: 'survivor',
+    question: 'Have you reviewed your survivor benefit elections?',
+    sub: 'Survivor benefits protect your spouse or dependents if you pass away. Elections affect your pension amount and your family\u2019s financial security.',
+    options: [
+      { label: 'I haven\u2019t looked into survivor benefits yet', value: 'none', weight: 0 },
+      { label: 'I know they exist but haven\u2019t reviewed my options', value: 'aware', weight: 1 },
+      { label: 'I\u2019ve reviewed them but haven\u2019t made a final decision', value: 'reviewed', weight: 2 },
+      { label: 'I\u2019ve made my election and understand the cost/benefit tradeoff', value: 'decided', weight: 3 },
+    ]
+  },
+  {
+    id: 'financial_readiness',
+    category: 'financial',
+    question: 'How confident are you in your overall financial readiness for retirement?',
+    sub: 'Beyond federal benefits, your savings, debt, and spending plan all affect whether you can retire comfortably.',
+    options: [
+      { label: 'I haven\u2019t started planning beyond my federal benefits', value: 'none', weight: 0 },
+      { label: 'I have some savings but no clear retirement budget', value: 'some', weight: 1 },
+      { label: 'I have a rough plan but haven\u2019t stress-tested it', value: 'rough', weight: 2 },
+      { label: 'I have a detailed plan covering income, expenses, and contingencies', value: 'detailed', weight: 3 },
+    ]
+  },
 ]
 
 // ============================================================
@@ -162,6 +186,8 @@ const CATEGORIES = {
   tsp: { label: 'TSP Strategy', icon: 'T', color: '#2563eb' },
   healthcare: { label: 'Healthcare Planning', icon: '+', color: '#059669' },
   income: { label: 'Income Optimization', icon: '%', color: '#7b1c2e' },
+  survivor: { label: 'Survivor Benefits', icon: '\u2764', color: '#dc2626' },
+  financial: { label: 'Financial Readiness', icon: '\u2605', color: '#d97706' },
 }
 
 // ============================================================
