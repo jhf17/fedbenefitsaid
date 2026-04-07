@@ -9,6 +9,7 @@ const SOURCE_TO_ACTIVITY = {
   'Website Signup': 'Account Created',
   'Retirement Checklist': 'Assessment Completed',
   'Calendly Booking': 'Consultation Booked',
+  'Assessment': 'Assessment Completed',
 }
 
 exports.handler = async (event) => {
@@ -134,7 +135,7 @@ exports.handler = async (event) => {
             'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ fields: updateFields }),
+          body: JSON.stringify({ fields: updateFields, typecast: true }),
         }
       )
 
@@ -181,7 +182,7 @@ exports.handler = async (event) => {
             'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ fields: createFields }),
+          body: JSON.stringify({ records: [{ fields: createFields }], typecast: true }),
         }
       )
 
@@ -199,7 +200,7 @@ exports.handler = async (event) => {
       return {
         statusCode: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ success: true, action: 'created', recordId: createData.id }),
+        body: JSON.stringify({ success: true, action: 'created', recordId: createData.records[0].id }),
       }
     }
   } catch (err) {
