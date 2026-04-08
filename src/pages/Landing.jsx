@@ -44,6 +44,12 @@ export default function Landing() {
     };
   }, []);
 
+  const addRevealRef = (el) => {
+    if (el && !revealRefs.current.includes(el)) {
+      revealRefs.current.push(el);
+    }
+  };
+
   return (
     <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
       <style>{`
@@ -199,8 +205,37 @@ export default function Landing() {
               </g>
             </g>
 
-            {/* === EAGLE ANIMATION — 3-state JS-driven === */}
-            
+
+            {/* Decorative particles */}
+            <circle cx="140" cy="200" r="2.5" fill="#daa520" opacity="0.3">
+              <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="430" cy="180" r="2" fill="#7b1c2e" opacity="0.2">
+              <animate attributeName="opacity" values="0.1;0.3;0.1" dur="5s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="460" cy="350" r="1.5" fill="#daa520" opacity="0.2">
+              <animate attributeName="opacity" values="0.1;0.25;0.1" dur="3.5s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="120" cy="320" r="1.5" fill="#1e3a5f" opacity="0.15">
+              <animate attributeName="opacity" values="0.08;0.2;0.08" dur="4.5s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      </section>
+
+      {/* VALUE PROPOSITION */}
+      <section style={{ background: colors.navy, padding: '120px 48px' }}>
+        <div ref={addRevealRef} className="reveal" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '72px' }}>
+            <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', fontWeight: '900', lineHeight: '1.15', letterSpacing: '-0.01em', color: 'white', marginBottom: '16px' }}>
+              Your benefits are <em style={{ fontStyle: 'italic', backgroundImage: goldGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>valuable.</em>
+              <br />
+              Make sure you understand them.
+            </h2>
+            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.55)', maxWidth: '560px', margin: '0 auto' }}>
+              The federal benefits system is one of the most generous in America — but also one of the most confusing. FedBenefitsAid makes it simple.
+            </p>
+          </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
             {[
