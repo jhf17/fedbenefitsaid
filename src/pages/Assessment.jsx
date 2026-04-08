@@ -604,45 +604,93 @@ export default function Assessment() {
   if (showScore) {
     return (
       <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Assessment results">
-        {/* Header */}
-        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '48px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Your Results</div>
-          <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 16px' }}>Retirement Readiness Assessment</h1>
+        {/* Header with score ring */}
+        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Your Results</div>
+          <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 24px' }}>Retirement Readiness Assessment</h1>
+
+          {/* Score Ring */}
+          {(() => {
+            const totalScore = Object.values(catScores).reduce((s, c) => s + c.score, 0)
+            const totalMax = Object.values(catScores).reduce((s, c) => s + c.max, 0)
+            const pct = totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0
+            const circumference = 2 * Math.PI * 54
+            const offset = circumference - (pct / 100) * circumference
+            return (
+              <div style={{ display: 'inline-block', position: 'relative', marginBottom: 20 }}>
+                <svg width="130" height="130" viewBox="0 0 130 130" aria-hidden="true">
+                  <circle cx="65" cy="65" r="54" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
+                  <circle cx="65" cy="65" r="54" fill="none" stroke={result.color === '#065f46' ? '#22c55e' : result.color === '#92400e' ? '#f59e0b' : '#ef4444'} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} transform="rotate(-90 65 65)" style={{ transition: 'stroke-dashoffset 1s ease' }} />
+                </svg>
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                  <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{pct}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>out of 100</div>
+                </div>
+              </div>
+            )
+          })()}
+
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: result.bg, borderRadius: 50, padding: '10px 24px' }}>
             <span style={{ fontSize: 18, fontWeight: 700, color: result.color }}>{result.level}</span>
             <span style={{ fontSize: 18, fontWeight: 700, color: result.color }} aria-hidden="true">{result.icon}</span>
           </div>
-          <p style={{ color: '#64748b', maxWidth: 540, margin: '16px auto 0', fontSize: 15, lineHeight: 1.6 }}>{result.summary}</p>
+          <p style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 540, margin: '16px auto 0', fontSize: 15, lineHeight: 1.6 }}>{result.summary}</p>
         </div>
 
-        <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 24px' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '32px 24px' }}>
           {/* Category Breakdown */}
           <h2 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 16 }}>Your Scores by Category</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 32 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
             {Object.entries(CATEGORIES).map(([catId, cat]) => {
               const cs = catScores[catId]
               const barPct = Math.round(cs.pct * 100)
               return (
-                <div key={catId} style={{ background: '#fff', borderRadius: 12, padding: '16px 14px', border: '1.5px solid #e2e8f0', textAlign: 'center' }}>
-                  <div style={{ width: 36, height: 36, background: cat.color + '15', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px', fontWeight: 800, color: cat.color, fontSize: '0.85rem' }} aria-hidden="true">{cat.icon}</div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>{cat.label}</div>
-                  <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, marginBottom: 6, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: barPct + '%', background: cs.levelColor, borderRadius: 3, transition: 'width 0.5s ease' }} />
+                <div key={catId} style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', border: '1.5px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ width: 40, height: 40, background: cat.color + '12', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: cat.color, fontSize: '0.9rem', flexShrink: 0 }} aria-hidden="true">{cat.icon}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: navy }}>{cat.label}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: cs.levelColor }}>{cs.level} ({barPct}%)</span>
+                    </div>
+                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: barPct + '%', background: cs.levelColor, borderRadius: 4, transition: 'width 0.8s ease' }} />
+                    </div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: cs.levelColor }}>{cs.level}</div>
                 </div>
               )
             })}
+          </div>
+
+          {/* What your score means */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: '20px 24px', border: '1.5px solid #e2e8f0', marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: navy, marginBottom: 8 }}>What your score means</div>
+            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.7 }}>
+              {(() => {
+                const totalScore = Object.values(catScores).reduce((s, c) => s + c.score, 0)
+                const totalMax = Object.values(catScores).reduce((s, c) => s + c.max, 0)
+                const pct = totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0
+                const gaps = Object.entries(catScores).filter(([,cs]) => cs.level === 'Gap').map(([id]) => CATEGORIES[id].label)
+                const needsWork = Object.entries(catScores).filter(([,cs]) => cs.level === 'Needs Work').map(([id]) => CATEGORIES[id].label)
+                const strong = Object.entries(catScores).filter(([,cs]) => cs.level === 'Strong').map(([id]) => CATEGORIES[id].label)
+                return <>
+                  Your overall readiness is {pct}%.
+                  {strong.length > 0 && <> You're in good shape on <strong>{strong.join(' and ')}</strong>.</>}
+                  {gaps.length > 0 && <> Your biggest gaps are in <strong>{gaps.join(' and ')}</strong> — these should be your first priority.</>}
+                  {needsWork.length > 0 && gaps.length === 0 && <> Areas like <strong>{needsWork.join(' and ')}</strong> could use some attention before you retire.</>}
+                  {' '}Your personalized action plan below will walk you through exactly what to do.
+                </>
+              })()}
+            </div>
           </div>
 
           {/* EMAIL GATE or CHECKLIST */}
           {!showChecklist ? (
             <div style={{ background: '#fff', borderRadius: 16, border: '2px solid #e2e8f0', padding: '32px 28px', textAlign: 'center', marginBottom: 32 }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 8 }}>
-                Unlock Your Personalized Checklist
+                Unlock Your Personalized Action Plan
               </div>
               <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 440, margin: '0 auto 24px' }}>
-                Based on your answers, we built a step-by-step action plan tailored to your situation. Enter your email to see it — plus get free access to our retirement tools.
+                We built a step-by-step checklist based on your answers — prioritized by what matters most for your situation. Enter your email to see it.
               </p>
 
               {user ? (
