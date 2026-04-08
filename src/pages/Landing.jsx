@@ -236,13 +236,7 @@ export default function Landing() {
                 <stop offset="50%" stopColor="#f5d77a" stopOpacity="0.5" />
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
-              {/* Flag wind ripple filter — very subtle cloth movement */}
-              <filter id="flagWind" x="-2%" y="-3%" width="106%" height="108%">
-                <feTurbulence type="turbulence" baseFrequency="0.01 0.028" numOctaves="2" result="turb">
-                  <animate attributeName="baseFrequency" dur="30s" values="0.009 0.026;0.011 0.030;0.010 0.028;0.012 0.031;0.009 0.027;0.011 0.029;0.010 0.027;0.009 0.026" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="turb" scale="1.8" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
+              {/* No turbulence filter — clean flag with CSS-only animation */}
             </defs>
 
             {/* Flowing lines */}
@@ -280,7 +274,7 @@ export default function Landing() {
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
               {/* American Flag - 50 stars, 13 stripes, cloth ripple + gentle sway */}
-              <g className="flag-sway" filter="url(#flagWind)">
+              <g className="flag-sway">
                 {/* 13 stripes - alternating red and white, wider flag */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
                   <rect key={`stripe-${i}`} x="283" y={50 + i * 3.5} width="76" height="3.5" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
