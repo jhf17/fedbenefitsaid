@@ -54,7 +54,7 @@ function Hero() {
           </div>
 
           <div style={heroStyles.meta}>
-            <span style={heroStyles.metaItem}>Free forever — no account needed</span>
+            <span style={heroStyles.metaItem}>Free tools — no credit card ever</span>
             <span style={heroStyles.metaDot} aria-hidden="true" />
             <span style={heroStyles.metaItem}>Updated for 2026 figures</span>
           </div>
