@@ -33,8 +33,11 @@ export default function Navbar() {
       <div style={styles.inner}>
         {/* Logo */}
         <Link to="/" style={styles.logo} aria-label="FedBenefitsAid — go to homepage">
-          <span style={styles.logoMark} aria-hidden="true">FBA</span>
-          <span style={styles.logoText}>FedBenefitsAid</span>
+          <span style={styles.logoText}>
+            <span style={styles.logoFed}>Fed</span>
+            <span style={styles.logoHighlight}>Benefits</span>
+            <span style={styles.logoAid}>Aid</span>
+          </span>
         </Link>
 
         {/* Desktop Nav Links */}
@@ -76,7 +79,7 @@ export default function Navbar() {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Link to="/login" className="btn btn-outline btn-sm">Log In</Link>
-              <Link to="/signup" className="btn btn-navy btn-sm">Get Started Free</Link>
+              <Link to="/signup" style={styles.ctaButton} className="btn btn-sm">Get Started Free</Link>
             </div>
           )}
         </div>
@@ -135,7 +138,7 @@ export default function Navbar() {
               <Link to="/login" className="btn btn-outline btn-full" onClick={() => setMenuOpen(false)}>
                 Log In
               </Link>
-              <Link to="/signup" className="btn btn-navy btn-full" onClick={() => setMenuOpen(false)} style={{ marginTop: 8 }}>
+              <Link to="/signup" onClick={() => setMenuOpen(false)} style={{ ...styles.ctaButton, marginTop: 8 }} className="btn btn-full">
                 Get Started Free
               </Link>
             </>
@@ -151,8 +154,8 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    background: 'rgba(255,255,255,0.97)',
-    backdropFilter: 'blur(12px)',
+    background: 'rgba(250, 249, 246, 0.92)',
+    backdropFilter: 'blur(20px)',
     borderBottom: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
   },
@@ -168,24 +171,27 @@ const styles = {
   logo: {
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
+    gap: 0,
     textDecoration: 'none',
     flexShrink: 0,
   },
-  logoMark: {
-    background: '#1e3a5f',
-    color: 'white',
-    fontWeight: 800,
-    fontSize: '0.72rem',
-    letterSpacing: '0.06em',
-    padding: '4px 7px',
-    borderRadius: 6,
-  },
   logoText: {
-    fontWeight: 800,
-    fontSize: '1.05rem',
-    color: '#1e3a5f',
-    letterSpacing: '-0.02em',
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    fontWeight: 700,
+    fontSize: '1.2rem',
+    letterSpacing: '-0.01em',
+    color: '#0f172a',
+  },
+  logoFed: {
+    color: '#0f172a',
+  },
+  logoHighlight: {
+    color: '#7b1c2e',
+    marginLeft: '0.2em',
+    marginRight: '0.2em',
+  },
+  logoAid: {
+    color: '#0f172a',
   },
   links: {
     display: 'flex',
@@ -198,13 +204,14 @@ const styles = {
     borderRadius: 8,
     fontSize: '0.9rem',
     fontWeight: 500,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
     color: '#475569',
     textDecoration: 'none',
     transition: 'all 0.15s ease',
   },
   linkActive: {
-    color: '#1e3a5f',
-    background: '#eff6ff',
+    color: '#7b1c2e',
+    background: '#fef2f2',
     fontWeight: 600,
   },
   authArea: {
@@ -215,8 +222,9 @@ const styles = {
   },
   userEmail: {
     fontSize: '0.85rem',
-    color: '#64748b',
+    color: '#94a3b8',
     fontWeight: 500,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   hamburger: {
     display: 'none',
@@ -235,7 +243,7 @@ const styles = {
   bar: {
     width: 22,
     height: 2,
-    background: '#1e3a5f',
+    background: '#0f172a',
     borderRadius: 2,
     transition: 'all 0.2s ease',
   },
@@ -247,7 +255,7 @@ const styles = {
     borderTop: '1px solid #e2e8f0',
     flexDirection: 'column',
     gap: 4,
-    background: 'white',
+    background: '#faf9f6',
   },
   mobileLink: {
     display: 'block',
@@ -255,7 +263,8 @@ const styles = {
     borderRadius: 8,
     fontSize: '0.95rem',
     fontWeight: 500,
-    color: '#334155',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    color: '#475569',
     textDecoration: 'none',
   },
   mobileDivider: {
@@ -265,8 +274,16 @@ const styles = {
   },
   mobileUserEmail: {
     fontSize: '0.85rem',
-    color: '#64748b',
+    color: '#94a3b8',
     padding: '4px 12px',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+  },
+  ctaButton: {
+    background: '#7b1c2e',
+    color: 'white',
+    borderRadius: 8,
+    border: 'none',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
 }
 
