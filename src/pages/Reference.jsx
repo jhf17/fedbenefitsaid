@@ -49,7 +49,7 @@ export default function Reference() {
   return (
     <main style={{ minHeight: '100vh', background: '#faf9f6', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <style>{`
-        .ref-cat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; }
+        .ref-cat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1) !important; border-left-width: 5px !important; }
         .ref-topic-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.07) !important; }
         .ref-search-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.07) !important; }
       `}</style>
@@ -151,19 +151,59 @@ export default function Reference() {
         {/* Category Grid */}
         {!searchResults && !selectedCat && (
           <div style={styles.catGrid}>
-            {REF_DATA.map(cat => (
-              <button
-                className="ref-cat-card"
-                key={cat.cat}
-                onClick={() => setSelectedCat(cat.cat)}
-                style={{ ...styles.catCard, borderTopColor: cat.color }}
-              >
-                <div style={{ ...styles.catAccent, background: cat.color }} />
-                <div style={styles.catName}>{cat.cat}</div>
-                <div style={styles.catCount}>{cat.topics.length} topics</div>
-                <div style={styles.catArrow}>&rarr;</div>
-              </button>
-            ))}
+            {REF_DATA.map(cat => {
+              const catIcons = {
+                'FERS Pension': <><rect x="3" y="1" width="18" height="22" rx="2" stroke="currentColor" strokeWidth="1.8" fill="none"/><path d="M7 7h10M7 11h10M7 15h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>,
+                'TSP': <><path d="M3 21V8l9-6 9 6v13" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinejoin="round"/><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="1.5" fill="none"/></>,
+                'FEHB': <><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" strokeWidth="1.8" fill="none"/></>,
+                'FEGLI': <><path d="M12 2L2 7v6c0 5.55 3.84 10.74 10 12 6.16-1.26 10-6.45 10-12V7L12 2z" stroke="currentColor" strokeWidth="1.8" fill="none"/><path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
+                'Medicare': <><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" fill="none"/><path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></>,
+                'Social Security': <><circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" fill="none"/><path d="M5.5 21v-2a6.5 6.5 0 0113 0v2" stroke="currentColor" strokeWidth="1.8" fill="none"/></>,
+                'CSRS': <><rect x="2" y="3" width="20" height="18" rx="2" stroke="currentColor" strokeWidth="1.8" fill="none"/><path d="M2 9h20M9 9v12" stroke="currentColor" strokeWidth="1.5"/></>,
+                'Survivor Benefits': <><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="1.8" fill="none"/><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" fill="none"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="1.8" fill="none"/></>,
+                'Taxation': <><path d="M4 4h16v16H4z" stroke="currentColor" strokeWidth="1.8" fill="none" rx="2"/><path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>,
+                'Leave & Separation': <><path d="M9 2v4M15 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="currentColor" strokeWidth="1.8" fill="none"/></>,
+                'Forms & Administration': <><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" strokeWidth="1.8" fill="none"/><rect x="9" y="2" width="6" height="4" rx="1" stroke="currentColor" strokeWidth="1.5" fill="none"/></>,
+              };
+              const descriptions = {
+                'FERS Pension': 'Eligibility, annuity calculations, service credit rules',
+                'TSP': 'Contribution limits, fund options, Roth vs Traditional',
+                'FEHB': 'Plan comparison, 5-year rule, premium costs',
+                'FEGLI': 'Coverage options, costs at retirement, elections',
+                'Medicare': 'Enrollment timing, Part B coordination, costs',
+                'Social Security': 'Benefit estimates, WEP/GPO, claiming strategies',
+                'CSRS': 'Legacy system rules, offset, survivor benefits',
+                'Survivor Benefits': 'Spouse coverage, cost vs benefit, elections',
+                'Taxation': 'Annuity taxation, state taxes, TSP withdrawals',
+                'Leave & Separation': 'Annual leave payout, separation types, timelines',
+                'Forms & Administration': 'Key forms, SF-50, SF-2801, retirement applications',
+              };
+              return (
+                <button
+                  className="ref-cat-card"
+                  key={cat.cat}
+                  onClick={() => setSelectedCat(cat.cat)}
+                  style={{ ...styles.catCard, borderLeftColor: cat.color }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
+                    <div style={{ width: '42px', height: '42px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: `${cat.color}12` }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" style={{ color: cat.color }} aria-hidden="true">
+                        {catIcons[cat.cat] || <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.8" fill="none"/>}
+                      </svg>
+                    </div>
+                    <div>
+                      <div style={styles.catName}>{cat.cat}</div>
+                      <div style={styles.catCount}>{cat.topics.length} topics</div>
+                    </div>
+                  </div>
+                  <div style={styles.catDesc}>{descriptions[cat.cat] || ''}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '14px', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: '600', color: cat.color }}>Explore</span>
+                    <span style={{ color: cat.color, fontSize: '1rem' }}>&rarr;</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -412,28 +452,27 @@ const styles = {
   },
   catGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-    gap: 18,
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: 20,
   },
   catCard: {
     background: 'white',
     border: '1px solid rgba(0,0,0,0.06)',
-    borderTop: '4px solid',
+    borderLeft: '4px solid',
     borderRadius: 14,
-    padding: '28px 24px 24px',
+    padding: '24px 24px 18px',
     textAlign: 'left',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.25s ease',
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
     fontFamily: fontSans,
+    minHeight: 170,
   },
-  catAccent: { width: 32, height: 4, borderRadius: 2, marginBottom: 16 },
-  catName: { fontWeight: 700, fontSize: '1.05rem', color: '#0f172a', fontFamily: fontSerif },
-  catCount: { fontSize: '0.82rem', color: '#64748b', fontWeight: 500, fontFamily: fontSans },
-  catArrow: { color: '#94a3b8', fontSize: '1.1rem', marginTop: 10, transition: 'transform 0.2s' },
+  catName: { fontWeight: 700, fontSize: '1.05rem', color: '#0f172a', lineHeight: 1.2, fontFamily: fontSerif },
+  catCount: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, marginTop: 2, fontFamily: fontSans },
+  catDesc: { fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontFamily: fontSans },
   topicList: {
     display: 'flex',
     flexDirection: 'column',
