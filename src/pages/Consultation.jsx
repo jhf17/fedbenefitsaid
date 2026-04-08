@@ -73,12 +73,12 @@ export default function Consultation() {
     {
       question: 'Is this really free?',
       answer:
-        'Yes. The initial 30-minute consultation is completely free with no obligation. It's an opportunity for us to understand your situation and for you to see if working with a specialist would be helpful.',
+        `Yes. The initial 30-minute consultation is completely free with no obligation. It's an opportunity for us to understand your situation and for you to see if working with a specialist would be helpful.`,
     },
     {
       question: 'Do I need to prepare anything?',
       answer:
-        'It's helpful to have your latest Leave and Earnings Statement and your TSP balance, but not required. We can work with whatever information you have.',
+        `It's helpful to have your latest Leave and Earnings Statement and your TSP balance, but not required. We can work with whatever information you have.`,
     },
     {
       question: 'What happens after the session?',
