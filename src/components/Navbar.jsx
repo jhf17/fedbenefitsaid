@@ -106,16 +106,16 @@ export default function Navbar() {
             Calculator
           </Link>
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Reference Guide
+            Reference
           </Link>
           <Link to="/resources" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Forms &amp; Resources
           </Link>
           <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            AI Chat
+            Chat
           </Link>
           <Link to="/consultation" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Meet a Consultant
+            Meeting
           </Link>
           {user && user.email === ADMIN_EMAIL && (
             <Link to="/admin" style={{ ...styles.mobileLink, color: '#7b1c2e', fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
