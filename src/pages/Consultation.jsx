@@ -95,11 +95,11 @@ export default function Consultation() {
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   return (
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+    <div style={{ fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       {/* Hero Section */}
       <section
         style={{
-          background: `linear-gradient(135deg, ${colors.navy} 0%, ${colors.secondaryNavy} 100%)`,
+          background: `linear-gradient(160deg, ${colors.navy} 0%, ${colors.secondaryNavy} 60%)`,
           color: 'white',
           padding: '60px 20px',
           textAlign: 'center',
@@ -117,6 +117,7 @@ export default function Consultation() {
             marginBottom: '20px',
             lineHeight: 1.2,
             maxWidth: '800px',
+            fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
           }}
         >
           Have Questions About Your Federal Retirement?
@@ -138,7 +139,7 @@ export default function Consultation() {
       {/* What We'll Cover Section */}
       <section
         style={{
-          backgroundColor: colors.lightGray,
+          backgroundColor: '#faf9f6',
           padding: '80px 20px',
         }}
       >
@@ -154,7 +155,8 @@ export default function Consultation() {
               fontWeight: 700,
               textAlign: 'center',
               marginBottom: '60px',
-              color: colors.textDark,
+              color: '#0f172a',
+              fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
             }}
           >
             Topics We Can Help With
@@ -172,11 +174,11 @@ export default function Consultation() {
               <div
                 key={topic.number}
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: '#ffffff',
                   padding: '30px',
-                  borderRadius: '8px',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                  border: `1px solid ${colors.border}`,
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.04)',
+                  border: `1px solid #cbd5e1`,
                   display: 'flex',
                   flexDirection: 'column',
                 }}
@@ -210,8 +212,9 @@ export default function Consultation() {
                     style={{
                       fontSize: '18px',
                       fontWeight: 700,
-                      color: colors.textDark,
+                      color: '#0f172a',
                       margin: 0,
+                      fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
                     }}
                   >
                     {topic.title}
@@ -221,7 +224,7 @@ export default function Consultation() {
                   style={{
                     fontSize: '15px',
                     lineHeight: 1.6,
-                    color: colors.darkGray,
+                    color: '#475569',
                     margin: 0,
                   }}
                 >
@@ -236,9 +239,9 @@ export default function Consultation() {
       {/* Who You'll Meet With Section */}
       <section
         style={{
-          backgroundColor: 'white',
+          backgroundColor: '#ffffff',
           padding: '80px 20px',
-          borderTop: `1px solid ${colors.border}`,
+          borderTop: `1px solid #cbd5e1`,
         }}
       >
         <div
@@ -252,7 +255,8 @@ export default function Consultation() {
               fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
               fontWeight: 700,
               marginBottom: '40px',
-              color: colors.textDark,
+              color: '#0f172a',
+              fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
             }}
           >
             Your Consultant
@@ -260,19 +264,20 @@ export default function Consultation() {
 
           <div
             style={{
-              backgroundColor: colors.lightGray,
+              backgroundColor: '#faf9f6',
               padding: '40px',
-              borderRadius: '8px',
-              border: `1px solid ${colors.border}`,
+              borderRadius: '12px',
+              border: `1px solid #cbd5e1`,
             }}
           >
             <h3
               style={{
                 fontSize: '22px',
                 fontWeight: 700,
-                color: colors.navy,
+                color: '#0f172a',
                 marginBottom: '16px',
                 margin: '0 0 16px 0',
+                fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
               }}
             >
               Federal Market Associates
@@ -281,7 +286,7 @@ export default function Consultation() {
               style={{
                 fontSize: '16px',
                 lineHeight: 1.7,
-                color: colors.textDark,
+                color: '#475569',
                 marginBottom: '16px',
                 margin: '0 0 16px 0',
               }}
@@ -293,7 +298,7 @@ export default function Consultation() {
               style={{
                 fontSize: '16px',
                 lineHeight: 1.7,
-                color: colors.textDark,
+                color: '#475569',
                 margin: 0,
               }}
             >
@@ -307,7 +312,7 @@ export default function Consultation() {
       {/* How It Works Section */}
       <section
         style={{
-          backgroundColor: colors.lightGray,
+          backgroundColor: '#faf9f6',
           padding: '80px 20px',
         }}
       >
@@ -323,7 +328,8 @@ export default function Consultation() {
               fontWeight: 700,
               textAlign: 'center',
               marginBottom: '60px',
-              color: colors.textDark,
+              color: '#0f172a',
+              fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
             }}
           >
             How It Works
@@ -367,9 +373,10 @@ export default function Consultation() {
                   style={{
                     fontSize: '20px',
                     fontWeight: 700,
-                    color: colors.navy,
+                    color: '#0f172a',
                     marginBottom: '12px',
                     margin: '0 0 12px 0',
+                    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
                   }}
                 >
                   {step.title}
@@ -378,7 +385,7 @@ export default function Consultation() {
                   style={{
                     fontSize: '15px',
                     lineHeight: 1.6,
-                    color: colors.darkGray,
+                    color: '#475569',
                     margin: 0,
                   }}
                 >
@@ -393,9 +400,9 @@ export default function Consultation() {
       {/* Calendly Section */}
       <section
         style={{
-          backgroundColor: 'white',
+          backgroundColor: '#ffffff',
           padding: '80px 20px',
-          borderTop: `1px solid ${colors.border}`,
+          borderTop: `1px solid #cbd5e1`,
         }}
       >
         <div
@@ -410,7 +417,8 @@ export default function Consultation() {
               fontWeight: 700,
               textAlign: 'center',
               marginBottom: '50px',
-              color: colors.textDark,
+              color: '#0f172a',
+              fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
             }}
           >
             Choose a Time
@@ -429,12 +437,12 @@ export default function Consultation() {
               style={{
                 display: 'inline-block',
                 padding: '16px 48px',
-                backgroundColor: colors.maroon,
+                backgroundColor: '#7b1c2e',
                 color: 'white',
                 textDecoration: 'none',
                 fontSize: '16px',
                 fontWeight: 600,
-                borderRadius: '6px',
+                borderRadius: '10px',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'background-color 0.3s ease',
@@ -443,7 +451,7 @@ export default function Consultation() {
                 e.target.style.backgroundColor = '#5f1423';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = colors.maroon;
+                e.target.style.backgroundColor = '#7b1c2e';
               }}
             >
               View Available Times
@@ -455,7 +463,7 @@ export default function Consultation() {
       {/* FAQ Section */}
       <section
         style={{
-          backgroundColor: colors.lightGray,
+          backgroundColor: '#faf9f6',
           padding: '80px 20px',
         }}
       >
@@ -471,7 +479,8 @@ export default function Consultation() {
               fontWeight: 700,
               textAlign: 'center',
               marginBottom: '60px',
-              color: colors.textDark,
+              color: '#0f172a',
+              fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
             }}
           >
             Frequently Asked Questions
@@ -483,9 +492,9 @@ export default function Consultation() {
                 key={index}
                 style={{
                   marginBottom: '16px',
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                  border: `1px solid ${colors.border}`,
+                  backgroundColor: '#ffffff',
+                  borderRadius: '12px',
+                  border: `1px solid #cbd5e1`,
                   overflow: 'hidden',
                 }}
               >
@@ -494,23 +503,23 @@ export default function Consultation() {
                   style={{
                     width: '100%',
                     padding: '20px',
-                    backgroundColor: 'white',
+                    backgroundColor: '#ffffff',
                     border: 'none',
                     textAlign: 'left',
                     cursor: 'pointer',
                     fontSize: '16px',
                     fontWeight: 600,
-                    color: colors.textDark,
+                    color: '#0f172a',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     transition: 'background-color 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = colors.lightGray;
+                    e.target.style.backgroundColor = '#faf9f6';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'white';
+                    e.target.style.backgroundColor = '#ffffff';
                   }}
                 >
                   <span>{faq.question}</span>
@@ -528,15 +537,15 @@ export default function Consultation() {
                   <div
                     style={{
                       padding: '0 20px 20px 20px',
-                      backgroundColor: colors.lightGray,
-                      borderTop: `1px solid ${colors.border}`,
+                      backgroundColor: '#faf9f6',
+                      borderTop: `1px solid #cbd5e1`,
                     }}
                   >
                     <p
                       style={{
                         fontSize: '15px',
                         lineHeight: 1.7,
-                        color: colors.darkGray,
+                        color: '#475569',
                         margin: 0,
                       }}
                     >
@@ -553,10 +562,10 @@ export default function Consultation() {
       {/* Final CTA Section */}
       <section
         style={{
-          backgroundColor: 'white',
+          backgroundColor: '#ffffff',
           padding: '80px 20px',
           textAlign: 'center',
-          borderTop: `1px solid ${colors.border}`,
+          borderTop: `1px solid #cbd5e1`,
         }}
       >
         <div
@@ -570,7 +579,8 @@ export default function Consultation() {
               fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
               fontWeight: 700,
               marginBottom: '32px',
-              color: colors.textDark,
+              color: '#0f172a',
+              fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
             }}
           >
             Curious about something? Just ask.
@@ -583,12 +593,12 @@ export default function Consultation() {
             style={{
               display: 'inline-block',
               padding: '16px 48px',
-              backgroundColor: colors.maroon,
+              backgroundColor: '#7b1c2e',
               color: 'white',
               textDecoration: 'none',
               fontSize: '16px',
               fontWeight: 600,
-              borderRadius: '6px',
+              borderRadius: '10px',
               border: 'none',
               cursor: 'pointer',
               marginBottom: '32px',
@@ -598,7 +608,7 @@ export default function Consultation() {
               e.target.style.backgroundColor = '#5f1423';
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = colors.maroon;
+              e.target.style.backgroundColor = '#7b1c2e';
             }}
           >
             Book a Free Call
@@ -607,7 +617,7 @@ export default function Consultation() {
           <p
             style={{
               fontSize: '15px',
-              color: colors.darkGray,
+              color: '#475569',
               lineHeight: 1.6,
               margin: 0,
             }}
@@ -616,7 +626,7 @@ export default function Consultation() {
             <a
               href="/calculator"
               style={{
-                color: colors.maroon,
+                color: '#7b1c2e',
                 textDecoration: 'none',
                 fontWeight: 600,
               }}
@@ -633,7 +643,7 @@ export default function Consultation() {
             <a
               href="/assessment"
               style={{
-                color: colors.maroon,
+                color: '#7b1c2e',
                 textDecoration: 'none',
                 fontWeight: 600,
               }}

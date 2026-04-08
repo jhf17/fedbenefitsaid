@@ -201,7 +201,7 @@ export default function Terms() {
 const styles = {
   main: {
     minHeight: 'calc(100vh - 64px)',
-    background: '#f8fafc',
+    background: '#faf9f6',
     padding: '48px 0 80px',
   },
   container: {
@@ -215,10 +215,11 @@ const styles = {
     color: '#0f172a',
     letterSpacing: '-0.02em',
     marginBottom: 4,
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
   updated: {
     fontSize: '0.85rem',
-    color: '#64748b',
+    color: '#94a3b8',
     marginBottom: 40,
   },
   section: {
@@ -227,8 +228,9 @@ const styles = {
   h2: {
     fontSize: '1.15rem',
     fontWeight: 700,
-    color: '#1e3a5f',
+    color: '#0f172a',
     marginBottom: 10,
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
   p: {
     fontSize: '0.95rem',
@@ -245,16 +247,16 @@ const styles = {
     listStyleType: 'disc',
   },
   link: {
-    color: '#2563eb',
+    color: '#7b1c2e',
     textDecoration: 'none',
     fontWeight: 500,
   },
   disclaimer: {
     marginTop: 48,
     padding: 24,
-    background: '#f1f5f9',
+    background: '#faf9f6',
     borderRadius: 8,
-    borderLeft: '4px solid #1e3a5f',
+    borderLeft: '4px solid #7b1c2e',
     marginBottom: 36,
   },
   disclaimerText: {
@@ -267,10 +269,10 @@ const styles = {
   backWrap: {
     marginTop: 48,
     paddingTop: 24,
-    borderTop: '1px solid #e2e8f0',
+    borderTop: '1px solid #cbd5e1',
   },
   backLink: {
-    color: '#1e3a5f',
+    color: '#7b1c2e',
     fontWeight: 600,
     fontSize: '0.95rem',
     textDecoration: 'none',

@@ -282,14 +282,14 @@ function ResourceCard({ title, desc, href, tag, highlight }) {
 }
 
 const s = {
-  page: { minHeight: '100vh', background: '#f8fafc', paddingBottom: 80 },
+  page: { minHeight: '100vh', background: '#faf9f6', paddingBottom: 80 },
   container: { maxWidth: 960, margin: '0 auto', padding: '40px 20px' },
 
   header: { textAlign: 'center', marginBottom: 52 },
   badge: {
     display: 'inline-block',
-    background: '#dbeafe',
-    color: '#1e40af',
+    background: '#f5e6e8',
+    color: '#7b1c2e',
     fontSize: '0.73rem',
     fontWeight: 700,
     letterSpacing: '0.1em',
@@ -298,8 +298,8 @@ const s = {
     borderRadius: 20,
     marginBottom: 14,
   },
-  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginBottom: 12 },
-  sub: { fontSize: '1rem', color: '#64748b', maxWidth: 540, margin: '0 auto', lineHeight: 1.6 },
+  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginBottom: 12, fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif" },
+  sub: { fontSize: '1rem', color: '#475569', maxWidth: 540, margin: '0 auto', lineHeight: 1.6, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
 
   section: { marginBottom: 44 },
   sectionTitle: {
@@ -307,10 +307,11 @@ const s = {
     fontWeight: 700,
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
-    color: '#1e3a5f',
+    color: '#0f172a',
     marginBottom: 16,
     paddingBottom: 10,
-    borderBottom: '2px solid #e2e8f0',
+    borderBottom: '2px solid #cbd5e1',
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
 
   grid: {
@@ -321,17 +322,18 @@ const s = {
 
   card: {
     display: 'block',
-    background: '#fff',
-    border: '1.5px solid #e2e8f0',
-    borderRadius: 12,
+    background: '#ffffff',
+    border: '1.5px solid #cbd5e1',
+    borderRadius: 14,
     padding: '18px 20px',
     textDecoration: 'none',
     transition: 'border-color 0.15s, box-shadow 0.15s',
     cursor: 'pointer',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
   },
   cardHighlight: {
-    border: '1.5px solid #bfdbfe',
-    boxShadow: '0 2px 8px rgba(37,99,235,0.08)',
+    border: '1.5px solid #7b1c2e',
+    boxShadow: '0 4px 24px rgba(123,28,46,0.08)',
   },
   cardTop: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   tag: {
@@ -339,15 +341,15 @@ const s = {
     fontWeight: 700,
     letterSpacing: '0.06em',
     textTransform: 'uppercase',
-    color: '#64748b',
+    color: '#475569',
     background: '#f1f5f9',
     padding: '2px 8px',
     borderRadius: 6,
   },
-  tagHighlight: { background: '#dbeafe', color: '#1e40af' },
+  tagHighlight: { background: '#f5e6e8', color: '#7b1c2e' },
   extIcon: { fontSize: '0.8rem', color: '#94a3b8' },
-  cardTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 6 },
-  cardDesc: { fontSize: '0.82rem', color: '#64748b', lineHeight: 1.5 },
+  cardTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#0f172a', marginBottom: 6, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  cardDesc: { fontSize: '0.82rem', color: '#475569', lineHeight: 1.5, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
 
   disclaimer: {
     marginTop: 40,
@@ -357,5 +359,6 @@ const s = {
     textAlign: 'center',
     maxWidth: 680,
     margin: '40px auto 0',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
 }

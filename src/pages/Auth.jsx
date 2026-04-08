@@ -269,7 +269,7 @@ export default function Auth({ mode = 'login' }) {
 
         {/* Reference Mode link */}
         <div style={styles.guestNote}>
-          <Link to="/reference" style={{ color: '#2563eb', fontWeight: 500 }}>
+          <Link to="/reference" style={{ color: '#7b1c2e', fontWeight: 500, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
             Browse the free reference guide
           </Link>
           {' '}without an account
@@ -303,7 +303,7 @@ export default function Auth({ mode = 'login' }) {
 const styles = {
   page: {
     minHeight: 'calc(100vh - 64px)',
-    background: 'linear-gradient(160deg, #f0f4ff 0%, #f8fafc 100%)',
+    background: '#faf9f6',
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -311,10 +311,10 @@ const styles = {
     padding: '48px 24px',
   },
   card: {
-    background: 'white',
-    borderRadius: 20,
-    border: '1.5px solid #e2e8f0',
-    boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+    background: '#ffffff',
+    borderRadius: 14,
+    border: 'none',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
     padding: '40px 36px',
     width: '100%',
     maxWidth: 420,
@@ -328,24 +328,26 @@ const styles = {
     marginBottom: 24,
   },
   logoMark: {
-    background: '#1e3a5f',
+    background: '#7b1c2e',
     color: 'white',
     fontWeight: 800,
     fontSize: '0.68rem',
     letterSpacing: '0.06em',
     padding: '4px 7px',
-    borderRadius: 5,
+    borderRadius: 6,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
-  logoText: { fontWeight: 800, fontSize: '1.1rem', color: '#1e3a5f' },
+  logoText: { fontWeight: 800, fontSize: '1.1rem', color: '#0f172a', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif" },
   flashMsg: {
     background: '#eff6ff',
     border: '1px solid #c7d7fc',
     borderRadius: 10,
     padding: '10px 14px',
     fontSize: '0.88rem',
-    color: '#1e3a5f',
+    color: '#0f172a',
     marginBottom: 20,
     textAlign: 'center',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   tabs: {
     display: 'flex',
@@ -359,19 +361,19 @@ const styles = {
     padding: '8px 0',
     border: 'none',
     background: 'transparent',
-    borderRadius: 7,
-    fontFamily: 'inherit',
+    borderRadius: 8,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: '0.9rem',
     fontWeight: 500,
-    color: '#64748b',
+    color: '#475569',
     cursor: 'pointer',
     transition: 'all 0.15s',
   },
   tabActive: {
     background: 'white',
-    color: '#1e3a5f',
+    color: '#0f172a',
     fontWeight: 700,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
   },
   heading: {
     textAlign: 'center',
@@ -383,11 +385,13 @@ const styles = {
     color: '#0f172a',
     marginBottom: 6,
     letterSpacing: '-0.02em',
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
   sub: {
     fontSize: '0.88rem',
-    color: '#64748b',
+    color: '#475569',
     lineHeight: 1.5,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   successBox: {
     background: '#ecfdf5',
@@ -398,6 +402,7 @@ const styles = {
     color: '#065f46',
     marginBottom: 20,
     lineHeight: 1.5,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   errorBox: {
     background: '#fef2f2',
@@ -407,6 +412,7 @@ const styles = {
     fontSize: '0.88rem',
     color: '#dc2626',
     marginBottom: 16,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   form: {
     display: 'flex',
@@ -417,15 +423,16 @@ const styles = {
     textAlign: 'center',
     marginTop: 20,
     fontSize: '0.88rem',
-    color: '#64748b',
+    color: '#475569',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   switchLink: {
     background: 'none',
     border: 'none',
-    color: '#2563eb',
+    color: '#7b1c2e',
     fontWeight: 600,
     cursor: 'pointer',
-    fontFamily: 'inherit',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: '0.88rem',
   },
   guestNote: {
@@ -435,15 +442,17 @@ const styles = {
     color: '#94a3b8',
     paddingTop: 16,
     borderTop: '1px solid #f1f5f9',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   aside: {
     width: 340,
     flexShrink: 0,
   },
   asideInner: {
-    background: 'white',
-    borderRadius: 20,
-    border: '1.5px solid #e2e8f0',
+    background: '#ffffff',
+    borderRadius: 14,
+    border: 'none',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
     padding: '32px 28px',
   },
   asideTitle: {
@@ -452,6 +461,7 @@ const styles = {
     color: '#0f172a',
     marginBottom: 24,
     letterSpacing: '-0.01em',
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
   asideBenefit: {
     display: 'flex',
@@ -462,7 +472,7 @@ const styles = {
   asideAccent: {
     width: 4,
     height: 36,
-    background: '#1e3a5f',
+    background: '#7b1c2e',
     borderRadius: 2,
     flexShrink: 0,
     marginTop: 2,
@@ -472,11 +482,13 @@ const styles = {
     fontSize: '0.9rem',
     color: '#0f172a',
     marginBottom: 3,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   asideBenDesc: {
     fontSize: '0.82rem',
-    color: '#64748b',
+    color: '#475569',
     lineHeight: 1.5,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
 }
 
