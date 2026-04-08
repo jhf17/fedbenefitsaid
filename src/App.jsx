@@ -1,17 +1,18 @@
 import { Routes, Route } from 'react-router-dom'
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect, createContext, useContext, Suspense, lazy } from 'react'
 import { supabase } from './lib/supabase'
 import Navbar from './components/Navbar'
+import ErrorBoundary from './components/ErrorBoundary'
 import Landing from './pages/Landing'
-import Reference from './pages/Reference'
-import Chat from './pages/Chat'
+const Reference = lazy(() => import('./pages/Reference'))
+const Chat = lazy(() => import('./pages/Chat'))
 import Auth from './pages/Auth'
-import Course from './pages/Course'
-import Quiz from './pages/Quiz'
-import Calculator from './pages/Calculator'
-import Resources from './pages/Resources'
-import Admin from './pages/Admin'
-import Assessment from './pages/Assessment'
+const Course = lazy(() => import('./pages/Course'))
+const Quiz = lazy(() => import('./pages/Quiz'))
+const Calculator = lazy(() => import('./pages/Calculator'))
+const Resources = lazy(() => import('./pages/Resources'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Assessment = lazy(() => import('./pages/Assessment'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
@@ -67,7 +68,9 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ session, user: session?.user ?? null }}>
+      <ErrorBoundary>
       <Navbar />
+      <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:'60vh'}}><div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTop:'4px solid #7b1c2e',borderRadius:'50%',animation:'spin 1s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/reference" element={<Reference />} />
@@ -107,6 +110,8 @@ export default function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
+      </ErrorBoundary>
     </AuthContext.Provider>
   )
 }
