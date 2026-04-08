@@ -1,5 +1,5 @@
 export const REF_DATA = [
-  {cat:'FERS Pension',icon:'🏛️',color:'#1d4ed8',topics:[
+  {cat:'FERS Pension',icon:'🏛️',color:'#1e3a5f',topics:[
     {id:'fers-eligibility',title:'Retirement Types & Eligibility',summary:'Immediate, deferred, disability, and MRA+10 paths',
      overview:'FERS offers several retirement paths depending on age and years of creditable service. Choosing the right type determines benefit amount, supplement eligibility, and FEH/ continuation.',
      rules:[
@@ -129,7 +129,7 @@ export const REF_DATA = [
        "A divorced spouse may have court-ordered survivor annuity rights that override the retiree's wishes"
      ]}
   ]},
-  {cat:'TSP',icon:'💰',color:'#059669',topics:[
+  {cat:'TSP',icon:'💰',color:'#7b1c2e',topics:[
     {id:'tsp-contributions',title:'Contributions & Agency Matching',summary:'Limits, matching formula, and vesting schedule',
      overview:'The TSP is a defined-contribution retirement savings plan. FERS employees receive significant employer contributions, making full participation critical to maximizing retirement income.',
      rules:[
@@ -241,7 +241,7 @@ export const REF_DATA = [
        'TSP life annuity option locks in income for life but eliminates flexibility — irreversible once elected'
      ]}
   ]},
-  {cat:'FEHB',icon:'🏥',color:'#dc2626',topics:[
+  {cat:'FEHB',icon:'🏥',color:'#b8860b',topics:[
     {id:'fehb-overview',title:'Enrollment Options & Plan Types',summary:'Self, Self+1, Self+Family; FFS, HMO, HDHP',
      overview:'FEH/ is one of the most comprehensive employer-sponsored health insurance programs in the world. Federal employees choose from hundreds of plans in three enrollment tiers.',
      rules:[
@@ -349,7 +349,7 @@ export const REF_DATA = [
        'LEX FSA allows HSA holders to get some pretax benefit for dental/vision without affecting HSA eligibility'
      ]}
   ]},
-  {cat:'FEGLI',icon:'🛡️',color:'#7c3aed',topics:[
+  {cat:'FEGLI',icon:'🛡️',color:'#1e3a5f',topics:[
     {id:'fegli-basic',title:'Basic Life Insurance',summary:'1x salary + $2,000; government pays 1/3 of cost',
      overview:"FEGLI Basic coverage is automatic for new employees unless waived. It provides a death benefit equal to the employee's salary rounded up to the next thousand, plus $2,000.",
      rules:[
@@ -430,7 +430,7 @@ export const REF_DATA = [
        'SF-2823 not updated after divorce? Ex-spouse may receive the death benefit — check and update immediately after life events'
      ]}
   ]},
-  {cat:'Medicare',icon:'⚕️',color:'#0891b2',topics:[
+  {cat:'Medicare',icon:'⚕️',color:'#7b1c2e',topics:[
     {id:'medicare-parts',title:'Parts A, B, C, D Overview',summary:'What each part covers and how they fit together',
      overview:'Medicare is the federal health insurance program for people age 65 and older. For federal employees, it layers on top of FEH/ in retirement, often resulting in near-zero out-of-pocket costs.',
      rules:[
@@ -492,7 +492,7 @@ export const REF_DATA = [
        'TSP withdrawals, FERS annuity, and SS all count toward IRMAA income — may be higher than expected'
      ]}
   ]},
-  {cat:'Social Security',icon:'🔵',color:'#1d4ed8',topics:[
+  {cat:'Social Security',icon:'🔵',color:'#b8860b',topics:[
     {id:'ss-eligibility',title:'Eligibility, Credits & Benefit Calculation',summary:'40 credits, 35 highest years, AIME and PIA',
      overview:"Social Security retirement benefits require 40 credits (about 10 years of work) and are calculated based on the worker's 35 highest earning years, indexed for wage inflation.",
      rules:[
@@ -577,7 +577,7 @@ export const REF_DATA = [
        "CSRS employees often don't realize WEP/GPO impact until close to retirement — plan early"
      ]}
   ]},
-  {cat:'CSRS',icon:'🏦',color:'#92400e',topics:[
+  {cat:'CSRS',icon:'🏦',color:'#1e3a5f',topics:[
     {id:'csrs-overview',title:'CSRS Overview & Eligibility',summary:'Closed system; higher multipliers; full COLA',
      overview:'The Civil Service Retirement System is the older federal retirement plan, closed to new hires after December 31, 1983. CSRS provides a more generous annuity formula than FERS but includes no Social Security integration or TSP government contributions.',
      rules:[
@@ -621,7 +621,7 @@ export const REF_DATA = [
        'Sick leave fully credited toward CSRS service as with FERS'
      ]}
   ]},
-  {cat:'Survivor Benefits',icon:'👨‍👩‍👧',color:'#be185d',topics:[
+  {cat:'Survivor Benefits',icon:'👨‍👩‍👧',color:'#7b1c2e',topics:[
     {id:'survivor-election',title:'Post-Retirement Survivor Elections',summary:'Full, partial, or no survivor; FEH/ implications',
      overview:'At retirement, FERS and CSRS employees must elect a survivor benefit for their spouse. This election permanently reduces the retiree\'s monthly annuity in exchange for providing income to the surviving spouse.',
      rules:[
@@ -685,7 +685,7 @@ export const REF_DATA = [
        "The former spouse's annuity share ends if the former spouse remarries before age 55"
      ]}
   ]},
-  {cat:'Taxation',icon:'📋',color:'#374151',topics:[
+  {cat:'Taxation',icon:'📋',color:'#b8860b',topics:[
     {id:'tax-annuity',title:'FERS & CSRS Annuity Taxation',summary:'Simplified Method; mostly taxable; state variations',
      overview:'Federal retirement annuities are subject to federal income tax. The taxable portion is determined using the Simplified Method — a small portion representing after-tax employee contributions is excluded.',
      rules:[
@@ -748,7 +748,7 @@ export const REF_DATA = [
        'Roth TSP 5-year clock starts from first Roth contribution to TSP — verify before taking Roth distributions'
      ]}
   ]},
-  {cat:'Leave & Separation',icon:'📅',color:'#065f46',topics:[
+  {cat:'Leave & Separation',icon:'📅',color:'#1e3a5f',topics:[
     {id:'leave-annual-sick',title:'Annual & Sick Leave',summary:'Accrual rates, carryover limits, and retirement crediting',
      overview:'Federal employees accrue annual and sick leave each biweekly pay period. Understanding the rules at retirement — especially sick leave crediting — is essential to maximizing the FERS annuity.',
      rules:[
@@ -815,7 +815,7 @@ export const REF_DATA = [
        'Accepting FERS disability retirement does NOT automatically end OWCP — employee must formally elect'
      ]}
   ]},
-  {cat:'Forms & Administration',icon:'📝',color:'#6b7280',topics:[
+  {cat:'Forms & Administration',icon:'📝',color:'#7b1c2e',topics:[
     {id:'forms-retirement',title:'Key Retirement Forms',summary:'SF-3107, SF-2801, and OPM processing timeline',
      overview:'Filing the correct forms accurately and on time is critical for a smooth transition to retirement. OPM processing takes months — starting the paperwork 6 months before the target retirement date is strongly advised.',
      rules:[

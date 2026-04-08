@@ -487,24 +487,27 @@ export default function Landing() {
               Explore the guide →
             </Link>
           </div>
-          <div style={{ order: 1, maxWidth: '480px' }}>
-            {/* Mini card grid matching actual reference page */}
+          <div style={{ order: 1, maxWidth: '500px' }}>
+            {/* Mini card grid matching actual reference page — brand colors */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {[
-                { color: '#2563eb', title: 'FERS Pension', topics: 6 },
-                { color: '#059669', title: 'TSP', topics: 5 },
-                { color: '#dc2626', title: 'FEHB', topics: 5 },
-                { color: '#7c3aed', title: 'FEGLI', topics: 4 },
-                { color: '#0891b2', title: 'Medicare', topics: 3 },
-                { color: '#1d4ed8', title: 'Social Security', topics: 4 },
-                { color: '#b45309', title: 'CSRS', topics: 2 },
-                { color: '#be185d', title: 'Survivor Benefits', topics: 3 },
+                { color: '#1e3a5f', title: 'FERS Pension', topics: 6, desc: 'Eligibility, annuity calculations' },
+                { color: '#7b1c2e', title: 'TSP', topics: 5, desc: 'Fund options, Roth vs Traditional' },
+                { color: '#b8860b', title: 'FEHB', topics: 5, desc: 'Plan comparison, premium costs' },
+                { color: '#1e3a5f', title: 'FEGLI', topics: 4, desc: 'Coverage options, elections' },
+                { color: '#7b1c2e', title: 'Medicare', topics: 3, desc: 'Enrollment timing, Part B' },
+                { color: '#b8860b', title: 'Social Security', topics: 4, desc: 'WEP/GPO, claiming strategies' },
+                { color: '#1e3a5f', title: 'CSRS', topics: 2, desc: 'Legacy rules, offset' },
+                { color: '#7b1c2e', title: 'Survivor Benefits', topics: 3, desc: 'Spouse coverage, elections' },
               ].map((cat, i) => (
-                <div key={i} style={{ background: colors.white, borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderTop: `3px solid ${cat.color}`, padding: '14px 14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-                  <div style={{ width: '18px', height: '3px', borderRadius: '2px', background: cat.color, marginBottom: '10px' }} />
-                  <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '0.82rem', color: colors.navy, marginBottom: '2px' }}>{cat.title}</div>
-                  <div style={{ fontSize: '0.68rem', color: colors.gray400 }}>{cat.topics} topics</div>
-                  <div style={{ fontSize: '0.78rem', color: colors.gray400, marginTop: '6px' }}>→</div>
+                <div key={i} style={{ background: colors.white, borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderLeft: `3px solid ${cat.color}`, padding: '14px 14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '0.82rem', color: colors.navy }}>{cat.title}</div>
+                  <div style={{ fontSize: '0.65rem', color: colors.gray400 }}>{cat.topics} topics</div>
+                  <div style={{ fontSize: '0.68rem', color: colors.gray600, lineHeight: '1.35', marginTop: '2px' }}>{cat.desc}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', paddingTop: '6px', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+                    <span style={{ fontSize: '0.65rem', fontWeight: '600', color: cat.color }}>Explore</span>
+                    <span style={{ color: cat.color, fontSize: '0.75rem' }}>→</span>
+                  </div>
                 </div>
               ))}
             </div>
