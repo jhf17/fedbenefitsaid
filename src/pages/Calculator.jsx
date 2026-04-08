@@ -192,7 +192,7 @@ export default function Calculator() {
   const [tspGrowthRate, setTspGrowthRate] = useState('6')
   const [ssAt62, setSsAt62] = useState('')
   const [ssClaimAge, setSsClaimAge] = useState('67')
-  const [includeMedicare, setIncludeMedicare] = useState(true)
+  const [includeMedicare, setIncludeMedicare] = useState(false)
 
   // FEHB health insurance deduction
   const [includeFEHB, setIncludeFEHB] = useState(false)
@@ -790,27 +790,54 @@ export default function Calculator() {
               ))}
             </div>
 
-            {/* TSP Income Strategy CTA */}
-                <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderRadius: 16, padding: '32px', marginBottom: 24 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                    <div aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>📈</div>
-                    <div>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#22c55e', marginBottom: 4 }}>TSP Strategy</div>
-                      <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>Could your TSP generate more retirement income?</div>
-                    </div>
-                  </div>
-                  <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.7, margin: '0 0 24px 0' }}>
-                    Your estimate above uses the 4% withdrawal rule — a common guideline, but not your only option.
-                    There are strategies that could increase your monthly TSP income while reducing the risk of running out.
-                    A quick conversation can show you what's possible with your specific balance.
-                  </p>
-                  <div style={{ textAlign: 'center' }}>
-                    <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#22c55e', color: '#fff', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', marginBottom: 8 }}>
-                      Book a Free Meeting
-                    </a>
-                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>30 minutes. No cost. No obligation.</div>
-                  </div>
+            {/* Email capture for calculator results — moved above notes */}
+            <div style={{ padding: '28px', background: 'white', borderRadius: 14, border: '1.5px solid #e2e8f0', marginBottom: 24 }}>
+              {captureSent ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div aria-hidden="true" style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+                  <p style={{ color: '#1e3a5f', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
+                  <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your calculator results summary.</p>
                 </div>
+              ) : (
+                <>
+                  <p style={{ color: '#1e3a5f', fontWeight: 700, fontSize: 18, margin: '0 0 6px', textAlign: 'center' }}>Save your retirement estimate</p>
+                  <p style={{ color: '#64748b', fontSize: 14, margin: '0 0 18px', textAlign: 'center' }}>Get a detailed breakdown emailed to you for future reference. No spam, ever.</p>
+                  <form onSubmit={handleEmailCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <input type="text" placeholder="Your name" aria-label="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={{ flex: 1, minWidth: 180, padding: '11px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
+                      <input type="tel" placeholder="Phone (optional)" aria-label="Phone number (optional)" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={{ flex: 1, minWidth: 180, padding: '11px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <input type="email" placeholder="Your email" aria-label="Your email" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} required style={{ flex: 1, minWidth: 220, padding: '11px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
+                      <button type="submit" disabled={captureLoading} style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>{captureLoading ? 'Sending...' : 'Email My Results'}</button>
+                    </div>
+                    {captureError && <p role="alert" style={{ color: '#ef4444', fontSize: 13, margin: 0 }}>{captureError}</p>}
+                  </form>
+                </>
+              )}
+            </div>
+
+            {/* TSP Strategy CTA — maroon accent */}
+            <div style={{ background: 'linear-gradient(135deg, #7b1c2e 0%, #a3293f 100%)', borderRadius: 16, padding: '32px', marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
+                <div aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>💬</div>
+                <div>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>Want to know if you're on track?</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 24px 0' }}>
+                Your numbers above are a great starting point, but every federal retirement situation is unique.
+                A benefits specialist can review your specific scenario, identify gaps, and help you make the
+                most of your FERS pension, TSP, and Social Security timing.
+              </p>
+              <div style={{ textAlign: 'center' }}>
+                <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', marginBottom: 8 }}>
+                  Book a Free Consultation
+                </a>
+                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>30 minutes. No cost. No obligation.</div>
+              </div>
+            </div>
 
             {/* Important Assumptions */}
             <div style={s.assumptionsBox}>
@@ -844,33 +871,6 @@ export default function Calculator() {
                   <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
                 </div>
               </div>
-            </div>
-
-            {/* Email capture for calculator results */}
-            <div style={{ marginTop: 20, padding: '24px', background: 'white', borderRadius: 12, border: '1.5px solid #e2e8f0' }}>
-              {captureSent ? (
-                <div style={{ textAlign: 'center' }}>
-                  <div aria-hidden="true" style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
-                  <p style={{ color: '#1e3a5f', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
-                  <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your calculator results summary.</p>
-                </div>
-              ) : (
-                <>
-                  <p style={{ color: '#1e3a5f', fontWeight: 700, fontSize: 16, margin: '0 0 4px', textAlign: 'center' }}>Get your results emailed to you</p>
-                  <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 16px', textAlign: 'center' }}>We'll send a summary of your retirement estimate. No spam, ever.</p>
-                  <form onSubmit={handleEmailCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <input type="text" placeholder="Your name" aria-label="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                      <input type="tel" placeholder="Phone (optional)" aria-label="Phone number (optional)" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                    </div>
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <input type="email" placeholder="Your email" aria-label="Your email" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} required style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                      <button type="submit" disabled={captureLoading} style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>{captureLoading ? 'Sending...' : 'Email My Results'}</button>
-                    </div>
-                    {captureError && <p role="alert" style={{ color: '#ef4444', fontSize: 13, margin: 0 }}>{captureError}</p>}
-                  </form>
-                </>
-              )}
             </div>
 
           </div>
