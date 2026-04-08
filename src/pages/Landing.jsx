@@ -241,7 +241,7 @@ export default function Landing() {
                 <feTurbulence type="fractalNoise" baseFrequency="0.015 0.04" numOctaves="2" seed="3" result="noise">
                   <animate attributeName="seed" dur="45s" values="3;8;5;12;7;10;4;9;3" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 
