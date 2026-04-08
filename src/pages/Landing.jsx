@@ -20,14 +20,14 @@ export default function Landing() {
 
 function Hero() {
   return (
-    <section data-hero-section="" style={heroStyles.section}>
+    <section data-hero-section="" style={heroStyles.section} aria-labelledby="hero-heading">
       <div className="container">
         <div style={heroStyles.inner}>
           <div style={heroStyles.badge}>
             For U.S. Federal Employees
           </div>
 
-          <h1 style={heroStyles.h1}>
+          <h1 id="hero-heading" style={heroStyles.h1}>
             Your Federal Retirement Benefits,{' '}
             <span style={heroStyles.highlight}>Finally Clear</span>
           </h1>
@@ -135,10 +135,10 @@ function Tools() {
   ]
 
   return (
-    <section className="section" style={{ background: '#f8fafc' }}>
+    <section className="section" style={{ background: '#f8fafc' }} aria-labelledby="tools-heading">
       <div className="container">
         <div className="text-center" style={{ marginBottom: 56 }}>
-          <h2 style={toolsStyles.h2}>Everything you need to understand your benefits</h2>
+          <h2 id="tools-heading" style={toolsStyles.h2}>Everything you need to understand your benefits</h2>
           <p style={toolsStyles.sub}>
             Five powerful tools — all free, all designed to help you make confident decisions.
           </p>
@@ -235,10 +235,10 @@ function HowItWorks() {
   ]
 
   return (
-    <section className="section">
+    <section className="section" aria-labelledby="how-heading">
       <div className="container">
         <div className="text-center" style={{ marginBottom: 56 }}>
-          <h2 style={howStyles.h2}>How it works</h2>
+          <h2 id="how-heading" style={howStyles.h2}>How it works</h2>
           <p style={howStyles.sub}>From confused to confident in three simple steps.</p>
         </div>
         <div data-how-steps="" style={howStyles.steps}>
@@ -257,10 +257,10 @@ function HowItWorks() {
 
 function ConsultationCTA() {
   return (
-    <section data-consultation-section="" style={consultationStyles.section}>
+    <section data-consultation-section="" style={consultationStyles.section} aria-labelledby="consult-heading">
       <div className="container">
         <div style={consultationStyles.inner}>
-          <h2 style={consultationStyles.h2}>
+          <h2 id="consult-heading" style={consultationStyles.h2}>
             Ready for expert guidance?
           </h2>
           <p style={consultationStyles.sub}>
@@ -777,11 +777,48 @@ if (typeof document !== 'undefined') {
       outline-offset: 2px !important;
     }
 
-    /* Ensure sufficient color contrast for links */
+    /* Button hover & transition states */
+    [data-hero-actions] .btn,
+    [data-consultation-actions] .btn,
+    [data-tools-grid] .btn {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease !important;
+    }
+    [data-hero-actions] .btn:hover,
+    [data-consultation-actions] .btn:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+    }
+    [data-tools-grid] .btn:hover {
+      opacity: 0.9 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+    }
+
+    /* Tool card hover lift */
+    [data-tools-grid] > div {
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    [data-tools-grid] > div:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1) !important;
+    }
+
+    /* How-it-works step hover */
+    [data-how-steps] > div {
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    [data-how-steps] > div:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important;
+    }
+
+    /* Footer link hover */
+    [data-footer-links] a {
+      transition: color 0.15s ease !important;
+    }
     [data-footer-links] a:visited {
       color: #cbd5e1 !important;
     }
-
     [data-footer-links] a:hover {
       color: white !important;
     }

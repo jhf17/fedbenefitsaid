@@ -221,12 +221,16 @@ const styles = {
   hamburger: {
     display: 'none',
     flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: 5,
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    padding: 4,
+    padding: 10,
     marginLeft: 'auto',
+    minWidth: 44,
+    minHeight: 44,
   },
   bar: {
     width: 22,

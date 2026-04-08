@@ -44,10 +44,34 @@ export default function Auth({ mode = 'login' }) {
     }
   }
 
+  // Client-side validation
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.')
+      return false
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return false
+    }
+    if (!isLogin && !name.trim()) {
+      setError('Please enter your full name.')
+      return false
+    }
+    if (!isLogin && phone && !/^[\d\s()+-]{7,}$/.test(phone)) {
+      setError('Please enter a valid phone number.')
+      return false
+    }
+    return true
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setSuccess('')
+
+    if (!validateForm()) return
     setLoading(true)
 
     try {

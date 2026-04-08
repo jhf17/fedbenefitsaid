@@ -15,7 +15,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY
 const AIRTABLE_BASE_ID = 'appnihKPbDBxVQK4c'
 const AIRTABLE_TABLE_ID = 'tblDRfHTvUeWAAyR5'
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*'
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://fedbenefitsaid.com'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
