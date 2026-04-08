@@ -18,6 +18,12 @@ const AIRTABLE_TABLE_ID = 'tblDRfHTvUeWAAyR5'
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://fedbenefitsaid.com'
 
 const CORS_HEADERS = {
+  // Rate limit
+  const clientIp = event.headers['x-forwarded-for'] || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return { statusCode: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '60' }, body: JSON.stringify({ error: 'Too many requests. Please wait a minute.' }) };
+  }
+
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -82,7 +88,9 @@ async function searchAirtable(userMessage) {
     if (terms.length === 0) return ''
 
     // Build formula searching Keywords, Rule Name, and Category
-    const clauses = terms.map(term =>
+    const clauses = terms.map(rawTerm => {
+    const term = sanitizeSearchTerm(rawTerm); if (!term) return null;
+    return rawTerm; }).filter(Boolean).map(rawTerm => { const term = sanitizeSearchTerm(rawTerm);
       `OR(FIND("${term}", LOWER({Keywords})), FIND("${term}", LOWER({Rule Name})), FIND("${term}", LOWER({Category})), FIND("${term}", LOWER({Subcategory})))`
     )
     const formula = `OR(${clauses.join(',')})`
@@ -131,6 +139,23 @@ async function searchAirtable(userMessage) {
 }
 
 // ─── HANDLER ─────────────────────────────────────────────────────────────────
+// === SECURITY: Rate Limiting ===
+const rateLimitMap = new Map();
+function checkRateLimit(ip, max = 20, windowMs = 60 * 1000) {
+  const now = Date.now();
+  const rec = rateLimitMap.get(ip);
+  if (!rec || now - rec.start > windowMs) { rateLimitMap.set(ip, { start: now, count: 1 }); return true; }
+  rec.count++;
+  return rec.count <= max;
+}
+
+// === SECURITY: Input Sanitization ===
+function sanitizeSearchTerm(term) {
+  if (!term || typeof term !== 'string') return '';
+  // Strip everything except alphanumeric, spaces, hyphens
+  return term.replace(/[^a-zA-Z0-9\s-]/g, '').trim().substring(0, 50);
+}
+
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: '' }
@@ -178,7 +203,7 @@ exports.handler = async function (event) {
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .map(m => ({
       role: m.role,
-      content: String(m.content).slice(0, 4000),
+      content: String(m.content).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "").slice(0, 2000),
     }))
     .slice(-20)
 
