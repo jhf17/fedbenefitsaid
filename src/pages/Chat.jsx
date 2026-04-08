@@ -17,7 +17,7 @@ export default function Chat() {
   const location = useLocation()
   const [messages, setMessages] = useState([WELCOME_MESSAGE])
   const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoadingEtrue)
   const [error, setError] = useState('')
   useEffect(() => { document.title = 'AI Retirement Assistant | FedBenefitsAid' }, [])
   const bottomRef = useRef(null)
@@ -96,7 +96,119 @@ export default function Chat() {
     'What happens to my FEHB in retirement?',
     'Explain the FERS Supplement',
   ]
-     </div>
+
+  return (
+    <div style={styles.page}>
+      {/* Sidebar */}
+      <aside style={styles.sidebar} aria-label="Chat sidebar">
+        <div style={styles.sidebarTop}>
+          <h2 style={styles.sidebarTitle}>Federal Benefits AI</h2>
+          <div style={styles.sidebarUser}>
+            Signed in as<br />
+            <strong>{user?.email}</strong>
+          </div>
+        </div>
+
+        <div style={styles.sidebarSection} role="group" aria-label="Quick question suggestions">
+          <h3 style={styles.sidebarLabel}>Quick Questions</h3>
+          {suggestions.map((s, i) => (
+            <button
+              key={i}
+              onClick={() => sendMessage(s)}
+              disabled={loading}
+              style={styles.suggestionBtn}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 'auto', padding: '0 16px 16px' }}>
+          <ConsultantCTA compact />
+        </div>
+      </aside>
+
+      {/* Chat Area */}
+      <div style={styles.chatArea}>
+        {/* Messages */}
+        <div style={styles.messages} role="log" aria-label="Chat messages" aria-live="polite">
+          <div style={{ flex: '1 1 auto' }} />
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              style={{
+                ...styles.messageRow,
+                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+              }}
+            >
+              {msg.role === 'assistant' && (
+                <div style={styles.avatar} aria-hidden="true">🤖</div>
+              )}
+              <div
+                style={{
+                  ...styles.bubble,
+                  ...(msg.role === 'user' ? styles.bubbleUser : styles.bubbleAI),
+                }}
+              >
+                <MessageContent content={msg.content} />
+              </div>
+              {msg.role === 'user' && (
+                <div style={styles.userAvatar} aria-hidden="true">
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {loading && (
+            <div style={{ ...styles.messageRow, justifyContent: 'flex-start' }}>
+              <div style={styles.avatar} aria-hidden="true">🤖</div>
+              <div style={{ ...styles.bubble, ...styles.bubbleAI, ...styles.typingBubble }}>
+                <TypingIndicator />
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div style={styles.errorMsg} role="alert">
+              <span aria-hidden="true">⚠️</span> {error}
+              <button onClick={() => setError('')} style={styles.errorDismiss}>Dismiss</button>
+            </div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input Area */}
+        <div style={styles.inputArea}>
+          <div style={styles.inputWrap}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything about your federal benefits... (Enter to send, Shift+Enter for new line)"
+              disabled={loading}
+              style={styles.textarea}
+              rows={1}
+              aria-label="Type your message about federal benefits"
+            />
+            <button
+              onClick={() => sendMessage()}
+              disabled={loading || !input.trim()}
+              style={styles.sendBtn}
+              aria-label="Send message"
+            >
+              {loading ? <span className="spinner" /> : '↑'}
+            </button>
+          </div>
+          <div style={styles.inputNote}>
+            AI answers are for educational purposes. Always verify with OPM or a qualified advisor for official decisions.
+            <span style={{ margin: '0 8px', color: '#cbd5e1' }}>·</span>
+            <Link to="/reference" style={{ color: '#2563eb' }}>Browse Reference Guide</Link>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -122,268 +234,41 @@ function MessageContent({ content }) {
                   <li key={j} style={{ fontSize: '0.93rem', lineHeight: 1.6 }}>
                     <FormattedText text={clean} />
                   </li>
-                ) : null
+                : null
               })}
             </ul>
           )
         }
 
         // Heading detection (lines starting with **)
-        if (para.startsWith('**') && para.endsWith('**')) {
-          return (
-            <p key={i} style={{ fontWeight: 700, fontSize: '0.95rem', margin: 0 }}>
-              {para.replace(/\*\*/g, '')}
-            </p>
-          )
-        }
+        if (para.startsWith('**'���bb&�V�G5v�F��r��r����&WGW&�
+��^O^�_H�[O^���۝�ZY����۝�^�N�	��M\�[I�X\��[��_O���\�K��\X�J�
+�
+���	��_B����
+B�B���]\��
+��^O^�_H�[O^��X\��[���۝�^�N�	��Lܙ[I�[�RZY��K��H_O���ܛX]Y^^^�\�_Hς����
+B�J_B��]���
+B�B���[��[ۈ�ܛX]Y^
+�^JH����^�
+��^
+����ۜ�\��H^��]
+�
+�
+����W
+�
+���B��]\��
+����\�˛X\
 
-        return (
-          <p key={i} style={{ margin: 0, fontSize: '0.93rem', lineHeight: 1.65 }}>
-            <FormattedText text={para} />
-          </p>
-        )
-      })}
-    </div>
-  )
-}
-
-function FormattedText({ text }) {
-  // Bold text: **text**
-  const parts = text.split(/\*\*(.*?)\*\*/g)
-  return (
-    <>
-      {parts.map((part, i) =>
-        i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-      )}
-    </>
-  )
-}
-
-function TypingIndicator() {
-  return (
-    <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '4px 0' }}>
-      {[0, 1, 2].map(i => (
-        <div
-          key={i}
-          style={{
-            width: 7,
-            height: 7,
-            borderRadius: '50%',
-            background: '#94a3b8',
-            animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-6px); }
-        }
-      `}</style>
-    </div>
-  )
-}
-
-const styles = {
-  page: {
-    display: 'flex',
-    height: 'calc(100vh - 64px)',
-    background: '#f8fafc',
-    overflow: 'hidden',
-  },
-  sidebar: {
-    width: 280,
-    background: 'white',
-    borderRight: '1px solid #e2e8f0',
-    display: 'flex',
-    flexDirection: 'column',
-    flexShrink: 0,
-    overflow: 'auto',
-  },
-  sidebarTop: {
-    padding: '24px 16px 16px',
-    borderBottom: '1px solid #e2e8f0',
-  },
-  sidebarTitle: {
-    fontWeight: 800,
-    fontSize: '1rem',
-    color: '#1e3a5f',
-    marginBottom: 8,
-  },
-  sidebarUser: {
-    fontSize: '0.8rem',
-    color: '#64748b',
-    lineHeight: 1.5,
-  },
-  sidebarSection: {
-    padding: '16px',
-    flex: 1,
-  },
-  sidebarLabel: {
-    fontSize: '0.72rem',
-    fontWeight: 700,
-    color: '#94a3b8',
-    textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-    marginBottom: 8,
-  },
-  suggestionBtn: {
-    display: 'block',
-    width: '100%',
-    textAlign: 'left',
-    background: 'none',
-    border: 'none',
-    padding: '8px 10px',
-    borderRadius: 8,
-    fontSize: '0.82rem',
-    color: '#334155',
-    cursor: 'pointer',
-    lineHeight: 1.4,
-    marginBottom: 2,
-    transition: 'background 0.1s',
-  },
-  chatArea: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    maxWidth: 820,
-    margin: '0 auto',
-    width: '100%',
-  },
-  messages: {
-    flex: 1,
-    overflowY: 'auto',
-    padding: '24px 24px 8px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 16,
-  },
-  messageRow: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    gap: 8,
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: '50%',
-    background: '#eff6ff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '1rem',
-    flexShrink: 0,
-    marginBottom: 2,
-  },
-  userAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: '50%',
-    background: '#1e3a5f',
-    color: 'white',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.85rem',
-    fontWeight: 700,
-    flexShrink: 0,
-    marginBottom: 2,
-  },
-  bubble: {
-    maxWidth: '72%',
-    padding: '12px 16px',
-    borderRadius: 16,
-    lineHeight: 1.6,
-  },
-  bubbleUser: {
-    background: '#1e3a5f',
-    color: 'white',
-    borderBottomRightRadius: 4,
-    fontSize: '0.93rem',
-  },
-  bubbleAI: {
-    background: 'white',
-    color: '#1e293b',
-    borderBottomLeftRadius: 4,
-    border: '1px solid #e2e8f0',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-  },
-  typingBubble: {
-    padding: '12px 16px',
-  },
-  errorMsg: {
-    background: '#fef2f2',
-    border: '1px solid #fecaca',
-    borderRadius: 10,
-    padding: '12px 16px',
-    fontSize: '0.88rem',
-    color: '#dc2626',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  errorDismiss: {
-    background: 'none',
-    border: 'none',
-    color: '#dc2626',
-    cursor: 'pointer',
-    fontWeight: 600,
-    fontSize: '0.83rem',
-    fontFamily: 'inherit',
-    flexShrink: 0,
-  },
-  inputArea: {
-    padding: '12px 24px 16px',
-    borderTop: '1px solid #e2e8f0',
-    background: 'white',
-  },
-  inputWrap: {
-    display: 'flex',
-    gap: 8,
-    alignItems: 'flex-end',
-    background: '#f8fafc',
-    border: '1.5px solid #e2e8f0',
-    borderRadius: 14,
-    padding: '8px 8px 8px 14px',
-    transition: 'border-color 0.15s',
-  },
-  textarea: {
-    flex: 1,
-    border: 'none',
-    background: 'transparent',
-    resize: 'none',
-    outline: 'none',
-    fontFamily: 'inherit',
-    fontSize: '0.95rem',
-    color: '#1e293b',
-    lineHeight: 1.6,
-    minHeight: 24,
-    maxHeight: 160,
-    overflowY: 'auto',
-  },
-  sendBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    background: '#1e3a5f',
-    color: 'white',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1.1rem',
-    fontWeight: 700,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    transition: 'opacity 0.15s',
-  },
-  inputNote: {
-    fontSize: '0.75rem',
-    color: '#94a3b8',
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 1.4,
-  },
-}
+\�JHO��H	H�OOHH���ۙ��^O^�_O��\�O���ۙψ�\��
+_B�ς�
+B�B���[��[ۈ\[��[�X�]܊
+H�]\��
+�]��[O^��\�^N�	ٛ^	��\�[Yے][\Έ	��[�\��Y[�Έ	�	�_O����K�K�X\
+HO�
+�]���^O^�_B��[O^��Y���ZY�����ܙ\��Y]\Έ	�L	I���X��ܛ�[��	��ML؎	��[�[X][ێ���[��HK���X\�KZ[�[�]	�H
+���\�[��[�]X�_B�ς�
+Y_B��[O����^Y��[Y\���[��H	K�	KL	H��[�ٛܛN��[��]VJ
+N�B��	H��[�ٛܛN��[��]VJM�
+N�B�B�O��[O���]���
+B�B���ۜ��[\�HY�N�\�^N�	ٛ^	��ZY��	��[�L�H�
+I���X��ܛ�[��	�َ�Y����ݙ\���Έ	�Y[���K��YX�\���Y����X��ܛ�[��	��]I���ܙ\��Y��	�\��Y�L�N�	��\�^N�	ٛ^	���^\�X�[ێ�	���[[����^��[�Έ�ݙ\���Έ	�]]���K��YX�\���Y[�Έ	̍M�M�	���ܙ\����N�	�\��Y�L�N�	��K��YX�\�]N��۝�ZY����۝�^�N�	�\�[I����܎�	��YL�MY���X\��[����N��K��YX�\�\�\���۝�^�N�	���[I����܎�	�͍����[�RZY��K�K�K��YX�\��X�[ێ�Y[�Έ	�M�	���^�K�K��YX�\�X�[��۝�^�N�	��̜�[I���۝�ZY������܎�	��ML؎	��^�[�ٛܛN�	�\\��\�I��]\��X�[�Έ	���[I��X\��[����N��K��Y��\�[ې���\�^N�	؛������Y�	�L	I��^[Yێ�	�Y�	���X��ܛ�[��	ۛۙI���ܙ\��	ۛۙI��Y[�Έ	�L	���ܙ\��Y]\Έ��۝�^�N�	����[I����܎�	����MMI���\��܎�	��[�\���[�RZY��K��X\��[����N����[��][ێ�	ؘX��ܛ�[��\���K��]\�XN��^�K�\�^N�	ٛ^	���^\�X�[ێ�	���[[���ݙ\���Έ	�Y[���X^�Y���X\��[��	�]]����Y�	�L	I��K�Y\��Y�\Έ�^�K�ݙ\����N�	�]]���Y[�Έ	̍�	��\�^N�	ٛ^	���^\�X�[ێ�	���[[����\�M��K�Y\��Y�T��Έ\�^N�	ٛ^	��[Yے][\Έ	ٛ^Y[�	���\��K�]�]\���Y�̋�ZY��̋��ܙ\��Y]\Έ	�L	I���X��ܛ�[��	��Y�������\�^N�	ٛ^	��[Yے][\Έ	��[�\����\�Y�P�۝[��	��[�\����۝�^�N�	�\�[I���^��[�Έ�X\��[����N���K�\�\�]�]\���Y�̋�ZY��̋��ܙ\��Y]\Έ	�L	I���X��ܛ�[��	��YL�MY�����܎�	��]I��\�^N�	ٛ^	��[Yے][\Έ	��[�\����\�Y�P�۝[��	��[�\����۝�^�N�	��\�[I���۝�ZY�����^��[�Έ�X\��[����N���K��X��N�X^�Y�	�̉I��Y[�Έ	�L�M�	���ܙ\��Y]\ΈM��[�RZY��K���K��X��U\�\���X��ܛ�[��	��YL�MY�����܎�	��]I���ܙ\����T�Y��Y]\Έ��۝�^�N�	��Lܙ[I��K��X��PRN��X��ܛ�[��	��]I����܎�	��YL�L؉���ܙ\����SY��Y]\Έ��ܙ\��	�\��Y�L�N�	�����Y�Έ	�\��ؘJ�JI��K�\[�НX��N�Y[�Έ	�L�M�	��K�\��ܓ\�Έ�X��ܛ�[��	�ٙY�������ܙ\��	�\��YٙX�X�I���ܙ\��Y]\ΈL�Y[�Έ	�L�M�	���۝�^�N�	���[I����܎�	��̍�����\�^N�	ٛ^	��[Yے][\Έ	��[�\����\�Y�P�۝[��	��X�KX�]�Y[����\�L��K�\��ܑ\�Z\�Έ�X��ܛ�[��	ۛۙI���ܙ\��	ۛۙI����܎�	��̍������\��܎�	��[�\����۝�ZY�����۝�^�N�	��ܙ[I���۝�[Z[N�	�[�\�]	���^��[�Έ�K�[�]\�XN�Y[�Έ	�L��M�	���ܙ\���	�\��Y�L�N�	���X��ܛ�[��	��]I��K�[�]ܘ\�\�^N�	ٛ^	���\��[Yے][\Έ	ٛ^Y[�	���X��ܛ�[��	�َ�Y�����ܙ\��	�K�\��Y�L�N�	���ܙ\��Y]\ΈM�Y[�Έ	�M	���[��][ێ�	؛ܙ\�X��܈�M\���K�^\�XN��^�K��ܙ\��	ۛۙI���X��ܛ�[��	��[��\�[�	���\�^�N�	ۛۙI���][�N�	ۛۙI���۝�[Z[N�	�[�\�]	���۝�^�N�	��M\�[I����܎�	��YL�L؉��[�RZY��K���Z[�ZY����X^ZY��M��ݙ\����N�	�]]���K��[�����Y�͋�ZY��͋��ܙ\��Y]\ΈL��X��ܛ�[��	��YL�MY�����܎�	��]I���ܙ\��	ۛۙI���\��܎�	��[�\����۝�^�N�	�K�\�[I���۝�ZY����\�^N�	ٛ^	��[Yے][\Έ	��[�\����\�Y�P�۝[��	��[�\����^��[�Έ��[��][ێ�	��X�]H�M\���K�[�]��N��۝�^�N�	���\�[I����܎�	��ML؎	��^[Yێ�	��[�\���X\��[����[�RZY��K��K�B
