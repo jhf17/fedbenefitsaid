@@ -43,7 +43,7 @@ export default function Disclaimer() {
         <section style={styles.section}>
           <h2 style={styles.h2}>Free Consultations</h2>
           <p style={styles.p}>
-            Free consultations are provided by Federal Market Associates, a separate financial consulting firm. FedBenefitsAid connects you with these advisors but does not employ them directly. Any advice given during a consultation is the responsibility of the consulting firm and advisor providing it.
+            Free consultations are provided by Federal Market Associates, a separate federal benefits education company. FedBenefitsAid connects you with these educators but does not employ them directly. Any guidance given during a consultation is the responsibility of the education company and educator providing it.
           </p>
         </section>
 
