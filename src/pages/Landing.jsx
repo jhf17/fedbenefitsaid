@@ -489,29 +489,24 @@ export default function Landing() {
               Explore the guide →
             </Link>
           </div>
-          <div style={{ order: 1, borderRadius: '24px', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: colors.gray50, border: '1px solid rgba(0,0,0,0.04)' }}>
-            <div>
+          <div style={{ order: 1, maxWidth: '480px' }}>
+            {/* Mini card grid matching actual reference page */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {[
-                { color: colors.maroon, title: 'FERS Pension', desc: 'Key figures, rules, pitfalls' },
-                { color: colors.navyMid, title: 'TSP and Investments', desc: 'Traditional, Roth, funds, loans' },
-                { color: '#8a6d1b', title: 'FEHB Health Insurance', desc: 'Plans, 5-year rule, premiums' },
-                { color: colors.maroon, title: 'FEGLI Life Insurance', desc: 'Options, costs, retirement' },
-                { color: colors.navyMid, title: 'Social Security and Medicare', desc: 'Timing, coordination, eligibility' },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 0', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(0,0,0,0.04)' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
-                    </svg>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: '600', fontSize: '0.9rem', color: colors.navy }}>
-                      {item.title}
-                    </div>
-                  </div>
-                  <div style={{ marginLeft: 'auto', fontSize: '0.78rem', color: colors.gray400, fontWeight: '500' }}>
-                    {item.desc}
-                  </div>
+                { color: '#2563eb', title: 'FERS Pension', topics: 6 },
+                { color: '#059669', title: 'TSP', topics: 5 },
+                { color: '#dc2626', title: 'FEHB', topics: 5 },
+                { color: '#7c3aed', title: 'FEGLI', topics: 4 },
+                { color: '#0891b2', title: 'Medicare', topics: 3 },
+                { color: '#1d4ed8', title: 'Social Security', topics: 4 },
+                { color: '#b45309', title: 'CSRS', topics: 2 },
+                { color: '#be185d', title: 'Survivor Benefits', topics: 3 },
+              ].map((cat, i) => (
+                <div key={i} style={{ background: colors.white, borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderTop: `3px solid ${cat.color}`, padding: '14px 14px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                  <div style={{ width: '18px', height: '3px', borderRadius: '2px', background: cat.color, marginBottom: '10px' }} />
+                  <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '0.82rem', color: colors.navy, marginBottom: '2px' }}>{cat.title}</div>
+                  <div style={{ fontSize: '0.68rem', color: colors.gray400 }}>{cat.topics} topics</div>
+                  <div style={{ fontSize: '0.78rem', color: colors.gray400, marginTop: '6px' }}>→</div>
                 </div>
               ))}
             </div>
