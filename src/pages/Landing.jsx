@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState }, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const colors = {
@@ -20,6 +20,10 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif";
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export default function Landing() {
+  const [cookieConsent, setCookieConsent] = useState(() => {
+    try { return document.cookie.includes('fba_consent=1') } catch { return false }
+  });
+
   const revealRefs = useRef([]);
 
   useEffect(() => {
@@ -54,6 +58,11 @@ export default function Landing() {
 
   return (
     <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
+      {/* Financial Disclaimer Banner */}
+      <div style={{ background: '#fef3c7', borderBottom: '1px solid #f59e0b', padding: '10px 24px', textAlign: 'center', fontSize: '0.8rem', color: '#92400e', fontFamily: "'Source Sans 3', -apple-system, sans-serif" }}>
+        This site provides educational information only and does not constitute financial, legal, or tax advice. FedBenefitsAid is not affiliated with OPM or any government agency. <a href="/disclaimer" style={{ color: '#92400e', fontWeight: 600 }}>Learn more</a>
+      </div>
+
       <style>{`
         @keyframes drawLine {
           to { stroke-dashoffset: 0; }
@@ -573,6 +582,15 @@ export default function Landing() {
           <span>Information updated for 2026 figures.</span>
         </div>
       </footer>
-    </div>
+    
+      {/* Cookie Consent Banner */}
+      {!cookieConsent && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#1e293b', color: '#e2e8f0', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, zIndex: 9999, boxShadow: '0 -4px 20px rgba(0,0,0,0.15)', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.85rem', maxWidth: 600 }}>We use cookies and Google Analytics to improve your experience. By continuing, you consent to our use of cookies. <a href="/privacy" style={{ color: '#93c5fd', textDecoration: 'underline' }}>Privacy Policy</a></span>
+          <button onClick={() => { document.cookie = 'fba_consent=1; max-age=31536000; path=/; SameSite=Lax'; setCookieConsent(true); }} style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 20px', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>Accept</button>
+          <button onClick={() => setCookieConsent(true)} style={{ background: 'transparent', color: '#94a3b8', border: '1px solid #475569', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>Decline</button>
+        </div>
+      )}
+</div>
   );
 }
