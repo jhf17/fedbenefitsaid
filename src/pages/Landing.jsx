@@ -78,6 +78,18 @@ export default function Landing() {
           animation: eagleSettle 0.8s ease-out 4.2s forwards;
           transform: scale(0.5);
         }
+        @keyframes flagSway {
+          0% { transform: rotate(0deg) skewY(0deg); }
+          20% { transform: rotate(0.8deg) skewY(0.5deg); }
+          40% { transform: rotate(-0.4deg) skewY(-0.3deg); }
+          60% { transform: rotate(0.6deg) skewY(0.4deg); }
+          80% { transform: rotate(-0.3deg) skewY(-0.2deg); }
+          100% { transform: rotate(0deg) skewY(0deg); }
+        }
+        .flag-sway {
+          transform-origin: 283px 50px;
+          animation: flagSway 6s ease-in-out infinite;
+        }
         .flow-line {
           stroke-dasharray: 600;
           stroke-dashoffset: 600;
@@ -148,12 +160,12 @@ export default function Landing() {
                 <stop offset="50%" stopColor="#f5d77a" stopOpacity="0.5" />
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
-              {/* Flag wind ripple filter */}
-              <filter id="flagWind" x="-5%" y="-5%" width="115%" height="115%">
-                <feTurbulence type="turbulence" baseFrequency="0.015 0.045" numOctaves="3" result="turb">
-                  <animate attributeName="baseFrequency" dur="4s" values="0.01 0.04;0.025 0.07;0.01 0.04" repeatCount="indefinite" />
+              {/* Flag wind ripple filter — slow, gentle cloth movement */}
+              <filter id="flagWind" x="-5%" y="-8%" width="115%" height="120%">
+                <feTurbulence type="turbulence" baseFrequency="0.012 0.035" numOctaves="3" result="turb">
+                  <animate attributeName="baseFrequency" dur="10s" values="0.008 0.03;0.015 0.05;0.01 0.04;0.018 0.055;0.008 0.03" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="turb" scale="3" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="turb" scale="4" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 
@@ -191,8 +203,8 @@ export default function Landing() {
               <line x1="280" y1="50" x2="280" y2="155" stroke="#1e3a5f" strokeWidth="2.5" strokeLinecap="round" />
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
-              {/* American Flag - 50 stars, 13 stripes, cloth ripple via SVG filter */}
-              <g filter="url(#flagWind)">
+              {/* American Flag - 50 stars, 13 stripes, cloth ripple + gentle sway */}
+              <g className="flag-sway" filter="url(#flagWind)">
                 {/* 13 stripes - alternating red and white, wider flag */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
                   <rect key={`stripe-${i}`} x="283" y={50 + i * 3.5} width="76" height="3.5" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
