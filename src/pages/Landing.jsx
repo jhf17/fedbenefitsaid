@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const colors = {
@@ -20,10 +20,8 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif";
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export default function Landing() {
-  return () => { clearTimeout(timer); if (raf) cancelAnimationFrame(raf); };
-  }, []);
-
-  useEffect(() => {
+  const
+ffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
