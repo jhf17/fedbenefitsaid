@@ -287,7 +287,7 @@ export default function Consultation() {
                 margin: '0 0 16px 0',
               }}
             >
-              Federal Market Associates specializes in federal employee retirement planning. Our consultants work with
+              Federal Market Associates specializes in federal employee retirement benefits education. Our educators work with
               hundreds of federal employees each year and understand the nuances of FERS, CSRS, TSP, FEHB, and FEGLI.
             </p>
             <p
