@@ -60,7 +60,7 @@ export default function Consultation() {
     },
     {
       title: 'Prepare',
-      description: 'Gather your latest Leave and Earnings Statement, TSP balance, and any retirement estimates you've received.',
+      description: `Gather your latest Leave and Earnings Statement, TSP balance, and any retirement estimates you've received.`,
     },
     {
       title: 'Review',
@@ -83,7 +83,7 @@ export default function Consultation() {
     {
       question: 'What happens after the session?',
       answer:
-        'You'll receive a summary of what we discussed and any recommended next steps. If you'd like continued support, we can discuss options — but there's no pressure.',
+        `You'll receive a summary of what we discussed and any recommended next steps. If you'd like continued support, we can discuss options — but there's no pressure.`,
     },
     {
       question: 'Is my information kept confidential?',
