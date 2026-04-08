@@ -603,14 +603,14 @@ export default function Assessment() {
   // ============================================================
   if (showScore) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+      <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Assessment results">
         {/* Header */}
         <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '48px 24px', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Your Results</div>
           <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 16px' }}>Retirement Readiness Assessment</h1>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: result.bg, borderRadius: 50, padding: '10px 24px' }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: result.color }} aria-hidden="true">{result.icon}</span>
             <span style={{ fontSize: 18, fontWeight: 700, color: result.color }}>{result.level}</span>
+            <span style={{ fontSize: 18, fontWeight: 700, color: result.color }} aria-hidden="true">{result.icon}</span>
           </div>
           <p style={{ color: '#64748b', maxWidth: 540, margin: '16px auto 0', fontSize: 15, lineHeight: 1.6 }}>{result.summary}</p>
         </div>
@@ -711,8 +711,8 @@ export default function Assessment() {
                   const p = priorityColors[item.priority]
                   const cat = CATEGORIES[item.category]
                   return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, background: '#fff', borderRadius: 12, padding: '16px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: `4px solid ${p.border}` }}>
-                      <div style={{ flexShrink: 0, width: 22, height: 22, border: `2px solid ${p.text}`, borderRadius: 4, marginTop: 1 }} />
+                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, background: '#fff', borderRadius: 12, padding: '16px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: `4px solid ${p.border}` }}>
+                      <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: p.text, marginTop: 1 }} aria-hidden="true">{i + 1}</div>
                       <div style={{ flex: 1 }}>
                          <div style={{ fontSize: 14, color: navy, fontWeight: 500, lineHeight: 1.6 }}>{item.task}</div>
                         <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 6 }}>
@@ -728,18 +728,15 @@ export default function Assessment() {
               {/* CTAs */}
               <div style={{ background: `linear-gradient(135deg, ${navy} 0%, #1e3a5f 100%)`, borderRadius: 16, padding: '32px 24px', textAlign: 'center', marginBottom: 24 }}>
                 <div style={{ color: '#fff', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Take the next step</div>
-                <div style={{ color: '#64748b', fontSize: 14, marginBottom: 24, lineHeight: 1.6, maxWidth: 480, margin: '0 auto 24px' }}>
+                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 24, lineHeight: 1.6, maxWidth: 480, margin: '0 auto 24px' }}>
                   Use our free tools to start checking items off your list, or book a free consultation to walk through everything with an expert.
                 </div>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => navigate('/calculator')} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '14px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                  <button type="button" onClick={() => navigate('/calculator')} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '14px 28px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                     Run the Calculator
                   </button>
-                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#22c55e', color: '#fff', border: 'none', borderRadius: 10, padding: '14px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
+                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#fff', color: navy, border: 'none', borderRadius: 10, padding: '14px 28px', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
                     Book Free Consultation
-                  </a>
-                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: 'transparent', color: '#fff', border: '1.5px solid rgba(255,255,255,0.4)', borderRadius: 10, padding: '14px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
-                    Book a Free Meeting
                   </a>
                 </div>
               </div>
@@ -783,7 +780,7 @@ export default function Assessment() {
             </button>
           </div>
         </div>
-      </div>
+      </main>
     )
   }
 
@@ -791,7 +788,7 @@ export default function Assessment() {
   // QUESTION SCREEN
   // ============================================================
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Retirement readiness assessment quiz">
       <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
         <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Free Tool</div>
         <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px' }}>Retirement Readiness Assessment</h1>
@@ -876,6 +873,6 @@ export default function Assessment() {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   )
 }
