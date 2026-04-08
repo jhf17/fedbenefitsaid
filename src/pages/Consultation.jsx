@@ -56,15 +56,15 @@ export default function Consultation() {
   const steps = [
     {
       title: 'Schedule',
-      description: 'Choose a time that works for you. Sessions are conducted via video call.',
+      description: 'Pick a time that works for you. We meet by phone — easy and casual.',
     },
     {
-      title: 'Prepare',
-      description: `Gather your latest Leave and Earnings Statement, TSP balance, and any retirement estimates you've received.`,
+      title: 'Show Up',
+      description: `No prep required. If you have your LES or TSP balance handy, great — but come as you are.`,
     },
     {
-      title: 'Review',
-      description: 'Your consultant will walk through your benefits, answer your questions, and outline recommended next steps.',
+      title: 'Ask Anything',
+      description: `We'll answer whatever questions you have and help you understand your options. No agenda — you lead the conversation.`,
     },
   ];
 
@@ -78,7 +78,7 @@ export default function Consultation() {
     {
       question: 'Do I need to prepare anything?',
       answer:
-        `It's helpful to have your latest Leave and Earnings Statement and your TSP balance, but not required. We can work with whatever information you have.`,
+        `Not at all. Just bring your questions. If you happen to have your LES or TSP balance nearby, great — but it's absolutely not required.`,
     },
     {
       question: 'What happens after the session?',
@@ -119,7 +119,7 @@ export default function Consultation() {
             maxWidth: '800px',
           }}
         >
-          Speak With a Federal Retirement Specialist
+          Have Questions About Your Federal Retirement?
         </h1>
         <p
           style={{
@@ -131,8 +131,7 @@ export default function Consultation() {
             margin: '0 auto',
           }}
         >
-          Get personalized guidance on your pension, TSP, healthcare, and survivor benefit decisions from a certified
-          consultant who works exclusively with federal employees.
+          Book a free, no-pressure conversation about anything on your mind — whether it's your pension, TSP, healthcare, or just a question you've been meaning to ask.
         </p>
       </section>
 
@@ -158,7 +157,7 @@ export default function Consultation() {
               color: colors.textDark,
             }}
           >
-            What We'll Cover in 30 Minutes
+            Topics We Can Help With
           </h2>
 
           <div
@@ -574,7 +573,7 @@ export default function Consultation() {
               color: colors.textDark,
             }}
           >
-            Ready to get clarity on your retirement plan?
+            Curious about something? Just ask.
           </h2>
 
           <a
@@ -602,7 +601,7 @@ export default function Consultation() {
               e.target.style.backgroundColor = colors.maroon;
             }}
           >
-            Schedule a Conversation
+            Book a Free Call
           </a>
 
           <p
