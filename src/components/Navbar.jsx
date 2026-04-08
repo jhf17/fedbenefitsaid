@@ -46,16 +46,16 @@ export default function Navbar() {
             Calculator
           </Link>
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }} aria-current={isActive('/reference') ? 'page' : undefined}>
-            Reference Guide
+            Reference
           </Link>
           <Link to="/resources" style={{ ...styles.link, ...(isActive('/resources') ? styles.linkActive : {}) }} aria-current={isActive('/resources') ? 'page' : undefined}>
             Resources
           </Link>
           <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }} aria-current={isActive('/chat') ? 'page' : undefined}>
-            AI Chat
+            Chat
           </Link>
           <Link to="/consultation" style={{ ...styles.link, ...(isActive('/consultation') ? styles.linkActive : {}) }} aria-current={isActive('/consultation') ? 'page' : undefined}>
-            Meet a Consultant
+            Meeting
           </Link>
           {user && user.email === ADMIN_EMAIL && (
             <Link to="/admin" style={{ ...styles.link, ...(isActive('/admin') ? styles.linkActive : {}), color: isActive('/admin') ? '#7b1c2e' : '#7b1c2e', fontWeight: 600 }} aria-current={isActive('/admin') ? 'page' : undefined}>
