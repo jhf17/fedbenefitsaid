@@ -169,7 +169,7 @@ function ToolCard({ tool }) {
           ★ Primary Tool
         </div>
       )}
-      <div style={toolCardStyles.accentLine} style={{ background: tool.accent }} />
+      <div style={{ ...toolCardStyles.accentLine, background: tool.accent }} />
       <h3 style={toolCardStyles.title}>{tool.title}</h3>
       <p style={toolCardStyles.desc}>{tool.description}</p>
       <ul style={toolCardStyles.features}>
