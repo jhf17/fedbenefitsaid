@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../App'
 
 const navy = '#0f172a'
+const secondaryNavy = '#1e3a5f'
 const maroon = '#7b1c2e'
+const amberWarm = '#b45309'
+const muteCorral = '#9f563a'
+const emerald = '#047857'
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
 // ============================================================
@@ -156,12 +160,12 @@ const QUESTIONS = [
     id: 'survivor_benefits',
     category: 'survivor',
     question: 'Have you reviewed your survivor benefit elections?',
-    sub: 'Survivor benefits protect your spouse or dependents if you pass away. Elections affect your pension amount and your family\u2019s financial security.',
+    sub: 'Survivor benefits protect your spouse or dependents if you pass away. Elections affect your pension amount and your family\'s financial security.',
     options: [
-      { label: 'I haven\u2019t looked into survivor benefits yet', value: 'none', weight: 0 },
-      { label: 'I know they exist but haven\u2019t reviewed my options', value: 'aware', weight: 1 },
-      { label: 'I\u2019ve reviewed them but haven\u2019t made a final decision', value: 'reviewed', weight: 2 },
-      { label: 'I\u2019ve made my election and understand the cost/benefit tradeoff', value: 'decided', weight: 3 },
+      { label: 'I haven\'t looked into survivor benefits yet', value: 'none', weight: 0 },
+      { label: 'I know they exist but haven\'t reviewed my options', value: 'aware', weight: 1 },
+      { label: 'I\'ve reviewed them but haven\'t made a final decision', value: 'reviewed', weight: 2 },
+      { label: 'I\'ve made my election and understand the cost/benefit tradeoff', value: 'decided', weight: 3 },
     ]
   },
   {
@@ -170,9 +174,9 @@ const QUESTIONS = [
     question: 'How confident are you in your overall financial readiness for retirement?',
     sub: 'Beyond federal benefits, your savings, debt, and spending plan all affect whether you can retire comfortably.',
     options: [
-      { label: 'I haven\u2019t started planning beyond my federal benefits', value: 'none', weight: 0 },
+      { label: 'I haven\'t started planning beyond my federal benefits', value: 'none', weight: 0 },
       { label: 'I have some savings but no clear retirement budget', value: 'some', weight: 1 },
-      { label: 'I have a rough plan but haven\u2019t stress-tested it', value: 'rough', weight: 2 },
+      { label: 'I have a rough plan but haven\'t stress-tested it', value: 'rough', weight: 2 },
       { label: 'I have a detailed plan covering income, expenses, and contingencies', value: 'detailed', weight: 3 },
     ]
   },
@@ -186,8 +190,8 @@ const CATEGORIES = {
   tsp: { label: 'TSP Strategy', icon: 'T', color: '#2563eb' },
   healthcare: { label: 'Healthcare Planning', icon: '+', color: '#059669' },
   income: { label: 'Income Optimization', icon: '%', color: '#7b1c2e' },
-  survivor: { label: 'Survivor Benefits', icon: '\u2764', color: '#dc2626' },
-  financial: { label: 'Financial Readiness', icon: '\u2605', color: '#d97706' },
+  survivor: { label: 'Survivor Benefits', icon: '❤', color: '#dc2626' },
+  financial: { label: 'Financial Readiness', icon: '★', color: '#d97706' },
 }
 
 // ============================================================
@@ -225,7 +229,7 @@ function getOverallResult(catScores) {
       level: 'On Track',
       color: '#065f46',
       bg: '#d1fae5',
-      icon: '\u2713',
+      icon: '✓',
       summary: 'You have a solid foundation. A few targeted steps will put you in an excellent position for retirement.',
     }
   } else if (pct >= 0.4) {
@@ -241,10 +245,511 @@ function getOverallResult(catScores) {
       level: 'Action Required',
       color: '#991b1b',
       bg: '#fee2e2',
-      icon: '\u2717',
-      summary: 'You have significant planning gaps that could cost you money in retirement. Let\u2019s build a clear action plan.',
+      icon: '✕',
+      summary: 'You have significant planning gaps that could cost you money in retirement. Let\'s build a clear action plan.',
     }
   }
+}
+
+// ============================================================
+// HELPER: Generate personalized summary
+// ============================================================
+function generatePersonalizedSummary(catScores, answers) {
+  const sorted = Object.entries(catScores).sort((a, b) => a[1].pct - b[1].pct)
+  const weakest = sorted.slice(0, 2).map(([id]) => CATEGORIES[id].label.toLowerCase())
+  const strongest = sorted.slice(-2).map(([id]) => CATEGORIES[id].label.toLowerCase()).reverse()
+
+  const yearsUntil = answers.years_until
+  const isImmediate = yearsUntil === 'lt2'
+
+  let summary = 'You have '
+  if (strongest.length > 0) {
+    summary += `a solid foundation in ${strongest.join(' and ')}, but `
+  }
+  summary += `your ${weakest.join(' and ')} need${weakest.length > 1 ? '' : 's'} attention`
+  if (isImmediate) {
+    summary += ' before you retire'
+  }
+  summary += '.'
+
+  return summary
+}
+
+// ============================================================
+// HELPER: Generate contextual insights for snapshot
+// ============================================================
+function generateCategoryInsight(catId, answers, catScore) {
+  if (catId === 'pension') {
+    if (answers.ran_estimate === 'no' || answers.ran_estimate === 'unknown') {
+      return 'You haven\'t requested an official retirement estimate — this is your first priority'
+    }
+    if (answers.vera_vsip === 'no') {
+      return 'Check if your agency is offering VERA or VSIP before making retirement decisions'
+    }
+    return `Pension readiness at ${Math.round(catScore.pct * 100)}%`
+  }
+  if (catId === 'tsp') {
+    if (answers.tsp_planning === 'no' || answers.tsp_planning === 'unknown') {
+      return 'You need a TSP withdrawal strategy before retiring'
+    }
+    return `TSP strategy at ${Math.round(catScore.pct * 100)}%`
+  }
+  if (catId === 'healthcare') {
+    if (answers.fehb_knowledge === 'no') {
+      return 'The 5-year FEHB rule is critical — you must verify you\'re eligible'
+    }
+    if (answers.medicare_coordination === 'no' || answers.medicare_coordination === 'partial') {
+      return 'Medicare and FEHB coordination will save you thousands — learn how they work together'
+    }
+    return `Healthcare planning at ${Math.round(catScore.pct * 100)}%`
+  }
+  if (catId === 'income') {
+    if (answers.ss_strategy === 'no') {
+      return 'Your Social Security claiming age could change your lifetime benefit by 77%'
+    }
+    if (answers.fegli_review === 'no' || answers.fegli_review === 'unknown') {
+      return 'FEGLI costs explode after age 65 — review and drop unnecessary coverage'
+    }
+    return `Income optimization at ${Math.round(catScore.pct * 100)}%`
+  }
+  if (catId === 'survivor') {
+    if (answers.survivor_benefits === 'none' || answers.survivor_benefits === 'aware') {
+      return 'Survivor benefit elections are irrevocable — make this decision carefully now'
+    }
+    return `Survivor benefits at ${Math.round(catScore.pct * 100)}%`
+  }
+  if (catId === 'financial') {
+    if (answers.financial_readiness === 'none' || answers.financial_readiness === 'some') {
+      return 'Federal pension typically covers 30-40% of pre-retirement income — you need a full plan'
+    }
+    return `Financial readiness at ${Math.round(catScore.pct * 100)}%`
+  }
+  return `${CATEGORIES[catId].label} at ${Math.round(catScore.pct * 100)}%`
+}
+
+// ============================================================
+// HELPER: Generate "Where You Stand" text
+// ============================================================
+function generateWhereYouStand(catId, answers) {
+  if (catId === 'pension') {
+    const system = answers.retirement_system
+    const years = answers.years_service
+    const estimate = answers.ran_estimate
+    const sick = answers.sick_leave
+
+    let text = 'Your pension is the foundation of your retirement income. '
+    if (system === 'unknown') {
+      text += 'First, confirm whether you\'re under FERS, FERS-RAE/FRAE, or CSRS — each has a different formula. '
+    } else {
+      text += `As a ${system === 'csrs' ? 'CSRS' : 'FERS'} employee, `
+      if (system === 'csrs') {
+        text += 'your pension formula is 2% times years of service times High-3 salary. '
+      } else {
+        text += 'your formula is 1% (or 1.1% if age 62+ with 20+ years) times years of service times High-3 salary. '
+      }
+    }
+    if (estimate === 'no' || estimate === 'unknown') {
+      text += 'You need an official retirement estimate from your HR office showing your projected monthly pension.'
+    } else if (estimate === 'old') {
+      text += 'Your estimate is over 2 years old — your salary may have changed significantly since then.'
+    } else {
+      text += 'You have a recent estimate, which is excellent.'
+    }
+    if (sick === 'yes') {
+      text += ' Your sick leave will add months of additional service credit.'
+    }
+    return text
+  }
+
+  if (catId === 'tsp') {
+    const planning = answers.tsp_planning
+    let text = 'Your TSP balance is a significant retirement asset. How you withdraw it affects taxes and longevity. '
+    if (planning === 'no' || planning === 'unknown') {
+      text += 'You need to understand your four options: monthly installments, single withdrawal, life annuity, or combination. Each has different tax implications and timing requirements.'
+    } else if (planning === 'partial') {
+      text += 'You\'ve started researching — the next step is modeling your specific withdrawal strategy against your balance and retirement income goals.'
+    } else {
+      text += 'You have a clear plan, which puts you ahead of most federal employees.'
+    }
+    return text
+  }
+
+  if (catId === 'healthcare') {
+    const fehb = answers.fehb_knowledge
+    const medicare = answers.medicare_coordination
+    let text = 'Healthcare is your second-largest retirement expense after housing. Federal retirees have exceptional options. '
+    if (fehb === 'no') {
+      text += 'The 5-year FEHB rule is critical: you must be enrolled in FEHB for 5 consecutive years before retirement to keep it as a retiree. '
+    } else {
+      text += 'You understand the FEHB 5-year rule. '
+    }
+    if (medicare === 'no' || medicare === 'partial') {
+      text += 'At 65, Medicare becomes available and coordinates with FEHB — this combination virtually eliminates out-of-pocket costs.'
+    } else {
+      text += 'You know how Medicare and FEHB work together.'
+    }
+    return text
+  }
+
+  if (catId === 'income') {
+    const ss = answers.ss_strategy
+    const fegli = answers.fegli_review
+    const current_age = answers.current_age
+    let text = 'Your total retirement income comes from three sources: federal pension, TSP, and Social Security. '
+    if (ss === 'no') {
+      text += 'Your Social Security claiming age is one of the most important decisions you\'ll make — claiming at 62 vs. 70 can mean a 77% difference in lifetime benefits. '
+    } else {
+      text += 'You\'re thinking strategically about Social Security. '
+    }
+    if (fegli === 'no' || fegli === 'unknown') {
+      text += 'FEGLI premiums increase dramatically after age 65; most retirees save money by dropping expensive optional coverage.'
+    } else {
+      text += 'You\'re reviewing your FEGLI elections.'
+    }
+    return text
+  }
+
+  if (catId === 'survivor') {
+    const survivor = answers.survivor_benefits
+    let text = 'Survivor benefits protect your family if you pass away before or after retirement. The election is irrevocable after retirement. '
+    if (survivor === 'none' || survivor === 'aware') {
+      text += 'You need to understand the cost-benefit of full survivor (50% to spouse, 10% pension reduction), partial (25%, 5% reduction), or none.'
+    } else if (survivor === 'reviewed') {
+      text += 'You\'ve reviewed your options but haven\'t decided — make this decision before retirement.'
+    } else {
+      text += 'You\'ve made your election and understand the tradeoff.'
+    }
+    return text
+  }
+
+  if (catId === 'financial') {
+    const readiness = answers.financial_readiness
+    let text = 'Federal pension typically replaces only 30-40% of your pre-retirement income. TSP and Social Security must fill the gap. '
+    if (readiness === 'none' || readiness === 'some') {
+      text += 'You need a comprehensive plan that covers your full income sources, expense assumptions, inflation, and longevity.'
+    } else if (readiness === 'rough') {
+      text += 'You have a rough plan — stress-test it against worst-case scenarios (market downturns, inflation spikes, unexpected expenses).'
+    } else {
+      text += 'You have a detailed, stress-tested plan.'
+    }
+    return text
+  }
+
+  return 'Review this category carefully.'
+}
+
+// ============================================================
+// HELPER: Get key facts for category
+// ============================================================
+function getCategoryFacts(catId) {
+  if (catId === 'pension') {
+    return [
+      { label: 'FERS formula', value: 'High-3 × Years of Service × 1% (or 1.1% if 62+ with 20+ years)' },
+      { label: 'Sick leave credit', value: '2,087 hours = 1 year of service. 174 hours ≈ 1 additional month' },
+      { label: 'Minimum requirement', value: 'Request official estimate from HR before retiring' },
+      { label: 'Military service', value: 'May be creditable with deposit — ask HR' },
+    ]
+  }
+  if (catId === 'tsp') {
+    return [
+      { label: 'Withdrawal options', value: 'Monthly, lump sum, annuity, or combination' },
+      { label: 'Tax treatment', value: 'Traditional TSP is taxed as ordinary income on withdrawal' },
+      { label: 'Roth TSP', value: 'Not subject to Required Minimum Distributions (RMDs)' },
+      { label: 'RMD age', value: '73 (born 1951-1959) or 75 (born 1960+)' },
+    ]
+  }
+  if (catId === 'healthcare') {
+    return [
+      { label: '5-year FEHB rule', value: 'Must be enrolled continuously 5 years before retirement' },
+      { label: 'Government subsidy', value: 'Pays ~72% of FEHB premium in retirement' },
+      { label: 'Medicare Part B', value: '$202.90/month in 2026' },
+      { label: 'Medicare + FEHB', value: 'Combination virtually eliminates out-of-pocket costs' },
+    ]
+  }
+  if (catId === 'income') {
+    return [
+      { label: 'FERS Supplement', value: 'Bridges income gap for early retirees until age 62' },
+      { label: 'WEP/GPO repeal', value: 'Repealed January 2025 — CSRS now get full Social Security' },
+      { label: 'Social Security (62 vs. 70)', value: 'Claiming later increases monthly benefit by 77%' },
+      { label: 'FEGLI after 65', value: 'Basic is free with 75% reduction; Options B/C become very expensive' },
+    ]
+  }
+  if (catId === 'survivor') {
+    return [
+      { label: 'Full survivor', value: '50% of pension to spouse, costs 10% reduction' },
+      { label: 'Partial survivor', value: '25% to spouse, costs 5% reduction' },
+      { label: 'Election timing', value: 'Must elect within 30 days of retirement — irrevocable' },
+      { label: 'Spousal consent', value: 'Required if electing no survivor benefits' },
+    ]
+  }
+  if (catId === 'financial') {
+    return [
+      { label: 'Pension replacement', value: 'Federal pension covers ~30-40% of pre-retirement income' },
+      { label: 'Three income sources', value: 'Pension + TSP + Social Security must fund full retirement' },
+      { label: 'Biggest unknowns', value: 'Healthcare costs, inflation, and longevity risk' },
+      { label: 'Emergency fund', value: '6-12 months expenses in liquid savings smooths the transition' },
+    ]
+  }
+  return []
+}
+
+// ============================================================
+// HELPER: Get key forms for category
+// ============================================================
+function getCategoryForms(catId) {
+  if (catId === 'pension') {
+    return [
+      { form: 'SF-3107', desc: 'FERS Retirement Application' },
+      { form: 'SF-2801', desc: 'CSRS Application' },
+      { form: 'SF-3102', desc: 'FERS Beneficiary Designation' },
+      { form: 'RI 25-15', desc: 'Survivor Benefit Election' },
+    ]
+  }
+  if (catId === 'tsp') {
+    return [
+      { form: 'TSP-70', desc: 'Full Withdrawal Request' },
+      { form: 'TSP-77', desc: 'Partial Withdrawal Request' },
+      { form: 'TSP-99', desc: 'Beneficiary Designation' },
+    ]
+  }
+  if (catId === 'healthcare') {
+    return [
+      { form: 'SF-2809', desc: 'FEHB Enrollment Change' },
+      { form: 'CMS-40B', desc: 'Medicare Part B Application' },
+    ]
+  }
+  if (catId === 'income') {
+    return [
+      { form: 'SF-2818', desc: 'FEGLI Election' },
+      { form: 'SF-1152', desc: 'FEGLI Beneficiary Designation' },
+    ]
+  }
+  if (catId === 'survivor') {
+    return [
+      { form: 'RI 25-15', desc: 'Survivor Benefit Election' },
+      { form: 'SF-2808', desc: 'CSRS Beneficiary Designation' },
+    ]
+  }
+  if (catId === 'financial') {
+    return [
+      { form: 'Worksheet', desc: 'Create a retirement budget worksheet' },
+      { form: 'Spreadsheet', desc: 'Model income vs. expenses across retirement timeline' },
+    ]
+  }
+  return []
+}
+
+// ============================================================
+// HELPER: Get recommended next steps
+// ============================================================
+function getRecommendedSteps(catId, answers) {
+  if (catId === 'pension') {
+    const steps = []
+    if (answers.retirement_system === 'unknown') {
+      steps.push('Contact your HR office to confirm your retirement system (FERS, RAE, FRAE, or CSRS)')
+    }
+    if (answers.ran_estimate === 'no' || answers.ran_estimate === 'unknown') {
+      steps.push('Request an official retirement estimate from HR showing your projected pension amount')
+    } else if (answers.ran_estimate === 'old') {
+      steps.push('Update your retirement estimate with your HR office to reflect salary changes and additional service')
+    }
+    if (steps.length === 0) {
+      steps.push('Review your official estimate and verify the calculation for accuracy')
+    }
+    return steps
+  }
+
+  if (catId === 'tsp') {
+    const steps = []
+    if (answers.tsp_planning === 'no' || answers.tsp_planning === 'unknown') {
+      steps.push('Research your four withdrawal options and their tax implications before retiring')
+      steps.push('Use the FedBenefitsAid calculator to model different withdrawal strategies against your balance')
+    } else if (answers.tsp_planning === 'partial') {
+      steps.push('Finalize your withdrawal strategy (monthly, lump sum, annuity, or mix) and document the decision')
+    }
+    return steps
+  }
+
+  if (catId === 'healthcare') {
+    const steps = []
+    if (answers.fehb_knowledge === 'no') {
+      steps.push('Verify you\'ll be continuously enrolled in FEHB for the 5 years before retirement')
+      steps.push('Review your current FEHB plan and confirm you want to keep the same plan in retirement')
+    }
+    if (answers.medicare_coordination === 'no' || answers.medicare_coordination === 'partial') {
+      steps.push('At age 65, enroll in Medicare Part A (free) and Part B ($202.90/mo) — it coordinates with FEHB')
+    }
+    return steps
+  }
+
+  if (catId === 'income') {
+    const steps = []
+    if (answers.ss_strategy === 'no') {
+      steps.push('Check your Social Security estimate at ssa.gov/myaccount')
+      steps.push('Model the lifetime difference between claiming at 62, 67, and 70')
+    } else if (answers.ss_strategy === 'partial') {
+      steps.push('Make a decision: early at 62, Full Retirement Age (67), or delayed at 70')
+    }
+    if (answers.fegli_review === 'no' || answers.fegli_review === 'unknown') {
+      steps.push('Review FEGLI costs after retirement and compare to private term life insurance')
+    }
+    return steps
+  }
+
+  if (catId === 'survivor') {
+    const steps = []
+    if (answers.survivor_benefits !== 'decided') {
+      steps.push('Discuss with your spouse (if married) and decide on full, partial, or no survivor benefits')
+      steps.push('Understand the cost: 10% pension reduction for full, 5% for partial')
+      steps.push('Make your election at retirement — it cannot be changed afterward')
+    }
+    return steps
+  }
+
+  if (catId === 'financial') {
+    const steps = []
+    if (answers.financial_readiness === 'none' || answers.financial_readiness === 'some') {
+      steps.push('List all expected retirement income sources: pension, TSP, Social Security, other')
+      steps.push('Build a detailed retirement budget covering housing, healthcare, inflation, and contingencies')
+    } else if (answers.financial_readiness === 'rough') {
+      steps.push('Stress-test your plan against market downturns, inflation spikes, and longer-than-expected life')
+    }
+    return steps
+  }
+
+  return []
+}
+
+// ============================================================
+// HELPER: Build retirement timeline
+// ============================================================
+function buildRetirementTimeline(answers) {
+  const currentAgeVal = answers.current_age
+  let currentAge = 50
+  if (currentAgeVal === 'lt50') currentAge = 45
+  if (currentAgeVal === '50to56') currentAge = 53
+  if (currentAgeVal === '57to61') currentAge = 59
+  if (currentAgeVal === 'gte62') currentAge = 65
+
+  const yearsUntilVal = answers.years_until
+  let yearsUntil = 5
+  if (yearsUntilVal === 'lt2') yearsUntil = 1
+  if (yearsUntilVal === '2to5') yearsUntil = 3.5
+  if (yearsUntilVal === '6to10') yearsUntil = 8
+  if (yearsUntilVal === 'gt10') yearsUntil = 15
+
+  const retirementAge = currentAge + yearsUntil
+
+  const milestones = [
+    { age: currentAge, label: 'Current Age', shown: true },
+    { age: 57, label: 'MRA (57)', shown: currentAge < 57 },
+    { age: 62, label: 'Age 62: SS & Supplement', shown: currentAge < 62 },
+    { age: 65, label: 'Age 65: Medicare', shown: currentAge < 65 },
+    { age: 67, label: 'Age 67: Full Retirement Age', shown: currentAge < 67 },
+    { age: 70, label: 'Age 70: Max Social Security', shown: currentAge < 70 },
+    { age: 73, label: 'Age 73: RMD (if born 1951-59)', shown: currentAge < 73 },
+  ].filter(m => m.shown)
+
+  return { currentAge, retirementAge, milestones }
+}
+
+// ============================================================
+// EXPANDABLE DETAIL SECTION
+// ============================================================
+function DetailSection({ catId, answers, catScore }) {
+  const [expanded, setExpanded] = useState(false)
+  const facts = getCategoryFacts(catId)
+  const forms = getCategoryForms(catId)
+  const steps = getRecommendedSteps(catId, answers)
+
+  return (
+    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', marginBottom: 16, overflow: 'hidden' }}>
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          width: '100%',
+          padding: '16px 20px',
+          background: '#fff',
+          border: 'none',
+          textAlign: 'left',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: 15,
+          fontWeight: 600,
+          color: navy,
+        }}
+      >
+        <span>{CATEGORIES[catId].label}</span>
+        <span style={{ fontSize: 16, transition: 'transform 0.2s' }}>
+          {expanded ? '▾' : '▸'}
+        </span>
+      </button>
+
+      {expanded && (
+        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', background: '#fafbfc' }}>
+          {/* Where You Stand */}
+          <div style={{ marginBottom: 24 }}>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Where You Stand</h4>
+            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: 0 }}>
+              {generateWhereYouStand(catId, answers)}
+            </p>
+          </div>
+
+          {/* What You Should Know */}
+          {facts.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>What You Should Know</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {facts.map((fact, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ flexShrink: 0, minWidth: 80 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{fact.label}</span>
+                    </div>
+                    <div>
+                      <span style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{fact.value}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Key Forms & Documents */}
+          {forms.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: emerald, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Key Forms & Documents</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {forms.map((f, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, fontSize: 13 }}>
+                    <span style={{ fontWeight: 600, color: '#334155', minWidth: 60 }}>{f.form}</span>
+                    <span style={{ color: '#475569' }}>{f.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recommended Next Steps */}
+          {steps.length > 0 && (
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Recommended Next Steps</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {steps.map((step, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13 }}>
+                    <span style={{ flexShrink: 0, fontWeight: 600, color: navy }}>{i + 1}.</span>
+                    <span style={{ color: '#475569', lineHeight: 1.6 }}>{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ============================================================
@@ -280,7 +785,7 @@ function getChecklist(answers) {
     items.push({
       priority: 'medium',
       category: 'pension',
-      task: 'Update your retirement estimate \u2014 yours is more than 2 years old. Salary changes and additional service time can significantly change your numbers.',
+      task: 'Update your retirement estimate — yours is more than 2 years old. Salary changes and additional service time can significantly change your numbers.',
     })
   }
 
@@ -289,7 +794,7 @@ function getChecklist(answers) {
       priority: 'medium',
       category: 'pension',
       task: answers.sick_leave === 'no'
-        ? 'Learn how unused sick leave adds to your pension. Under FERS, your accumulated sick leave hours are converted to additional months of service in your pension calculation \u2014 this can add hundreds of dollars per month to your pension.'
+        ? 'Learn how unused sick leave adds to your pension. Under FERS, your accumulated sick leave hours are converted to additional months of service in your pension calculation — this can add hundreds of dollars per month to your pension.'
         : 'Review exactly how your sick leave balance converts to pension credit. Check your last Leave and Earnings Statement for your current balance, then use the FERS sick leave conversion chart to see what it adds.',
     })
   }
@@ -305,7 +810,7 @@ function getChecklist(answers) {
     items.push({
       priority: 'medium',
       category: 'tsp',
-      task: 'Finalize your TSP withdrawal strategy. Compare monthly installments vs. the 4% rule vs. a TSP annuity. Consider your tax bracket in retirement \u2014 spreading withdrawals can reduce your tax burden.',
+      task: 'Finalize your TSP withdrawal strategy. Compare monthly installments vs. the 4% rule vs. a TSP annuity. Consider your tax bracket in retirement — spreading withdrawals can reduce your tax burden.',
     })
   }
 
@@ -326,7 +831,7 @@ function getChecklist(answers) {
     items.push({
       priority: 'medium',
       category: 'income',
-      task: 'Good \u2014 you\u2019ve checked your estimate. Now decide your claiming age. Delaying from 62 to 67 increases your monthly benefit by about 40%. Delaying to 70 adds another 24%.',
+      task: 'Good — you\'ve checked your estimate. Now decide your claiming age. Delaying from 62 to 67 increases your monthly benefit by about 40%. Delaying to 70 adds another 24%.',
     })
   }
 
@@ -341,7 +846,7 @@ function getChecklist(answers) {
     items.push({
       priority: 'medium',
       category: 'healthcare',
-      task: 'Review your FEHB plan choice for retirement. As a retiree, you\u2019ll pay the same percentage as active employees. Consider whether Self Only vs. Self + One makes sense if your spouse will have their own coverage.',
+      task: 'Review your FEHB plan choice for retirement. As a retiree, you\'ll pay the same percentage as active employees. Consider whether Self Only vs. Self + One makes sense if your spouse will have their own coverage.',
     })
   }
 
@@ -350,13 +855,13 @@ function getChecklist(answers) {
     items.push({
       priority: 'high',
       category: 'healthcare',
-      task: 'Understand how Medicare and FEHB work together. Most federal retirees should enroll in Medicare Part A (free) and Part B ($202.90/mo in 2026) at 65. Medicare becomes your primary insurer, and FEHB becomes secondary \u2014 this combination often results in little to no out-of-pocket costs.',
+      task: 'Understand how Medicare and FEHB work together. Most federal retirees should enroll in Medicare Part A (free) and Part B ($202.90/mo in 2026) at 65. Medicare becomes your primary insurer, and FEHB becomes secondary — this combination often results in little to no out-of-pocket costs.',
     })
   } else if (answers.medicare_coordination === 'partial') {
     items.push({
       priority: 'medium',
       category: 'healthcare',
-      task: 'Decide whether to enroll in Medicare Part B at 65. If you have FEHB, Part B is optional but recommended \u2014 the combination virtually eliminates out-of-pocket medical costs. Compare the $202.90/mo premium against your current FEHB copays.',
+      task: 'Decide whether to enroll in Medicare Part B at 65. If you have FEHB, Part B is optional but recommended — the combination virtually eliminates out-of-pocket medical costs. Compare the $202.90/mo premium against your current FEHB copays.',
     })
   }
 
@@ -397,7 +902,7 @@ function getChecklist(answers) {
     items.push({
       priority: 'medium',
       category: 'income',
-      task: 'At 62+, you may qualify for the enhanced 1.1% FERS multiplier (requires 20+ years of service). If you\'re close to 20 years, staying a bit longer could significantly boost your pension. Also review your Social Security claiming strategy \u2014 delaying past 62 increases your benefit.',
+      task: 'At 62+, you may qualify for the enhanced 1.1% FERS multiplier (requires 20+ years of service). If you\'re close to 20 years, staying a bit longer could significantly boost your pension. Also review your Social Security claiming strategy — delaying past 62 increases your benefit.',
     })
   } else if (answers.current_age === '57to61') {
     items.push({
@@ -417,7 +922,7 @@ function getChecklist(answers) {
     items.push({
       priority: 'high',
       category: 'income',
-      task: 'Make your FEGLI life insurance election \u2014 you must decide within 30 days of retirement what coverage to keep. This cannot be changed later.',
+      task: 'Make your FEGLI life insurance election — you must decide within 30 days of retirement what coverage to keep. This cannot be changed later.',
     })
   }
 
@@ -425,7 +930,7 @@ function getChecklist(answers) {
   items.push({
     priority: 'medium',
     category: 'pension',
-    task: 'Use the FedBenefitsAid retirement calculator to model your full income picture \u2014 pension, TSP, and Social Security combined.',
+    task: 'Use the FedBenefitsAid retirement calculator to model your full income picture — pension, TSP, and Social Security combined.',
   })
   items.push({
     priority: 'low',
@@ -457,7 +962,6 @@ export default function Assessment() {
   // Email capture state
   const [captureName, setCaptureName] = useState('')
   const [captureEmail, setCaptureEmail] = useState('')
-  const [capturePhone, setCapturePhone] = useState('')
   const [captureLoading, setCaptureLoading] = useState(false)
   const [captureError, setCaptureError] = useState('')
   const [captureSent, setCaptureSent] = useState(false)
@@ -471,7 +975,7 @@ export default function Assessment() {
       await fetch('/.netlify/functions/add-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: captureName || 'Assessment Lead', email: captureEmail, phone: capturePhone || '', source: 'Assessment' }),
+        body: JSON.stringify({ name: captureName || 'Assessment Lead', email: captureEmail, source: 'Assessment' }),
       })
       sendAssessmentEmail(captureEmail, captureName || 'there')
       setCaptureSent(true)
@@ -481,6 +985,7 @@ export default function Assessment() {
       setCaptureLoading(false)
     }
   }
+
   useEffect(() => { document.title = 'Retirement Readiness Assessment | FedBenefitsAid' }, [])
 
   const question = QUESTIONS[step]
@@ -560,7 +1065,6 @@ export default function Assessment() {
         body: JSON.stringify({
           name: captureName,
           email: captureEmail,
-          phone: capturePhone,
           source: 'Retirement Checklist',
           assessmentScore: getScorePercent(),
         }),
@@ -582,7 +1086,6 @@ export default function Assessment() {
         body: JSON.stringify({
           name: user?.user_metadata?.full_name || '',
           email: user?.email || '',
-          phone: user?.user_metadata?.phone || '',
           source: 'Retirement Checklist',
           assessmentScore: getScorePercent(),
         }),
@@ -597,15 +1100,20 @@ export default function Assessment() {
   const catScores = showScore ? getCategoryScores(answers) : null
   const result = showScore ? getOverallResult(catScores) : null
   const checklist = showScore ? getChecklist(answers) : []
+  const { currentAge, retirementAge, milestones } = showScore ? buildRetirementTimeline(answers) : {}
 
   // ============================================================
-  // RESULTS SCREEN
+  // RESULTS SCREEN — COMPLETELY REDESIGNED
   // ============================================================
   if (showScore) {
+    const sorted = Object.entries(catScores).sort((a, b) => a[1].pct - b[1].pct)
+    const weakestCats = sorted.slice(0, 2).map(([id]) => id)
+    const personalizedSummary = generatePersonalizedSummary(catScores, answers)
+
     return (
       <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Assessment results">
-        {/* Header with score ring */}
-        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
+        {/* SECTION 1: Executive Summary Header */}
+        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 100%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Your Results</div>
           <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 24px' }}>Retirement Readiness Assessment</h1>
 
@@ -616,11 +1124,12 @@ export default function Assessment() {
             const pct = totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0
             const circumference = 2 * Math.PI * 54
             const offset = circumference - (pct / 100) * circumference
+            const ringColor = pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444'
             return (
               <div style={{ display: 'inline-block', position: 'relative', marginBottom: 20 }}>
                 <svg width="130" height="130" viewBox="0 0 130 130" aria-hidden="true">
                   <circle cx="65" cy="65" r="54" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" />
-                  <circle cx="65" cy="65" r="54" fill="none" stroke={result.color === '#065f46' ? '#22c55e' : result.color === '#92400e' ? '#f59e0b' : '#ef4444'} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} transform="rotate(-90 65 65)" style={{ transition: 'stroke-dashoffset 1s ease' }} />
+                  <circle cx="65" cy="65" r="54" fill="none" stroke={ringColor} strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} transform="rotate(-90 65 65)" style={{ transition: 'stroke-dashoffset 1s ease' }} />
                 </svg>
                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
                   <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{pct}</div>
@@ -630,200 +1139,144 @@ export default function Assessment() {
             )
           })()}
 
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: result.bg, borderRadius: 50, padding: '10px 24px' }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: result.color }}>{result.level}</span>
-            <span style={{ fontSize: 18, fontWeight: 700, color: result.color }} aria-hidden="true">{result.icon}</span>
-          </div>
-          <p style={{ color: 'rgba(255,255,255,0.65)', maxWidth: 540, margin: '16px auto 0', fontSize: 15, lineHeight: 1.6 }}>{result.summary}</p>
+          <p style={{ color: 'rgba(255,255,255,0.85)', maxWidth: 600, margin: '0 auto 16px', fontSize: 'clamp(0.95rem, 2vw, 1.05rem)', lineHeight: 1.7, fontWeight: 500 }}>
+            {personalizedSummary}
+          </p>
         </div>
 
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '32px 24px' }}>
-          {/* Category Breakdown */}
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 16 }}>Your Scores by Category</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
-            {Object.entries(CATEGORIES).map(([catId, cat]) => {
-              const cs = catScores[catId]
-              const barPct = Math.round(cs.pct * 100)
-              return (
-                <div key={catId} style={{ background: '#fff', borderRadius: 12, padding: '16px 20px', border: '1.5px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div style={{ width: 40, height: 40, background: cat.color + '12', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: cat.color, fontSize: '0.9rem', flexShrink: 0 }} aria-hidden="true">{cat.icon}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px' }}>
+          {/* SECTION 2: Retirement Snapshot */}
+          <div style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20 }}>Your Retirement Snapshot</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {Object.entries(CATEGORIES).map(([catId, cat]) => {
+                const cs = catScores[catId]
+                const barPct = Math.round(cs.pct * 100)
+                const insight = generateCategoryInsight(catId, answers, cs)
+                return (
+                  <div key={catId}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6, gap: 12 }}>
                       <span style={{ fontSize: 14, fontWeight: 600, color: navy }}>{cat.label}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: cs.levelColor }}>{cs.level} ({barPct}%)</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b', flexShrink: 0 }}>{barPct}%</span>
                     </div>
-                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: barPct + '%', background: cs.levelColor, borderRadius: 4, transition: 'width 0.8s ease' }} />
+                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+                      <div style={{ height: '100%', width: barPct + '%', background: cs.pct >= 0.7 ? '#10b981' : cs.pct >= 0.4 ? amberWarm : muteCorral, borderRadius: 4, transition: 'width 0.8s ease' }} />
                     </div>
+                    <p style={{ fontSize: 13, color: '#64748b', margin: 0, lineHeight: 1.5 }}>{insight}</p>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* What your score means */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: '20px 24px', border: '1.5px solid #e2e8f0', marginBottom: 24 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: navy, marginBottom: 8 }}>What your score means</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.7 }}>
-              {(() => {
-                const totalScore = Object.values(catScores).reduce((s, c) => s + c.score, 0)
-                const totalMax = Object.values(catScores).reduce((s, c) => s + c.max, 0)
-                const pct = totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0
-                const gaps = Object.entries(catScores).filter(([,cs]) => cs.level === 'Gap').map(([id]) => CATEGORIES[id].label)
-                const needsWork = Object.entries(catScores).filter(([,cs]) => cs.level === 'Needs Work').map(([id]) => CATEGORIES[id].label)
-                const strong = Object.entries(catScores).filter(([,cs]) => cs.level === 'Strong').map(([id]) => CATEGORIES[id].label)
-                return <>
-                  Your overall readiness is {pct}%.
-                  {strong.length > 0 && <> You're in good shape on <strong>{strong.join(' and ')}</strong>.</>}
-                  {gaps.length > 0 && <> Your biggest gaps are in <strong>{gaps.join(' and ')}</strong> — these should be your first priority.</>}
-                  {needsWork.length > 0 && gaps.length === 0 && <> Areas like <strong>{needsWork.join(' and ')}</strong> could use some attention before you retire.</>}
-                  {' '}Your personalized action plan below will walk you through exactly what to do.
-                </>
-              })()}
+                )
+              })}
             </div>
           </div>
 
-          {/* EMAIL GATE or CHECKLIST */}
-          {!showChecklist ? (
-            <div style={{ background: '#fff', borderRadius: 16, border: '2px solid #e2e8f0', padding: '32px 28px', textAlign: 'center', marginBottom: 32 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 8 }}>
-                Unlock Your Personalized Action Plan
-              </div>
-              <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 440, margin: '0 auto 24px' }}>
-                We built a step-by-step checklist based on your answers — prioritized by what matters most for your situation. Enter your email to see it.
-              </p>
+          {/* SECTION 3: Detailed Analysis - Expandable Sections */}
+          <div style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20 }}>Detailed Analysis</h2>
+            {Object.keys(CATEGORIES).map((catId) => (
+              <DetailSection key={catId} catId={catId} answers={answers} catScore={catScores[catId]} defaultExpanded={weakestCats.includes(catId)} />
+            ))}
+          </div>
 
-              {user ? (
-                <div>
-                  <p style={{ fontSize: 14, color: '#059669', fontWeight: 600, marginBottom: 16 }}>
-                    You are signed in — your checklist is ready.
-                  </p>
-                  <button type="button" onClick={handleUnlockForUser} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '14px 32px', fontSize: 15, fontWeight: 700, cursor: 'pointer', width: '100%', maxWidth: 320 }}>
-                    Show My Checklist
-                  </button>
-                </div>
-              ) : (
-                <div style={{ maxWidth: 360, margin: '0 auto' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
-                    <input
-                      type="text"
-                      placeholder="Full name"
-                      aria-label="Full name"
-                      value={captureName}
-                      onChange={e => setCaptureName(e.target.value)}
-                      style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email address"
-                      aria-label="Email address"
-                      value={captureEmail}
-                      onChange={e => setCaptureEmail(e.target.value)}
-                      required
-                      style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Phone (optional)"
-                      aria-label="Phone number"
-                      value={capturePhone}
-                      onChange={e => setCapturePhone(e.target.value)}
-                      style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
-                    />
-                  </div>
-                  {captureError && (
-                    <div role="alert" style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{captureError}</div>
-                  )}
-                  <button type="button"
-                    onClick={handleUnlockChecklist}
-                    disabled={captureLoading}
-                    style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '14px 32px', fontSize: 15, fontWeight: 700, cursor: captureLoading ? 'not-allowed' : 'pointer', width: '100%', opacity: captureLoading ? 0.7 : 1 }}
-                  >
-                    {captureLoading ? 'Loading...' : 'Show My Checklist'}
-                  </button>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 10 }}>
-                    No spam. We will only contact you about your retirement planning.
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              {/* PERSONALIZED CHECKLIST */}
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 8 }}>Your Personalized Action Plan</h2>
-              <p style={{ color: '#64748b', marginBottom: 24, fontSize: 14, lineHeight: 1.6 }}>
-                {checklist.filter(i => i.priority === 'high').length} high-priority items based on your answers. Tackle these first.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
-                {checklist.map((item, i) => {
-                  const p = priorityColors[item.priority]
-                  const cat = CATEGORIES[item.category]
+          {/* SECTION 4: Retirement Timeline */}
+          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '24px 20px' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 20 }}>Your Retirement Timeline</h2>
+            <div style={{ position: 'relative', height: 'auto' }}>
+              {/* Timeline line */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, position: 'relative', overflowX: 'auto', paddingBottom: 20 }}>
+                {milestones.map((milestone, i) => {
+                  const isLast = i === milestones.length - 1
+                  const isFirst = i === 0
                   return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, background: '#fff', borderRadius: 12, padding: '16px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: `4px solid ${p.border}` }}>
-                      <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: '50%', background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: p.text, marginTop: 1 }} aria-hidden="true">{i + 1}</div>
-                      <div style={{ flex: 1 }}>
-                         <div style={{ fontSize: 14, color: navy, fontWeight: 500, lineHeight: 1.6 }}>{item.task}</div>
-                        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 6 }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: p.text, background: p.bg, padding: '2px 8px', borderRadius: 4 }}>{p.label}</span>
-                          <span style={{ fontSize: 11, color: '#64748b' }}>{cat.label}</span>
-                        </div>
-                      </div>
+                    <div key={i} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#e2e8f0'}`, marginBottom: 12 }} />
+                      <div style={{ fontSize: 12, fontWeight: isFirst ? 700 : 600, color: navy, textAlign: 'center', whiteSpace: 'nowrap' }}>{milestone.label}</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Age {milestone.age}</div>
+                      {!isLast && (
+                        <div style={{ width: 40, height: 2, background: '#e2e8f0', margin: '12px 12px 0' }} />
+                      )}
                     </div>
                   )
                 })}
               </div>
+            </div>
+          </div>
 
-              {/* CTAs */}
-              <div style={{ background: `linear-gradient(135deg, ${navy} 0%, #1e3a5f 100%)`, borderRadius: 16, padding: '32px 24px', textAlign: 'center', marginBottom: 24 }}>
-                <div style={{ color: '#fff', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Take the next step</div>
-                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginBottom: 24, lineHeight: 1.6, maxWidth: 480, margin: '0 auto 24px' }}>
-                  Use our free tools to start checking items off your list, or book a free consultation to walk through everything with an expert.
-                </div>
-                <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => navigate('/calculator')} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '14px 28px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                    Run the Calculator
-                  </button>
-                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: '#fff', color: navy, border: 'none', borderRadius: 10, padding: '14px 28px', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
-                    Book Free Consultation
-                  </a>
-                </div>
-              </div>
-            </>
-          )}
+          {/* SECTION 5: Save Your Report (Email Capture) - NOT GATED */}
+          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '28px 24px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8 }}>Save Your Retirement Readiness Report</h3>
+            <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px' }}>
+              Get a copy of your personalized analysis sent to your inbox.
+            </p>
 
-          {/* Retake */}
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            {/* Email capture */}
-          <div style={{ maxWidth: 600, margin: '0 auto 32px', padding: '28px 24px', background: 'white', borderRadius: 12, border: '1.5px solid #e2e8f0' }}>
             {captureSent ? (
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
-                <p style={{ color: navy, fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Checklist sent!</p>
-                <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your personalized retirement checklist.</p>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
+                <p style={{ color: navy, fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Report sent!</p>
+                <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your personalized analysis.</p>
+              </div>
+            ) : user ? (
+              <div>
+                <p style={{ fontSize: 14, color: emerald, fontWeight: 600, marginBottom: 16 }}>You are signed in as {user?.email}</p>
+                <button type="button" onClick={() => {
+                  setCaptureEmail(user?.email)
+                  handleEmailCapture({ preventDefault: () => {} })
+                }} style={{ background: navy, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
+                  Send My Report
+                </button>
               </div>
             ) : (
-              <>
-                <p style={{ color: navy, fontWeight: 700, fontSize: 16, margin: '0 0 4px', textAlign: 'center' }}>Get your personalized checklist sent to your email</p>
-                <p style={{ color: '#64748b', fontSize: 13, margin: '0 0 16px', textAlign: 'center' }}>We will send your results and action items. No spam, ever.</p>
-                <form onSubmit={handleEmailCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <input type="text" placeholder="Your name"
-                      aria-label="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                    <input type="tel" placeholder="Phone (optional)"
-                      aria-label="Phone number" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                  </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <input type="email" placeholder="Your email"
-                      aria-label="Your email address" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} required style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                    <button type="submit" disabled={captureLoading} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>{captureLoading ? 'Sending...' : 'Send My Checklist'}</button>
-                  </div>
-                  {captureError && <p style={{ color: '#ef4444', fontSize: 13, margin: 0 }}>{captureError}</p>}
-                </form>
-              </>
+              <form onSubmit={handleEmailCapture} style={{ maxWidth: 360, margin: '0 auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 12 }}>
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    aria-label="Full name"
+                    value={captureName}
+                    onChange={e => setCaptureName(e.target.value)}
+                    style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    aria-label="Email address"
+                    value={captureEmail}
+                    onChange={e => setCaptureEmail(e.target.value)}
+                    required
+                    style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {captureError && (
+                  <div role="alert" style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{captureError}</div>
+                )}
+                <button type="submit" disabled={captureLoading} style={{ background: navy, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 32px', fontSize: 15, fontWeight: 700, cursor: captureLoading ? 'not-allowed' : 'pointer', width: '100%', opacity: captureLoading ? 0.7 : 1 }}>
+                  {captureLoading ? 'Sending...' : 'Send My Report'}
+                </button>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 10 }}>
+                  We'll send your report and nothing else.
+                </div>
+              </form>
             )}
           </div>
 
-          <button type="button" onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCapturePhone('') }} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}>
+          {/* SECTION 6: Next Steps */}
+          <div style={{ marginBottom: 32, background: '#f3f4f6', borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8 }}>Want to talk through your results?</h3>
+            <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 540, margin: '0 auto 24px' }}>
+              A certified federal retirement consultant can review your specific numbers and help you build a personalized plan. Free, 30-minute video call.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button type="button" onClick={() => navigate('/calculator')} style={{ background: '#fff', color: navy, border: '1.5px solid #d1d5db', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                Explore the Calculator
+              </button>
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: navy, color: '#fff', border: '1.5px solid navy', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
+                Schedule a Conversation
+              </a>
+            </div>
+          </div>
+
+          {/* SECTION 7: Retake */}
+          <div style={{ textAlign: 'center' }}>
+            <button type="button" onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCaptureSent(false) }} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, cursor: 'pointer', textDecoration: 'underline', fontWeight: 500 }}>
               Retake assessment
             </button>
           </div>
@@ -837,10 +1290,10 @@ export default function Assessment() {
   // ============================================================
   return (
     <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Retirement readiness assessment quiz">
-      <div style={{ background: `linear-gradient(160deg, ${navy} 0%, #1e3a5f 100%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Free Tool</div>
+      <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 100%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
+        <div style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Free Tool</div>
         <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px' }}>Retirement Readiness Assessment</h1>
-        <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>14 questions. Get your personalized federal retirement action plan.</p>
+        <p style={{ color: '#cbd5e1', fontSize: 14, margin: 0 }}>14 questions. Get your personalized federal retirement action plan.</p>
       </div>
 
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '32px 24px' }}>
@@ -867,7 +1320,7 @@ export default function Assessment() {
           <h2 style={{ fontSize: 19, fontWeight: 700, color: navy, margin: '0 0 6px', lineHeight: 1.4 }}>{question.question}</h2>
           <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 24px', lineHeight: 1.5 }}>{question.sub}</p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {question.options.map(opt => (
               <button type="button"
                 key={opt.value}
@@ -917,7 +1370,7 @@ export default function Assessment() {
               transition: 'all 0.2s ease',
             }}
           >
-            {step + 1 === totalSteps ? 'See My Results' : 'Next Question \u2192'}
+            {step + 1 === totalSteps ? 'See My Results' : 'Next Question →'}
           </button>
         </div>
       </div>
