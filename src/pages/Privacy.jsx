@@ -42,7 +42,7 @@ export default function Privacy() {
 
           <h3 style={styles.h3}>Assessment Tool</h3>
           <p style={styles.p}>
-            Our Retirement Readiness Assessment collects your answers to 12 questions about your federal employment status, age, years of service, and retirement readiness. Your assessment responses and final readiness score are processed and displayed to you. If you opt to receive results via email, we may store the email request temporarily.
+            Our Retirement Readiness Assessment collects your answers to 14 questions about your federal employment status, age, years of service, and retirement readiness. Your assessment responses and final readiness score are processed and displayed to you. If you opt to receive results via email, we may store the email request temporarily.
           </p>
 
           <h3 style={styles.h3}>Retirement Calculator</h3>
