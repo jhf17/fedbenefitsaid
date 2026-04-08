@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
 const colors = {
@@ -20,99 +20,7 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif";
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export default function Landing() {
-  const revealRefs = useRef([]);
-
-  // Eagle animation system — JS-driven with requestAnimationFrame
-  useEffect(() => {
-    const ec = document.getElementById('eagle-anim-container');
-    if (!ec) return;
-    const eSide = document.getElementById('eagle-side');
-    const eFront = document.getElementById('eagle-front');
-    const eFrontLW = document.getElementById('eagle-front-lwing');
-    const eFrontRW = document.getElementById('eagle-front-rwing');
-    const ePerch = document.getElementById('eagle-perched');
-    if (!eSide || !eFront || !ePerch) return;
-
-    const DUR = 8000;
-    let t0 = null, raf = null;
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const smooth = (t) => t * t * (3 - 2 * t);
-
-    // Waypoints: progress(0-1), x, y, scale
-    const W = [
-      { t:0.00, x:-60,  y:105, s:0.7 },
-      { t:0.06, x:20,   y:85,  s:0.75 },
-      { t:0.12, x:85,   y:110, s:0.8 },
-      { t:0.18, x:150,  y:80,  s:0.85 },
-      { t:0.24, x:215,  y:108, s:0.9 },
-      { t:0.30, x:275,  y:78,  s:0.95 },
-      { t:0.36, x:340,  y:95,  s:1.05 },
-      // Loop entry — eagle approaches viewer, grows larger
-      { t:0.42, x:410,  y:58,  s:1.3 },
-      { t:0.48, x:465,  y:28,  s:1.6 },
-      { t:0.54, x:495,  y:18,  s:1.8 },
-      { t:0.60, x:480,  y:35,  s:1.6 },
-      { t:0.66, x:435,  y:58,  s:1.4 },
-      // Descent to finial (finial at 280,48; eagle talons at +17 from origin)
-      { t:0.72, x:375,  y:38,  s:1.3 },
-      { t:0.78, x:325,  y:34,  s:1.2 },
-      { t:0.84, x:295,  y:32,  s:1.1 },
-      { t:0.90, x:283,  y:31,  s:1.05 },
-      { t:0.95, x:280,  y:30,  s:1.0 },
-      { t:1.00, x:280,  y:30,  s:1.0 },
-    ];
-
-    function getState(p) {
-      p = Math.max(0, Math.min(1, p));
-      let i = 0;
-      for (let j = 1; j < W.length; j++) { if (W[j].t >= p) { i = j - 1; break; } if (j === W.length - 1) i = j - 1; }
-      const a = W[i], b = W[Math.min(i + 1, W.length - 1)];
-      const seg = b.t === a.t ? 1 : smooth((p - a.t) / (b.t - a.t));
-      return { x: lerp(a.x, b.x, seg), y: lerp(a.y, b.y, seg), s: lerp(a.s, b.s, seg) };
-    }
-
-    function frame(ts) {
-      if (!t0) t0 = ts;
-      const t = Math.min((ts - t0) / DUR, 1);
-      const st = getState(t);
-
-      // Heading tilt for side-view
-      const ah = getState(Math.min(t + 0.015, 1));
-      const tilt = Math.atan2(ah.y - st.y, ah.x - st.x) * (180 / Math.PI);
-
-      ec.setAttribute('transform', `translate(${st.x},${st.y}) scale(${st.s})`);
-      ec.setAttribute('opacity', t < 0.03 ? (t / 0.03).toFixed(2) : '1');
-
-      // Cross-fade: side → front (t 0.38-0.50), front → perched (t 0.86-0.94)
-      const sO = t < 0.38 ? 1 : t < 0.50 ? 1 - (t - 0.38) / 0.12 : 0;
-      const fO = t < 0.38 ? 0 : t < 0.50 ? (t - 0.38) / 0.12 : t < 0.86 ? 1 : t < 0.94 ? 1 - (t - 0.86) / 0.08 : 0;
-      const pO = t < 0.86 ? 0 : t < 0.94 ? (t - 0.86) / 0.08 : 1;
-
-      eSide.setAttribute('opacity', Math.max(0, Math.min(1, sO)).toFixed(2));
-      eFront.setAttribute('opacity', Math.max(0, Math.min(1, fO)).toFixed(2));
-      ePerch.setAttribute('opacity', Math.max(0, Math.min(1, pO)).toFixed(2));
-
-      // Tilt side-view to follow path slope
-      if (sO > 0) eSide.setAttribute('transform', `rotate(${(tilt * 0.4).toFixed(1)})`);
-
-      // Wing flap on front-view during landing approach (t 0.64-0.88)
-      if (eFrontLW && eFrontRW) {
-        if (t > 0.64 && t < 0.88) {
-          const fp = (t - 0.64) / 0.24;
-          const angle = Math.sin(fp * 6 * Math.PI * 2) * 22;
-          eFrontLW.setAttribute('transform', `rotate(${angle.toFixed(1)}, -8, 0)`);
-          eFrontRW.setAttribute('transform', `rotate(${(-angle).toFixed(1)}, 8, 0)`);
-        } else {
-          eFrontLW.setAttribute('transform', 'rotate(0,-8,0)');
-          eFrontRW.setAttribute('transform', 'rotate(0,8,0)');
-        }
-      }
-
-      if (t < 1) raf = requestAnimationFrame(frame);
-    }
-
-    const timer = setTimeout(() => { raf = requestAnimationFrame(frame); }, 500);
-    return () => { clearTimeout(timer); if (raf) cancelAnimationFrame(raf); };
+  return () => { clearTimeout(timer); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   useEffect(() => {
@@ -237,11 +145,11 @@ export default function Landing() {
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
               {/* Cloth ripple — fractalNoise for smooth waves, very slow for light breeze */}
-              <filter id="flagCloth" x="-3%" y="-5%" width="108%" height="112%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.015 0.04" numOctaves="2" seed="3" result="noise">
-                  <animate attributeName="seed" dur="45s" values="3;8;5;12;7;10;4;9;3" repeatCount="indefinite" />
+              <filter id="flagCloth" x="-5%" y="-8%" width="115%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.003 0.012" numOctaves="1" seed="2" result="noise">
+                  <animate attributeName="seed" dur="30s" values="2;5;8;3;7;4;6;2" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 
@@ -301,116 +209,7 @@ export default function Landing() {
             </g>
 
             {/* === EAGLE ANIMATION — 3-state JS-driven === */}
-            <g id="eagle-anim-container" opacity="0">
-
-              {/* STATE 1: Side-view soaring eagle (facing right, wings spread) */}
-              <g id="eagle-side" opacity="1">
-                <ellipse cx="0" cy="0" rx="14" ry="5.5" fill="#3b1f0b" />
-                {/* Left wing layers */}
-                <path d="M-4,-2 Q-18,-20 -46,-26 Q-42,-16 -34,-10 Q-24,-4 -8,-1Z" fill="#4a2810" />
-                <path d="M-5,0 Q-22,-14 -50,-18 Q-44,-9 -36,-4 Q-26,0 -10,1Z" fill="#3b1f0b" />
-                <path d="M-4,2 Q-20,-6 -44,-10 Q-38,-2 -30,2 Q-20,4 -8,3Z" fill="#2d1608" />
-                {/* Right wing layers */}
-                <path d="M4,-2 Q18,-20 46,-26 Q42,-16 34,-10 Q24,-4 8,-1Z" fill="#4a2810" />
-                <path d="M5,0 Q22,-14 50,-18 Q44,-9 36,-4 Q26,0 10,1Z" fill="#3b1f0b" />
-                <path d="M4,2 Q20,-6 44,-10 Q38,-2 30,2 Q20,4 8,3Z" fill="#2d1608" />
-                {/* White head */}
-                <ellipse cx="16" cy="-1.5" rx="5.5" ry="4.5" fill="white" />
-                <circle cx="18.5" cy="-2.5" r="1" fill="#1a1a1a" />
-                <path d="M22,-1.5 L27,-0.5 Q25,1 22,0Z" fill="#f5a623" />
-                {/* Tail */}
-                <path d="M-13,1 Q-24,4 -32,10 Q-26,6 -16,3Z" fill="#3b1f0b" />
-                <path d="M-14,-0.5 Q-26,1 -34,6 Q-28,3 -16,1Z" fill="#4a2810" />
-                <path d="M-30,8 Q-33,11 -31,10Z" fill="white" opacity="0.5" />
-              </g>
-
-              {/* STATE 2: Front-facing flying eagle (wings spread, flappable) */}
-              <g id="eagle-front" opacity="0">
-                {/* Body */}
-                <ellipse cx="0" cy="3" rx="8" ry="12" fill="#3b1f0b" />
-                {/* Breast highlight */}
-                <ellipse cx="0" cy="0" rx="5" ry="6" fill="#4a2810" />
-                {/* Left wing group (flaps) */}
-                <g id="eagle-front-lwing">
-                  <path d="M-8,-1 Q-22,-14 -48,-10 Q-42,-4 -32,0 Q-20,2 -8,2Z" fill="#4a2810" />
-                  <path d="M-7,1 Q-20,-8 -44,-4 Q-38,1 -28,4 Q-18,4 -7,3Z" fill="#3b1f0b" />
-                  <path d="M-7,3 Q-18,-2 -40,0 Q-34,4 -24,6 Q-16,5 -7,4Z" fill="#2d1608" />
-                </g>
-                {/* Right wing group (flaps) */}
-                <g id="eagle-front-rwing">
-                  <path d="M8,-1 Q22,-14 48,-10 Q42,-4 32,0 Q20,2 8,2Z" fill="#4a2810" />
-                  <path d="M7,1 Q20,-8 44,-4 Q38,1 28,4 Q18,4 7,3Z" fill="#3b1f0b" />
-                  <path d="M7,3 Q18,-2 40,0 Q34,4 24,6 Q16,5 7,4Z" fill="#2d1608" />
-                </g>
-                {/* White head */}
-                <ellipse cx="0" cy="-9" rx="5.5" ry="5" fill="white" />
-                <circle cx="-2" cy="-9.5" r="0.9" fill="#1a1a1a" />
-                <circle cx="2" cy="-9.5" r="0.9" fill="#1a1a1a" />
-                {/* Beak */}
-                <path d="M-1.5,-7 L0,-4 L1.5,-7Z" fill="#f5a623" />
-                <path d="M-0.8,-5.5 L0,-4 L0.8,-5.5Z" fill="#d4891a" />
-                {/* Tail fan */}
-                <path d="M-5,14 Q0,19 5,14 Q3,16 0,18 Q-3,16 -5,14Z" fill="#4a2810" />
-                {/* Talons */}
-                <path d="M-3,14 L-5,18 L-3,16 L-4,19 L-1,16Z" fill="#f5a623" />
-                <path d="M3,14 L5,18 L3,16 L4,19 L1,16Z" fill="#f5a623" />
-              </g>
-
-              {/* STATE 3: Perched eagle (front-facing, wings folded, upright) */}
-              <g id="eagle-perched" opacity="0">
-                {/* Body (upright, compact) */}
-                <ellipse cx="0" cy="5" rx="7" ry="12" fill="#3b1f0b" />
-                {/* Folded wing edges */}
-                <path d="M-7,0 Q-9,7 -7,14 Q-6.5,10 -7,0Z" fill="#2d1608" />
-                <path d="M7,0 Q9,7 7,14 Q6.5,10 7,0Z" fill="#2d1608" />
-                {/* Breast */}
-                <ellipse cx="0" cy="2" rx="5" ry="7" fill="#4a2810" />
-                {/* White head */}
-                <ellipse cx="0" cy="-9" rx="5.2" ry="4.8" fill="white" />
-                <circle cx="-2" cy="-9" r="0.85" fill="#1a1a1a" />
-                <circle cx="2" cy="-9" r="0.85" fill="#1a1a1a" />
-                {/* Beak (prominent, hooked) */}
-                <path d="M-1.5,-6.5 L0,-3 L1.5,-6.5Z" fill="#f5a623" />
-                <path d="M-0.7,-4.5 L0,-3 L0.7,-4.5Z" fill="#d4891a" />
-                {/* Tail behind */}
-                <path d="M-4,16 Q0,20 4,16Z" fill="#4a2810" />
-                {/* Talons gripping finial */}
-                <path d="M-3,16 L-4.5,19 L-2.5,17.5 L-3.5,20 L-1,17Z" fill="#f5a623" />
-                <path d="M3,16 L4.5,19 L2.5,17.5 L3.5,20 L1,17Z" fill="#f5a623" />
-              </g>
-
-            </g>
-
-            {/* Decorative particles */}
-            <circle cx="140" cy="200" r="2.5" fill="#daa520" opacity="0.3">
-              <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="430" cy="180" r="2" fill="#7b1c2e" opacity="0.2">
-              <animate attributeName="opacity" values="0.1;0.3;0.1" dur="5s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="460" cy="350" r="1.5" fill="#daa520" opacity="0.2">
-              <animate attributeName="opacity" values="0.1;0.25;0.1" dur="3.5s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="120" cy="320" r="1.5" fill="#1e3a5f" opacity="0.15">
-              <animate attributeName="opacity" values="0.08;0.2;0.08" dur="4.5s" repeatCount="indefinite" />
-            </circle>
-          </svg>
-        </div>
-      </section>
-
-      {/* VALUE PROPOSITION */}
-      <section style={{ background: colors.navy, padding: '120px 48px' }}>
-        <div ref={addRevealRef} className="reveal" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '72px' }}>
-            <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', fontWeight: '900', lineHeight: '1.15', letterSpacing: '-0.01em', color: 'white', marginBottom: '16px' }}>
-              Your benefits are <em style={{ fontStyle: 'italic', backgroundImage: goldGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>valuable.</em>
-              <br />
-              Make sure you understand them.
-            </h2>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.55)', maxWidth: '560px', margin: '0 auto' }}>
-              The federal benefits system is one of the most generous in America — but also one of the most confusing. FedBenefitsAid makes it simple.
-            </p>
-          </div>
+            
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
             {[
