@@ -62,21 +62,7 @@ export default function Landing() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes flagSway {
-          0% { transform: rotate(0deg) skewX(0deg) skewY(0deg); }
-          12% { transform: rotate(2.5deg) skewX(1.5deg) skewY(1deg); }
-          28% { transform: rotate(-1.2deg) skewX(-0.8deg) skewY(-0.6deg); }
-          40% { transform: rotate(1.8deg) skewX(2deg) skewY(0.8deg); }
-          55% { transform: rotate(-0.8deg) skewX(-1.2deg) skewY(-0.5deg); }
-          68% { transform: rotate(2deg) skewX(1.8deg) skewY(0.9deg); }
-          82% { transform: rotate(-0.5deg) skewX(-0.6deg) skewY(-0.3deg); }
-          100% { transform: rotate(0deg) skewX(0deg) skewY(0deg); }
-        }
-        .flag-sway {
-          transform-origin: 283px 50px;
-          animation: flagSway 8s ease-in-out infinite;
-        }
-        .flow-line {
+                        .flow-line {
           stroke-dasharray: 600;
           stroke-dashoffset: 600;
           animation: drawLine 3s ease forwards;
@@ -144,13 +130,7 @@ export default function Landing() {
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
               {/* Cloth ripple — fractalNoise for smooth waves, very slow for light breeze */}
-              <filter id="flagCloth" x="-5%" y="-8%" width="115%" height="120%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.003 0.012" numOctaves="1" seed="2" result="noise">
-                  <animate attributeName="seed" dur="30s" values="2;5;8;3;7;4;6;2" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-            </defs>
+                          </defs>
 
             {/* Flowing lines */}
             <path className="flow-line" d="M40 380 Q150 340 280 320 Q410 300 520 260" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
@@ -187,7 +167,7 @@ export default function Landing() {
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
               {/* American Flag - 50 stars, 13 stripes, cloth ripple + gentle sway */}
-              <g className="flag-sway" filter="url(#flagCloth)">
+              <g>
                 {/* 13 stripes - slightly taller for overlap so ripple doesn't create gaps */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
                   <rect key={`stripe-${i}`} x="283" y={49.5 + i * 3.5} width="76" height="4.2" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
