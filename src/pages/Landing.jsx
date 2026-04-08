@@ -157,15 +157,17 @@ export default function Landing() {
         }
         @keyframes flagSway {
           0% { transform: rotate(0deg) skewY(0deg); }
-          20% { transform: rotate(0.8deg) skewY(0.5deg); }
-          40% { transform: rotate(-0.4deg) skewY(-0.3deg); }
-          60% { transform: rotate(0.6deg) skewY(0.4deg); }
-          80% { transform: rotate(-0.3deg) skewY(-0.2deg); }
+          15% { transform: rotate(0.35deg) skewY(0.15deg); }
+          30% { transform: rotate(-0.15deg) skewY(-0.1deg); }
+          45% { transform: rotate(0.25deg) skewY(0.12deg); }
+          60% { transform: rotate(-0.1deg) skewY(-0.08deg); }
+          75% { transform: rotate(0.2deg) skewY(0.1deg); }
+          90% { transform: rotate(-0.08deg) skewY(-0.05deg); }
           100% { transform: rotate(0deg) skewY(0deg); }
         }
         .flag-sway {
           transform-origin: 283px 50px;
-          animation: flagSway 6s ease-in-out infinite;
+          animation: flagSway 12s ease-in-out infinite;
         }
         .flow-line {
           stroke-dasharray: 600;
@@ -234,12 +236,12 @@ export default function Landing() {
                 <stop offset="50%" stopColor="#f5d77a" stopOpacity="0.5" />
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
-              {/* Flag wind ripple filter — slow, gentle cloth movement */}
-              <filter id="flagWind" x="-5%" y="-8%" width="115%" height="120%">
-                <feTurbulence type="turbulence" baseFrequency="0.012 0.035" numOctaves="3" result="turb">
-                  <animate attributeName="baseFrequency" dur="10s" values="0.008 0.03;0.015 0.05;0.01 0.04;0.018 0.055;0.008 0.03" repeatCount="indefinite" />
+              {/* Flag wind ripple filter — very subtle cloth movement */}
+              <filter id="flagWind" x="-2%" y="-3%" width="106%" height="108%">
+                <feTurbulence type="turbulence" baseFrequency="0.01 0.028" numOctaves="2" result="turb">
+                  <animate attributeName="baseFrequency" dur="30s" values="0.009 0.026;0.011 0.030;0.010 0.028;0.012 0.031;0.009 0.027;0.011 0.029;0.010 0.027;0.009 0.026" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="turb" scale="4" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="turb" scale="1.8" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 
