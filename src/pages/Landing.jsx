@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const colors = {
@@ -20,6 +20,8 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif";
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export default function Landing() {
+  const revealRefs = useRef([]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
