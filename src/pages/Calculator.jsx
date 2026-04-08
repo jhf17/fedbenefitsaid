@@ -177,9 +177,7 @@ function calcTSPFutureValue(balance, monthlyContrib, yearsToRetirement, annualRa
 
 export default function Calculator() {
   const navigate = useNavigate()
-  const [hireEra, setHireEra] = useState('post87')
-  const [isSpecial, setIsSpecial] = useState(false)
-  const tab = hireEra === 'pre84' ? 'csrs' : isSpecial ? 'special' : 'fers'
+  const [tab, setTab] = useState('fers')
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
 
@@ -406,24 +404,23 @@ export default function Calculator() {
           </p>
         </div>
 
-        {/* Retirement System Detection */}
-        <Field label="When did you start federal service?" hint="Determines your retirement system (FERS or CSRS)">
-          <select value={hireEra} onChange={e => { setHireEra(e.target.value); setResults(null); setErrors([]) }} style={s.select}>
-            <option value="post87">1987 or later (FERS)</option>
-            <option value="84to86">1984–1986 (CSRS Offset / FERS)</option>
-            <option value="pre84">Before 1984 (CSRS)</option>
-          </select>
-        </Field>
-        {hireEra !== 'pre84' && (
-          <Field label="Special provision?" hint="Law enforcement, firefighter, or air traffic control">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 6 }}>
-              <input type="checkbox" checked={isSpecial} onChange={e => { setIsSpecial(e.target.checked); setResults(null) }} style={{ width: 18, height: 18, accentColor: '#1e3a5f' }} />
-              <span style={{ fontSize: '0.9rem', color: '#475569' }}>Yes, I'm LEO / Firefighter / ATC</span>
-            </div>
-          </Field>
-        )}
-        <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 8, padding: '10px 14px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '0.85rem', color: '#0369a1', fontWeight: 600 }}>{"Calculating as: " + (tab === 'csrs' ? 'CSRS' : tab === 'special' ? 'FERS Special Provision' : 'FERS')}</span>
+        {/* Retirement System Tabs */}
+        <div style={s.tabRow} role="tablist" aria-label="Retirement system">
+          {[
+            { id: 'fers', label: 'FERS' },
+            { id: 'csrs', label: 'CSRS' },
+            { id: 'special', label: 'Special Provisions' },
+          ].map(t => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => { setTab(t.id); setResults(null); setErrors([]) }}
+              style={{ ...s.tabBtn, ...(tab === t.id ? s.tabBtnActive : {}) }}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         {/* Input Form */}
