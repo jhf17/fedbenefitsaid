@@ -29,6 +29,30 @@ const SP_LOW  = 0.010   // 1.0% — all years thereafter
 // Medicare Part B premium 2026
 const MEDICARE_B_MONTHLY = 202.90
 
+// FERS COLA (Cost of Living Adjustment) rules
+const COLA_AVERAGE_ANNUAL = 0.02
+
+function calcCOLAProjection(pensionMonthly, retireAge, yearsToRetirement, tab) {
+  if (tab !== 'fers') return null
+  const retirementAge = Math.round(retireAge)
+  const projections = []
+  for (const yearsAfter of [5, 10, 15, 20]) {
+    const ageAtYear = retirementAge + yearsAfter
+    let projectedMonthly = pensionMonthly
+    let totalColaApplied = 0
+    let currentAge = retirementAge
+    for (let year = 1; year <= yearsAfter; year++) {
+      currentAge = retirementAge + year
+      if (currentAge >= 62) {
+        projectedMonthly = projectedMonthly * (1 + COLA_AVERAGE_ANNUAL)
+        totalColaApplied += COLA_AVERAGE_ANNUAL
+      }
+    }
+    projections.push({ yearsAfter, ageAtYear, projectedMonthly: Math.round(projectedMonthly * 100) / 100, totalColaApplied })
+  }
+  return projections
+}
+
 // 2026 FEHB biweekly enrollee premiums (employee/retiree share)
 // Source: OPM 2026 FEHB Premium Tables. Biweekly × 26 / 12 = monthly deduction.
 // Rates marked * are estimates — verify at opm.gov/premiums
@@ -380,6 +404,7 @@ export default function Calculator() {
       h3,
       growthRate,
       claimAge,
+      colaProjection: calcCOLAProjection(pensionMonthly, rAge, yearsToRetire, tab),
     })
     setShowFIA(false)
 
@@ -830,6 +855,27 @@ export default function Calculator() {
               )}
             </div>
 
+            {/* COLA Projection (FERS only) */}
+            {results.colaProjection && (
+              <div style={s.colaBox}>
+                <div style={s.colaTitle}>Pension Growth: COLA Adjustments</div>
+                <div style={s.colaGrid}>
+                  {results.colaProjection.map((proj, i) => (
+                    <div key={i} style={s.colaCard}>
+                      <div style={s.colaLabel}>Year {proj.yearsAfter}</div>
+                      <div style={s.colaAge}>Age {proj.ageAtYear}</div>
+                      {proj.ageAtYear < 62 ? (
+                        <div style={s.colaNote}>No COLA until 62</div>
+                      ) : (
+                        <><div style={s.colaAmount}>{fmt(proj.projectedMonthly)}</div><div style={s.colaSub}>+{fmtDec(proj.totalColaApplied * 100, 1)}% cumulative</div></>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: '0.73rem', color: '#94a3b8', marginTop: 12, fontStyle: 'italic' }}>Based on 2% average annual COLA. Actual adjustments vary yearly based on CPI-W. No COLA applies to FERS pension before age 62.</div>
+              </div>
+            )}
+
             {/* TSP Strategy CTA — maroon accent */}
             <div style={{ background: 'linear-gradient(135deg, #7b1c2e 0%, #a3293f 100%)', borderRadius: 16, padding: '32px', marginBottom: 24 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
@@ -886,6 +932,9 @@ export default function Calculator() {
                 </div>
                 <div style={s.assumptionItem}>
                   <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
+                </div>
+                <div style={s.assumptionItem}>
+                  <strong>FERS COLA:</strong> No adjustment until age 62. After 62, projected at 2% average annual COLA (historical mean). Actual adjustments vary yearly based on CPI-W.
                 </div>
               </div>
             </div>
@@ -1003,7 +1052,17 @@ const styles = {
   assumptionsBox: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
   assumptionsTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
   assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 },
-  assumptionItem: { fontSize: '0.8rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.5 },
+  assumptionItem: {
+ fontSize: '0.8rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.5 },
+  colaBox: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
+  colaTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  colaGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 14 },
+  colaCard: { background: 'linear-gradient(135deg, #f8f7f4 0%, #faf9f6 100%)', border: '1.5px solid #f1f0ed', borderRadius: 10, padding: '16px 14px', textAlign: 'center', borderLeft: '3px solid #c9a84c' },
+  colaLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 },
+  colaAge: { fontSize: '0.9rem', fontWeight: 600, color: '#1e3a5f', marginBottom: 10 },
+  colaAmount: { fontSize: '1.5rem', fontWeight: 800, color: '#1e293b', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", marginBottom: 4 },
+  colaSub: { fontSize: '0.73rem', color: '#94a3b8', lineHeight: 1.4 },
+  colaNote: { fontSize: '0.73rem', color: '#c9a84c', fontWeight: 600, fontStyle: 'italic', marginTop: 12 },
 }
 
 
