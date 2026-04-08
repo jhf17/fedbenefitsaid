@@ -905,93 +905,93 @@ function yrsServiceLabel(n) {
 // ============================================================
 
 const fieldStyles = {
-  label: { fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#475569' },
-  hint:  { fontSize: '0.73rem', color: '#64748b', lineHeight: 1.4 },
+  label: { fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  hint:  { fontSize: '0.73rem', color: '#94a3b8', lineHeight: 1.4 },
 }
 
 const styles = {
-  page: { minHeight: '100vh', background: '#f8fafc', paddingBottom: 80 },
+  page: { minHeight: '100vh', background: '#faf9f6', paddingBottom: 80 },
   container: { maxWidth: 900, margin: '0 auto', padding: '40px 20px' },
 
-  header: { textAlign: 'center', marginBottom: 36 },
-  badge: { display: 'inline-block', background: '#dbeafe', color: '#1e40af', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20, marginBottom: 14 },
-  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginBottom: 12 },
-  subtitle: { fontSize: '1rem', color: '#64748b', maxWidth: 580, margin: '0 auto', lineHeight: 1.6 },
+  header: { textAlign: 'center', marginBottom: 36, background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', color: '#fff', padding: '48px 32px', borderRadius: 12, marginLeft: -20, marginRight: -20, paddingLeft: 'calc(20px + 32px)', paddingRight: 'calc(20px + 32px)' },
+  badge: { display: 'inline-block', background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20, marginBottom: 14 },
+  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#fff', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", letterSpacing: '-0.02em', marginBottom: 12 },
+  subtitle: { fontSize: '1rem', color: 'rgba(255,255,255,0.85)', maxWidth: 580, margin: '0 auto', lineHeight: 1.6 },
 
-  disclaimerBanner: { background: '#f0f4f8', borderLeft: '3px solid #64748b', padding: '12px 16px', fontSize: '12px', color: '#64748b', borderRadius: 6, marginBottom: 24 },
+  disclaimerBanner: { background: '#f8f7f4', borderLeft: '3px solid #cbd5e1', padding: '12px 16px', fontSize: '12px', color: '#475569', borderRadius: 6, marginBottom: 24 },
 
   tabRow: { display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
-  tabBtn: { flex: 1, minWidth: 120, padding: '10px 16px', border: '2px solid #e2e8f0', borderRadius: 10, background: '#fff', color: '#64748b', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer', transition: 'all 0.2s' },
-  tabBtnActive: { borderColor: '#1e3a5f', background: '#1e3a5f', color: '#fff' },
+  tabBtn: { flex: 1, minWidth: 120, padding: '10px 16px', border: '2px solid #cbd5e1', borderRadius: 10, background: '#faf9f6', color: '#94a3b8', fontWeight: 600, fontSize: '0.88rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", cursor: 'pointer', transition: 'all 0.2s' },
+  tabBtnActive: { borderColor: '#7b1c2e', background: '#7b1c2e', color: '#fff' },
 
-  card: { background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '32px', marginBottom: 24 },
-  cardTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#1e3a5f', marginBottom: 18, paddingBottom: 10, borderBottom: '2px solid #e2e8f0' },
+  card: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '32px', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
+  cardTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', marginBottom: 18, paddingBottom: 10, borderBottom: '2px solid #f1f0ed', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
   grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 },
 
-  input: { background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '11px 14px', color: '#0f172a', fontSize: '1rem', width: '100%', boxSizing: 'border-box' },
-  select: { background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '11px 14px', color: '#0f172a', fontSize: '0.95rem', width: '100%', boxSizing: 'border-box', cursor: 'pointer' },
+  input: { background: '#faf9f6', border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '11px 14px', color: '#1e293b', fontSize: '1rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", width: '100%', boxSizing: 'border-box' },
+  select: { background: '#faf9f6', border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '11px 14px', color: '#1e293b', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", width: '100%', boxSizing: 'border-box', cursor: 'pointer' },
 
   sliderRow: { display: 'flex', alignItems: 'center', gap: 14 },
-  slider: { flex: 1, height: 6, borderRadius: 3, cursor: 'pointer', accentColor: '#1e3a5f' },
-  sliderVal: { minWidth: 44, textAlign: 'right', fontWeight: 700, color: '#1e3a5f', fontSize: '1rem' },
+  slider: { flex: 1, height: 6, borderRadius: 3, cursor: 'pointer', accentColor: '#7b1c2e' },
+  sliderVal: { minWidth: 44, textAlign: 'right', fontWeight: 700, color: '#1e3a5f', fontSize: '1rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
 
-  checkLabel: { display: 'flex', alignItems: 'center', fontSize: '0.88rem', color: '#475569', cursor: 'pointer' },
+  checkLabel: { display: 'flex', alignItems: 'center', fontSize: '0.88rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", cursor: 'pointer' },
 
   errorBox: { background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: '0.88rem', marginTop: 16 },
 
-  calcBtn: { width: '100%', marginTop: 24, padding: '16px', background: '#1e3a5f', color: '#fff', fontSize: '1rem', fontWeight: 700, letterSpacing: '0.05em', border: 'none', borderRadius: 12, cursor: 'pointer' },
+  calcBtn: { width: '100%', marginTop: 24, padding: '16px', background: '#7b1c2e', color: '#fff', fontSize: '1rem', fontWeight: 700, letterSpacing: '0.05em', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", border: 'none', borderRadius: 10, cursor: 'pointer' },
 
-  disclaimer: { marginTop: 14, fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, textAlign: 'center' },
+  disclaimer: { marginTop: 14, fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5, textAlign: 'center' },
 
   // Results
   results: { marginTop: 8 },
 
-  totalBanner: { background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a9e 100%)', borderRadius: 16, padding: '36px 32px', textAlign: 'center', marginBottom: 24 },
-  totalLabel: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 10 },
-  totalAmount: { fontSize: 'clamp(2.8rem, 8vw, 4.2rem)', fontWeight: 800, color: '#fff', lineHeight: 1, marginBottom: 8 },
-  totalSub: { fontSize: '1rem', color: 'rgba(255,255,255,0.75)' },
+  totalBanner: { background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', borderRadius: 12, padding: '36px 32px', textAlign: 'center', marginBottom: 24 },
+  totalLabel: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 10, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  totalAmount: { fontSize: 'clamp(2.8rem, 8vw, 4.2rem)', fontWeight: 800, color: '#fff', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", lineHeight: 1, marginBottom: 8 },
+  totalSub: { fontSize: '1rem', color: 'rgba(255,255,255,0.75)', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
 
   breakdownGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 },
-  breakdownCard: { background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '20px 18px' },
-  bCardIcon: { width: 36, height: 36, background: '#dbeafe', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#1e40af', fontSize: '0.85rem', marginBottom: 10 },
-  bCardLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 6 },
-  bCardValue: { fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', lineHeight: 1, marginBottom: 4 },
-  bCardSub: { fontSize: '0.78rem', color: '#64748b', marginBottom: 8 },
-  bCardDetail: { fontSize: '0.73rem', color: '#64748b', lineHeight: 1.4 },
+  breakdownCard: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '20px 18px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', borderTop: '4px solid #7b1c2e' },
+  bCardIcon: { width: 36, height: 36, background: '#f1f0ed', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#1e3a5f', fontSize: '0.85rem', marginBottom: 10 },
+  bCardLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 6, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  bCardValue: { fontSize: '1.8rem', fontWeight: 800, color: '#1e293b', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", lineHeight: 1, marginBottom: 4 },
+  bCardSub: { fontSize: '0.78rem', color: '#94a3b8', marginBottom: 8 },
+  bCardDetail: { fontSize: '0.73rem', color: '#94a3b8', lineHeight: 1.4 },
 
-  tableCard: { background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '24px', marginBottom: 24 },
-  tableTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1e3a5f', marginBottom: 16 },
-  tableRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' },
+  tableCard: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
+  tableTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1e3a5f', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  tableRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f8f7f4' },
   tableRowBold: { borderTop: '2px solid #1e3a5f', borderBottom: 'none', marginTop: 4, paddingTop: 14 },
-  tableDesc: { fontSize: '0.88rem', color: '#475569', flex: 1, marginRight: 16 },
-  tableAmt: { fontSize: '1rem', fontWeight: 700, color: '#16a34a', whiteSpace: 'nowrap' },
+  tableDesc: { fontSize: '0.88rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", flex: 1, marginRight: 16 },
+  tableAmt: { fontSize: '1rem', fontWeight: 700, color: '#16a34a', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", whiteSpace: 'nowrap' },
 
   // FIA Panel
-  fiaPanel: { background: '#f0f9ff', border: '2px solid #bae6fd', borderRadius: 16, padding: '32px', marginBottom: 24 },
+  fiaPanel: { background: '#f8f7f4', border: '2px solid #cbd5e1', borderRadius: 12, padding: '32px', marginBottom: 24 },
   fiaPanelHeader: { marginBottom: 24 },
-  fiaBadge: { display: 'inline-block', background: '#0ea5e9', color: '#fff', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 12px', borderRadius: 20, marginBottom: 10 },
-  fiaTitle: { fontSize: '1.3rem', fontWeight: 800, color: '#0c4a6e', marginBottom: 10 },
-  fiaSub: { fontSize: '0.9rem', color: '#0369a1', lineHeight: 1.6 },
+  fiaBadge: { display: 'inline-block', background: '#c9a84c', color: '#fff', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 12px', borderRadius: 20, marginBottom: 10 },
+  fiaTitle: { fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", marginBottom: 10 },
+  fiaSub: { fontSize: '0.9rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6 },
 
   fiaCompareGrid: { display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 16, alignItems: 'center', marginBottom: 20 },
-  fiaVs: { fontSize: '1.2rem', fontWeight: 800, color: '#64748b', textAlign: 'center' },
-  fiaCompareCard: { background: '#fff', border: '1.5px solid #bae6fd', borderRadius: 12, padding: '20px 18px' },
+  fiaVs: { fontSize: '1.2rem', fontWeight: 800, color: '#94a3b8', textAlign: 'center', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  fiaCompareCard: { background: '#fff', border: '1.5px solid #cbd5e1', borderRadius: 10, padding: '20px 18px' },
   fiaCompareCardHighlight: { background: '#ecfdf5', border: '2px solid #22c55e' },
-  fiaCompareLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 },
-  fiaCompareAmount: { fontSize: '1.6rem', fontWeight: 800, color: '#0c4a6e', marginBottom: 8 },
-  fiaCompareNote: { fontSize: '0.78rem', color: '#64748b', lineHeight: 1.4 },
+  fiaCompareLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  fiaCompareAmount: { fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", marginBottom: 8 },
+  fiaCompareNote: { fontSize: '0.78rem', color: '#94a3b8', lineHeight: 1.4 },
 
-  fiaDisclaimer: { fontSize: '0.73rem', color: '#0369a1', lineHeight: 1.5, marginBottom: 24, background: '#e0f2fe', borderRadius: 8, padding: '12px 16px' },
+  fiaDisclaimer: { fontSize: '0.73rem', color: '#475569', lineHeight: 1.5, marginBottom: 24, background: '#f8f7f4', borderRadius: 8, padding: '12px 16px' },
 
-  fiaCTA: { background: '#1e3a5f', borderRadius: 14, padding: '28px', textAlign: 'center' },
-  fiaCTAText: { fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: 18 },
-  fiaCTABtn: { display: 'inline-block', background: '#22c55e', color: '#fff', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', marginBottom: 12 },
-  fiaCTASub: { fontSize: '0.8rem', color: 'rgba(255,255,255,0.65)' },
+  fiaCTA: { background: '#0f172a', borderRadius: 12, padding: '28px', textAlign: 'center' },
+  fiaCTAText: { fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: 18, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  fiaCTABtn: { display: 'inline-block', background: '#7b1c2e', color: '#fff', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", textDecoration: 'none', marginBottom: 12 },
+  fiaCTASub: { fontSize: '0.8rem', color: 'rgba(255,255,255,0.65)', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
 
-  assumptionsBox: { background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 14, padding: '24px' },
-  assumptionsTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748b', marginBottom: 16 },
+  assumptionsBox: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
+  assumptionsTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
   assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 },
-  assumptionItem: { fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 },
+  assumptionItem: { fontSize: '0.8rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.5 },
 }
 
 

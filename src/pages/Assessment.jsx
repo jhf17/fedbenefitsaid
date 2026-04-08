@@ -5,9 +5,14 @@ import { useAuth } from '../App'
 const navy = '#0f172a'
 const secondaryNavy = '#1e3a5f'
 const maroon = '#7b1c2e'
+const gold = '#c9a84c'
+const cream = '#faf9f6'
+const lightGray = '#f8f7f4'
 const amberWarm = '#b45309'
 const muteCorral = '#9f563a'
 const emerald = '#047857'
+const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif"
+const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif"
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
 // ============================================================
@@ -663,7 +668,7 @@ function DetailSection({ catId, answers, catScore }) {
   const steps = getRecommendedSteps(catId, answers)
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', marginBottom: 16, overflow: 'hidden' }}>
+    <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', marginBottom: 16, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -680,6 +685,7 @@ function DetailSection({ catId, answers, catScore }) {
           fontSize: 15,
           fontWeight: 600,
           color: navy,
+          fontFamily: fontSans,
         }}
       >
         <span>{CATEGORIES[catId].label}</span>
@@ -689,10 +695,10 @@ function DetailSection({ catId, answers, catScore }) {
       </button>
 
       {expanded && (
-        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', background: '#fafbfc' }}>
+        <div style={{ padding: '20px', borderTop: '1px solid #cbd5e1', background: lightGray, fontFamily: fontSans }}>
           {/* Where You Stand */}
           <div style={{ marginBottom: 24 }}>
-            <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Where You Stand</h4>
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontFamily: fontSans }}>Where You Stand</h4>
             <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: 0 }}>
               {generateWhereYouStand(catId, answers)}
             </p>
@@ -701,7 +707,7 @@ function DetailSection({ catId, answers, catScore }) {
           {/* What You Should Know */}
           {facts.length > 0 && (
             <div style={{ marginBottom: 24 }}>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>What You Should Know</h4>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontFamily: fontSans }}>What You Should Know</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {facts.map((fact, i) => (
                   <div key={i} style={{ display: 'flex', gap: 12 }}>
@@ -720,7 +726,7 @@ function DetailSection({ catId, answers, catScore }) {
           {/* Key Forms & Documents */}
           {forms.length > 0 && (
             <div style={{ marginBottom: 24 }}>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: emerald, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Key Forms & Documents</h4>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: emerald, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontFamily: fontSans }}>Key Forms & Documents</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {forms.map((f, i) => (
                   <div key={i} style={{ display: 'flex', gap: 12, fontSize: 13 }}>
@@ -735,7 +741,7 @@ function DetailSection({ catId, answers, catScore }) {
           {/* Recommended Next Steps */}
           {steps.length > 0 && (
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Recommended Next Steps</h4>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: navy, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10, fontFamily: fontSans }}>Recommended Next Steps</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {steps.map((step, i) => (
                   <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13 }}>
@@ -1111,11 +1117,11 @@ export default function Assessment() {
     const personalizedSummary = generatePersonalizedSummary(catScores, answers)
 
     return (
-      <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Assessment results">
+      <main style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Assessment results">
         {/* SECTION 1: Executive Summary Header */}
-        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 100%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Your Results</div>
-          <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 24px' }}>Retirement Readiness Assessment</h1>
+        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Your Results</div>
+          <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 24px', fontFamily: fontSerif }}>Retirement Readiness Assessment</h1>
 
           {/* Score Ring */}
           {(() => {
@@ -1147,7 +1153,7 @@ export default function Assessment() {
         <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px' }}>
           {/* SECTION 2: Retirement Snapshot */}
           <div style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20 }}>Your Retirement Snapshot</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20, fontFamily: fontSerif }}>Your Retirement Snapshot</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {Object.entries(CATEGORIES).map(([catId, cat]) => {
                 const cs = catScores[catId]
@@ -1156,13 +1162,13 @@ export default function Assessment() {
                 return (
                   <div key={catId}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6, gap: 12 }}>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: navy }}>{cat.label}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b', flexShrink: 0 }}>{barPct}%</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: navy, fontFamily: fontSans }}>{cat.label}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', flexShrink: 0, fontFamily: fontSans }}>{barPct}%</span>
                     </div>
-                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
+                    <div style={{ height: 8, background: '#cbd5e1', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
                       <div style={{ height: '100%', width: barPct + '%', background: cs.pct >= 0.7 ? '#10b981' : cs.pct >= 0.4 ? amberWarm : muteCorral, borderRadius: 4, transition: 'width 0.8s ease' }} />
                     </div>
-                    <p style={{ fontSize: 13, color: '#64748b', margin: 0, lineHeight: 1.5 }}>{insight}</p>
+                    <p style={{ fontSize: 13, color: '#475569', margin: 0, lineHeight: 1.5, fontFamily: fontSans }}>{insight}</p>
                   </div>
                 )
               })}
@@ -1171,15 +1177,15 @@ export default function Assessment() {
 
           {/* SECTION 3: Detailed Analysis - Expandable Sections */}
           <div style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20 }}>Detailed Analysis</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20, fontFamily: fontSerif }}>Detailed Analysis</h2>
             {Object.keys(CATEGORIES).map((catId) => (
               <DetailSection key={catId} catId={catId} answers={answers} catScore={catScores[catId]} defaultExpanded={weakestCats.includes(catId)} />
             ))}
           </div>
 
           {/* SECTION 4: Retirement Timeline */}
-          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '24px 20px' }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 20 }}>Your Retirement Timeline</h2>
+          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', padding: '24px 20px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 20, fontFamily: fontSerif }}>Your Retirement Timeline</h2>
             <div style={{ position: 'relative', height: 'auto' }}>
               {/* Timeline line */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, position: 'relative', overflowX: 'auto', paddingBottom: 20 }}>
@@ -1188,11 +1194,11 @@ export default function Assessment() {
                   const isFirst = i === 0
                   return (
                     <div key={i} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#e2e8f0'}`, marginBottom: 12 }} />
-                      <div style={{ fontSize: 12, fontWeight: isFirst ? 700 : 600, color: navy, textAlign: 'center', whiteSpace: 'nowrap' }}>{milestone.label}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Age {milestone.age}</div>
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#cbd5e1'}`, marginBottom: 12 }} />
+                      <div style={{ fontSize: 12, fontWeight: isFirst ? 700 : 600, color: navy, textAlign: 'center', whiteSpace: 'nowrap', fontFamily: fontSans }}>{milestone.label}</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2, fontFamily: fontSans }}>Age {milestone.age}</div>
                       {!isLast && (
-                        <div style={{ width: 40, height: 2, background: '#e2e8f0', margin: '12px 12px 0' }} />
+                        <div style={{ width: 40, height: 2, background: '#cbd5e1', margin: '12px 12px 0' }} />
                       )}
                     </div>
                   )
@@ -1202,25 +1208,25 @@ export default function Assessment() {
           </div>
 
           {/* SECTION 5: Save Your Report (Email Capture) - NOT GATED */}
-          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '28px 24px', textAlign: 'center' }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8 }}>Save Your Retirement Readiness Report</h3>
-            <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px' }}>
+          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', padding: '28px 24px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8, fontFamily: fontSerif }}>Save Your Retirement Readiness Report</h3>
+            <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px', fontFamily: fontSans }}>
               Get a copy of your personalized analysis sent to your inbox.
             </p>
 
             {captureSent ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
-                <p style={{ color: navy, fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Report sent!</p>
-                <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your personalized analysis.</p>
+                <p style={{ color: navy, fontWeight: 600, fontSize: 16, margin: '0 0 4px', fontFamily: fontSans }}>Report sent!</p>
+                <p style={{ color: '#475569', fontSize: 14, margin: 0, fontFamily: fontSans }}>Check your inbox for your personalized analysis.</p>
               </div>
             ) : user ? (
               <div>
-                <p style={{ fontSize: 14, color: emerald, fontWeight: 600, marginBottom: 16 }}>You are signed in as {user?.email}</p>
+                <p style={{ fontSize: 14, color: emerald, fontWeight: 600, marginBottom: 16, fontFamily: fontSans }}>You are signed in as {user?.email}</p>
                 <button type="button" onClick={() => {
                   setCaptureEmail(user?.email)
                   handleEmailCapture({ preventDefault: () => {} })
-                }} style={{ background: navy, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
+                }} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 28px', fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans }}>
                   Send My Report
                 </button>
               </div>
@@ -1233,7 +1239,7 @@ export default function Assessment() {
                     aria-label="Full name"
                     value={captureName}
                     onChange={e => setCaptureName(e.target.value)}
-                    style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
+                    style={{ padding: '12px 14px', border: '1.5px solid #cbd5e1', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box', fontFamily: fontSans }}
                   />
                   <input
                     type="email"
@@ -1242,16 +1248,16 @@ export default function Assessment() {
                     value={captureEmail}
                     onChange={e => setCaptureEmail(e.target.value)}
                     required
-                    style={{ padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box' }}
+                    style={{ padding: '12px 14px', border: '1.5px solid #cbd5e1', borderRadius: 8, fontSize: 14, width: '100%', boxSizing: 'border-box', fontFamily: fontSans }}
                   />
                 </div>
                 {captureError && (
-                  <div role="alert" style={{ color: '#dc2626', fontSize: 13, marginBottom: 12 }}>{captureError}</div>
+                  <div role="alert" style={{ color: '#dc2626', fontSize: 13, marginBottom: 12, fontFamily: fontSans }}>{captureError}</div>
                 )}
-                <button type="submit" disabled={captureLoading} style={{ background: navy, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 32px', fontSize: 15, fontWeight: 700, cursor: captureLoading ? 'not-allowed' : 'pointer', width: '100%', opacity: captureLoading ? 0.7 : 1 }}>
+                <button type="submit" disabled={captureLoading} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 32px', fontSize: 15, fontWeight: 700, cursor: captureLoading ? 'not-allowed' : 'pointer', width: '100%', opacity: captureLoading ? 0.7 : 1, fontFamily: fontSans }}>
                   {captureLoading ? 'Sending...' : 'Send My Report'}
                 </button>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 10 }}>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, fontFamily: fontSans }}>
                   We'll send your report and nothing else.
                 </div>
               </form>
@@ -1259,16 +1265,16 @@ export default function Assessment() {
           </div>
 
           {/* SECTION 6: Next Steps */}
-          <div style={{ marginBottom: 32, background: '#f3f4f6', borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8 }}>Want to talk through your results?</h3>
-            <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 540, margin: '0 auto 24px' }}>
+          <div style={{ marginBottom: 32, background: lightGray, borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8, fontFamily: fontSerif }}>Want to talk through your results?</h3>
+            <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 540, margin: '0 auto 24px', fontFamily: fontSans }}>
               A certified federal retirement consultant can review your specific numbers and help you build a personalized plan. Free, 30-minute video call.
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button type="button" onClick={() => navigate('/calculator')} style={{ background: '#fff', color: navy, border: '1.5px solid #d1d5db', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              <button type="button" onClick={() => navigate('/calculator')} style={{ background: '#fff', color: navy, border: '1.5px solid #cbd5e1', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans }}>
                 Explore the Calculator
               </button>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: navy, color: '#fff', border: '1.5px solid navy', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: maroon, color: '#fff', border: '1.5px solid maroon', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', textDecoration: 'none', display: 'inline-block', fontFamily: fontSans }}>
                 Schedule a Conversation
               </a>
             </div>
@@ -1276,7 +1282,7 @@ export default function Assessment() {
 
           {/* SECTION 7: Retake */}
           <div style={{ textAlign: 'center' }}>
-            <button type="button" onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCaptureSent(false) }} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, cursor: 'pointer', textDecoration: 'underline', fontWeight: 500 }}>
+            <button type="button" onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCaptureSent(false) }} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline', fontWeight: 500, fontFamily: fontSans }}>
               Retake assessment
             </button>
           </div>
@@ -1289,36 +1295,36 @@ export default function Assessment() {
   // QUESTION SCREEN
   // ============================================================
   return (
-    <main style={{ minHeight: '100vh', background: '#f8fafc' }} aria-label="Retirement readiness assessment quiz">
-      <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 100%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
-        <div style={{ fontSize: 13, color: '#94a3b8', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Free Tool</div>
-        <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px' }}>Retirement Readiness Assessment</h1>
-        <p style={{ color: '#cbd5e1', fontSize: 14, margin: 0 }}>14 questions. Get your personalized federal retirement action plan.</p>
+    <main style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Retirement readiness assessment quiz">
+      <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Free Tool</div>
+        <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px', fontFamily: fontSerif }}>Retirement Readiness Assessment</h1>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: 0, fontFamily: fontSans }}>14 questions. Get your personalized federal retirement action plan.</p>
       </div>
 
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '32px 24px' }}>
         {/* Progress */}
         <div style={{ marginBottom: 28 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 6, fontFamily: fontSans }}>
             <span>Question {step + 1} of {totalSteps}</span>
             <span>{Math.round(progress)}% complete</span>
           </div>
-          <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3 }}>
+          <div style={{ height: 6, background: '#cbd5e1', borderRadius: 3 }}>
             <div style={{ height: '100%', width: progress + '%', background: maroon, borderRadius: 3, transition: 'width 0.3s ease' }} />
           </div>
         </div>
 
         {/* Category indicator */}
         <div style={{ marginBottom: 16 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: CATEGORIES[question.category].color, background: CATEGORIES[question.category].color + '15', padding: '3px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: CATEGORIES[question.category].color, background: CATEGORIES[question.category].color + '15', padding: '3px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: fontSans }}>
             {CATEGORIES[question.category].label}
           </span>
         </div>
 
         {/* Question Card */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: '28px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: 16 }}>
-          <h2 style={{ fontSize: 19, fontWeight: 700, color: navy, margin: '0 0 6px', lineHeight: 1.4 }}>{question.question}</h2>
-          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 24px', lineHeight: 1.5 }}>{question.sub}</p>
+        <div style={{ background: '#fff', borderRadius: 14, padding: '28px 24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', marginBottom: 16, border: '1px solid #cbd5e1' }}>
+          <h2 style={{ fontSize: 19, fontWeight: 700, color: navy, margin: '0 0 6px', lineHeight: 1.4, fontFamily: fontSerif }}>{question.question}</h2>
+          <p style={{ fontSize: 13, color: '#475569', margin: '0 0 24px', lineHeight: 1.5, fontFamily: fontSans }}>{question.sub}</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {question.options.map(opt => (
@@ -1326,7 +1332,7 @@ export default function Assessment() {
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
                 style={{
-                  border: selected === opt.value ? `2px solid ${maroon}` : '2px solid #e2e8f0',
+                  border: selected === opt.value ? `2px solid ${maroon}` : '2px solid #cbd5e1',
                   borderRadius: 10,
                   padding: '14px 16px',
                   textAlign: 'left',
@@ -1336,6 +1342,7 @@ export default function Assessment() {
                   fontSize: 14,
                   fontWeight: selected === opt.value ? 600 : 400,
                   transition: 'all 0.15s ease',
+                  fontFamily: fontSans,
                 }}
               >
                 {opt.label}
@@ -1349,7 +1356,7 @@ export default function Assessment() {
           {step > 0 && (
             <button type="button"
               onClick={handleBack}
-              style={{ flex: 0, padding: '14px 20px', background: '#fff', color: '#64748b', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              style={{ flex: 0, padding: '14px 20px', background: '#fff', color: '#94a3b8', border: '1.5px solid #cbd5e1', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans }}
             >
               Back
             </button>
@@ -1359,8 +1366,8 @@ export default function Assessment() {
             disabled={selected === null}
             style={{
               flex: 1,
-              background: selected !== null ? maroon : '#e2e8f0',
-              color: selected !== null ? '#fff' : '#64748b',
+              background: selected !== null ? maroon : '#cbd5e1',
+              color: selected !== null ? '#fff' : '#94a3b8',
               border: 'none',
               borderRadius: 10,
               padding: '14px',
@@ -1368,6 +1375,7 @@ export default function Assessment() {
               fontWeight: 700,
               cursor: selected !== null ? 'pointer' : 'not-allowed',
               transition: 'all 0.2s ease',
+              fontFamily: fontSans,
             }}
           >
             {step + 1 === totalSteps ? 'See My Results' : 'Next Question →'}

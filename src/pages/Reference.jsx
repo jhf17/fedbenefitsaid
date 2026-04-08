@@ -47,7 +47,7 @@ export default function Reference() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <main style={{ minHeight: '100vh', background: '#faf9f6' }}>
       {/* Page Header */}
       <header style={styles.header}>
         <div className="container">
@@ -268,9 +268,10 @@ export default function Reference() {
 
 const styles = {
   header: {
-    background: 'linear-gradient(160deg, #1e3a5f 0%, #2d4f7c 100%)',
+    background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
     color: 'white',
     padding: '40px 0 32px',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   breadcrumb: {
     display: 'flex',
@@ -278,6 +279,7 @@ const styles = {
     gap: 6,
     marginBottom: 12,
     fontSize: '0.85rem',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   breadcrumbBtn: {
     background: 'none',
@@ -287,12 +289,13 @@ const styles = {
     fontSize: '0.85rem',
     padding: '2px 4px',
     borderRadius: 4,
-    fontFamily: 'inherit',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   breadcrumbActive: {
     color: 'white',
     fontWeight: 600,
     fontSize: '0.85rem',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   breadcrumbSep: {
     color: 'rgba(255,255,255,0.4)',
@@ -302,11 +305,13 @@ const styles = {
     fontWeight: 800,
     letterSpacing: '-0.02em',
     marginBottom: 8,
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
   sub: {
     opacity: 0.8,
     fontSize: '1rem',
     marginBottom: 0,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   searchWrap: {
     position: 'relative',
@@ -316,9 +321,11 @@ const styles = {
   searchInput: {
     width: '100%',
     background: 'white',
-    border: 'none',
+    border: '1px solid #cbd5e1',
     fontSize: '0.95rem',
     paddingRight: 40,
+    borderRadius: 8,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   searchClear: {
     position: 'absolute',
@@ -331,18 +338,21 @@ const styles = {
     cursor: 'pointer',
     fontSize: '0.9rem',
     padding: 4,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   sectionLabel: {
     fontSize: '0.85rem',
     color: '#64748b',
     fontWeight: 500,
     marginBottom: 16,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   empty: {
     textAlign: 'center',
     color: '#94a3b8',
     padding: '48px 0',
     fontSize: '1rem',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   searchGrid: {
     display: 'grid',
@@ -351,13 +361,15 @@ const styles = {
   },
   searchCard: {
     background: 'white',
-    border: '1px solid #e2e8f0',
+    border: '1px solid #cbd5e1',
     borderLeft: '4px solid',
-    borderRadius: 10,
+    borderRadius: 12,
     padding: '16px 18px',
     textAlign: 'left',
     cursor: 'pointer',
     transition: 'all 0.15s ease',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   searchCardCat: {
     fontSize: '0.75rem',
@@ -366,16 +378,19 @@ const styles = {
     marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: '0.04em',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   searchCardTitle: {
     fontWeight: 700,
     color: '#0f172a',
     fontSize: '0.95rem',
     marginBottom: 4,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   searchCardSub: {
     fontSize: '0.83rem',
     color: '#64748b',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   catGrid: {
     display: 'grid',
@@ -384,7 +399,7 @@ const styles = {
   },
   catCard: {
     background: 'white',
-    border: '1.5px solid #e2e8f0',
+    border: 'none',
     borderTop: '4px solid',
     borderRadius: 12,
     padding: '24px 20px',
@@ -394,10 +409,12 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   catAccent: { width: 28, height: 4, borderRadius: 2, marginBottom: 14 },
-  catName: { fontWeight: 700, fontSize: '1rem', color: '#0f172a' },
-  catCount: { fontSize: '0.8rem', color: '#64748b' },
+  catName: { fontWeight: 700, fontSize: '1rem', color: '#0f172a', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  catCount: { fontSize: '0.8rem', color: '#64748b', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
   catArrow: { color: '#94a3b8', fontSize: '1.1rem', marginTop: 8 },
   topicList: {
     display: 'flex',
@@ -407,7 +424,7 @@ const styles = {
   },
   topicCard: {
     background: 'white',
-    border: '1.5px solid #e2e8f0',
+    border: '1px solid #cbd5e1',
     borderRadius: 12,
     padding: '20px 24px',
     textAlign: 'left',
@@ -417,11 +434,13 @@ const styles = {
     justifyContent: 'space-between',
     gap: 16,
     transition: 'all 0.15s ease',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   topicCardLeft: { flex: 1 },
-  topicTitle: { fontWeight: 700, fontSize: '1.02rem', color: '#0f172a', marginBottom: 4 },
-  topicSummary: { fontSize: '0.88rem', color: '#64748b', marginBottom: 6 },
-  topicMeta: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500 },
+  topicTitle: { fontWeight: 700, fontSize: '1.02rem', color: '#0f172a', marginBottom: 4, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  topicSummary: { fontSize: '0.88rem', color: '#64748b', marginBottom: 6, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  topicMeta: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 500, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
   topicArrow: { fontSize: '1.2rem', flexShrink: 0 },
   detail: {
     maxWidth: 780,
@@ -431,24 +450,29 @@ const styles = {
   },
   detailCard: {
     background: 'white',
-    border: '1.5px solid #e2e8f0',
+    border: 'none',
     borderRadius: 14,
     padding: '28px 32px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   watchCard: {
     background: '#fffbeb',
-    borderColor: '#fde68a',
+    border: 'none',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
   },
   detailSection: {
     fontSize: '1rem',
     fontWeight: 700,
     color: '#0f172a',
     marginBottom: 16,
+    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
   },
   detailOverview: {
     color: '#334155',
     lineHeight: 1.7,
     fontSize: '0.97rem',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   numbersGrid: {
     display: 'grid',
@@ -456,10 +480,11 @@ const styles = {
     gap: 12,
   },
   numberCard: {
-    background: '#f8fafc',
+    background: '#f8f7f4',
     borderTop: '3px solid',
     borderRadius: 8,
     padding: '14px 16px',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   numberValue: {
     fontWeight: 800,
@@ -467,11 +492,13 @@ const styles = {
     color: '#0f172a',
     marginBottom: 4,
     letterSpacing: '-0.01em',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   numberLabel: {
     fontSize: '0.78rem',
     color: '#64748b',
     fontWeight: 500,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   rulesList: {
     listStyle: 'none',
@@ -486,6 +513,7 @@ const styles = {
     fontSize: '0.9rem',
     color: '#334155',
     lineHeight: 1.6,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   ruleDot: {
     width: 8,
@@ -507,6 +535,7 @@ const styles = {
     fontSize: '0.9rem',
     color: '#92400e',
     lineHeight: 1.6,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   watchIcon: {
     background: '#f59e0b',
@@ -529,15 +558,17 @@ const styles = {
   },
   detailActionCard: {
     background: '#eff6ff',
-    border: '1.5px solid #c7d7fc',
+    border: 'none',
     borderRadius: 12,
     padding: '20px 24px',
     display: 'flex',
     alignItems: 'center',
     gap: 16,
     flexWrap: 'wrap',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   detailActionIcon: { fontSize: '2rem', flexShrink: 0 },
-  detailActionTitle: { fontWeight: 600, fontSize: '0.95rem', color: '#1e3a5f', marginBottom: 4 },
-  detailActionSub: { fontSize: '0.83rem', color: '#475569' },
+  detailActionTitle: { fontWeight: 600, fontSize: '0.95rem', color: '#1e3a5f', marginBottom: 4, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  detailActionSub: { fontSize: '0.83rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
 }
