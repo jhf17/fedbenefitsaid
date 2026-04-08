@@ -391,34 +391,43 @@ export default function Landing() {
               Take the assessment →
             </Link>
           </div>
-          <div style={{ order: 1, borderRadius: '24px', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: colors.gray50, border: '1px solid rgba(0,0,0,0.04)' }}>
-            <div style={{ width: '100%', textAlign: 'center' }}>
-              <div style={{ width: '140px', height: '140px', borderRadius: '50%', border: '6px solid ' + colors.gray100, borderTopColor: colors.maroon, borderRightColor: colors.maroon, borderBottomColor: '#c9a84c', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontFamily: fontSerif }}>
-                <div style={{ fontSize: '2.4rem', fontWeight: '800', color: colors.navy }}>
-                  72<span style={{ fontSize: '1rem', color: colors.gray400 }}>/100</span>
+          <div style={{ order: 1, borderRadius: '20px', overflow: 'hidden', background: colors.white, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', maxWidth: '480px' }}>
+            {/* Navy header with score */}
+            <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>Your Results</div>
+              <div style={{ fontFamily: fontSerif, fontSize: '1.1rem', fontWeight: '800', color: 'white', marginBottom: '14px' }}>Retirement Readiness Assessment</div>
+              {/* Score circle */}
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', border: '5px solid rgba(255,255,255,0.15)', borderTopColor: '#f5a623', borderRightColor: '#f5a623', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', transform: 'rotate(30deg)' }}>
+                <div style={{ transform: 'rotate(-30deg)', textAlign: 'center' }}>
+                  <div style={{ fontFamily: fontSerif, fontSize: '1.6rem', fontWeight: '900', color: 'white', lineHeight: 1 }}>66</div>
+                  <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)' }}>out of 100</div>
                 </div>
               </div>
-              <div style={{ fontWeight: '700', color: colors.navy, marginBottom: '4px' }}>Good Progress</div>
-              <div style={{ fontSize: '0.82rem', color: colors.gray400, marginBottom: '20px' }}>3 actions remaining</div>
-              <div style={{ textAlign: 'left', marginTop: '20px' }}>
-                {[
-                  { done: true, text: 'TSP contributions maximized' },
-                  { done: true, text: 'FEHB plan reviewed for retirement' },
-                  { done: false, text: 'Survivor benefit election decided' },
-                  { done: false, text: 'Social Security timing strategy set' },
-                ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid rgba(0,0,0,0.04)', fontSize: '0.88rem', color: colors.gray600 }}>
-                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: item.done ? '#16a34a' : colors.gray300 }}>
-                      {item.done ? (
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-                      ) : (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                      )}
-                    </div>
-                    {item.text}
+              <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', lineHeight: '1.5', maxWidth: '320px', margin: '0 auto' }}>
+                You have a solid foundation in survivor benefits and healthcare planning, but your TSP strategy and income optimization need attention.
+              </p>
+            </div>
+            {/* Category progress bars */}
+            <div style={{ padding: '18px 22px' }}>
+              <div style={{ fontFamily: fontSerif, fontSize: '0.85rem', fontWeight: '700', color: colors.navy, marginBottom: '14px' }}>Your Retirement Snapshot</div>
+              {[
+                { label: 'Pension Readiness', pct: 64, color: '#d97706' },
+                { label: 'TSP Strategy', pct: 33, color: '#d97706' },
+                { label: 'Healthcare Planning', pct: 100, color: '#059669' },
+                { label: 'Income Optimization', pct: 50, color: '#d97706' },
+                { label: 'Survivor Benefits', pct: 100, color: '#059669' },
+                { label: 'Financial Readiness', pct: 67, color: '#d97706' },
+              ].map((cat, i) => (
+                <div key={i} style={{ marginBottom: i < 5 ? '10px' : 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: '600', color: colors.gray800 }}>{cat.label}</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: '700', color: colors.gray600 }}>{cat.pct}%</span>
                   </div>
-                ))}
-              </div>
+                  <div style={{ height: '6px', borderRadius: '3px', background: colors.gray100, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', borderRadius: '3px', width: `${cat.pct}%`, background: cat.color, transition: 'width 1s ease' }} />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
