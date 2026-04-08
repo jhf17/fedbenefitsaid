@@ -1,9 +1,13 @@
+const { createClient } = require('@supabase/supabase-js');
+
 const AIRTABLE_BASE_ID = 'appnihKPbDBxVQK4c';
 const AIRTABLE_TABLE_ID = 'tblXc7syn4pXZNhon';
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const SUPABASE_URL = 'https://zmmidbkfdlmptegnrhjb.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://fedbenefitsaid.com',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
@@ -25,6 +29,36 @@ exports.handler = async (event) => {
       statusCode: 405,
       headers: CORS_HEADERS,
       body: JSON.stringify({ error: 'Method Not Allowed' }),
+    };
+  }
+
+  // JWT verification
+  const token = event.headers.authorization?.replace('Bearer ', '');
+  if (!token || !SUPABASE_ANON_KEY) {
+    return {
+      statusCode: 401,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Unauthorized' }),
+    };
+  }
+
+  try {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    if (error || !user || user.email !== 'jhf17@icloud.com') {
+      return {
+        statusCode: 401,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      };
+    }
+  } catch (err) {
+    console.error('Auth error:', err);
+    return {
+      statusCode: 401,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Unauthorized' }),
     };
   }
 

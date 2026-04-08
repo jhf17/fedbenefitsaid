@@ -404,6 +404,11 @@ export default function Calculator() {
           </p>
         </div>
 
+        {/* Disclaimer Banner */}
+        <div style={s.disclaimerBanner}>
+          ℹ️ This calculator provides estimates for educational purposes only. Results are based on publicly available FERS formulas and the information you provide. Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
+        </div>
+
         {/* Retirement System Tabs */}
         <div style={s.tabRow} role="tablist" aria-label="Retirement system">
           {[
@@ -912,6 +917,8 @@ const styles = {
   badge: { display: 'inline-block', background: '#dbeafe', color: '#1e40af', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20, marginBottom: 14 },
   h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginBottom: 12 },
   subtitle: { fontSize: '1rem', color: '#64748b', maxWidth: 580, margin: '0 auto', lineHeight: 1.6 },
+
+  disclaimerBanner: { background: '#f0f4f8', borderLeft: '3px solid #64748b', padding: '12px 16px', fontSize: '12px', color: '#64748b', borderRadius: 6, marginBottom: 24 },
 
   tabRow: { display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
   tabBtn: { flex: 1, minWidth: 120, padding: '10px 16px', border: '2px solid #e2e8f0', borderRadius: 10, background: '#fff', color: '#64748b', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer', transition: 'all 0.2s' },

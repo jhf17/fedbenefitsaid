@@ -320,6 +320,8 @@ function Footer() {
               <Link to="/login" style={footerStyles.link}>Log In</Link>
               <Link to="/signup" style={footerStyles.link}>Sign Up</Link>
               <Link to="/disclaimer" style={footerStyles.link}>Disclaimer</Link>
+              <Link to="/privacy" style={footerStyles.link}>Privacy Policy</Link>
+              <Link to="/terms" style={footerStyles.link}>Terms of Service</Link>
             </div>
           </div>
         </div>

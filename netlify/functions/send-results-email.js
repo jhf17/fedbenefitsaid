@@ -1,5 +1,5 @@
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://fedbenefitsaid.com',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
@@ -205,6 +205,11 @@ exports.handler = async (event) => {
 
   if (!email || !type) {
     return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Email and type are required' }) }
+  }
+
+  // Email format validation
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid email format' }) }
   }
 
   let html, subject

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
+import { supabase } from '../lib/supabase';
 
 const ADMIN_EMAIL = 'jhf17@icloud.com';
 
@@ -35,7 +36,12 @@ const Admin = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/.netlify/functions/get-leads');
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const response = await fetch('/.netlify/functions/get-leads', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       const data = await response.json();
       setLeads(data.leads || []);
       setCampaigns(data.campaigns || []);
@@ -136,9 +142,15 @@ const Admin = () => {
   const updateLeadField = async (leadId, fieldName, value) => {
     try {
       setIsSaving(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
       const response = await fetch('/.netlify/functions/update-lead', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
         body: JSON.stringify({
           id: leadId,
           fields: { [fieldName]: value }

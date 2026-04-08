@@ -1,5 +1,5 @@
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://fedbenefitsaid.com',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
@@ -65,9 +65,19 @@ exports.handler = async (event) => {
     }
   }
 
+  // Email format validation
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'Invalid email format' }),
+    }
+  }
+
   try {
     // Search for existing record by email
-    const encodedFormula = encodeURIComponent(`{Email}='${email}'`)
+    const escapedEmail = email.replace(/'/g, "\\'")
+    const encodedFormula = encodeURIComponent(`{Email}='${escapedEmail}'`)
     const searchUrl = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?filterByFormula=${encodedFormula}`
 
     const searchRes = await fetch(searchUrl, {
