@@ -156,18 +156,18 @@ export default function Landing() {
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes flagSway {
-          0% { transform: rotate(0deg) skewY(0deg); }
-          15% { transform: rotate(0.35deg) skewY(0.15deg); }
-          30% { transform: rotate(-0.15deg) skewY(-0.1deg); }
-          45% { transform: rotate(0.25deg) skewY(0.12deg); }
-          60% { transform: rotate(-0.1deg) skewY(-0.08deg); }
-          75% { transform: rotate(0.2deg) skewY(0.1deg); }
-          90% { transform: rotate(-0.08deg) skewY(-0.05deg); }
-          100% { transform: rotate(0deg) skewY(0deg); }
+          0% { transform: rotate(0deg) skewX(0deg) skewY(0deg); }
+          12% { transform: rotate(2.5deg) skewX(1.5deg) skewY(1deg); }
+          28% { transform: rotate(-1.2deg) skewX(-0.8deg) skewY(-0.6deg); }
+          40% { transform: rotate(1.8deg) skewX(2deg) skewY(0.8deg); }
+          55% { transform: rotate(-0.8deg) skewX(-1.2deg) skewY(-0.5deg); }
+          68% { transform: rotate(2deg) skewX(1.8deg) skewY(0.9deg); }
+          82% { transform: rotate(-0.5deg) skewX(-0.6deg) skewY(-0.3deg); }
+          100% { transform: rotate(0deg) skewX(0deg) skewY(0deg); }
         }
         .flag-sway {
           transform-origin: 283px 50px;
-          animation: flagSway 12s ease-in-out infinite;
+          animation: flagSway 8s ease-in-out infinite;
         }
         .flow-line {
           stroke-dasharray: 600;
