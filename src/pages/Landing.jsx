@@ -62,11 +62,11 @@ export default function Landing() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes wave {
-          0%, 100% { d: path("M280 102 Q288 100 296 103 Q304 106 310 104 Q316 102 320 104"); }
-          25% { d: path("M280 102 Q286 105 294 102 Q302 99 308 102 Q314 105 320 103"); }
-          50% { d: path("M280 102 Q287 98 295 101 Q303 104 309 101 Q315 98 320 101"); }
-          75% { d: path("M280 102 Q289 104 296 100 Q303 97 310 100 Q316 103 320 100"); }
+        @keyframes eagleFly {
+          0% { opacity: 0; }
+          5% { opacity: 1; }
+          95% { opacity: 1; }
+          100% { opacity: 1; }
         }
         .flow-line {
           stroke-dasharray: 600;
@@ -80,8 +80,8 @@ export default function Landing() {
           opacity: 0;
           animation: fadeUp 1s ease 0.2s forwards;
         }
-        .flag-group {
-          animation: wave 3s infinite;
+        .eagle-group {
+          animation: eagleFly 4s ease forwards;
         }
         .reveal {
           opacity: 0;
@@ -171,48 +171,86 @@ export default function Landing() {
               {/* Lantern */}
               <rect x="268" y="155" width="24" height="18" rx="3" fill="#0f172a" />
               {/* Flagpole */}
-              <line x1="280" y1="68" x2="280" y2="155" stroke="#1e3a5f" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="280" y1="50" x2="280" y2="155" stroke="#1e3a5f" strokeWidth="2.5" strokeLinecap="round" />
               {/* Flagpole finial */}
-              <circle cx="280" cy="66" r="4" fill="url(#goldGrad)" />
-              {/* American Flag */}
-              <g className="flag-group">
-                <rect x="282" y="70" width="38" height="24" rx="1" fill="#bf0a30" opacity="0.9" />
-                <rect x="282" y="73.4" width="38" height="1.7" fill="white" opacity="0.9" />
-                <rect x="282" y="76.8" width="38" height="1.7" fill="#bf0a30" opacity="0" />
-                <rect x="282" y="80.2" width="38" height="1.7" fill="white" opacity="0.9" />
-                <rect x="282" y="83.6" width="38" height="1.7" fill="white" opacity="0" />
-                <rect x="282" y="87" width="38" height="1.7" fill="white" opacity="0.9" />
-                <rect x="282" y="70" width="16" height="13" rx="0.5" fill="#002868" opacity="0.95" />
-                <circle cx="285" cy="73" r="0.7" fill="white" />
-                <circle cx="289" cy="73" r="0.7" fill="white" />
-                <circle cx="293" cy="73" r="0.7" fill="white" />
-                <circle cx="287" cy="76" r="0.7" fill="white" />
-                <circle cx="291" cy="76" r="0.7" fill="white" />
-                <circle cx="285" cy="79" r="0.7" fill="white" />
-                <circle cx="289" cy="79" r="0.7" fill="white" />
-                <circle cx="293" cy="79" r="0.7" fill="white" />
+              <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
+              {/* American Flag - 50 stars, 13 stripes, waving */}
+              <g>
+                {/* 13 stripes - alternating red and white */}
+                {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
+                  <rect key={`stripe-${i}`} x="283" y={56 + i * 3} width="56" height="3" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'}>
+                    <animate attributeName="width" values={`56;${54 + (i % 3)};56;${57 - (i % 2)};56`} dur={`${2.5 + i * 0.1}s`} repeatCount="indefinite" />
+                    <animate attributeName="x" values={`283;${283 + (i % 2)};283;${282};283`} dur={`${2.5 + i * 0.1}s`} repeatCount="indefinite" />
+                  </rect>
+                ))}
+                {/* Blue canton */}
+                <rect x="283" y="56" width="24" height="21" fill="#002868">
+                  <animate attributeName="width" values="24;23;24;24.5;24" dur="2.5s" repeatCount="indefinite" />
+                </rect>
+                {/* 50 stars - 5 rows of 6, 4 rows of 5 (staggered) */}
+                {/* Row 1: 6 stars */}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s1-${j}`} cx={286 + j * 3.6} cy={58.5} r="0.55" fill="white" />)}
+                {/* Row 2: 5 stars (offset) */}
+                {[0,1,2,3,4].map((j) => <circle key={`s2-${j}`} cx={287.8 + j * 3.6} cy={60.5} r="0.55" fill="white" />)}
+                {/* Row 3: 6 stars */}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s3-${j}`} cx={286 + j * 3.6} cy={62.5} r="0.55" fill="white" />)}
+                {/* Row 4: 5 stars (offset) */}
+                {[0,1,2,3,4].map((j) => <circle key={`s4-${j}`} cx={287.8 + j * 3.6} cy={64.5} r="0.55" fill="white" />)}
+                {/* Row 5: 6 stars */}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s5-${j}`} cx={286 + j * 3.6} cy={66.5} r="0.55" fill="white" />)}
+                {/* Row 6: 5 stars (offset) */}
+                {[0,1,2,3,4].map((j) => <circle key={`s6-${j}`} cx={287.8 + j * 3.6} cy={68.5} r="0.55" fill="white" />)}
+                {/* Row 7: 6 stars */}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s7-${j}`} cx={286 + j * 3.6} cy={70.5} r="0.55" fill="white" />)}
+                {/* Row 8: 5 stars (offset) */}
+                {[0,1,2,3,4].map((j) => <circle key={`s8-${j}`} cx={287.8 + j * 3.6} cy={72.5} r="0.55" fill="white" />)}
+                {/* Row 9: 6 stars */}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s9-${j}`} cx={286 + j * 3.6} cy={74.5} r="0.55" fill="white" />)}
+                {/* Flag edge wave effect */}
+                <line x1="339" y1="56" x2="339" y2="95" stroke="#bf0a30" strokeWidth="0.5" opacity="0.3">
+                  <animate attributeName="x1" values="339;337;339;340;339" dur="2.5s" repeatCount="indefinite" />
+                  <animate attributeName="x2" values="339;337;339;340;339" dur="2.5s" repeatCount="indefinite" />
+                </line>
               </g>
             </g>
 
-            {/* Soaring Eagle */}
-            <g opacity="0" style={{ animation: 'fadeUp 1.2s ease 0.8s forwards' }}>
-              <g transform="translate(370, 120) scale(0.9)">
-                {/* Eagle body */}
-                <path d="M0 20 Q8 10 20 8 Q28 6 36 10 Q42 13 44 20 Q46 26 42 30 Q36 35 28 32 Q22 28 18 30 Q12 33 6 30 Q0 26 0 20Z" fill="#1e3a5f" opacity="0.85" />
-                {/* Left wing */}
-                <path d="M8 22 Q-10 10 -30 4 Q-20 14 -8 20Z" fill="#0f172a" opacity="0.75" />
-                <path d="M4 18 Q-18 6 -40 -2 Q-26 10 -10 18Z" fill="#1e3a5f" opacity="0.6" />
-                <path d="M2 14 Q-22 0 -46 -8 Q-30 6 -12 14Z" fill="#1e3a5f" opacity="0.4" />
-                {/* Right wing */}
-                <path d="M36 22 Q54 10 74 4 Q64 14 52 20Z" fill="#0f172a" opacity="0.75" />
-                <path d="M40 18 Q62 6 84 -2 Q70 10 54 18Z" fill="#1e3a5f" opacity="0.6" />
-                <path d="M42 14 Q66 0 90 -8 Q74 6 56 14Z" fill="#1e3a5f" opacity="0.4" />
-                {/* Head */}
-                <circle cx="42" cy="16" r="5" fill="#0f172a" opacity="0.9" />
-                <path d="M46 15 L54 14 L46 17Z" fill="#b8860b" opacity="0.9" />
-                {/* Tail feathers */}
-                <path d="M2 26 Q-8 34 -14 42 Q-4 36 4 30Z" fill="#1e3a5f" opacity="0.5" />
-                <path d="M0 24 Q-10 30 -18 38 Q-6 32 2 28Z" fill="#0f172a" opacity="0.4" />
+            {/* Bald Eagle flying along curved path */}
+            <g className="eagle-group" opacity="0">
+              {/* Flight path (invisible) */}
+              <path id="eaglePath" d="M-40 180 Q80 60 200 30 Q320 0 400 50 Q440 70 480 100" fill="none" stroke="none" />
+              <g>
+                <animateMotion dur="4s" fill="freeze" begin="0.3s" calcMode="spline" keySplines="0.25 0.1 0.25 1">
+                  <mpath href="#eaglePath" />
+                </animateMotion>
+                <g transform="scale(0.55)">
+                  {/* Body - dark brown */}
+                  <ellipse cx="0" cy="0" rx="14" ry="6" fill="#3b1f0b" />
+                  {/* Left wing - dark brown with feather layers */}
+                  <path d="M-4 -2 Q-20 -22 -48 -28 Q-44 -18 -36 -12 Q-28 -6 -10 -2Z" fill="#4a2810" />
+                  <path d="M-6 0 Q-24 -16 -52 -20 Q-46 -12 -38 -6 Q-28 -2 -12 0Z" fill="#3b1f0b" />
+                  <path d="M-5 2 Q-22 -8 -46 -12 Q-40 -4 -32 0 Q-22 4 -10 3Z" fill="#2d1608" />
+                  {/* Right wing - dark brown with feather layers */}
+                  <path d="M4 -2 Q20 -22 48 -28 Q44 -18 36 -12 Q28 -6 10 -2Z" fill="#4a2810" />
+                  <path d="M6 0 Q24 -16 52 -20 Q46 -12 38 -6 Q28 -2 12 0Z" fill="#3b1f0b" />
+                  <path d="M5 2 Q22 -8 46 -12 Q40 -4 32 0 Q22 4 10 3Z" fill="#2d1608" />
+                  {/* White head */}
+                  <ellipse cx="16" cy="-2" rx="6" ry="5" fill="white" />
+                  {/* Eye */}
+                  <circle cx="18" cy="-3" r="1.2" fill="#1a1a1a" />
+                  {/* Yellow hooked beak */}
+                  <path d="M22 -2 L28 -1 Q26 1 23 0Z" fill="#f5a623" />
+                  <path d="M26 -1 Q27 0 26.5 1 L25 0Z" fill="#d4891a" />
+                  {/* Tail feathers - dark brown, fan shape */}
+                  <path d="M-12 2 Q-22 6 -30 14 Q-24 8 -16 4Z" fill="#3b1f0b" />
+                  <path d="M-13 0 Q-24 2 -34 8 Q-26 4 -16 2Z" fill="#4a2810" />
+                  <path d="M-12 -1 Q-24 -2 -32 2 Q-26 0 -16 0Z" fill="#3b1f0b" />
+                  {/* White tail tips */}
+                  <path d="M-28 12 Q-32 15 -30 14 Q-26 10 -28 12Z" fill="white" opacity="0.7" />
+                  <path d="M-32 6 Q-36 9 -34 8 Q-30 5 -32 6Z" fill="white" opacity="0.7" />
+                  {/* Yellow talons/feet tucked */}
+                  <path d="M-2 5 Q-1 8 0 6Z" fill="#f5a623" opacity="0.6" />
+                  <path d="M4 5 Q5 8 6 6Z" fill="#f5a623" opacity="0.6" />
+                </g>
               </g>
             </g>
 
@@ -290,25 +328,44 @@ export default function Landing() {
               Calculate your retirement →
             </Link>
           </div>
-          <div style={{ borderRadius: '24px', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'linear-gradient(135deg, #fdf2f4, #fef7f8)', border: '1px solid rgba(123,28,46,0.06)' }}>
-            <div>
+          <div style={{ borderRadius: '20px', overflow: 'hidden', background: colors.white, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', maxWidth: '480px' }}>
+            {/* Navy header - total monthly income */}
+            <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
+              <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Estimated Total Monthly Retirement Income</div>
+              <div style={{ fontFamily: fontSerif, fontSize: '2.2rem', fontWeight: '900', color: 'white' }}>$5,318</div>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>$63,810 per year</div>
+            </div>
+            {/* 3 summary cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
               {[
-                { label: 'FERS Basic Pension', value: '$42,840 /yr' },
-                { label: 'FERS Supplement', value: '$18,200 /yr' },
-                { label: 'TSP (4% withdrawal)', value: '$28,400 /yr' },
-                { label: 'Social Security (est.)', value: '$24,600 /yr' },
-                { label: 'FEHB Premium', value: '-$7,200 /yr' },
-              ].map((row, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid rgba(0,0,0,0.05)', fontSize: '0.9rem' }}>
-                  <span style={{ color: colors.gray600 }}>{row.label}</span>
-                  <span style={{ fontFamily: fontSerif, fontWeight: '700', color: colors.navy, fontVariantNumeric: 'tabular-nums' }}>
-                    {row.value}
-                  </span>
+                { icon: '$', label: 'Monthly Pension', value: '$1,543', sub: '$18,513/yr' },
+                { icon: 'T', label: 'TSP Income', value: '$918', sub: '4% withdrawal' },
+                { icon: 'SS', label: 'Social Security', value: '$2,857', sub: 'At age 67' },
+              ].map((card, i) => (
+                <div key={i} style={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderTop: `2.5px solid ${colors.maroon}`, padding: '12px 10px' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '5px', background: colors.gray100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: '700', color: colors.gray600, marginBottom: '8px' }}>{card.icon}</div>
+                  <div style={{ fontSize: '0.52rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.maroon, marginBottom: '4px' }}>{card.label}</div>
+                  <div style={{ fontFamily: fontSerif, fontSize: '1.15rem', fontWeight: '800', color: colors.navy }}>{card.value}</div>
+                  <div style={{ fontSize: '0.65rem', color: colors.gray400, marginTop: '2px' }}>{card.sub}</div>
                 </div>
               ))}
-              <div style={{ marginTop: '16px', padding: '20px 24px', background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderRadius: '12px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.88rem', opacity: 0.8 }}>Estimated Annual Income</span>
-                <span style={{ fontFamily: fontSerif, fontSize: '1.6rem', fontWeight: '800' }}>$106,840</span>
+            </div>
+            {/* Compact income breakdown */}
+            <div style={{ padding: '10px 20px 18px' }}>
+              <div style={{ fontSize: '0.58rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.navy, marginBottom: '8px' }}>Income Breakdown</div>
+              {[
+                { label: 'FERS Pension', value: '$1,543', color: '#166534' },
+                { label: 'TSP Income', value: '+$918', color: '#166534' },
+                { label: 'Social Security', value: '+$2,857', color: '#166534' },
+              ].map((row, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.05)' : 'none', fontSize: '0.78rem' }}>
+                  <span style={{ color: colors.gray600 }}>{row.label}</span>
+                  <span style={{ fontWeight: '700', color: row.color, fontVariantNumeric: 'tabular-nums' }}>{row.value}</span>
+                </div>
+              ))}
+              <div style={{ borderTop: `2px solid ${colors.navyMid}`, marginTop: '6px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
+                <span style={{ color: colors.navy, fontWeight: '600' }}>Total Monthly Income</span>
+                <span style={{ fontFamily: fontSerif, fontWeight: '800', color: '#166534', fontSize: '0.95rem' }}>$5,318</span>
               </div>
             </div>
           </div>
