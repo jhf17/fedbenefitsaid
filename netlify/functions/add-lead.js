@@ -13,7 +13,51 @@ const SOURCE_TO_ACTIVITY = {
   'Calculator': 'Calculator Completed',
 }
 
+// === SECURITY: Rate Limiting ===
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX = 50; // max requests per window
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  if (!record || now - record.start > RATE_LIMIT_WINDOW) {
+    rateLimitMap.set(ip, { start: now, count: 1 });
+    return true;
+  }
+  record.count++;
+  if (record.count > RATE_LIMIT_MAX) return false;
+  return true;
+}
+
+// === SECURITY: Input Validation ===
+function validateEmail(email) {
+  if (!email || typeof email !== 'string') return false;
+  if (email.length > 254) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function sanitizeString(str, maxLen = 200) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/[<>"';\\/]/g, '').trim().substring(0, maxLen);
+}
+
+function sanitizeForAirtable(str) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/['"\\/(){}\[\]]/g, '').trim().substring(0, 200);
+}
+
 exports.handler = async (event) => {
+  // Rate limit check
+  const clientIp = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return {
+      statusCode: 429,
+      headers: { ...CORS_HEADERS, 'Retry-After': '900' },
+      body: JSON.stringify({ error: 'Too many requests. Please try again later.' })
+    };
+  }
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -76,7 +120,7 @@ exports.handler = async (event) => {
 
   try {
     // Search for existing record by email
-    const escapedEmail = email.replace(/'/g, "\\'")
+    const escapedEmail = sanitizeForAirtable(email).replace(/'/g, "\\'")
     const encodedFormula = encodeURIComponent(`{Email}='${escapedEmail}'`)
     const searchUrl = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?filterByFormula=${encodedFormula}`
 
