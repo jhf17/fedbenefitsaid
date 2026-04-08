@@ -305,7 +305,7 @@ function generateCategoryInsight(catId, answers, catScore) {
   }
   if (catId === 'income') {
     if (answers.ss_strategy === 'no') {
-      return 'Your Social Security claiming age could change your lifetime benefit by 77%'
+      return 'Your Social Security claiming age could change your monthly benefit by up to 77%'
     }
     if (answers.fegli_review === 'no' || answers.fegli_review === 'unknown') {
       return 'FEGLI costs explode after age 65 — review and drop unnecessary coverage'
@@ -397,7 +397,7 @@ function generateWhereYouStand(catId, answers) {
     const current_age = answers.current_age
     let text = 'Your total retirement income comes from three sources: federal pension, TSP, and Social Security. '
     if (ss === 'no') {
-      text += 'Your Social Security claiming age is one of the most important decisions you\'ll make — claiming at 62 vs. 70 can mean a 77% difference in lifetime benefits. '
+      text += 'Your Social Security claiming age is one of the most important decisions you\'ll make — claiming at 62 vs. 70 can mean up to a 77% difference in your monthly benefit. '
     } else {
       text += 'You\'re thinking strategically about Social Security. '
     }
