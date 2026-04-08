@@ -889,7 +889,7 @@ export default function Calculator() {
 function Field({ label, hint, children }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label htmlFor= style={fieldStyles.label}>{label}</label>
+      <label style={fieldStyles.label}>{label}</label>
       {children}
       {hint && <div style={fieldStyles.hint}>{hint}</div>}
     </div>

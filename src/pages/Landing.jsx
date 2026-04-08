@@ -95,8 +95,7 @@ export default function Landing() {
       `}</style>
 
       {/* HERO SECTION */}
-      <section role="banner"
-      <section style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '64px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: '40px' }}>
+      <section role="banner" style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '64px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: '40px' }}>
         <div style={{ paddingRight: '20px', animation: 'fadeUp 0.8s ease forwards' }}>
           <div style={{ display: 'inline-block', background: colors.navy, fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '8px 20px', borderRadius: '100px', marginBottom: '32px', backgroundImage: goldGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             For U.S. Federal Employees
