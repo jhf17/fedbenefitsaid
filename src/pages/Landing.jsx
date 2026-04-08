@@ -10,7 +10,7 @@ const colors = {
   gray50: '#f8f7f4',
   gray100: '#f1f0ed',
   gray300: '#cbd5e1',
-  gray400: '#94a3b8',
+  gray400: '#64748b',
   gray600: '#475569',
   gray800: '#1e293b',
 };
@@ -32,7 +32,7 @@ export default function Landing() {
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.05 }
     );
 
     revealRefs.current.forEach((el) => {
@@ -53,7 +53,7 @@ export default function Landing() {
   };
 
   return (
-    <div style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
+    <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
       <style>{`
         @keyframes drawLine {
           to { stroke-dashoffset: 0; }
@@ -95,8 +95,9 @@ export default function Landing() {
       `}</style>
 
       {/* HERO SECTION */}
+      <section role="banner"
       <section style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '64px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: '40px' }}>
-        <div ref={addRevealRef} className="reveal" style={{ paddingRight: '20px' }}>
+        <div style={{ paddingRight: '20px', animation: 'fadeUp 0.8s ease forwards' }}>
           <div style={{ display: 'inline-block', background: colors.navy, fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '8px 20px', borderRadius: '100px', marginBottom: '32px', backgroundImage: goldGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             For U.S. Federal Employees
           </div>
@@ -119,7 +120,7 @@ export default function Landing() {
 
         {/* HERO VISUAL */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '500px' }}>
-          <svg viewBox="0 0 560 500" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', maxWidth: '560px', height: 'auto' }}>
+          <svg viewBox="0 0 560 500" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', maxWidth: '560px', height: 'auto' }} aria-hidden="true">
             {/* Background circles */}
             <circle cx="280" cy="260" r="200" fill="rgba(201,168,76,0.04)" />
             <circle cx="280" cy="260" r="140" fill="rgba(201,168,76,0.03)" />
@@ -232,7 +233,7 @@ export default function Landing() {
               { icon: '👥', title: 'Free Tools, Expert Access', desc: 'Every tool is free, forever. When you need human guidance, book a free 30-minute consultation with a federal retirement specialist.' },
             ].map((card, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '40px 32px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', background: 'rgba(201,168,76,0.1)', fontSize: '1.5rem' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', background: 'rgba(123, 28, 46, 0.1)', fontSize: '1.5rem', color: '#7b1c2e' }}>
                   {card.icon}
                 </div>
                 <h3 style={{ fontFamily: fontSerif, fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '10px' }}>
@@ -280,7 +281,7 @@ export default function Landing() {
                   </span>
                 </div>
               ))}
-              <div style={{ marginTop: '16px', padding: '20px 24px', background: colors.maroon, borderRadius: '12px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ marginTop: '16px', padding: '20px 24px', background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', borderRadius: '12px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.88rem', opacity: 0.8 }}>Estimated Annual Income</span>
                 <span style={{ fontFamily: fontSerif, fontSize: '1.6rem', fontWeight: '800' }}>$106,840</span>
               </div>
@@ -474,7 +475,7 @@ export default function Landing() {
           <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: colors.gray600, maxWidth: '500px', margin: '0 auto 44px' }}>
             Book a free 30-minute call with a federal retirement specialist at Federal Market Associates. No sales pitch — just honest guidance.
           </p>
-          <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ background: colors.maroon, color: 'white', fontSize: '0.95rem', fontWeight: '600', padding: '15px 32px', borderRadius: '10px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>
+          <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ background: '#7b1c2e', color: '#ffffff', fontSize: '1.1rem', fontWeight: '600', padding: '18px 48px', borderRadius: '12px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>
             Book Free Consultation
           </a>
         </div>

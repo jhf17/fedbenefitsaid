@@ -1117,7 +1117,7 @@ export default function Assessment() {
     const personalizedSummary = generatePersonalizedSummary(catScores, answers)
 
     return (
-      <main style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Assessment results">
+      <main id="main-content" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Assessment results">
         {/* SECTION 1: Executive Summary Header */}
         <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Your Results</div>
@@ -1163,7 +1163,7 @@ export default function Assessment() {
                   <div key={catId}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6, gap: 12 }}>
                       <span style={{ fontSize: 14, fontWeight: 600, color: navy, fontFamily: fontSans }}>{cat.label}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', flexShrink: 0, fontFamily: fontSans }}>{barPct}%</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b', flexShrink: 0, fontFamily: fontSans }}>{barPct}%</span>
                     </div>
                     <div style={{ height: 8, background: '#cbd5e1', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
                       <div style={{ height: '100%', width: barPct + '%', background: cs.pct >= 0.7 ? '#10b981' : cs.pct >= 0.4 ? amberWarm : muteCorral, borderRadius: 4, transition: 'width 0.8s ease' }} />
@@ -1196,7 +1196,7 @@ export default function Assessment() {
                     <div key={i} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#cbd5e1'}`, marginBottom: 12 }} />
                       <div style={{ fontSize: 12, fontWeight: isFirst ? 700 : 600, color: navy, textAlign: 'center', whiteSpace: 'nowrap', fontFamily: fontSans }}>{milestone.label}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2, fontFamily: fontSans }}>Age {milestone.age}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, fontFamily: fontSans }}>Age {milestone.age}</div>
                       {!isLast && (
                         <div style={{ width: 40, height: 2, background: '#cbd5e1', margin: '12px 12px 0' }} />
                       )}
@@ -1257,7 +1257,7 @@ export default function Assessment() {
                 <button type="submit" disabled={captureLoading} style={{ background: maroon, color: '#fff', border: 'none', borderRadius: 10, padding: '12px 32px', fontSize: 15, fontWeight: 700, cursor: captureLoading ? 'not-allowed' : 'pointer', width: '100%', opacity: captureLoading ? 0.7 : 1, fontFamily: fontSans }}>
                   {captureLoading ? 'Sending...' : 'Send My Report'}
                 </button>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 10, fontFamily: fontSans }}>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 10, fontFamily: fontSans }}>
                   We'll send your report and nothing else.
                 </div>
               </form>
@@ -1282,7 +1282,7 @@ export default function Assessment() {
 
           {/* SECTION 7: Retake */}
           <div style={{ textAlign: 'center' }}>
-            <button type="button" onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCaptureSent(false) }} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer', textDecoration: 'underline', fontWeight: 500, fontFamily: fontSans }}>
+            <button type="button" onClick={() => { setStep(0); setAnswers({}); setSelected(null); setShowScore(false); setShowChecklist(false); setCaptureEmail(''); setCaptureName(''); setCaptureSent(false) }} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 13, cursor: 'pointer', textDecoration: 'underline', fontWeight: 500, fontFamily: fontSans }}>
               Retake assessment
             </button>
           </div>
@@ -1295,7 +1295,7 @@ export default function Assessment() {
   // QUESTION SCREEN
   // ============================================================
   return (
-    <main style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Retirement readiness assessment quiz">
+    <main id="main-content" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Retirement readiness assessment quiz">
       <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Free Tool</div>
         <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px', fontFamily: fontSerif }}>Retirement Readiness Assessment</h1>
@@ -1305,7 +1305,7 @@ export default function Assessment() {
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '32px 24px' }}>
         {/* Progress */}
         <div style={{ marginBottom: 28 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 6, fontFamily: fontSans }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', marginBottom: 6, fontFamily: fontSans }}>
             <span>Question {step + 1} of {totalSteps}</span>
             <span>{Math.round(progress)}% complete</span>
           </div>
@@ -1356,7 +1356,7 @@ export default function Assessment() {
           {step > 0 && (
             <button type="button"
               onClick={handleBack}
-              style={{ flex: 0, padding: '14px 20px', background: '#fff', color: '#94a3b8', border: '1.5px solid #cbd5e1', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans }}
+              style={{ flex: 0, padding: '14px 20px', background: '#fff', color: '#64748b', border: '1.5px solid #cbd5e1', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans }}
             >
               Back
             </button>

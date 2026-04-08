@@ -239,7 +239,7 @@ export default function Consultation() {
       {/* Who You'll Meet With Section */}
       <section
         style={{
-          backgroundColor: '#ffffff',
+          backgroundColor: '#faf9f6',
           padding: '80px 20px',
           borderTop: `1px solid #cbd5e1`,
         }}
@@ -400,7 +400,7 @@ export default function Consultation() {
       {/* Calendly Section */}
       <section
         style={{
-          backgroundColor: '#ffffff',
+          backgroundColor: '#faf9f6',
           padding: '80px 20px',
           borderTop: `1px solid #cbd5e1`,
         }}
@@ -562,7 +562,7 @@ export default function Consultation() {
       {/* Final CTA Section */}
       <section
         style={{
-          backgroundColor: '#ffffff',
+          backgroundColor: '#faf9f6',
           padding: '80px 20px',
           textAlign: 'center',
           borderTop: `1px solid #cbd5e1`,

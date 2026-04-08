@@ -391,7 +391,7 @@ export default function Calculator() {
   const s = styles
 
   return (
-    <main style={s.page}>
+    <main id="main-content" style={s.page}>
       <div style={s.container}>
 
         {/* Header */}
@@ -889,7 +889,7 @@ export default function Calculator() {
 function Field({ label, hint, children }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={fieldStyles.label}>{label}</label>
+      <label htmlFor= style={fieldStyles.label}>{label}</label>
       {children}
       {hint && <div style={fieldStyles.hint}>{hint}</div>}
     </div>
@@ -906,7 +906,7 @@ function yrsServiceLabel(n) {
 
 const fieldStyles = {
   label: { fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  hint:  { fontSize: '0.73rem', color: '#94a3b8', lineHeight: 1.4 },
+  hint:  { fontSize: '0.73rem', color: '#64748b', lineHeight: 1.4 },
 }
 
 const styles = {

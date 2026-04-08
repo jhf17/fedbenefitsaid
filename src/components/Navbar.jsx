@@ -30,6 +30,7 @@ export default function Navbar() {
 
   return (
     <nav style={styles.nav} aria-label="Main navigation">
+      <a href="#main-content" style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden', zIndex: 9999, padding: '12px 24px', background: '#1e3a5f', color: 'white', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', borderRadius: '0 0 8px 0' }} onFocus={(e) => { e.target.style.position = 'fixed'; e.target.style.left = '0'; e.target.style.top = '0'; e.target.style.width = 'auto'; e.target.style.height = 'auto'; e.target.style.overflow = 'visible'; }} onBlur={(e) => { e.target.style.position = 'absolute'; e.target.style.left = '-9999px'; e.target.style.width = '1px'; e.target.style.height = '1px'; e.target.style.overflow = 'hidden'; }}>Skip to main content</a>
       <div style={styles.inner}>
         {/* Logo */}
         <Link to="/" style={styles.logo} aria-label="FedBenefitsAid — go to homepage">
@@ -222,7 +223,7 @@ const styles = {
   },
   userEmail: {
     fontSize: '0.85rem',
-    color: '#94a3b8',
+    color: '#64748b',
     fontWeight: 500,
     fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
@@ -274,7 +275,7 @@ const styles = {
   },
   mobileUserEmail: {
     fontSize: '0.85rem',
-    color: '#94a3b8',
+    color: '#64748b',
     padding: '4px 12px',
     fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
   },
