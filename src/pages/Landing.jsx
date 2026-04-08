@@ -236,7 +236,13 @@ export default function Landing() {
                 <stop offset="50%" stopColor="#f5d77a" stopOpacity="0.5" />
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
-              {/* No turbulence filter — clean flag with CSS-only animation */}
+              {/* Cloth ripple — fractalNoise for smooth waves, very slow for light breeze */}
+              <filter id="flagCloth" x="-3%" y="-5%" width="108%" height="112%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.015 0.04" numOctaves="2" seed="3" result="noise">
+                  <animate attributeName="seed" dur="45s" values="3;8;5;12;7;10;4;9;3" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
             </defs>
 
             {/* Flowing lines */}
@@ -274,10 +280,10 @@ export default function Landing() {
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
               {/* American Flag - 50 stars, 13 stripes, cloth ripple + gentle sway */}
-              <g className="flag-sway">
-                {/* 13 stripes - alternating red and white, wider flag */}
+              <g className="flag-sway" filter="url(#flagCloth)">
+                {/* 13 stripes - slightly taller for overlap so ripple doesn't create gaps */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
-                  <rect key={`stripe-${i}`} x="283" y={50 + i * 3.5} width="76" height="3.5" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
+                  <rect key={`stripe-${i}`} x="283" y={49.5 + i * 3.5} width="76" height="4.2" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
                 ))}
                 {/* Blue canton */}
                 <rect x="283" y="50" width="32" height="25" fill="#002868" />
