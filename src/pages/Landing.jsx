@@ -68,6 +68,19 @@ export default function Landing() {
           95% { opacity: 1; }
           100% { opacity: 1; }
         }
+        @keyframes flagWave {
+          0% { transform: skewY(0deg) scaleX(1); }
+          15% { transform: skewY(-1.5deg) scaleX(1.02); }
+          30% { transform: skewY(1deg) scaleX(0.98); }
+          50% { transform: skewY(-2deg) scaleX(1.03); }
+          65% { transform: skewY(0.5deg) scaleX(0.99); }
+          80% { transform: skewY(-1deg) scaleX(1.01); }
+          100% { transform: skewY(0deg) scaleX(1); }
+        }
+        .flag-wave {
+          transform-origin: 283px 56px;
+          animation: flagWave 3s ease-in-out infinite;
+        }
         .flow-line {
           stroke-dasharray: 600;
           stroke-dashoffset: 600;
@@ -175,49 +188,30 @@ export default function Landing() {
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
               {/* American Flag - 50 stars, 13 stripes, waving */}
-              <g>
-                {/* 13 stripes - alternating red and white */}
+              <g className="flag-wave">
+                {/* 13 stripes - alternating red and white, wider flag */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
-                  <rect key={`stripe-${i}`} x="283" y={56 + i * 3} width="56" height="3" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'}>
-                    <animate attributeName="width" values={`56;${54 + (i % 3)};56;${57 - (i % 2)};56`} dur={`${2.5 + i * 0.1}s`} repeatCount="indefinite" />
-                    <animate attributeName="x" values={`283;${283 + (i % 2)};283;${282};283`} dur={`${2.5 + i * 0.1}s`} repeatCount="indefinite" />
-                  </rect>
+                  <rect key={`stripe-${i}`} x="283" y={50 + i * 3.5} width="76" height="3.5" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
                 ))}
                 {/* Blue canton */}
-                <rect x="283" y="56" width="24" height="21" fill="#002868">
-                  <animate attributeName="width" values="24;23;24;24.5;24" dur="2.5s" repeatCount="indefinite" />
-                </rect>
+                <rect x="283" y="50" width="32" height="25" fill="#002868" />
                 {/* 50 stars - 5 rows of 6, 4 rows of 5 (staggered) */}
-                {/* Row 1: 6 stars */}
-                {[0,1,2,3,4,5].map((j) => <circle key={`s1-${j}`} cx={286 + j * 3.6} cy={58.5} r="0.55" fill="white" />)}
-                {/* Row 2: 5 stars (offset) */}
-                {[0,1,2,3,4].map((j) => <circle key={`s2-${j}`} cx={287.8 + j * 3.6} cy={60.5} r="0.55" fill="white" />)}
-                {/* Row 3: 6 stars */}
-                {[0,1,2,3,4,5].map((j) => <circle key={`s3-${j}`} cx={286 + j * 3.6} cy={62.5} r="0.55" fill="white" />)}
-                {/* Row 4: 5 stars (offset) */}
-                {[0,1,2,3,4].map((j) => <circle key={`s4-${j}`} cx={287.8 + j * 3.6} cy={64.5} r="0.55" fill="white" />)}
-                {/* Row 5: 6 stars */}
-                {[0,1,2,3,4,5].map((j) => <circle key={`s5-${j}`} cx={286 + j * 3.6} cy={66.5} r="0.55" fill="white" />)}
-                {/* Row 6: 5 stars (offset) */}
-                {[0,1,2,3,4].map((j) => <circle key={`s6-${j}`} cx={287.8 + j * 3.6} cy={68.5} r="0.55" fill="white" />)}
-                {/* Row 7: 6 stars */}
-                {[0,1,2,3,4,5].map((j) => <circle key={`s7-${j}`} cx={286 + j * 3.6} cy={70.5} r="0.55" fill="white" />)}
-                {/* Row 8: 5 stars (offset) */}
-                {[0,1,2,3,4].map((j) => <circle key={`s8-${j}`} cx={287.8 + j * 3.6} cy={72.5} r="0.55" fill="white" />)}
-                {/* Row 9: 6 stars */}
-                {[0,1,2,3,4,5].map((j) => <circle key={`s9-${j}`} cx={286 + j * 3.6} cy={74.5} r="0.55" fill="white" />)}
-                {/* Flag edge wave effect */}
-                <line x1="339" y1="56" x2="339" y2="95" stroke="#bf0a30" strokeWidth="0.5" opacity="0.3">
-                  <animate attributeName="x1" values="339;337;339;340;339" dur="2.5s" repeatCount="indefinite" />
-                  <animate attributeName="x2" values="339;337;339;340;339" dur="2.5s" repeatCount="indefinite" />
-                </line>
+                {[0,1,2,3,4,5].map((j) => <circle key={`s1-${j}`} cx={286.5 + j * 4.2} cy={53} r="0.7" fill="white" />)}
+                {[0,1,2,3,4].map((j) => <circle key={`s2-${j}`} cx={288.6 + j * 4.2} cy={55.5} r="0.7" fill="white" />)}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s3-${j}`} cx={286.5 + j * 4.2} cy={58} r="0.7" fill="white" />)}
+                {[0,1,2,3,4].map((j) => <circle key={`s4-${j}`} cx={288.6 + j * 4.2} cy={60.5} r="0.7" fill="white" />)}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s5-${j}`} cx={286.5 + j * 4.2} cy={63} r="0.7" fill="white" />)}
+                {[0,1,2,3,4].map((j) => <circle key={`s6-${j}`} cx={288.6 + j * 4.2} cy={65.5} r="0.7" fill="white" />)}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s7-${j}`} cx={286.5 + j * 4.2} cy={68} r="0.7" fill="white" />)}
+                {[0,1,2,3,4].map((j) => <circle key={`s8-${j}`} cx={288.6 + j * 4.2} cy={70.5} r="0.7" fill="white" />)}
+                {[0,1,2,3,4,5].map((j) => <circle key={`s9-${j}`} cx={286.5 + j * 4.2} cy={73} r="0.7" fill="white" />)}
               </g>
             </g>
 
             {/* Bald Eagle flying along curved path */}
             <g className="eagle-group" opacity="0">
               {/* Flight path (invisible) */}
-              <path id="eaglePath" d="M-40 180 Q80 60 200 30 Q320 0 400 50 Q440 70 480 100" fill="none" stroke="none" />
+              <path id="eaglePath" d="M-60 300 Q0 120 120 40 Q240 -30 360 10 Q440 35 500 80 Q530 100 540 130" fill="none" stroke="none" />
               <g>
                 <animateMotion dur="4s" fill="freeze" begin="0.3s" calcMode="spline" keySplines="0.25 0.1 0.25 1">
                   <mpath href="#eaglePath" />
