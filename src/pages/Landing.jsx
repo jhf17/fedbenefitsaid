@@ -20,8 +20,7 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif";
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export default function Landing() {
-  const
-ffect(() => {
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -44,12 +43,6 @@ ffect(() => {
       });
     };
   }, []);
-
-  const addRevealRef = (el) => {
-    if (el && !revealRefs.current.includes(el)) {
-      revealRefs.current.push(el);
-    }
-  };
 
   return (
     <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
