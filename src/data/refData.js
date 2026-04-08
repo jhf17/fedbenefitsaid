@@ -250,7 +250,7 @@ export const REF_DATA = [
        'Open Season: annually in November; changes effective January 1 of following year',
        'New employees: 60 days from start date to enroll (or waive)',
        'Qualifying Life Events (QLE): 60 days to change enrollment (marriage, divorce, birth, etc.)',
-       'Government premium share: approximately 70–75% of premium for most plans',
+       'Government premium share: the lesser of 75% of your plan premium or 72% of the weighted average premium (roughly 72–75% for most plans)',
        'Premium withheld pretax from paycheck (active employees) — taxable benefit for domestic partners'
      ],
      numbers:[
