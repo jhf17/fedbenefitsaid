@@ -195,8 +195,8 @@ const CATEGORIES = {
   tsp: { label: 'TSP Strategy', icon: 'T', color: '#2563eb' },
   healthcare: { label: 'Healthcare Planning', icon: '+', color: '#059669' },
   income: { label: 'Income Optimization', icon: '%', color: '#7b1c2e' },
-  survivor: { label: 'Survivor Benefits', icon: '❤', color: '#dc2626' },
-  financial: { label: 'Financial Readiness', icon: '★', color: '#d97706' },
+  survivor: { label: 'Survivor Benefits', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>', color: '#dc2626' },
+  financial: { label: 'Financial Readiness', icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 10.26 24 10.26 17.55 16.5 19.64 24.76 12 18.52 4.36 24.76 6.45 16.5 0 10.26 8.91 10.26 12 2"></polygon></svg>', color: '#d97706' },
 }
 
 // ============================================================
@@ -234,7 +234,7 @@ function getOverallResult(catScores) {
       level: 'On Track',
       color: '#065f46',
       bg: '#d1fae5',
-      icon: '✓',
+      icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>',
       summary: 'You have a solid foundation. A few targeted steps will put you in an excellent position for retirement.',
     }
   } else if (pct >= 0.4) {
@@ -250,7 +250,7 @@ function getOverallResult(catScores) {
       level: 'Action Required',
       color: '#991b1b',
       bg: '#fee2e2',
-      icon: '✕',
+      icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
       summary: 'You have significant planning gaps that could cost you money in retirement. Let\'s build a clear action plan.',
     }
   }
@@ -1216,7 +1216,9 @@ export default function Assessment() {
 
             {captureSent ? (
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
+                <div style={{ fontSize: 28, marginBottom: 8, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
                 <p style={{ color: navy, fontWeight: 600, fontSize: 16, margin: '0 0 4px', fontFamily: fontSans }}>Report sent!</p>
                 <p style={{ color: '#475569', fontSize: 14, margin: 0, fontFamily: fontSans }}>Check your inbox for your personalized analysis.</p>
               </div>

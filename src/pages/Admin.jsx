@@ -773,7 +773,7 @@ const Admin = () => {
                         onMouseEnter={(e) => (e.target.style.color = '#6b7280')}
                         onMouseLeave={(e) => (e.target.style.color = '#9ca3af')}
                       >
-                        ✏️
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19H4v-3L16.5 3.5z"></path></svg>
                       </button>
                     </div>
                   )}
@@ -956,7 +956,7 @@ const Admin = () => {
                           onMouseEnter={(e) => (e.target.style.color = '#6b7280')}
                           onMouseLeave={(e) => (e.target.style.color = '#9ca3af')}
                         >
-                          ✏️
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19H4v-3L16.5 3.5z"></path></svg>
                         </button>
                       )}
                     </div>

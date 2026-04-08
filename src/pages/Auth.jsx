@@ -121,7 +121,10 @@ export default function Auth({ mode = 'login' }) {
         {/* Flash message from redirect */}
         {flashMessage && (
           <div style={styles.flashMsg} role="status">
-            <span aria-hidden="true">🔒</span> {flashMessage}
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline-block', marginRight: 6, verticalAlign: 'text-bottom' }}>
+              <path d="M8 1.5c1.65 0 3 1.35 3 3v2.5h.5c.83 0 1.5.67 1.5 1.5v5.5c0 .83-.67 1.5-1.5 1.5H4.5c-.83 0-1.5-.67-1.5-1.5V8.5c0-.83.67-1.5 1.5-1.5H5V4.5c0-1.65 1.35-3 3-3zm0 1c-1.1 0-2 .9-2 2v2.5h4V4.5c0-1.1-.9-2-2-2z" fill="#0f172a"/>
+            </svg>
+            {flashMessage}
           </div>
         )}
 
@@ -160,14 +163,23 @@ export default function Auth({ mode = 'login' }) {
         {/* Success message */}
         {success && (
           <div style={styles.successBox} role="status">
-            <span aria-hidden="true">✅</span> {success}
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline-block', marginRight: 6, verticalAlign: 'text-bottom' }}>
+              <circle cx="8" cy="8" r="7" fill="none" stroke="#10b981" strokeWidth="1.5"/>
+              <path d="M6.5 8.5l1.5 1.5 3-3.5" fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            {success}
           </div>
         )}
 
         {/* Error message */}
         {error && (
           <div style={styles.errorBox} role="alert">
-            <span aria-hidden="true">⚠️</span> {error}
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline-block', marginRight: 6, verticalAlign: 'text-bottom' }}>
+              <path d="M8 1L14.93 14H1.07L8 1z" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinejoin="round"/>
+              <circle cx="8" cy="11" r="0.75" fill="#dc2626"/>
+              <path d="M8 6v3" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {error}
           </div>
         )}
 

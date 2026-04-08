@@ -406,7 +406,12 @@ export default function Calculator() {
 
         {/* Disclaimer Banner */}
         <div style={s.disclaimerBanner}>
-          ℹ️ This calculator provides estimates for educational purposes only. Results are based on publicly available FERS formulas and the information you provide. Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', marginRight: 8, verticalAlign: 'text-bottom' }}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          This calculator provides estimates for educational purposes only. Results are based on publicly available FERS formulas and the information you provide. Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
         </div>
 
         {/* Retirement System Tabs */}
@@ -799,7 +804,10 @@ export default function Calculator() {
             <div style={{ padding: '28px', background: 'white', borderRadius: 14, border: '1.5px solid #e2e8f0', marginBottom: 24 }}>
               {captureSent ? (
                 <div style={{ textAlign: 'center' }}>
-                  <div aria-hidden="true" style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+                  <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 8px', display: 'block' }}>
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
                   <p style={{ color: '#1e3a5f', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
                   <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your calculator results summary.</p>
                 </div>
@@ -825,7 +833,11 @@ export default function Calculator() {
             {/* TSP Strategy CTA — maroon accent */}
             <div style={{ background: 'linear-gradient(135deg, #7b1c2e 0%, #a3293f 100%)', borderRadius: 16, padding: '32px', marginBottom: 24 }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
-                <div aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>💬</div>
+                <div aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
                 <div>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
                   <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>Want to know if you're on track?</div>

@@ -194,6 +194,28 @@ export default function Landing() {
               </g>
             </g>
 
+            {/* Soaring Eagle */}
+            <g opacity="0" style={{ animation: 'fadeUp 1.2s ease 0.8s forwards' }}>
+              <g transform="translate(370, 120) scale(0.9)">
+                {/* Eagle body */}
+                <path d="M0 20 Q8 10 20 8 Q28 6 36 10 Q42 13 44 20 Q46 26 42 30 Q36 35 28 32 Q22 28 18 30 Q12 33 6 30 Q0 26 0 20Z" fill="#1e3a5f" opacity="0.85" />
+                {/* Left wing */}
+                <path d="M8 22 Q-10 10 -30 4 Q-20 14 -8 20Z" fill="#0f172a" opacity="0.75" />
+                <path d="M4 18 Q-18 6 -40 -2 Q-26 10 -10 18Z" fill="#1e3a5f" opacity="0.6" />
+                <path d="M2 14 Q-22 0 -46 -8 Q-30 6 -12 14Z" fill="#1e3a5f" opacity="0.4" />
+                {/* Right wing */}
+                <path d="M36 22 Q54 10 74 4 Q64 14 52 20Z" fill="#0f172a" opacity="0.75" />
+                <path d="M40 18 Q62 6 84 -2 Q70 10 54 18Z" fill="#1e3a5f" opacity="0.6" />
+                <path d="M42 14 Q66 0 90 -8 Q74 6 56 14Z" fill="#1e3a5f" opacity="0.4" />
+                {/* Head */}
+                <circle cx="42" cy="16" r="5" fill="#0f172a" opacity="0.9" />
+                <path d="M46 15 L54 14 L46 17Z" fill="#b8860b" opacity="0.9" />
+                {/* Tail feathers */}
+                <path d="M2 26 Q-8 34 -14 42 Q-4 36 4 30Z" fill="#1e3a5f" opacity="0.5" />
+                <path d="M0 24 Q-10 30 -18 38 Q-6 32 2 28Z" fill="#0f172a" opacity="0.4" />
+              </g>
+            </g>
+
             {/* Decorative particles */}
             <circle cx="140" cy="200" r="2.5" fill="#daa520" opacity="0.3">
               <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite" />
@@ -227,13 +249,17 @@ export default function Landing() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
             {[
-              { icon: '☀', title: 'Personalized to You', desc: 'Every tool adapts to your specific situation — years of service, salary, retirement system, and timeline. No generic advice.' },
-              { icon: '✓', title: 'Current and Accurate', desc: 'All figures updated for 2026. We cite actual OPM regulations so you can verify everything yourself.' },
-              { icon: '👥', title: 'Free Tools, Expert Access', desc: 'Every tool is free, forever. When you need human guidance, book a free 30-minute consultation with a federal retirement specialist.' },
+              { id: 'personalized', title: 'Personalized to You', desc: 'Every tool adapts to your specific situation — years of service, salary, retirement system, and timeline. No generic advice.' },
+              { id: 'accurate', title: 'Current and Accurate', desc: 'All figures updated for 2026. We cite actual OPM regulations so you can verify everything yourself.' },
+              { id: 'expert', title: 'Free Tools, Expert Access', desc: 'Every tool is free, forever. When you need human guidance, book a free 30-minute consultation with a federal retirement specialist.' },
             ].map((card, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '40px 32px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', background: 'rgba(123, 28, 46, 0.1)', fontSize: '1.5rem', color: '#7b1c2e' }}>
-                  {card.icon}
+                <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', background: 'rgba(123, 28, 46, 0.1)' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7b1c2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {card.id === 'personalized' && <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
+                    {card.id === 'accurate' && <><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="M9 12l2 2 4-4" /></>}
+                    {card.id === 'expert' && <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
+                  </svg>
                 </div>
                 <h3 style={{ fontFamily: fontSerif, fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '10px' }}>
                   {card.title}
@@ -325,8 +351,12 @@ export default function Landing() {
                   { done: false, text: 'Social Security timing strategy set' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: '1px solid rgba(0,0,0,0.04)', fontSize: '0.88rem', color: colors.gray600 }}>
-                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: '700', color: 'white', flexShrink: 0, background: item.done ? '#16a34a' : colors.gray300 }}>
-                      {item.done ? '✓' : '—'}
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: item.done ? '#16a34a' : colors.gray300 }}>
+                      {item.done ? (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                      ) : (
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                      )}
                     </div>
                     {item.text}
                   </div>
@@ -404,7 +434,9 @@ export default function Landing() {
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 0', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'rgba(0,0,0,0.04)' }}>
-                    📋
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
+                    </svg>
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: '600', fontSize: '0.9rem', color: colors.navy }}>
