@@ -461,7 +461,7 @@ function getCategoryFacts(catId) {
   if (catId === 'healthcare') {
     return [
       { label: '5-year FEHB rule', value: 'Must be enrolled continuously 5 years before retirement' },
-      { label: 'Government subsidy', value: 'Pays ~72% of FEHB premium in retirement' },
+      { label: 'Government subsidy', value: 'Pays ~72–75% of FEHB premium in retirement' },
       { label: 'Medicare Part B', value: '$202.90/month in 2026' },
       { label: 'Medicare + FEHB', value: 'Combination virtually eliminates out-of-pocket costs' },
     ]
