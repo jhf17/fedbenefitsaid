@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 /**
  * Calendly Webhook Handler
  *
@@ -11,13 +12,68 @@
  */
 
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://calendly.com',
   'Access-Control-Allow-Headers': 'Content-Type, Calendly-Webhook-Signature',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
 }
 
+
+// === SECURITY: Rate Limiting ===
+const rateLimitMap = new Map();
+function checkRateLimit(ip, max = 30, windowMs = 15 * 60 * 1000) {
+  const now = Date.now();
+  const rec = rateLimitMap.get(ip);
+  if (!rec || now - rec.start > windowMs) { rateLimitMap.set(ip, { start: now, count: 1 }); return true; }
+  rec.count++;
+  return rec.count <= max;
+}
+
+// === SECURITY: Webhook Signature Verification ===
+function verifyCalendlySignature(body, signatureHeader, signingKey) {
+  if (!signatureHeader || !signingKey) return false;
+  try {
+    // Calendly sends signature in format: t=timestamp,v1=signature
+    const parts = {};
+    signatureHeader.split(',').forEach(part => {
+      const [key, val] = part.split('=');
+      parts[key] = val;
+    });
+    const timestamp = parts.t;
+    const signature = parts.v1;
+    if (!timestamp || !signature) return false;
+    
+    // Verify timestamp is within 5 minutes
+    const tolerance = 5 * 60 * 1000;
+    if (Math.abs(Date.now() - parseInt(timestamp) * 1000) > tolerance) return false;
+    
+    // Compute expected signature
+    const payload = timestamp + '.' + body;
+    const expected = crypto.createHmac('sha256', signingKey).update(payload).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+  } catch (e) {
+    console.error('Signature verification error:', e.message);
+    return false;
+  }
+}
+
 exports.handler = async (event) => {
+  // Rate limit
+  const clientIp = event.headers['x-forwarded-for'] || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return { statusCode: 429, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Too many requests' }) };
+  }
+  
+  // Verify Calendly webhook signature
+  const signingKey = process.env.CALENDLY_WEBHOOK_SIGNING_KEY;
+  if (signingKey && event.httpMethod === 'POST') {
+    const signature = event.headers['calendly-webhook-signature'];
+    if (!verifyCalendlySignature(event.body, signature, signingKey)) {
+      console.error('Invalid Calendly webhook signature');
+      return { statusCode: 401, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid signature' }) };
+    }
+  }
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: '' }
