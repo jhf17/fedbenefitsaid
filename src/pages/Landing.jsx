@@ -68,18 +68,15 @@ export default function Landing() {
           95% { opacity: 1; }
           100% { opacity: 1; }
         }
-        @keyframes flagWave {
-          0% { transform: skewY(0deg) scaleX(1); }
-          15% { transform: skewY(-1.5deg) scaleX(1.02); }
-          30% { transform: skewY(1deg) scaleX(0.98); }
-          50% { transform: skewY(-2deg) scaleX(1.03); }
-          65% { transform: skewY(0.5deg) scaleX(0.99); }
-          80% { transform: skewY(-1deg) scaleX(1.01); }
-          100% { transform: skewY(0deg) scaleX(1); }
+        @keyframes eagleSettle {
+          0% { transform: scale(0.5) rotate(-8deg); }
+          30% { transform: scale(0.4) rotate(5deg); }
+          60% { transform: scale(0.35) rotate(-2deg); }
+          100% { transform: scale(0.35) rotate(0deg); }
         }
-        .flag-wave {
-          transform-origin: 283px 56px;
-          animation: flagWave 3s ease-in-out infinite;
+        .eagle-settle {
+          animation: eagleSettle 0.8s ease-out 4.2s forwards;
+          transform: scale(0.5);
         }
         .flow-line {
           stroke-dasharray: 600;
@@ -151,6 +148,13 @@ export default function Landing() {
                 <stop offset="50%" stopColor="#f5d77a" stopOpacity="0.5" />
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
+              {/* Flag wind ripple filter */}
+              <filter id="flagWind" x="-5%" y="-5%" width="115%" height="115%">
+                <feTurbulence type="turbulence" baseFrequency="0.015 0.045" numOctaves="3" result="turb">
+                  <animate attributeName="baseFrequency" dur="4s" values="0.01 0.04;0.025 0.07;0.01 0.04" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="turb" scale="3" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
             </defs>
 
             {/* Flowing lines */}
@@ -187,8 +191,8 @@ export default function Landing() {
               <line x1="280" y1="50" x2="280" y2="155" stroke="#1e3a5f" strokeWidth="2.5" strokeLinecap="round" />
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
-              {/* American Flag - 50 stars, 13 stripes, waving */}
-              <g className="flag-wave">
+              {/* American Flag - 50 stars, 13 stripes, cloth ripple via SVG filter */}
+              <g filter="url(#flagWind)">
                 {/* 13 stripes - alternating red and white, wider flag */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
                   <rect key={`stripe-${i}`} x="283" y={50 + i * 3.5} width="76" height="3.5" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
@@ -208,15 +212,15 @@ export default function Landing() {
               </g>
             </g>
 
-            {/* Bald Eagle flying along curved path */}
+            {/* Bald Eagle flying along curved path to land on finial */}
             <g className="eagle-group" opacity="0">
-              {/* Flight path (invisible) */}
-              <path id="eaglePath" d="M-60 300 Q0 120 120 40 Q240 -30 360 10 Q440 35 500 80 Q530 100 540 130" fill="none" stroke="none" />
+              {/* Flight path: off-screen left → sweeping arc → land on gold finial at (278, 43) */}
+              <path id="eaglePath" d="M-80 320 C60 40 200 0 278 43" fill="none" stroke="none" />
               <g>
                 <animateMotion dur="4s" fill="freeze" begin="0.3s" calcMode="spline" keySplines="0.25 0.1 0.25 1">
                   <mpath href="#eaglePath" />
                 </animateMotion>
-                <g transform="scale(0.55)">
+                <g className="eagle-settle">
                   {/* Body - dark brown */}
                   <ellipse cx="0" cy="0" rx="14" ry="6" fill="#3b1f0b" />
                   {/* Left wing - dark brown with feather layers */}
