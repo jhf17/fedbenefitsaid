@@ -54,6 +54,9 @@ export default function Navbar() {
           <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }} aria-current={isActive('/chat') ? 'page' : undefined}>
             AI Chat
           </Link>
+          <Link to="/consultation" style={{ ...styles.link, ...(isActive('/consultation') ? styles.linkActive : {}) }} aria-current={isActive('/consultation') ? 'page' : undefined}>
+            Meet a Consultant
+          </Link>
           {user && user.email === ADMIN_EMAIL && (
             <Link to="/admin" style={{ ...styles.link, ...(isActive('/admin') ? styles.linkActive : {}), color: isActive('/admin') ? '#7b1c2e' : '#7b1c2e', fontWeight: 600 }} aria-current={isActive('/admin') ? 'page' : undefined}>
               Admin
@@ -110,6 +113,9 @@ export default function Navbar() {
           </Link>
           <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             AI Chat
+          </Link>
+          <Link to="/consultation" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            Meet a Consultant
           </Link>
           {user && user.email === ADMIN_EMAIL && (
             <Link to="/admin" style={{ ...styles.mobileLink, color: '#7b1c2e', fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
