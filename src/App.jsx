@@ -15,6 +15,7 @@ import Assessment from './pages/Assessment'
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
+import Consultation from './pages/Consultation'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Auth context — available throughout the app
@@ -99,6 +100,7 @@ export default function App() {
           }
         />
         <Route path="/assessment" element={<Assessment />} />
+        <Route path="/consultation" element={<Consultation />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
