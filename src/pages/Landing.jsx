@@ -130,10 +130,10 @@ function Hero() {
 function TrustBar() {
   const items = [
     { label: '11 benefit areas covered', color: '#7b1c2e' },
-    { label: '2026 official figures', color: '#059669' },
-    { label: 'Instant AI answers', color: '#2563eb' },
-    { label: 'Expert consultations available', color: '#1e3a5f' },
-    { label: 'No data sold, ever', color: '#64748b' },
+    { label: '2026 official figures', color: '#1e3a5f' },
+    { label: 'Instant AI answers', color: '#b8942b' },
+    { label: 'Expert consultations available', color: '#7b1c2e' },
+    { label: 'No data sold, ever', color: '#1e3a5f' },
   ]
 
   return (
@@ -206,9 +206,9 @@ function StatIcon({ icon }) {
 
 function getStatColor(icon) {
   if (icon === 'star') return '#7b1c2e'
-  if (icon === 'calendar') return '#059669'
-  if (icon === 'check') return '#2563eb'
-  if (icon === 'users') return '#1e3a5f'
+  if (icon === 'calendar') return '#1e3a5f'
+  if (icon === 'check') return '#b8942b'
+  if (icon === 'users') return '#0f172a'
   return '#64748b'
 }
 
@@ -231,7 +231,7 @@ function Tools() {
       title: 'Retirement Readiness Assessment',
       description: 'Take a quick quiz about your federal career and get a personalized retirement readiness checklist. See where you stand and what steps to take next.',
       features: ['Personalized score', 'Action checklist', '2-minute quiz', 'No account required'],
-      accent: '#059669',
+      accent: '#1e3a5f',
       iconName: 'assessment',
       cta: { text: 'Start Assessment', to: '/assessment' },
       highlight: true,
@@ -241,7 +241,7 @@ function Tools() {
       title: 'AI Benefits Chat',
       description: 'Ask questions in plain English about your federal benefits. The AI learns your situation and tailors every answer to your specific circumstances.',
       features: ['Personalized answers', 'Cites OPM regulations', 'Builds your profile', 'Unlimited questions'],
-      accent: '#2563eb',
+      accent: '#b8942b',
       iconName: 'chat',
       cta: { text: 'Start Chatting', to: '/signup' },
     },
@@ -250,7 +250,7 @@ function Tools() {
       title: 'Reference Guide',
       description: 'Browse our comprehensive library covering 11 benefit categories. Get the rules, numbers, and common pitfalls for every topic.',
       features: ['11 benefit categories', 'Key numbers at a glance', 'Common pitfalls', 'Searchable & downloadable'],
-      accent: '#1e3a5f',
+      accent: '#0f172a',
       iconName: 'book',
       cta: { text: 'Explore Guide', to: '/reference' },
     },
@@ -259,7 +259,7 @@ function Tools() {
       title: 'Resources & Forms',
       description: 'One-stop shop for official OPM forms, government portals, benefit rate tables, and retirement guides. Everything you need in one place.',
       features: ['Official OPM forms', 'Government links', 'Rate tables & guides', '2026 updates'],
-      accent: '#64748b',
+      accent: '#7b1c2e',
       iconName: 'folder',
       cta: { text: 'Browse Resources', to: '/resources' },
     },
@@ -601,8 +601,8 @@ const heroStyles = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 8,
-    background: 'rgba(30, 58, 95, 0.08)',
-    color: '#1e3a5f',
+    background: '#0f172a',
+    color: '#c9a84c',
     padding: '10px 22px',
     borderRadius: 24,
     fontSize: '0.82rem',
@@ -621,8 +621,10 @@ const heroStyles = {
     marginBottom: 24,
   },
   highlight: {
-    color: '#7b1c2e',
-    WebkitTextFillColor: '#7b1c2e',
+    background: 'linear-gradient(120deg, #7b1c2e 0%, #a0782c 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
     fontWeight: 800,
   },
   sub: {
@@ -876,7 +878,7 @@ const howStyles = {
   stepNum: {
     width: 48,
     height: 48,
-    background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+    background: 'linear-gradient(135deg, #1e3a5f 0%, #2a5a8f 100%)',
     color: 'white',
     borderRadius: '50%',
     display: 'flex',
