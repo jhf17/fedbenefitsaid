@@ -150,10 +150,10 @@ export default function Resources() {
               tag="Calculators"
             />
             <ResourceCard
-              title="WEP &amp; GPO Information"
-              desc="Windfall Elimination Provision and Government Pension Offset rules — critical for CSRS employees who also earned Social Security credits."
-              href="https://www.ssa.gov/pubs/EN-05-10045.pdf"
-              tag="CSRS / WEP"
+              title="WEP &amp; GPO Repeal (2025)"
+              desc="The Windfall Elimination Provision and Government Pension Offset were repealed by the Social Security Fairness Act (Jan 2025). CSRS employees previously affected should see increased Social Security benefits."
+              href="https://www.ssa.gov/benefits/retirement/social-security-fairness-act.html"
+              tag="CSRS / Repealed"
             />
             <ResourceCard
               title="Apply for Social Security"
