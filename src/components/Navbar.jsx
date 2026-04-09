@@ -52,9 +52,6 @@ export default function Navbar() {
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }} aria-current={isActive('/reference') ? 'page' : undefined}>
             Reference
           </Link>
-          <Link to="/timeline" style={{ ...styles.link, ...(isActive('/timeline') ? styles.linkActive : {}) }} aria-current={isActive('/timeline') ? 'page' : undefined}>
-            Key Dates
-          </Link>
           <Link to="/resources" style={{ ...styles.link, ...(isActive('/resources') ? styles.linkActive : {}) }} aria-current={isActive('/resources') ? 'page' : undefined}>
             Resources
           </Link>
@@ -114,9 +111,6 @@ export default function Navbar() {
           </Link>
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Reference
-          </Link>
-          <Link to="/timeline" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Key Dates
           </Link>
           <Link to="/resources" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Forms &amp; Resources
