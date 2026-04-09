@@ -426,7 +426,7 @@ export default function Landing() {
               Every rule, number, and pitfall — organized.
             </h2>
             <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: colors.gray600, marginBottom: '32px', maxWidth: '480px' }}>
-              Six comprehensive categories covering FERS, CSRS, TSP, FEHB, FEGLI, Social Security, and Medicare. Each topic includes key figures, rules, and common mistakes to watch for.
+              Eleven comprehensive categories covering FERS, CSRS, TSP, FEHB, FEGLI, Social Security, Medicare, and Survivor Benefits. Each topic includes key figures, rules, and common mistakes to watch for. Each topic includes key figures, rules, and common mistakes to watch for.
             </p>
             <Link to="/reference" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', color: colors.navyMid, transition: 'gap 0.2s', cursor: 'pointer' }}>
               Explore the guide →
