@@ -32,6 +32,127 @@ const MEDICARE_B_MONTHLY = 202.90
 // FERS COLA (Cost of Living Adjustment) rules
 const COLA_AVERAGE_ANNUAL = 0.02
 
+// ============================================================
+// FEGLI RATES (effective 10/1/2021 from OPM.gov)
+// ============================================================
+
+// FEGLI rate tables by age
+const FEGLI_OPTION_A_RATES = {
+  employee: { '<35': 0.20, '35-39': 0.20, '40-44': 0.30, '45-49': 0.60, '50-54': 1.00, '55-59': 1.80, '60+': 6.00 },
+  annuitant: { '<35': 0.43, '35-39': 0.43, '40-44': 0.65, '45-49': 1.30, '50-54': 2.17, '55-59': 3.90, '60-64': 13.00 }
+}
+
+const FEGLI_OPTION_B_RATES = {
+  employee: { '<35': 0.02, '35-39': 0.02, '40-44': 0.03, '45-49': 0.06, '50-54': 0.10, '55-59': 0.18, '60-64': 0.40, '65-69': 0.48, '70-74': 0.86, '75-79': 1.80, '80+': 2.88 },
+  annuitant: { '<35': 0.043, '35-39': 0.043, '40-44': 0.065, '45-49': 0.130, '50-54': 0.217, '55-59': 0.390, '60-64': 0.867, '65-69': 1.040, '70-74': 1.863, '75-79': 3.900, '80+': 6.240 }
+}
+
+const FEGLI_OPTION_C_RATES = {
+  employee: { '<35': 0.20, '35-39': 0.24, '40-44': 0.37, '45-49': 0.53, '50-54': 0.83, '55-59': 1.33, '60-64': 2.43, '65-69': 2.83, '70-74': 3.83, '75-79': 5.76, '80+': 7.80 },
+  annuitant: { '<35': 0.43, '35-39': 0.52, '40-44': 0.80, '45-49': 1.15, '50-54': 1.80, '55-59': 2.88, '60-64': 5.27, '65-69': 6.13, '70-74': 8.30, '75-79': 12.48, '80+': 16.90 }
+}
+
+function getAgeBracket(age) {
+  if (age < 35) return '<35'
+  if (age < 40) return '35-39'
+  if (age < 45) return '40-44'
+  if (age < 50) return '45-49'
+  if (age < 55) return '50-54'
+  if (age < 60) return '55-59'
+  if (age < 65) return '60-64'
+  if (age < 70) return '65-69'
+  if (age < 75) return '70-74'
+  if (age < 80) return '75-79'
+  return '80+'
+}
+
+function getRate(rateTable, age) {
+  const bracket = getAgeBracket(age)
+  return rateTable[bracket] || 0
+}
+
+function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basicReduction, optAReduction, optBReduction, optCReduction) {
+  // Basic Insurance (BIA)
+  const bia = Math.ceil(salary / 1000) * 1000 + 2000
+
+  // Current (employee) costs - all ages
+  const basicBiw = (bia / 1000) * 0.1600  // $0.16 per $1000
+  const optABiw = optA ? (10000 / 10000) * getRate(FEGLI_OPTION_A_RATES.employee, currentAge) : 0
+  const optBPerK = parseFloat(optBMult) || 0
+  const optBBiw = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.employee, currentAge) : 0
+  const optCPerMult = parseFloat(optCMult) || 0
+  const optCBiw = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.employee, currentAge) : 0
+
+  const totalBiw = basicBiw + optABiw + optBBiw + optCBiw
+  const totalMonthly = totalBiw * 26 / 12
+  const totalAnnual = totalBiw * 26
+
+  // Post-retirement costs at various ages
+  const projectionAges = [60, 65, 70, 75, 80]
+  const retireCosts = {}
+
+  projectionAges.forEach(projAge => {
+    let basicMo = 0, optAMo = 0, optBMo = 0, optCMo = 0
+
+    if (projAge < 65) {
+      // Before 65: annuitant rates apply
+      basicMo = (bia / 1000) * {
+        '75': 0.3467,  // 75% reduction: $0.3467/mo per $1000 until 65, then FREE
+        '50': 1.0967,  // 50% reduction: $1.0967/mo per $1000 until 65
+        'no': 2.5967   // No reduction: $2.5967/mo per $1000
+      }[basicReduction]
+
+      optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, projAge) : 0
+      optBMo = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, projAge) : 0
+      optCMo = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.annuitant, projAge) : 0
+    } else {
+      // At 65 and beyond
+      if (basicReduction === '75') {
+        basicMo = 0  // Coverage reduces to 25% of BIA, but after 65 reduction is free
+      } else if (basicReduction === '50') {
+        basicMo = (bia / 1000) * 0.75  // 50% reduction: stays at $0.75/mo per $1000
+      } else {
+        basicMo = (bia / 1000) * 2.25  // No reduction: stays at $2.25/mo per $1000
+      }
+
+      if (optAReduction === 'full') {
+        optAMo = 0  // Coverage reduces to $0 with full reduction
+      } else {
+        optAMo = getRate(FEGLI_OPTION_A_RATES.annuitant, projAge)
+      }
+
+      if (optBReduction === 'full') {
+        optBMo = 0
+      } else {
+        optBMo = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, projAge) : 0
+      }
+
+      if (optCReduction === 'full') {
+        optCMo = 0
+      } else {
+        optCMo = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.annuitant, projAge) : 0
+      }
+    }
+
+    retireCosts[projAge] = {
+      monthly: basicMo + optAMo + optBMo + optCMo,
+      annual: (basicMo + optAMo + optBMo + optCMo) * 12
+    }
+  })
+
+  return {
+    bia,
+    optA: optA ? 10000 : 0,
+    optB: optBPerK * (salary / 1000),
+    optC: optCPerMult * 5000,  // 1 multiple = $5K spouse + $2.5K per child (approx $5K per multiple)
+    totalCoverage: bia + (optA ? 10000 : 0) + (optBPerK * (salary / 1000)) + (optCPerMult * 5000),
+    currentCostBiw: totalBiw,
+    currentCostMonthly: totalMonthly,
+    currentCostAnnual: totalAnnual,
+    retireCosts
+  }
+}
+
 function calcCOLAProjection(pensionMonthly, retireAge, yearsToRetirement, tab) {
   if (tab !== 'fers') return null
   const retirementAge = Math.round(retireAge)
@@ -205,6 +326,14 @@ export default function Calculator() {
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
 
+  // Responsive layout for FEGLI two-column
+  const [isWide, setIsWide] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true)
+  useEffect(() => {
+    const handler = () => setIsWide(window.innerWidth >= 1024)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+
   // Shared inputs
   const [currentAge, setCurrentAge] = useState('')
   const [retireAge, setRetireAge] = useState('')
@@ -251,6 +380,19 @@ export default function Calculator() {
   // Special category
   const [specialCat, setSpecialCat] = useState('leo')
 
+  // FEGLI inputs
+  const [fegliSalary, setFegliSalary] = useState('')
+  const [fegliAge, setFegliAge] = useState('')
+  const [fegliRetireAge, setFegliRetireAge] = useState('')
+  const [fegliOptA, setFegliOptA] = useState(true)
+  const [fegliOptBMult, setFegliOptBMult] = useState('1')
+  const [fegliOptCMult, setFegliOptCMult] = useState('0')
+  const [fegliBasicReduction, setFegliBasicReduction] = useState('75')
+  const [fegliOptAReduction, setFegliOptAReduction] = useState('full')
+  const [fegliOptBReduction, setFegliOptBReduction] = useState('full')
+  const [fegliOptCReduction, setFegliOptCReduction] = useState('full')
+  const [fegliResults, setFegliResults] = useState(null)
+
   const [errors, setErrors] = useState([])
   const [captureEmail, setCaptureEmail] = useState('')
   const [captureName, setCaptureName] = useState('')
@@ -258,7 +400,27 @@ export default function Calculator() {
   const [captureLoading, setCaptureLoading] = useState(false)
   const [captureSent, setCaptureSent] = useState(false)
   const [captureError, setCaptureError] = useState('')
-  useEffect(() => { document.title = 'FERS Retirement Calculator | FedBenefitsAid' }, [])
+
+  useEffect(() => {
+    if (tab === 'fegli') {
+      document.title = 'FEGLI Life Insurance Calculator | FedBenefitsAid'
+    } else {
+      document.title = 'FERS Retirement Calculator | FedBenefitsAid'
+    }
+  }, [tab])
+
+  // Real-time FEGLI calculation
+  useEffect(() => {
+    if (tab !== 'fegli') return
+    const salary = parseFloat(fegliSalary)
+    const age = parseFloat(fegliAge)
+    if (!salary || salary <= 0 || !age || age <= 0) {
+      setFegliResults(null)
+      return
+    }
+    const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction)
+    setFegliResults(result)
+  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction])
 
   const handleEmailCapture = async (e) => {
     e.preventDefault()
@@ -310,10 +472,16 @@ export default function Calculator() {
 
   function validate() {
     const errs = []
-    if (!yearsService || isNaN(yearsService) || +yearsService <= 0) errs.push('Enter years of federal service.')
-    if (!high3 || isNaN(high3) || +high3 <= 0) errs.push('Enter your High-3 average salary.')
-    if (tab === 'fers' || tab === 'special') {
-      if (!retireAge || isNaN(retireAge)) errs.push('Enter your planned retirement age.')
+    if (tab === 'fegli') {
+      if (!fegliSalary || isNaN(fegliSalary) || +fegliSalary <= 0) errs.push('Enter your annual salary.')
+      if (!fegliAge || isNaN(fegliAge) || +fegliAge <= 0) errs.push('Enter your current age.')
+      if (!fegliRetireAge || isNaN(fegliRetireAge) || +fegliRetireAge <= 0) errs.push('Enter your planned retirement age.')
+    } else {
+      if (!yearsService || isNaN(yearsService) || +yearsService <= 0) errs.push('Enter years of federal service.')
+      if (!high3 || isNaN(high3) || +high3 <= 0) errs.push('Enter your High-3 average salary.')
+      if (tab === 'fers' || tab === 'special') {
+        if (!retireAge || isNaN(retireAge)) errs.push('Enter your planned retirement age.')
+      }
     }
     return errs
   }
@@ -323,90 +491,111 @@ export default function Calculator() {
     if (errs.length > 0) { setErrors(errs); return }
     setErrors([])
 
-    const yrs = parseFloat(yearsService)
-    const h3 = parseFloat(high3)
-    const rAge = parseFloat(retireAge) || 62
-    const cAge = parseFloat(currentAge) || 0
-    const yearsToRetire = Math.max(0, rAge - cAge)
-    const tspBal = parseFloat(tspBalance) || 0
-    const mContrib = parseFloat(monthlyContrib) || 0
-    const growthRate = parseFloat(tspGrowthRate) || 6
-    const ssEstimate = parseFloat(ssAt62) || 0
-    const claimAge = parseFloat(ssClaimAge) || 67
+    if (tab === 'fegli') {
+      const salary = parseFloat(fegliSalary)
+      const age = parseFloat(fegliAge)
+      const rAge = parseFloat(fegliRetireAge)
 
-    let pensionResult, supplementMonthly = 0
+      const result = calcFEGLI(
+        salary,
+        age,
+        rAge,
+        fegliOptA,
+        fegliOptBMult,
+        fegliOptCMult,
+        fegliBasicReduction,
+        fegliOptAReduction,
+        fegliOptBReduction,
+        fegliOptCReduction
+      )
 
-    if (tab === 'fers') {
-      pensionResult = calcFERSPension(yrs, h3, rAge, survivorBenefit, earlyRetirement)
-      // FERS Supplement: only if immediate retirement before 62
-      if (includeSupp && rAge < 62 && earlyRetirement !== 'mra10' && ssEstimate > 0) {
-        supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
-      }
-    } else if (tab === 'csrs') {
-      pensionResult = calcCSRSPension(yrs, h3, survivorBenefit)
+      setFegliResults(result)
     } else {
-      pensionResult = calcSpecialPension(yrs, h3, survivorBenefit, specialCat)
-      if (includeSupp && rAge < 62 && ssEstimate > 0) {
-        supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
-      }
-    }
+      const yrs = parseFloat(yearsService)
+      const h3 = parseFloat(high3)
+      const rAge = parseFloat(retireAge) || 62
+      const cAge = parseFloat(currentAge) || 0
+      const yearsToRetire = Math.max(0, rAge - cAge)
+      const tspBal = parseFloat(tspBalance) || 0
+      const mContrib = parseFloat(monthlyContrib) || 0
+      const growthRate = parseFloat(tspGrowthRate) || 6
+      const ssEstimate = parseFloat(ssAt62) || 0
+      const claimAge = parseFloat(ssClaimAge) || 67
 
-    const tspAtRetirement = calcTSPFutureValue(tspBal, mContrib, yearsToRetire, growthRate)
-    const tspMonthly4pct = (tspAtRetirement * 0.04) / 12
-    const ssMonthly = ssEstimate > 0 ? calcSSBenefit(ssEstimate, claimAge) : 0
-    const pensionMonthly = pensionResult.netAnnual / 12
-    const medicareDeduct = includeMedicare ? MEDICARE_B_MONTHLY : 0
+      let pensionResult, supplementMonthly = 0
 
-    let fehbDeduct = 0
-    if (includeFEHB) {
-      const plan = FEHB_PLANS.find(p => p.id === fehbPlan)
-      if (plan) {
-        if (fehbPlan === 'custom') {
-          fehbDeduct = parseFloat(fehbCustom) || 0
-        } else {
-          const bw = fehbCoverage === 'self' ? plan.self : fehbCoverage === 'self1' ? plan.s1 : plan.fam
-          fehbDeduct = fehbMonthlyAmt(bw)
+      if (tab === 'fers') {
+        pensionResult = calcFERSPension(yrs, h3, rAge, survivorBenefit, earlyRetirement)
+        // FERS Supplement: only if immediate retirement before 62
+        if (includeSupp && rAge < 62 && earlyRetirement !== 'mra10' && ssEstimate > 0) {
+          supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
+        }
+      } else if (tab === 'csrs') {
+        pensionResult = calcCSRSPension(yrs, h3, survivorBenefit)
+      } else {
+        pensionResult = calcSpecialPension(yrs, h3, survivorBenefit, specialCat)
+        if (includeSupp && rAge < 62 && ssEstimate > 0) {
+          supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
         }
       }
+
+      const tspAtRetirement = calcTSPFutureValue(tspBal, mContrib, yearsToRetire, growthRate)
+      const tspMonthly4pct = (tspAtRetirement * 0.04) / 12
+      const ssMonthly = ssEstimate > 0 ? calcSSBenefit(ssEstimate, claimAge) : 0
+      const pensionMonthly = pensionResult.netAnnual / 12
+      const medicareDeduct = includeMedicare ? MEDICARE_B_MONTHLY : 0
+
+      let fehbDeduct = 0
+      if (includeFEHB) {
+        const plan = FEHB_PLANS.find(p => p.id === fehbPlan)
+        if (plan) {
+          if (fehbPlan === 'custom') {
+            fehbDeduct = parseFloat(fehbCustom) || 0
+          } else {
+            const bw = fehbCoverage === 'self' ? plan.self : fehbCoverage === 'self1' ? plan.s1 : plan.fam
+            fehbDeduct = fehbMonthlyAmt(bw)
+          }
+        }
+      }
+      const fehbPlanLabel = FEHB_PLANS.find(p => p.id === fehbPlan)?.label || ''
+      const fehbCoverageLabel = fehbCoverage === 'self' ? 'Self Only' : fehbCoverage === 'self1' ? 'Self + One' : 'Self + Family'
+
+      const totalMonthly = pensionMonthly + tspMonthly4pct + ssMonthly + supplementMonthly - medicareDeduct - fehbDeduct
+      const totalAnnual = totalMonthly * 12
+
+      // FIA income projections (conservative range)
+      const fiaPayouts = {
+        conservative: (tspAtRetirement * 0.045) / 12,
+        moderate:     (tspAtRetirement * 0.055) / 12,
+        aggressive:   (tspAtRetirement * 0.065) / 12,
+      }
+
+      setResults({
+        tab,
+        pensionResult,
+        pensionMonthly,
+        pensionAnnual: pensionResult.netAnnual,
+        supplementMonthly,
+        tspAtRetirement,
+        tspMonthly4pct,
+        ssMonthly,
+        medicareDeduct,
+        fehbDeduct,
+        fehbPlanLabel,
+        fehbCoverageLabel,
+        totalMonthly,
+        totalAnnual,
+        fiaPayouts,
+        yearsToRetire,
+        rAge,
+        yrs,
+        h3,
+        growthRate,
+        claimAge,
+        colaProjection: calcCOLAProjection(pensionMonthly, rAge, yearsToRetire, tab),
+      })
+      setShowFIA(false)
     }
-    const fehbPlanLabel = FEHB_PLANS.find(p => p.id === fehbPlan)?.label || ''
-    const fehbCoverageLabel = fehbCoverage === 'self' ? 'Self Only' : fehbCoverage === 'self1' ? 'Self + One' : 'Self + Family'
-
-    const totalMonthly = pensionMonthly + tspMonthly4pct + ssMonthly + supplementMonthly - medicareDeduct - fehbDeduct
-    const totalAnnual = totalMonthly * 12
-
-    // FIA income projections (conservative range)
-    const fiaPayouts = {
-      conservative: (tspAtRetirement * 0.045) / 12,
-      moderate:     (tspAtRetirement * 0.055) / 12,
-      aggressive:   (tspAtRetirement * 0.065) / 12,
-    }
-
-    setResults({
-      tab,
-      pensionResult,
-      pensionMonthly,
-      pensionAnnual: pensionResult.netAnnual,
-      supplementMonthly,
-      tspAtRetirement,
-      tspMonthly4pct,
-      ssMonthly,
-      medicareDeduct,
-      fehbDeduct,
-      fehbPlanLabel,
-      fehbCoverageLabel,
-      totalMonthly,
-      totalAnnual,
-      fiaPayouts,
-      yearsToRetire,
-      rAge,
-      yrs,
-      h3,
-      growthRate,
-      claimAge,
-      colaProjection: calcCOLAProjection(pensionMonthly, rAge, yearsToRetire, tab),
-    })
-    setShowFIA(false)
 
     setTimeout(() => {
       document.getElementById('calc-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -422,10 +611,12 @@ export default function Calculator() {
         {/* Header */}
         <div style={s.header}>
           <div style={s.badge}>Free Tool - No Account Required</div>
-          <h1 style={s.h1}>Federal Retirement Income Calculator</h1>
+          <h1 style={s.h1}>{tab === 'fegli' ? 'FEGLI Life Insurance Calculator' : 'Federal Retirement Income Calculator'}</h1>
           <p style={s.subtitle}>
-            See your complete retirement picture: pension, TSP, and Social Security combined.
-            All calculations use verified 2026 OPM figures.
+            {tab === 'fegli'
+              ? 'Understand your Federal Employees\' Group Life Insurance (FEGLI) coverage, costs, and retirement impact.'
+              : 'See your complete retirement picture: pension, TSP, and Social Security combined. All calculations use verified 2026 OPM figures.'
+            }
           </p>
         </div>
 
@@ -436,21 +627,22 @@ export default function Calculator() {
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
-          This calculator provides estimates for educational purposes only. Results are based on publicly available FERS formulas and the information you provide. Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
+          This calculator provides estimates for educational purposes only. {tab === 'fegli' ? 'FEGLI rates and coverage are based on OPM data effective 10/1/2021.' : 'Results are based on publicly available FERS formulas and the information you provide.'} Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
         </div>
 
-        {/* Retirement System Tabs */}
-        <div style={s.tabRow} role="tablist" aria-label="Retirement system">
+        {/* Calculator Tabs */}
+        <div style={s.tabRow} role="tablist" aria-label="Calculator type">
           {[
             { id: 'fers', label: 'FERS' },
             { id: 'csrs', label: 'CSRS' },
             { id: 'special', label: 'Special Provisions' },
+            { id: 'fegli', label: 'FEGLI Life Insurance' },
           ].map(t => (
             <button
               key={t.id}
               role="tab"
               aria-selected={tab === t.id}
-              onClick={() => { setTab(t.id); setResults(null); setErrors([]) }}
+              onClick={() => { setTab(t.id); setResults(null); setFegliResults(null); setErrors([]) }}
               style={{ ...s.tabBtn, ...(tab === t.id ? s.tabBtnActive : {}) }}
             >
               {t.label}
@@ -458,447 +650,783 @@ export default function Calculator() {
           ))}
         </div>
 
-        {/* Input Form */}
-        <div style={s.card}>
-
-          {/* Service & Salary */}
-          <div style={s.cardTitle}>Your Service Information</div>
-          <div style={s.grid2}>
-<Field label="Years of Federal Service" hint="Total creditable service years">
-              <input
-                type="number" min="1" max="50"
-                value={yearsService}
-                onChange={e => setYearsService(e.target.value)}
-                placeholder="e.g. 28"
-                style={s.input}
-              />
-            </Field>
-            <Field label="High-3 Average Salary ($)" hint="Average of your 3 highest consecutive earning years">
-              <input
-                type="number" min="20000"
-                value={high3}
-                onChange={e => setHigh3(e.target.value)}
-                placeholder="e.g. 95000"
-                style={s.input}
-              />
-            </Field>
-          </div>
-
-          {/* Age fields - shown for FERS and Special */}
-          {(tab === 'fers' || tab === 'special') && (
-            <div style={{ ...s.grid2, marginTop: 16 }}>
-              <Field label="Current Age">
-                <input
-                  type="number" min="25" max="80"
-                  value={currentAge}
-                  onChange={e => setCurrentAge(e.target.value)}
-                  placeholder="e.g. 55"
-                  style={s.input}
-                />
-              </Field>
-              <Field label="Planned Retirement Age">
-                <input
-                  type="number" min="50" max="70"
-                  value={retireAge}
-                  onChange={e => setRetireAge(e.target.value)}
-                  placeholder="e.g. 62"
-                  style={s.input}
-                />
-              </Field>
-            </div>
-          )}
-
-          {/* Retirement type is now auto-detected from age, service, and planned retirement age */}
-
-          {/* Special category selector */}
-          {tab === 'special' && (
-            <div style={{ marginTop: 16 }}>
-              <Field label="Special Category">
-                <select value={specialCat} onChange={e => setSpecialCat(e.target.value)} style={s.select}>
-                  <option value="leo">Law Enforcement Officer (LEO)</option>
-                  <option value="ff">Firefighter (FF)</option>
-                  <option value="atc">Air Traffic Controller (ATC)</option>
-                  <option value="congressional">Congressional Employee</option>
-                </select>
-              </Field>
-            </div>
-          )}
-
-          {/* Survivor Benefit */}
-          <div style={{ marginTop: 16 }}>
-            <Field label="Survivor Benefit Election" hint="Reduces your pension to provide income to a surviving spouse">
-              <select value={survivorBenefit} onChange={e => setSurvivorBenefit(e.target.value)} style={s.select}>
-                <option value="full">Full (50% to survivor - 10% deduction from your pension)</option>
-                <option value="partial">Partial (25% to survivor - 5% deduction from your pension)</option>
-                <option value="none">None (0% deduction - no survivor benefit)</option>
-              </select>
-            </Field>
-          </div>
-
-          {/* TSP Section */}
-          <div style={{ ...s.cardTitle, marginTop: 28 }}>Your TSP (Thrift Savings Plan)</div>
-          <div style={s.grid2}>
-            <Field label="Current TSP Balance ($)" hint="Your current account balance across all funds">
-              <input
-                type="number" min="0"
-                value={tspBalance}
-                onChange={e => setTspBalance(e.target.value)}
-                placeholder="e.g. 250000"
-                style={s.input}
-              />
-            </Field>
-            <Field label="Monthly Contribution ($)" hint="Employee + agency contributions per month">
-              <input
-                type="number" min="0"
-                value={monthlyContrib}
-                onChange={e => setMonthlyContrib(e.target.value)}
-                placeholder="e.g. 800"
-                style={s.input}
-              />
-            </Field>
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <Field label={`Assumed Annual Growth Rate: ${tspGrowthRate}%`} hint="TSP C Fund has averaged ~10%/yr long-term. Use 5-7% for conservative planning.">
-              <div style={s.sliderRow}>
-                <input
-                  type="range" min="3" max="10" step="0.5"
-                  value={tspGrowthRate}
-                  onChange={e => setTspGrowthRate(e.target.value)}
-                  style={s.slider}
-                />
-                <span style={s.sliderVal}>{tspGrowthRate}%</span>
-              </div>
-            </Field>
-          </div>
-
-          {/* Social Security */}
-          <div style={{ ...s.cardTitle, marginTop: 28 }}>Social Security</div>
-          <div style={s.grid2}>
-            <Field
-              label="Estimated Monthly Benefit at Age 62 ($)"
-              hint="Find this on your Social Security statement at ssa.gov/myaccount. Leave blank to skip."
-            >
-              <input
-                type="number" min="0"
-                value={ssAt62}
-                onChange={e => setSsAt62(e.target.value)}
-                placeholder="e.g. 1450"
-                style={s.input}
-              />
-            </Field>
-            <Field label="Planned SS Claiming Age" hint="Delaying SS increases your benefit. FRA is 67 for most workers.">
-              <select value={ssClaimAge} onChange={e => setSsClaimAge(e.target.value)} style={s.select}>
-                <option value="62">62 (earliest, reduced benefit)</option>
-                <option value="63">63</option>
-                <option value="64">64</option>
-                <option value="65">65</option>
-                <option value="66">66</option>
-                <option value="67">67 (Full Retirement Age for most)</option>
-                <option value="68">68</option>
-                <option value="69">69</option>
-                <option value="70">70 (maximum benefit)</option>
-              </select>
-            </Field>
-          </div>
-
-          {/* FERS Supplement toggle */}
-          {(tab === 'fers' || tab === 'special') && parseFloat(retireAge) < 62 && ssAt62 && (
-            <div style={{ marginTop: 12 }}>
-              <label style={s.checkLabel}>
-                <input
-                  type="checkbox"
-                  checked={includeSupp}
-                  onChange={e => setIncludeSupp(e.target.checked)}
-                  style={{ marginRight: 8 }}
-                />
-                Include FERS Supplement (payable until age 62 on immediate retirement)
-              </label>
-            </div>
-          )}
-
-          {/* Medicare toggle */}
-          <div style={{ marginTop: 12 }}>
-            <label style={s.checkLabel}>
-              <input
-                type="checkbox"
-                checked={includeMedicare}
-                onChange={e => setIncludeMedicare(e.target.checked)}
-                style={{ marginRight: 8 }}
-              />
-              Deduct Medicare Part B premium ($202.90/mo in 2026) from total income
-            </label>
-          </div>
-
-
-          {/* FEHB Health Insurance */}
-          <div style={{ marginTop: 12 }}>
-            <label style={s.checkLabel}>
-              <input
-                type="checkbox"
-                checked={includeFEHB}
-                onChange={e => setIncludeFEHB(e.target.checked)}
-                style={{ marginRight: 8 }}
-              />
-              Deduct FEHB health insurance premium from total income
-            </label>
-          </div>
-          {includeFEHB && (
-            <div style={{ marginTop: 14, padding: '18px 20px', background: '#f0f9ff', borderRadius: 12, border: '1.5px solid #bae6fd' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-                <Field label="FEHB Plan" hint="2026 OPM rates. * = estimated — verify at opm.gov/premiums">
-                  <select value={fehbPlan} onChange={e => setFehbPlan(e.target.value)} style={s.select}>
-                    {FEHB_PLANS.map(p => (
-                      <option key={p.id} value={p.id}>{p.label}</option>
-                    ))}
-                  </select>
+        {/* FEGLI Form & Results - Two Column Layout */}
+        {tab === 'fegli' && (
+          <div style={{ display: 'flex', gap: 24, marginBottom: 24, flexDirection: isWide ? 'row' : 'column' }}>
+            {/* LEFT COLUMN - FORM */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Your Information Card */}
+              <div style={s.card}>
+                <div style={s.cardTitle}>Your Information</div>
+                <Field label="Annual Gross Salary ($)">
+                  <input
+                    type="number" min="20000"
+                    value={fegliSalary}
+                    onChange={e => setFegliSalary(e.target.value)}
+                    placeholder="e.g. 95000"
+                    style={s.input}
+                  />
                 </Field>
-                <Field label="Coverage Type">
-                  <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
-                    <option value="self">Self Only</option>
-                    <option value="self1">Self + One</option>
-                    <option value="fam">Self + Family</option>
-                  </select>
-                </Field>
-              </div>
-              {fehbPlan === 'custom' && (
-                <div style={{ marginTop: 12 }}>
-                  <Field label="Monthly Premium Amount ($)" hint="Enter the monthly amount deducted from your pension">
+
+                <div style={{ marginTop: 16 }}>
+                  <Field label="Current Age">
                     <input
-                      type="number" min="0"
-                      value={fehbCustom}
-                      onChange={e => setFehbCustom(e.target.value)}
-                      placeholder="e.g. 350"
+                      type="number" min="25" max="80"
+                      value={fegliAge}
+                      onChange={e => setFegliAge(e.target.value)}
+                      placeholder="e.g. 50"
                       style={s.input}
                     />
                   </Field>
                 </div>
+
+                <div style={{ marginTop: 16 }}>
+                  <Field label="Planned Retirement Age">
+                    <input
+                      type="number" min="50" max="75"
+                      value={fegliRetireAge}
+                      onChange={e => setFegliRetireAge(e.target.value)}
+                      placeholder="e.g. 62"
+                      style={s.input}
+                    />
+                  </Field>
+                </div>
+              </div>
+
+              {/* Coverage Elections Card */}
+              <div style={s.card}>
+                <div style={s.cardTitle}>Coverage Elections</div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <Toggle
+                    checked={fegliOptA}
+                    onChange={e => setFegliOptA(e.target.checked)}
+                    label="Option A"
+                    sublabel="Standard life insurance – $10,000"
+                  />
+                </div>
+
+                <Field label="Option B – Multiples of salary">
+                  <select value={fegliOptBMult} onChange={e => setFegliOptBMult(e.target.value)} style={s.select}>
+                    <option value="0">Not elected</option>
+                    <option value="1">1 multiple</option>
+                    <option value="2">2 multiples</option>
+                    <option value="3">3 multiples</option>
+                    <option value="4">4 multiples</option>
+                    <option value="5">5 multiples</option>
+                  </select>
+                </Field>
+
+                <div style={{ marginTop: 16 }}>
+                  <Field label="Option C – Family coverage multiples">
+                    <select value={fegliOptCMult} onChange={e => setFegliOptCMult(e.target.value)} style={s.select}>
+                      <option value="0">Not elected</option>
+                      <option value="1">1 multiple</option>
+                      <option value="2">2 multiples</option>
+                      <option value="3">3 multiples</option>
+                      <option value="4">4 multiples</option>
+                      <option value="5">5 multiples</option>
+                    </select>
+                  </Field>
+                </div>
+              </div>
+
+              {/* Reduction Elections Card */}
+              <div style={s.card}>
+                <div style={s.cardTitle}>Post-Retirement Reductions at Age 65</div>
+
+                <Field label="Basic Insurance">
+                  <select value={fegliBasicReduction} onChange={e => setFegliBasicReduction(e.target.value)} style={s.select}>
+                    <option value="75">75% Reduction – Lower cost</option>
+                    <option value="50">50% Reduction – Moderate cost</option>
+                    <option value="no">No Reduction – Full coverage</option>
+                  </select>
+                </Field>
+
+                <div style={{ marginTop: 16 }}>
+                  <Field label="Option A">
+                    <select value={fegliOptAReduction} onChange={e => setFegliOptAReduction(e.target.value)} style={s.select}>
+                      <option value="full">Full Reduction – Free after 65</option>
+                      <option value="none">No Reduction – Keep coverage</option>
+                    </select>
+                  </Field>
+                </div>
+
+                <div style={{ marginTop: 16 }}>
+                  <Field label="Option B">
+                    <select value={fegliOptBReduction} onChange={e => setFegliOptBReduction(e.target.value)} style={s.select}>
+                      <option value="full">Full Reduction – Drops at 65</option>
+                      <option value="none">No Reduction – Continues for life</option>
+                    </select>
+                  </Field>
+                </div>
+
+                <div style={{ marginTop: 16 }}>
+                  <Field label="Option C">
+                    <select value={fegliOptCReduction} onChange={e => setFegliOptCReduction(e.target.value)} style={s.select}>
+                      <option value="full">Full Reduction – Drops at 65</option>
+                      <option value="none">No Reduction – Continues for life</option>
+                    </select>
+                  </Field>
+                </div>
+              </div>
+
+              {errors.length > 0 && (
+                <div style={s.errorBox}>
+                  {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
+                </div>
               )}
-              {fehbPlan !== 'custom' && (() => {
-                const plan = FEHB_PLANS.find(p => p.id === fehbPlan)
-                const bw = plan ? (fehbCoverage === 'self' ? plan.self : fehbCoverage === 'self1' ? plan.s1 : plan.fam) : 0
-                const mo = fehbMonthlyAmt(bw)
-                return (
-                  <div style={{ marginTop: 10, fontSize: '0.82rem', color: '#0369a1' }}>
-                    Estimated monthly deduction: <strong>{fmt(mo)}/mo</strong> ({fmt(bw)}/biweekly × 26 ÷ 12)
-                    {plan && !plan.verified && <span style={{ color: '#d97706', marginLeft: 6 }}>*estimate — verify at opm.gov</span>}
-                  </div>
-                )
-              })()}
             </div>
-          )}
 
-          {/* Errors */}
-          {errors.length > 0 && (
-            <div style={s.errorBox}>
-              {errors.map((e, i) => <div key={i}>{e}</div>)}
+            {/* RIGHT COLUMN - STICKY SUMMARY */}
+            <div style={{ width: isWide ? 360 : '100%', flexShrink: 0 }}>
+              <div style={{ position: isWide ? 'sticky' : 'relative', top: isWide ? 20 : 0 }}>
+                <div style={s.summaryPanel}>
+                  {fegliResults ? (
+                    <>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>Your Coverage Summary</div>
+
+                      <div style={{ marginBottom: 24 }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Total Coverage</div>
+                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7b1c2e' }}>{fmt(fegliResults.totalCoverage)}</div>
+                      </div>
+
+                      <div style={{ background: '#f8f7f4', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: '0.85rem' }}>
+                        <div style={{ color: '#64748b', marginBottom: 8 }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Basic</div>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.bia)}</div>
+                        </div>
+                        {fegliResults.optA > 0 && <div style={{ color: '#64748b', marginBottom: 8 }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Option A</div>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.optA)}</div>
+                        </div>}
+                        {fegliResults.optB > 0 && <div style={{ color: '#64748b', marginBottom: 8 }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Option B</div>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.optB)}</div>
+                        </div>}
+                        {fegliResults.optC > 0 && <div style={{ color: '#64748b' }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Option C</div>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.optC)}</div>
+                        </div>}
+                      </div>
+
+                      <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 16, marginBottom: 16 }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Current Costs</div>
+                        <div style={{ fontSize: '0.9rem', marginBottom: 6 }}>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>Monthly</div>
+                          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.currentCostMonthly)}</div>
+                        </div>
+                        <div style={{ fontSize: '0.9rem' }}>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>Annual</div>
+                          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.currentCostAnnual)}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 16, marginBottom: 16 }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Cost at Key Ages</div>
+                        {fegliResults.retireCosts['65'] && <div style={{ fontSize: '0.9rem', marginBottom: 8 }}>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Age 65 – {fmt(fegliResults.retireCosts['65'].monthly)}/mo</div>
+                        </div>}
+                        {fegliResults.retireCosts['75'] && <div style={{ fontSize: '0.9rem' }}>
+                          <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Age 75 – {fmt(fegliResults.retireCosts['75'].monthly)}/mo</div>
+                        </div>}
+                      </div>
+
+                      <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'block', width: '100%', background: '#7b1c2e', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+                        Book Consultation
+                      </a>
+                    </>
+                  ) : (
+                    <div style={{ fontSize: '0.9rem', color: '#64748b', fontStyle: 'italic' }}>
+                      Enter your salary and age to see your coverage summary.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-
-          {/* Calculate Button */}
-          <button onClick={calculate} style={s.calcBtn}>
-            Calculate My Retirement Income
-          </button>
-
-          <div style={s.disclaimer}>
-            Calculations use verified 2026 OPM figures. This tool provides estimates for educational
-            purposes. Consult OPM or a licensed benefits specialist for official projections.
           </div>
-        </div>
+        )}
 
-        {/* RESULTS */}
-        {results && (
-          <div id="calc-results" style={s.results}>
+        {/* Retirement Form (shown for non-FEGLI tabs) */}
+        {tab !== 'fegli' && (
+          <div style={s.card}>
 
-            {/* Total Income Banner */}
-            <div style={s.totalBanner}>
-              <div style={s.totalLabel}>Estimated Total Monthly Retirement Income</div>
-              <div style={s.totalAmount}>{fmt(results.totalMonthly)}</div>
-              <div style={s.totalSub}>{fmt(results.totalAnnual)} per year</div>
+            {/* Service & Salary */}
+            <div style={s.cardTitle}>Your Service Information</div>
+            <div style={s.grid2}>
+              <Field label="Years of Federal Service" hint="Total creditable service years">
+                <input
+                  type="number" min="1" max="50"
+                  value={yearsService}
+                  onChange={e => setYearsService(e.target.value)}
+                  placeholder="e.g. 28"
+                  style={s.input}
+                />
+              </Field>
+              <Field label="High-3 Average Salary ($)" hint="Average of your 3 highest consecutive earning years">
+                <input
+                  type="number" min="20000"
+                  value={high3}
+                  onChange={e => setHigh3(e.target.value)}
+                  placeholder="e.g. 95000"
+                  style={s.input}
+                />
+              </Field>
             </div>
 
-            {/* Income Breakdown Grid */}
-            <div style={s.breakdownGrid}>
-
-              {/* Pension */}
-              <div style={s.breakdownCard}>
-                <div style={s.bCardIcon}>$</div>
-                <div style={s.bCardLabel}>Monthly Pension</div>
-                <div style={s.bCardValue}>{fmt(results.pensionMonthly)}</div>
-                <div style={s.bCardSub}>{fmt(results.pensionAnnual)}/yr</div>
-                {results.tab === 'fers' && (
-                  <div style={s.bCardDetail}>
-                    {results.yrs} yrs x {fmtDec(results.pensionResult.multiplierPct)}% x {fmt(results.h3)} High-3
-                    {results.pensionResult.earlyReduction > 0 && (
-                      <span style={{ color: '#ef4444' }}>
-                        {' '}(MRA+10: -{fmtDec(results.pensionResult.earlyReduction * 100, 0)}% reduction)
-                      </span>
-                    )}
-                  </div>
-                )}
-                {results.tab === 'csrs' && (
-                  <div style={s.bCardDetail}>
-                    {fmtDec(results.pensionResult.ratePct)}% effective rate x {fmt(results.h3)} High-3
-                  </div>
-                )}
-                {results.tab === 'special' && (
-                  <div style={s.bCardDetail}>{results.pensionResult.breakdown}</div>
-                )}
-              </div>
-
-              {/* FERS Supplement */}
-              {results.supplementMonthly > 0 && (
-                <div style={s.breakdownCard}>
-                  <div style={s.bCardIcon}>+</div>
-                  <div style={s.bCardLabel}>FERS Supplement</div>
-                  <div style={s.bCardValue}>{fmt(results.supplementMonthly)}</div>
-                  <div style={s.bCardSub}>Until age 62</div>
-                  <div style={s.bCardDetail}>({yrsServiceLabel(results.yrs)} / 40) x SS at 62</div>
-                </div>
-              )}
-
-              {/* TSP */}
-              <div style={s.breakdownCard}>
-                <div style={s.bCardIcon}>T</div>
-                <div style={s.bCardLabel}>TSP Monthly Income</div>
-                <div style={s.bCardValue}>{fmt(results.tspMonthly4pct)}</div>
-                <div style={s.bCardSub}>4% rule from {fmt(results.tspAtRetirement)}</div>
-                <div style={s.bCardDetail}>
-                  At {fmtDec(results.growthRate, 1)}% growth over {results.yearsToRetire} yrs
-                  {' '}- variable, market-dependent
-                </div>
-              </div>
-
-              {/* Social Security */}
-              {results.ssMonthly > 0 && (
-                <div style={s.breakdownCard}>
-                  <div style={s.bCardIcon}>SS</div>
-                  <div style={s.bCardLabel}>Social Security</div>
-                  <div style={s.bCardValue}>{fmt(results.ssMonthly)}</div>
-                  <div style={s.bCardSub}>Claiming at age {results.claimAge}</div>
-                  <div style={s.bCardDetail}>Estimated based on your age-62 benefit</div>
-                </div>
-              )}
-
-              {/* Medicare deduction */}
-              {results.medicareDeduct > 0 && (
-                <div style={{ ...s.breakdownCard, borderColor: '#fca5a5' }}>
-                  <div style={{ ...s.bCardIcon, background: '#fee2e2', color: '#dc2626' }}>-</div>
-                  <div style={s.bCardLabel}>Medicare Part B</div>
-                  <div style={{ ...s.bCardValue, color: '#dc2626' }}>-{fmt(results.medicareDeduct)}</div>
-                  <div style={s.bCardSub}>2026 standard premium</div>
-                  <div style={s.bCardDetail}>Typically deducted from SS or pension</div>
-                </div>
-              )}
-
-              {/* FEHB deduction */}
-              {results.fehbDeduct > 0 && (
-                <div style={{ ...s.breakdownCard, borderColor: '#fca5a5' }}>
-                  <div style={{ ...s.bCardIcon, background: '#fee2e2', color: '#dc2626' }}>H</div>
-                  <div style={s.bCardLabel}>FEHB Premium</div>
-                  <div style={{ ...s.bCardValue, color: '#dc2626' }}>-{fmt(results.fehbDeduct)}</div>
-                  <div style={s.bCardSub}>monthly deduction</div>
-                  <div style={s.bCardDetail}>{results.fehbPlanLabel}</div>
-                  <div style={s.bCardDetail}>{results.fehbCoverageLabel}</div>
-                </div>
-              )}
-
-            </div>
-
-            {/* Income Breakdown Table */}
-            <div style={s.tableCard}>
-              <div style={s.tableTitle}>Complete Income Breakdown</div>
-              {[
-                { label: 'FERS/CSRS Pension (net after survivor deduction)', value: fmt(results.pensionMonthly), sub: fmt(results.pensionAnnual) + '/yr', pos: true },
-                results.supplementMonthly > 0 && { label: 'FERS Supplement (until age 62)', value: '+' + fmt(results.supplementMonthly), sub: 'temporary', pos: true },
-                { label: 'TSP Income (4% safe withdrawal rate - variable)', value: '+' + fmt(results.tspMonthly4pct), sub: 'from ' + fmt(results.tspAtRetirement), pos: true },
-                results.ssMonthly > 0 && { label: `Social Security (claiming at ${results.claimAge})`, value: '+' + fmt(results.ssMonthly), sub: fmt(results.ssMonthly * 12) + '/yr', pos: true },
-                results.medicareDeduct > 0 && { label: 'Medicare Part B Premium (2026)', value: '-' + fmt(results.medicareDeduct), sub: 'monthly deduction', pos: false },
-                results.fehbDeduct > 0 && { label: `FEHB Premium — ${results.fehbPlanLabel} (${results.fehbCoverageLabel})`, value: '-' + fmt(results.fehbDeduct), sub: 'monthly deduction', pos: false },
-                { label: 'Total Estimated Monthly Income', value: fmt(results.totalMonthly), sub: fmt(results.totalAnnual) + '/yr', bold: true },
-              ].filter(Boolean).map((row, i) => (
-                <div key={i} style={{ ...s.tableRow, ...(row.bold ? s.tableRowBold : {}) }}>
-                  <span style={s.tableDesc}>{row.label}</span>
-                  <span style={{ ...s.tableAmt, ...(row.pos === false ? { color: '#dc2626' } : {}), ...(row.bold ? { color: '#1e3a5f' } : {}) }}>
-                    {row.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Email capture for calculator results — moved above notes */}
-            <div style={{ padding: '28px', background: 'white', borderRadius: 14, border: '1.5px solid #e2e8f0', marginBottom: 24 }}>
-              {captureSent ? (
-                <div style={{ textAlign: 'center' }}>
-                  <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 8px', display: 'block' }}>
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </svg>
-                  <p style={{ color: '#1e3a5f', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
-                  <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>Check your inbox for your calculator results summary.</p>
-                </div>
-              ) : (
-                <>
-                  <p style={{ color: '#1e3a5f', fontWeight: 700, fontSize: 18, margin: '0 0 6px', textAlign: 'center' }}>Save your retirement estimate</p>
-                  <p style={{ color: '#64748b', fontSize: 14, margin: '0 0 18px', textAlign: 'center' }}>Get a detailed breakdown emailed to you for future reference. No spam, ever.</p>
-                  <form onSubmit={handleEmailCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                      <input type="text" placeholder="Your name" aria-label="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={{ flex: 1, minWidth: 180, padding: '11px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                      <input type="tel" placeholder="Phone (optional)" aria-label="Phone number (optional)" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={{ flex: 1, minWidth: 180, padding: '11px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                    </div>
-                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                      <input type="email" placeholder="Your email" aria-label="Your email" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} required style={{ flex: 1, minWidth: 220, padding: '11px 14px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 14 }} />
-                      <button type="submit" disabled={captureLoading} style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>{captureLoading ? 'Sending...' : 'Email My Results'}</button>
-                    </div>
-                    {captureError && <p role="alert" style={{ color: '#ef4444', fontSize: 13, margin: 0 }}>{captureError}</p>}
-                  </form>
-                </>
-              )}
-            </div>
-
-            {/* COLA Projection (FERS only) */}
-            {results.colaProjection && (
-              <div style={s.colaBox}>
-                <div style={s.colaTitle}>Pension Growth: COLA Adjustments</div>
-                <div style={s.colaGrid}>
-                  {results.colaProjection.map((proj, i) => (
-                    <div key={i} style={s.colaCard}>
-                      <div style={s.colaLabel}>Year {proj.yearsAfter}</div>
-                      <div style={s.colaAge}>Age {proj.ageAtYear}</div>
-                      {proj.ageAtYear < 62 ? (
-                        <div style={s.colaNote}>No COLA until 62</div>
-                      ) : (
-                        <><div style={s.colaAmount}>{fmt(proj.projectedMonthly)}</div><div style={s.colaSub}>+{fmtDec(proj.totalColaApplied * 100, 1)}% cumulative</div></>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div style={{ fontSize: '0.73rem', color: '#94a3b8', marginTop: 12, fontStyle: 'italic' }}>Based on 2% average annual COLA. Actual adjustments vary yearly based on CPI-W. No COLA applies to FERS pension before age 62.</div>
+            {/* Age fields - shown for FERS and Special */}
+            {(tab === 'fers' || tab === 'special') && (
+              <div style={{ ...s.grid2, marginTop: 16 }}>
+                <Field label="Current Age">
+                  <input
+                    type="number" min="25" max="80"
+                    value={currentAge}
+                    onChange={e => setCurrentAge(e.target.value)}
+                    placeholder="e.g. 55"
+                    style={s.input}
+                  />
+                </Field>
+                <Field label="Planned Retirement Age">
+                  <input
+                    type="number" min="50" max="70"
+                    value={retireAge}
+                    onChange={e => setRetireAge(e.target.value)}
+                    placeholder="e.g. 62"
+                    style={s.input}
+                  />
+                </Field>
               </div>
             )}
 
-            {/* TSP Strategy CTA — maroon accent */}
-            <div style={{ background: 'linear-gradient(135deg, #7b1c2e 0%, #a3293f 100%)', borderRadius: 16, padding: '32px', marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
-                <div aria-hidden="true" style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
+            {/* Special category selector */}
+            {tab === 'special' && (
+              <div style={{ marginTop: 16 }}>
+                <Field label="Special Category">
+                  <select value={specialCat} onChange={e => setSpecialCat(e.target.value)} style={s.select}>
+                    <option value="leo">Law Enforcement Officer (LEO)</option>
+                    <option value="ff">Firefighter (FF)</option>
+                    <option value="atc">Air Traffic Controller (ATC)</option>
+                    <option value="congressional">Congressional Employee</option>
+                  </select>
+                </Field>
+              </div>
+            )}
+
+            {/* Survivor Benefit */}
+            <div style={{ marginTop: 16 }}>
+              <Field label="Survivor Benefit Election" hint="Reduces your pension to provide income to a surviving spouse">
+                <select value={survivorBenefit} onChange={e => setSurvivorBenefit(e.target.value)} style={s.select}>
+                  <option value="full">Full (50% to survivor - 10% deduction from your pension)</option>
+                  <option value="partial">Partial (25% to survivor - 5% deduction from your pension)</option>
+                  <option value="none">None (0% deduction - no survivor benefit)</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* TSP Section */}
+            <div style={{ ...s.cardTitle, marginTop: 28 }}>Your TSP (Thrift Savings Plan)</div>
+
+            <div style={s.grid2}>
+              <Field label="Current TSP Balance ($)" hint="Leave blank if $0">
+                <input
+                  type="number" min="0"
+                  value={tspBalance}
+                  onChange={e => setTspBalance(e.target.value)}
+                  placeholder="e.g. 250000"
+                  style={s.input}
+                />
+              </Field>
+              <Field label="Monthly TSP Contribution ($)" hint="Your biweekly contribution ÷ 2. Leave blank if not contributing.">
+                <input
+                  type="number" min="0"
+                  value={monthlyContrib}
+                  onChange={e => setMonthlyContrib(e.target.value)}
+                  placeholder="e.g. 1000"
+                  style={s.input}
+                />
+              </Field>
+            </div>
+
+            <div style={s.grid2}>
+              <Field label="Expected Annual TSP Growth (%)" hint="Conservative: 5%, Moderate: 6%, Aggressive: 7%">
+                <input
+                  type="number" min="1" max="12" step="0.5"
+                  value={tspGrowthRate}
+                  onChange={e => setTspGrowthRate(e.target.value)}
+                  style={s.input}
+                />
+              </Field>
+            </div>
+
+            {/* Social Security Section */}
+            <div style={{ ...s.cardTitle, marginTop: 28 }}>Social Security Estimate</div>
+
+            <div style={s.grid2}>
+              <Field label="Estimated Benefit at Age 62 ($/month)" hint="Use your Social Security Statement or ssa.gov">
+                <input
+                  type="number" min="0"
+                  value={ssAt62}
+                  onChange={e => setSsAt62(e.target.value)}
+                  placeholder="e.g. 2100"
+                  style={s.input}
+                />
+              </Field>
+              <Field label="Planned Claim Age" hint="Earliest 62, Full Retirement Age ~67, Delayed 70">
+                <input
+                  type="number" min="62" max="80"
+                  value={ssClaimAge}
+                  onChange={e => setSsClaimAge(e.target.value)}
+                  style={s.input}
+                />
+              </Field>
+            </div>
+
+            {/* Benefits Deductions */}
+            <div style={{ ...s.cardTitle, marginTop: 28 }}>Post-Retirement Deductions</div>
+
+            <div style={{ marginTop: 12 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={includeMedicare}
+                  onChange={e => setIncludeMedicare(e.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span>Include Medicare Part B Premium (${MEDICARE_B_MONTHLY}/mo)</span>
+              </label>
+            </div>
+
+            <div style={{ marginTop: 12 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={includeFEHB}
+                  onChange={e => setIncludeFEHB(e.target.checked)}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span>Include FEHB Health Insurance Premium</span>
+              </label>
+            </div>
+
+            {includeFEHB && (
+              <div style={{ marginTop: 12 }}>
+                <Field label="Select FEHB Plan">
+                  <select value={fehbPlan} onChange={e => setFehbPlan(e.target.value)} style={s.select}>
+                    {FEHB_PLANS.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                {fehbPlan !== 'custom' && (
+                  <Field label="Coverage Type" style={{ marginTop: 12 }}>
+                    <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
+                      <option value="self">Self Only</option>
+                      <option value="self1">Self + One</option>
+                      <option value="family">Self + Family</option>
+                    </select>
+                  </Field>
+                )}
+
+                {fehbPlan === 'custom' && (
+                  <Field label="Custom Monthly Premium ($)" style={{ marginTop: 12 }}>
+                    <input
+                      type="number" min="0"
+                      value={fehbCustom}
+                      onChange={e => setFehbCustom(e.target.value)}
+                      placeholder="e.g. 400"
+                      style={s.input}
+                    />
+                  </Field>
+                )}
+              </div>
+            )}
+
+            {tab === 'fers' && (
+              <div style={{ marginTop: 12 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={includeSupp}
+                    onChange={e => setIncludeSupp(e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <span>Include FERS Supplement (payable until age 62 on immediate retirement)</span>
+                </label>
+              </div>
+            )}
+
+            {/* Error messages */}
+            {errors.length > 0 && (
+              <div style={s.errorBox}>
+                {errors.map((err, i) => (
+                  <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>
+                    {err}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Calculate Button */}
+            <button onClick={calculate} style={{ ...s.button, marginTop: 24, width: '100%', padding: '14px 24px', fontSize: 16 }}>
+              Calculate My Retirement Income
+            </button>
+
+          </div>
+        )}
+
+        {/* FEGLI ADDITIONAL RESULTS - Year by Year Projection & Comparison */}
+        {tab === 'fegli' && fegliResults && (
+          <div id="calc-results">
+            {/* Year-by-Year Projection Table */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Retirement Cost Projection</div>
+              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>
+                Costs based on your elected reductions. Actual costs may vary with future rate increases.
+              </p>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                      <th style={{ textAlign: 'left', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
+                      <th style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly Premium</th>
+                      <th style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Annual Premium</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(fegliResults.retireCosts).map(([age, costs]) => (
+                      <tr key={age} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '10px 8px', color: '#0f172a' }}>Age {age}</td>
+                        <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>{fmt(costs.monthly)}</td>
+                        <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600, color: '#0f172a' }}>{fmt(costs.annual)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Keep vs Drop Comparison */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Keep FEGLI vs Drop Coverage: Lifetime Cost Analysis</div>
+              <p style={{ fontSize: '0.95rem', color: '#475569', marginBottom: 12 }}>
+                This shows the cost difference between keeping your current FEGLI coverage through age 85 versus dropping it and buying private term life insurance.
+              </p>
+
+              <div style={{ ...s.grid2, marginTop: 12 }}>
+                <div style={{ ...s.resultBox, background: '#fef2f2' }}>
+                  <div style={s.resultLabel}>FEGLI Coverage Cost (Age {Math.round(parseFloat(fegliAge) || 50)} to 85)</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#7b1c2e', marginTop: 8 }}>
+                    {fmt(fegliResults.currentCostMonthly * 12 * (85 - parseFloat(fegliAge)))}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+                    {fegliResults.currentCostMonthly.toFixed(2)}/mo × 12 months × {85 - Math.round(parseFloat(fegliAge) || 50)} years
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>Want to know if you're on track?</div>
+
+                <div style={{ ...s.resultBox, background: '#fef3f2' }}>
+                  <div style={s.resultLabel}>Private Term Insurance Est. Cost (Age {Math.round(parseFloat(fegliAge) || 50)} to 85)</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#9f1239', marginTop: 8 }}>
+                    {fmt(estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage))}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+                    Based on typical industry rates (~$50-165/mo per $100K)
+                  </div>
                 </div>
               </div>
-              <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 24px 0' }}>
-                Your numbers above are a great starting point, but every federal retirement situation is unique.
-                A benefits specialist can review your specific scenario, identify gaps, and help you make the
-                most of your FERS pension, TSP, and Social Security timing.
+
+              <div style={{ ...s.resultBox, background: '#f0fdf4', borderLeft: '4px solid #16a34a' }}>
+                <div style={s.resultLabel}>Your Potential Savings with FEGLI</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#16a34a', marginTop: 8 }}>
+                  {fmt(estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage) - (fegliResults.currentCostMonthly * 12 * (85 - parseFloat(fegliAge))))}
+                </div>
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 12, lineHeight: 1.6 }}>
+                <strong>Disclaimer:</strong> Private term insurance estimates are industry averages and vary significantly by health, age, and underwriting. FEGLI rates are as of 10/1/2021 and may have been updated. This is for comparison only — not a quote. Consult a licensed insurance professional for personalized analysis.
+              </div>
+            </div>
+
+            {/* Consultation CTA */}
+            <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                <div style={{ fontSize: '2rem', lineHeight: 1 }}>💡</div>
+                <div>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Expert Review</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Optimize Your Life Insurance Strategy</div>
+                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: 0 }}>
+                    Your FEGLI election will stay with you into retirement. A benefits specialist can review your coverage, compare to private insurance, and help you make the best choice for your situation and family.
+                  </p>
+                  <div style={{ marginTop: 16 }}>
+                    <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
+                      Schedule Free Consultation
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* RETIREMENT RESULTS */}
+        {tab !== 'fegli' && results && (
+          <div id="calc-results" style={{ marginTop: 32 }}>
+            {/* Main Results Card */}
+            <div style={s.card}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 8 }}>Your Retirement Summary</div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, marginTop: 0 }}>Monthly Income at Retirement</h2>
+              <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#7b1c2e', marginBottom: 16, lineHeight: 1 }}>{fmt(results.totalMonthly)}/mo</div>
+              <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 20 }}>
+                ({fmt(results.totalAnnual)}/year) — Based on your inputs above and verified 2026 OPM figures.
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 20 }}>
+                {results.pensionMonthly > 0 && (
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>{results.tab === 'csrs' ? 'CSRS Pension' : results.tab === 'special' ? 'Special Provision Pension' : 'FERS Pension'}</div>
+                    <div style={s.resultValue}>{fmt(results.pensionMonthly)}</div>
+                  </div>
+                )}
+                {results.supplementMonthly > 0 && (
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>FERS Supplement</div>
+                    <div style={s.resultValue}>{fmt(results.supplementMonthly)}</div>
+                  </div>
+                )}
+                {results.ssMonthly > 0 && (
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Social Security</div>
+                    <div style={s.resultValue}>{fmt(results.ssMonthly)}</div>
+                  </div>
+                )}
+                {results.tspMonthly4pct > 0 && (
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>TSP Withdrawal (4%)</div>
+                    <div style={s.resultValue}>{fmt(results.tspMonthly4pct)}</div>
+                  </div>
+                )}
+                {results.medicareDeduct > 0 && (
+                  <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                    <div style={s.resultLabel}>Medicare Part B</div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.medicareDeduct)}</div>
+                  </div>
+                )}
+                {results.fehbDeduct > 0 && (
+                  <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                    <div style={s.resultLabel}>FEHB Premium</div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.fehbDeduct)}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Pension Breakdown */}
+            {results.pensionResult && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>{results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS'} Pension Calculation</div>
+                <div style={s.grid2}>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>High-3 Salary</div>
+                    <div style={s.resultValue}>{fmt(results.h3)}</div>
+                  </div>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Years of Service</div>
+                    <div style={s.resultValue}>{fmtDec(results.yrs)}</div>
+                  </div>
+                </div>
+                <div style={s.grid2}>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Multiplier Rate</div>
+                    <div style={s.resultValue}>{fmtDec(results.pensionResult.multiplierPct)}%</div>
+                  </div>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Gross Annual Pension</div>
+                    <div style={s.resultValue}>{fmt(results.pensionResult.gross)}</div>
+                  </div>
+                </div>
+                {results.pensionResult.earlyReductionAmt > 0 && (
+                  <div style={s.grid2}>
+                    <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                      <div style={s.resultLabel}>Early Retirement Reduction (MRA+10)</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.earlyReductionAmt)}</div>
+                    </div>
+                    <div style={s.resultBox}>
+                      <div style={s.resultLabel}>After Early Reduction</div>
+                      <div style={s.resultValue}>{fmt(results.pensionResult.grossAfterEarly)}</div>
+                    </div>
+                  </div>
+                )}
+                {results.pensionResult.survivorDeduct > 0 && (
+                  <div style={s.grid2}>
+                    <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                      <div style={s.resultLabel}>Survivor Benefit Deduction</div>
+                      <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.survivorDeduct)}</div>
+                    </div>
+                    <div style={{ ...s.resultBox, background: '#f0fdf4' }}>
+                      <div style={s.resultLabel}>Your Net Annual Pension</div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#16a34a' }}>{fmt(results.pensionAnnual)}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TSP Projection */}
+            {results.tspAtRetirement > 0 && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>TSP at Retirement</div>
+                <div style={s.grid2}>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Projected TSP Balance</div>
+                    <div style={s.resultValue}>{fmt(results.tspAtRetirement)}</div>
+                  </div>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Annual 4% Withdrawal</div>
+                    <div style={s.resultValue}>{fmt(results.tspAtRetirement * 0.04)}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
+                  <strong>Conservative approach:</strong> A 4% annual withdrawal (${Math.round(results.tspAtRetirement * 0.04 / 12)}/mo) has historically supported a 30-year retirement. Adjust based on your risk tolerance and lifespan expectations.
+                </div>
+              </div>
+            )}
+
+            {/* COLA Projection (FERS only) */}
+            {results.tab === 'fers' && results.colaProjection && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>FERS Pension Growth with COLA Adjustments</div>
+                <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
+                  Cost-of-living adjustments (COLA) begin at age 62. Projected at historical 2% average annual increase.
+                </p>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Years After Retirement</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Projected Monthly Pension</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.colaProjection.map((proj) => (
+                        <tr key={proj.yearsAfter} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={{ padding: '8px', color: '#475569' }}>{proj.yearsAfter} years</td>
+                          <td style={{ textAlign: 'right', padding: '8px', color: '#475569' }}>Age {proj.ageAtYear}</td>
+                          <td style={{ textAlign: 'right', padding: '8px', fontWeight: 600, color: '#0f172a' }}>{fmt(proj.projectedMonthly)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* FIA Alternative */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>TSP Payout Alternatives (FIA or Withdrawal Options)</div>
+              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
+                Instead of manual withdrawals, you may elect a Fixed Immediate Annuity (FIA) from your TSP balance. Using TSP annuity rates, estimate your lifetime monthly income (these vary with market rates when you purchase).
               </p>
-              <div style={{ textAlign: 'center' }}>
-                <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', marginBottom: 8 }}>
-                  Book a Free Consultation
-                </a>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>30 minutes. No cost. No obligation.</div>
+
+              <button onClick={() => setShowFIA(!showFIA)} style={{ ...s.button, marginBottom: 12, background: '#1e3a5f' }}>
+                {showFIA ? 'Hide' : 'Show'} Annuity Scenarios
+              </button>
+
+              {showFIA && results.tspAtRetirement > 0 && (
+                <div style={s.grid2}>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Conservative 4.5% Payout</div>
+                    <div style={s.resultValue}>{fmt(results.fiaPayouts.conservative)}/mo</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.conservative * 12)}/yr</div>
+                  </div>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Moderate 5.5% Payout</div>
+                    <div style={s.resultValue}>{fmt(results.fiaPayouts.moderate)}/mo</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.moderate * 12)}/yr</div>
+                  </div>
+                  <div style={s.resultBox}>
+                    <div style={s.resultLabel}>Aggressive 6.5% Payout</div>
+                    <div style={s.resultValue}>{fmt(results.fiaPayouts.aggressive)}/mo</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.aggressive * 12)}/yr</div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 12 }}>
+                Annuity rates are quoted at time of purchase and depend on Treasury rates, mortality assumptions, and TSP terms. Compare to your 4% withdrawal strategy.
+              </div>
+            </div>
+
+            {/* Email Capture */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Save & Share Your Results</div>
+              {captureSent ? (
+                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                  <p style={{ color: '#16a34a', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
+                  <p style={{ color: '#4ade80', fontSize: 14, margin: 0 }}>Check your email for a summary of your numbers.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleEmailCapture}>
+                  <div style={s.grid2}>
+                    <Field label="Name">
+                      <input
+                        type="text"
+                        value={captureName}
+                        onChange={e => setCaptureName(e.target.value)}
+                        placeholder="Your full name"
+                        style={s.input}
+                        required
+                      />
+                    </Field>
+                    <Field label="Email">
+                      <input
+                        type="email"
+                        value={captureEmail}
+                        onChange={e => setCaptureEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        style={s.input}
+                        required
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Phone (optional)">
+                    <input
+                      type="tel"
+                      value={capturePhone}
+                      onChange={e => setCapturePhone(e.target.value)}
+                      placeholder="(555) 123-4567"
+                      style={s.input}
+                    />
+                  </Field>
+                  {captureError && <div style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{captureError}</div>}
+                  <button
+                    type="submit"
+                    disabled={captureLoading}
+                    style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}
+                  >
+                    {captureLoading ? 'Sending...' : 'Email My Results'}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Consultation CTA */}
+            <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎯</div>
+                <div>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if you're on track?</div>
+                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 12px 0' }}>
+                    Your numbers above are a great starting point, but every federal retirement situation is unique. A benefits specialist can review your specific scenario, identify gaps, and help you make the most of your FERS pension, TSP, and Social Security timing.
+                  </p>
+                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
+                    Book a Free Consultation
+                  </a>
+                  <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>30 minutes. No cost. No obligation.</div>
+                </div>
               </div>
             </div>
 
@@ -947,6 +1475,35 @@ export default function Calculator() {
   )
 }
 
+function estimatePrivateTermCost(currentAge, coverageAmount) {
+  const monthlyPerK = currentAge < 55 ? 50 : currentAge < 60 ? 85 : currentAge < 65 ? 165 : 250
+  const monthlyRate = (coverageAmount / 100000) * monthlyPerK
+  const yearsToAge85 = Math.max(0, 85 - currentAge)
+  return monthlyRate * 12 * yearsToAge85
+}
+
+function Toggle({ checked, onChange, label, sublabel }) {
+  return (
+    <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '8px 0' }}>
+      <div style={{
+        width: 44, height: 24, borderRadius: 12,
+        background: checked ? '#7b1c2e' : '#cbd5e1',
+        position: 'relative', transition: 'background 0.2s', flexShrink: 0
+      }}>
+        <div style={{
+          width: 20, height: 20, borderRadius: '50%', background: '#fff',
+          position: 'absolute', top: 2, left: checked ? 22 : 2,
+          transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+        }} />
+      </div>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{label}</div>
+        {sublabel && <div style={{ fontSize: 12, color: '#64748b' }}>{sublabel}</div>}
+      </div>
+    </label>
+  )
+}
+
 function Field({ label, hint, children }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -982,103 +1539,30 @@ const styles = {
   disclaimerBanner: { background: '#f8f7f4', borderLeft: '3px solid #cbd5e1', padding: '12px 16px', fontSize: '12px', color: '#475569', borderRadius: 6, marginBottom: 24 },
 
   tabRow: { display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
-  tabBtn: { flex: 1, minWidth: 120, padding: '10px 16px', border: '2px solid #cbd5e1', borderRadius: 10, background: '#faf9f6', color: '#94a3b8', fontWeight: 600, fontSize: '0.88rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", cursor: 'pointer', transition: 'all 0.2s' },
-  tabBtnActive: { borderColor: '#7b1c2e', background: '#7b1c2e', color: '#fff' },
+  tabBtn: { padding: '8px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' },
+  tabBtnActive: { background: '#0f172a', color: '#fff', borderColor: '#0f172a' },
 
-  card: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '32px', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
-  cardTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#475569', marginBottom: 18, paddingBottom: 10, borderBottom: '2px solid #f1f0ed', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  grid2: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 },
+  card: { background: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)' },
+  cardTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 20 },
 
-  input: { background: '#faf9f6', border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '11px 14px', color: '#1e293b', fontSize: '1rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", width: '100%', boxSizing: 'border-box' },
-  select: { background: '#faf9f6', border: '1.5px solid #cbd5e1', borderRadius: 8, padding: '11px 14px', color: '#1e293b', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", width: '100%', boxSizing: 'border-box', cursor: 'pointer' },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 },
 
-  sliderRow: { display: 'flex', alignItems: 'center', gap: 14 },
-  slider: { flex: 1, height: 6, borderRadius: 3, cursor: 'pointer', accentColor: '#7b1c2e' },
-  sliderVal: { minWidth: 44, textAlign: 'right', fontWeight: 700, color: '#1e3a5f', fontSize: '1rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  input: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  select: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", background: '#fff' },
 
-  checkLabel: { display: 'flex', alignItems: 'center', fontSize: '0.88rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", cursor: 'pointer' },
+  button: { background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' },
 
-  errorBox: { background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', color: '#dc2626', fontSize: '0.88rem', marginTop: 16 },
+  resultBox: { background: '#f8f7f4', borderRadius: 8, padding: 16, borderLeft: '3px solid #cbd5e1' },
+  resultLabel: { fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 },
+  resultValue: { fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' },
 
-  calcBtn: { width: '100%', marginTop: 24, padding: '16px', background: '#7b1c2e', color: '#fff', fontSize: '1rem', fontWeight: 700, letterSpacing: '0.05em', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", border: 'none', borderRadius: 10, cursor: 'pointer' },
+  errorBox: { background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: 12, color: '#991b1b', fontSize: '0.9rem', marginTop: 16, marginBottom: 16 },
 
-  disclaimer: { marginTop: 14, fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5, textAlign: 'center' },
+  assumptionsBox: { background: '#f0f9ff', borderRadius: 12, padding: 24, marginTop: 24 },
+  assumptionsTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0f172a', marginBottom: 16 },
+  assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 },
+  assumptionItem: { fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 },
 
-  // Results
-  results: { marginTop: 8 },
-
-  totalBanner: { background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', borderRadius: 12, padding: '36px 32px', textAlign: 'center', marginBottom: 24 },
-  totalLabel: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 10, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  totalAmount: { fontSize: 'clamp(2.8rem, 8vw, 4.2rem)', fontWeight: 800, color: '#fff', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", lineHeight: 1, marginBottom: 8 },
-  totalSub: { fontSize: '1rem', color: 'rgba(255,255,255,0.75)', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-
-  breakdownGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 },
-  breakdownCard: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '20px 18px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', borderTop: '4px solid #7b1c2e' },
-  bCardIcon: { width: 36, height: 36, background: '#f1f0ed', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#1e3a5f', fontSize: '0.85rem', marginBottom: 10 },
-  bCardLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 6, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  bCardValue: { fontSize: '1.8rem', fontWeight: 800, color: '#1e293b', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", lineHeight: 1, marginBottom: 4 },
-  bCardSub: { fontSize: '0.78rem', color: '#94a3b8', marginBottom: 8 },
-  bCardDetail: { fontSize: '0.73rem', color: '#94a3b8', lineHeight: 1.4 },
-
-  tableCard: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
-  tableTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#1e3a5f', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  tableRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f8f7f4' },
-  tableRowBold: { borderTop: '2px solid #1e3a5f', borderBottom: 'none', marginTop: 4, paddingTop: 14 },
-  tableDesc: { fontSize: '0.88rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", flex: 1, marginRight: 16 },
-  tableAmt: { fontSize: '1rem', fontWeight: 700, color: '#16a34a', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", whiteSpace: 'nowrap' },
-
-  // FIA Panel
-  fiaPanel: { background: '#f8f7f4', border: '2px solid #cbd5e1', borderRadius: 12, padding: '32px', marginBottom: 24 },
-  fiaPanelHeader: { marginBottom: 24 },
-  fiaBadge: { display: 'inline-block', background: '#c9a84c', color: '#fff', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 12px', borderRadius: 20, marginBottom: 10 },
-  fiaTitle: { fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", marginBottom: 10 },
-  fiaSub: { fontSize: '0.9rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.6 },
-
-  fiaCompareGrid: { display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 16, alignItems: 'center', marginBottom: 20 },
-  fiaVs: { fontSize: '1.2rem', fontWeight: 800, color: '#94a3b8', textAlign: 'center', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  fiaCompareCard: { background: '#fff', border: '1.5px solid #cbd5e1', borderRadius: 10, padding: '20px 18px' },
-  fiaCompareCardHighlight: { background: '#ecfdf5', border: '2px solid #22c55e' },
-  fiaCompareLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  fiaCompareAmount: { fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", marginBottom: 8 },
-  fiaCompareNote: { fontSize: '0.78rem', color: '#94a3b8', lineHeight: 1.4 },
-
-  fiaDisclaimer: { fontSize: '0.73rem', color: '#475569', lineHeight: 1.5, marginBottom: 24, background: '#f8f7f4', borderRadius: 8, padding: '12px 16px' },
-
-  fiaCTA: { background: '#0f172a', borderRadius: 12, padding: '28px', textAlign: 'center' },
-  fiaCTAText: { fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: 18, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  fiaCTABtn: { display: 'inline-block', background: '#7b1c2e', color: '#fff', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: '1rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", textDecoration: 'none', marginBottom: 12 },
-  fiaCTASub: { fontSize: '0.8rem', color: 'rgba(255,255,255,0.65)', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-
-  assumptionsBox: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
-  assumptionsTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 },
-  assumptionItem: {
- fontSize: '0.8rem', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", lineHeight: 1.5 },
-  colaBox: { background: '#fff', border: '1px solid #f1f0ed', borderRadius: 12, padding: '24px', marginBottom: 24, boxShadow: '0 4px 24px rgba(0,0,0,0.04)' },
-  colaTitle: { fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 16, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  colaGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 14 },
-  colaCard: { background: 'linear-gradient(135deg, #f8f7f4 0%, #faf9f6 100%)', border: '1.5px solid #f1f0ed', borderRadius: 10, padding: '16px 14px', textAlign: 'center', borderLeft: '3px solid #c9a84c' },
-  colaLabel: { fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: 4 },
-  colaAge: { fontSize: '0.9rem', fontWeight: 600, color: '#1e3a5f', marginBottom: 10 },
-  colaAmount: { fontSize: '1.5rem', fontWeight: 800, color: '#1e293b', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", marginBottom: 4 },
-  colaSub: { fontSize: '0.73rem', color: '#94a3b8', lineHeight: 1.4 },
-  colaNote: { fontSize: '0.73rem', color: '#c9a84c', fontWeight: 600, fontStyle: 'italic', marginTop: 12 },
-}
-
-
-// Mobile responsive styles for Calculator
-if (typeof document !== 'undefined') {
-  const calcStyle = document.createElement('style')
-  calcStyle.setAttribute('data-calc-responsive', '')
-  calcStyle.textContent = `
-    @media (max-width: 768px) {
-      [data-fia-grid] {
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
-      }
-    }
-  `
-  if (!document.querySelector('[data-calc-responsive]')) {
-    document.head.appendChild(calcStyle)
-  }
+  // FEGLI summary panel
+  summaryPanel: { background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)', borderTop: '4px solid #7b1c2e' },
 }
