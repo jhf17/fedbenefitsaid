@@ -570,15 +570,15 @@ export default function Calculator() {
 
       if (tab === 'fers') {
         pensionResult = calcFERSPension(yrs, h3, rAge, survivorBenefit, earlyRetirement)
-        // FERS Supplement: only if immediate retirement before 62
-        if (includeSupp && rAge < 62 && earlyRetirement !== 'mra10' && ssEstimate > 0) {
+        // FERS Supplement: auto-included when eligible (immediate retirement before 62)
+        if (rAge < 62 && earlyRetirement !== 'mra10' && ssEstimate > 0) {
           supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
         }
       } else if (tab === 'csrs') {
         pensionResult = calcCSRSPension(yrs, h3, survivorBenefit)
       } else {
         pensionResult = calcSpecialPension(yrs, h3, survivorBenefit, specialCat)
-        if (includeSupp && rAge < 62 && ssEstimate > 0) {
+        if (rAge < 62 && ssEstimate > 0) {
           supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
         }
       }
@@ -733,12 +733,18 @@ export default function Calculator() {
               </div>
 
               <div style={{ marginTop: 16 }}>
-                <Field label="Employee Type">
-                  <select value={fegliIsPostal ? 'postal' : 'regular'} onChange={e => setFegliIsPostal(e.target.value === 'postal')} style={s.select}>
-                    <option value="regular">Regular Federal Employee</option>
-                    <option value="postal">USPS Postal Employee</option>
-                  </select>
-                </Field>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: '0.9rem', color: '#0f172a' }}>
+                  <input
+                    type="checkbox"
+                    checked={fegliIsPostal}
+                    onChange={e => setFegliIsPostal(e.target.checked)}
+                    style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#7b1c2e' }}
+                  />
+                  <span style={{ fontWeight: 600 }}>USPS Postal Employee</span>
+                </label>
+                {fegliIsPostal && (
+                  <div style={{ fontSize: '0.8rem', color: '#16a34a', marginTop: 6, marginLeft: 28 }}>USPS pays 100% of your Basic insurance premium</div>
+                )}
               </div>
 
               <div style={{ marginTop: 16 }}>
@@ -1018,35 +1024,6 @@ export default function Calculator() {
               </div>
             )}
 
-            {/* Keep vs Drop Comparison */}
-            <div style={s.card}>
-              <div style={s.cardTitle}>Keep vs Drop Comparison</div>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>See why federal FEGLI is typically better than private term insurance.</p>
-              <div style={s.grid2}>
-                <div style={{ ...s.resultBox, borderLeft: '4px solid #16a34a' }}>
-                  <div style={s.resultLabel}>FEGLI Cost Advantage</div>
-                  <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.6, margin: '8px 0' }}>
-                    FEGLI is guaranteed, portable, and covers pre-existing conditions with NO medical underwriting.
-                  </p>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
-                    ✓ No medical exam required<br/>
-                    ✓ Rates locked by age<br/>
-                    ✓ Coverage up to retirement
-                  </div>
-                </div>
-                <div style={{ ...s.resultBox, borderLeft: '4px solid #dc2626' }}>
-                  <div style={s.resultLabel}>Private Term Risk</div>
-                  <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.6, margin: '8px 0' }}>
-                    Private insurance requires medical underwriting and becomes very expensive at retirement.
-                  </p>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
-                    ✗ Medical exam required<br/>
-                    ✗ Rates increase with age<br/>
-                    ✗ Coverage ends at term limit
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Email Capture */}
             <div style={s.card}>
@@ -1333,23 +1310,6 @@ export default function Calculator() {
               )}
             </div>
 
-            {/* FERS-Only: Supplement Option */}
-            {tab === 'fers' && (
-              <div style={s.card}>
-                <div style={s.cardTitle}>FERS Supplement</div>
-                <div style={{ marginBottom: 12 }}>
-                  <Toggle
-                    checked={includeSupp}
-                    onChange={e => setIncludeSupp(e.target.checked)}
-                    label="Include FERS Supplement"
-                    sublabel="Bridging income before age 62 (if retiring early)"
-                  />
-                </div>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
-                  The FERS supplement is an annuity payable only on immediate retirement before age 62. It equals (Years of Service ÷ 40) × Estimated Social Security at 62.
-                </p>
-              </div>
-            )}
 
             {errors.length > 0 && (
               <div style={s.errorBox}>
@@ -1672,6 +1632,13 @@ function estimatePrivateTermCost(currentAge, coverageAmount) {
 function Toggle({ checked, onChange, label, sublabel }) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '8px 0' }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+        aria-label={label}
+      />
       <div style={{
         width: 44, height: 24, borderRadius: 12,
         background: checked ? '#7b1c2e' : '#cbd5e1',
