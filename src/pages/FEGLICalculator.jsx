@@ -160,17 +160,20 @@ export default function FEGLICalculator() {
   const [captureSent, setCaptureSent] = useState(false)
   const [captureError, setCaptureError] = useState('')
 
-  // Real-time FEGLI calculation
-  useEffect(() => {
+  function calculate() {
+    const errs = []
     const salary = parseFloat(fegliSalary)
     const age = parseFloat(fegliAge)
-    if (!salary || salary <= 0 || !age || age <= 0) {
-      setFegliResults(null)
-      return
-    }
+    if (!salary || salary <= 0) errs.push('Enter your annual gross salary.')
+    if (!age || age <= 0) errs.push('Enter your current age.')
+    if (errs.length > 0) { setErrors(errs); return }
+    setErrors([])
     const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus)
     setFegliResults(result)
-  }, [fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliOptCSpouse, fegliOptCChildren, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus])
+    setTimeout(() => {
+      document.getElementById('fegli-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
+  }
 
   const handleEmailCapture = async (e) => {
     e.preventDefault()
@@ -410,6 +413,8 @@ export default function FEGLICalculator() {
               </div>
             </div>
 
+            <button onClick={calculate} style={s.button}>Calculate My FEGLI Coverage</button>
+
             {errors.length > 0 && (
               <div role="alert" style={s.errorBox}>
                 {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
@@ -417,6 +422,9 @@ export default function FEGLICalculator() {
             )}
 
             {/* Coverage Summary Cards - Inline */}
+            {fegliResults && (
+              <div id="fegli-results"></div>
+            )}
             {fegliResults && (
               <div>
                 <div style={s.card}>
@@ -602,7 +610,8 @@ export default function FEGLICalculator() {
             )}
 
 
-            {/* Email Capture */}
+            {/* Email Capture + CTA - only after calculating */}
+            {fegliResults && (<>
             <div style={s.card}>
               <div style={s.cardTitle}>Save & Share Your Results</div>
               {captureSent ? (
@@ -672,6 +681,7 @@ export default function FEGLICalculator() {
                 </div>
               </div>
             </div>
+            </>)}
 
             {/* Important Assumptions */}
             <div style={s.assumptionsBox}>
@@ -690,31 +700,13 @@ export default function FEGLICalculator() {
                   <strong>Option C:</strong> Family coverage. One multiple = $5,000 for spouse + $2,500 per eligible child. Up to 5 multiples.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>Reduction Elections:</strong> Post-65 reductions affect coverage and cost differently by option. 75% Basic reduction = free after 65. Full A/B/C reductions = coverage drops to $0.
+                  <strong>Reduction Elections:</strong> Basic has 3 options: 75% (free after 65), 50% (reduced cost), or No Reduction. Options A/B/C reduce by 2% per month after 65 with Full Reduction (to $0) or keep coverage with No Reduction.
                 </div>
                 <div style={s.assumptionItem}>
                   <strong>Postal Employees:</strong> No cost for Basic Insurance (employer pays 100%). Options A, B, C rates are the same.
                 </div>
               </div>
             </div>
-
-        {/* Consultation CTA */}
-        <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-            <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎯</div>
-            <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if your FEGLI strategy is right?</div>
-              <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 12px 0' }}>
-                Your calculator results above are a great starting point, but every federal employee's situation is unique. A benefits specialist can review your coverage elections, retirement goals, and family situation to help you make the best choice.
-              </p>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
-                Book a Free Consultation
-              </a>
-              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>30 minutes. No cost. No obligation.</div>
-            </div>
-          </div>
-        </div>
 
       </div>
     </main>
