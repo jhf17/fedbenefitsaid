@@ -462,7 +462,6 @@ export default function Calculator() {
         colaProjection: calcCOLAProjection(pensionMonthly, rAge, yearsToRetire, tab),
       })
       setShowFIA(false)
-    }
 
     setTimeout(() => {
       document.getElementById('calc-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
