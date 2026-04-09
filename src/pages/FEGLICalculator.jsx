@@ -697,7 +697,6 @@ export default function FEGLICalculator() {
                 </div>
               </div>
             </div>
-          </div>
 
         {/* Consultation CTA */}
         <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
