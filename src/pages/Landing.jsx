@@ -505,7 +505,7 @@ export default function Landing() {
                 { color: '#b8860b', title: 'FEHB', topics: 5, desc: 'Plan comparison, premium costs' },
                 { color: '#1e3a5f', title: 'FEGLI', topics: 4, desc: 'Coverage options, elections' },
                 { color: '#7b1c2e', title: 'Medicare', topics: 3, desc: 'Enrollment timing, Part B' },
-                { color: '#b8860b', title: 'Social Security', topics: 4, desc: 'WEP/GPO, claiming strategies' },
+                { color: '#b8860b', title: 'Social Security', topics: 4, desc: 'WEP/GPO repeal, claiming strategies' },
                 { color: '#1e3a5f', title: 'CSRS', topics: 2, desc: 'Legacy rules, offset' },
                 { color: '#7b1c2e', title: 'Survivor Benefits', topics: 3, desc: 'Spouse coverage, elections' },
               ].map((cat, i) => (

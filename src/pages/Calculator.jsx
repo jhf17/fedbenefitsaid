@@ -769,10 +769,10 @@ export default function Calculator() {
                     )}
                   </div>
                   {results.ssMonthly > 0 && (
-                    <div style={{ ...s.resultBox, borderLeft: '4px solid #d97706', background: '#fffbeb', marginTop: 16 }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>WEP/GPO Notice</div>
+                    <div style={{ ...s.resultBox, borderLeft: '4px solid #16a34a', background: '#f0fdf4', marginTop: 16 }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>WEP/GPO Repealed</div>
                       <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6 }}>
-                        If you have a pension from work not covered by Social Security, your Social Security benefit may be reduced by the Windfall Elimination Provision (WEP) or Government Pension Offset (GPO). CSRS employees and some FERS transfers are commonly affected.
+                        The Windfall Elimination Provision (WEP) and Government Pension Offset (GPO) were repealed by the Social Security Fairness Act (January 2025). Social Security benefits are no longer reduced for those with pensions from non-SS-covered work. If you were previously affected, contact SSA about retroactive adjustments.
                       </div>
                     </div>
                   )}

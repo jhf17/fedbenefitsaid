@@ -171,7 +171,7 @@ export default function Reference() {
                 'FEHB': 'Plan comparison, 5-year rule, premium costs',
                 'FEGLI': 'Coverage options, costs at retirement, elections',
                 'Medicare': 'Enrollment timing, Part B coordination, costs',
-                'Social Security': 'Benefit estimates, WEP/GPO, claiming strategies',
+                'Social Security': 'Benefit estimates, WEP/GPO repeal, claiming strategies',
                 'CSRS': 'Legacy system rules, offset, survivor benefits',
                 'Survivor Benefits': 'Spouse coverage, cost vs benefit, elections',
                 'Taxation': 'Annuity taxation, state taxes, TSP withdrawals',

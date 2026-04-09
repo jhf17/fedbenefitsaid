@@ -573,26 +573,26 @@ export const REF_DATA = [
        'The withheld benefits are returned but spread over remaining lifetime — not a lump sum',
        'FERS Supplement has its own earnings test ($1/$2) that operates independently of the SS earnings test'
      ]},
-    {id:'ss-wep-gpo',title:'WEP & GPO — Windfall & Pension Offset',summary:'How government pensions reduce SS for CSRS employees',
-     overview:'Two provisions specifically affect federal employees who had non-SS-covered employment (primarily CSRS). FERS employees who always paid SS taxes are generally not affected.',
+    {id:'ss-wep-gpo',title:'WEP & GPO — REPEALED (Social Security Fairness Act)',summary:'WEP and GPO were repealed in January 2025 — CSRS employees now receive full Social Security benefits',
+     overview:'The Windfall Elimination Provision (WEP) and Government Pension Offset (GPO) were repealed by the Social Security Fairness Act, signed into law on January 5, 2025. These provisions previously reduced Social Security benefits for federal employees with non-SS-covered pensions (primarily CSRS). The repeal applies to benefits payable for months after December 2023.',
      rules:[
-       "WEP (Windfall Elimination Provision): reduces worker's own SS retirement benefit if they receive a pension from non-SS-covered work",
-       'WEP max reduction (2026): approximately $618/month from SS benefit',
-       'WEP exemption: 30+ years of substantial SS-covered employment (full benefit); reduced WEP for 21–29 years',
-       'GPO (Government Pension Offset): reduces SS spousal or survivor benefit by 2/3 of the government pension',
-       'GPO can eliminate spousal/survivor benefit entirely if pension is large enough',
-       'FERS employees: generally NOT subject to WEP or GPO (they paid SS taxes throughout)',
-       'CSRS-Offset employees: subject to WEP; GPO may apply depending on circumstances'
+       'WEP REPEALED: Social Security retirement benefits are no longer reduced for those with pensions from non-SS-covered work (such as CSRS)',
+       'GPO REPEALED: Social Security spousal and survivor benefits are no longer reduced by 2/3 of the government pension',
+       'Effective for benefits payable for months after December 2023 — retroactive adjustments are being processed by SSA',
+       'CSRS employees who previously had reduced SS benefits should see increases automatically',
+       'Affected retirees should contact SSA or visit ssa.gov for information on retroactive payments',
+       'FERS employees were generally not affected by WEP/GPO previously and see no change',
+       'The repeal was enacted via the Social Security Fairness Act (Pub. L. 118-215)'
      ],
      numbers:[
-       {label:'WEP max reduction (2026)',value:'~$618/month'},
-       {label:'WEP exemption threshold',value:'30 years substantial SS-covered work'},
-       {label:'GPO reduction',value:'2/3 of government pension'}
+       {label:'WEP status',value:'REPEALED (Jan 2025)'},
+       {label:'GPO status',value:'REPEALED (Jan 2025)'},
+       {label:'Effective date',value:'Benefits after Dec 2023'}
      ],
      watch:[
-       "WEP only affects the retiree's own SS benefit, not the survivor's benefit after death",
-       "GPO can completely wipe out a surviving spouse's SS benefit if the pension is large enough",
-       "CSRS employees often don't realize WEP/GPO impact until close to retirement — plan early"
+       'SSA is processing retroactive adjustments — check your benefit statement for updates',
+       'If you were previously denied spousal or survivor benefits due to GPO, contact SSA to file a new claim',
+       'CSRS-Offset employees should verify their updated benefit amounts with SSA'
      ]}
   ]},
   {cat:'CSRS',icon:'🏦',color:'#1e3a5f',topics:[
@@ -612,7 +612,7 @@ export const REF_DATA = [
        {label:'COLA type',value:'Full CPI-W (same as Social Security)'}
      ],
      watch:[
-       'CSRS employees approaching retirement must understand WEP and GPO impacts on SS benefits from any non-federal work',
+       'WEP and GPO were repealed in January 2025 — CSRS employees now receive full Social Security benefits from non-federal work without reductions',
        'No government TSP match under CSRS — many CSRS employees have smaller TSP balances as a result',
        'CSRS-Offset is a separate sub-category with different SS interaction rules'
      ]},

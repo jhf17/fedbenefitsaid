@@ -47,7 +47,7 @@ export const QUIZ_MODULES = [
   {
     id: 'social-security',
     title: 'Social Security',
-    description: 'Full Retirement Age, claiming strategy, WEP/GPO, the earnings test, and delayed credits.',
+    description: 'Full Retirement Age, claiming strategy, WEP/GPO repeal, the earnings test, and delayed credits.',
     difficulty: 'Intermediate',
   },
   {
@@ -557,16 +557,16 @@ export const QUIZ_QUESTIONS = {
     },
     {
       id: 'ss-4',
-      question: 'The Windfall Elimination Provision (WEP) primarily affects which group of federal employees?',
+      question: 'The Windfall Elimination Provision (WEP) was repealed in January 2025. Before repeal, which group did it primarily affect?',
       options: [
         'FERS employees who retire after age 62',
-        'CSRS employees who have enough Social Security credits from other employment',
+        'CSRS employees who had Social Security credits from other employment',
         'All federal employees regardless of retirement system',
         'TSP participants who take early withdrawals',
       ],
       correct: 1,
-      explanation: 'WEP applies to people who worked in jobs not covered by Social Security (such as CSRS federal employment) but also earned enough SS credits from other covered employment. WEP reduces the Social Security benefit formula, often substantially. FERS employees pay into Social Security and are generally not affected by WEP.',
-      citation: '42 U.S.C. § 415(a)(7); SSA Publication 05-10045',
+      explanation: 'WEP previously reduced Social Security benefits for people who worked in non-SS-covered jobs (like CSRS federal employment) but also earned SS credits elsewhere. The Social Security Fairness Act (signed January 5, 2025) repealed WEP entirely. CSRS employees who were affected should now receive their full Social Security benefits — SSA is processing retroactive adjustments.',
+      citation: 'Social Security Fairness Act (Pub. L. 118-215); SSA.gov/benefits/retirement/social-security-fairness-act.html',
     },
     {
       id: 'ss-5',
@@ -583,16 +583,16 @@ export const QUIZ_QUESTIONS = {
     },
     {
       id: 'ss-6',
-      question: 'The Government Pension Offset (GPO) primarily affects which group?',
+      question: 'The Government Pension Offset (GPO) was repealed in January 2025. Before repeal, which group did it primarily affect?',
       options: [
         'FERS retirees receiving TSP distributions',
-        'CSRS retirees or CSRS-Offset retirees who claim spousal or survivor Social Security benefits',
-        'Any federal employee who files for Social Security before age 62',
-        'FERS employees who have fewer than 20 years of service',
+        'CSRS retirees or CSRS-Offset retirees who claimed spousal or survivor Social Security benefits',
+        'Any federal employee who filed for Social Security before age 62',
+        'FERS employees who had fewer than 20 years of service',
       ],
       correct: 1,
-      explanation: 'GPO reduces Social Security spousal or survivor benefits by two-thirds of the government pension for those who receive a CSRS pension (not covered by Social Security). This can eliminate the SS spousal benefit entirely. FERS employees pay into SS and are generally not subject to GPO.',
-      citation: '42 U.S.C. § 402(k)(5); SSA Publication 05-10007',
+      explanation: 'GPO previously reduced Social Security spousal or survivor benefits by two-thirds of the government pension for those with a CSRS pension. The Social Security Fairness Act (signed January 5, 2025) repealed GPO entirely. Those who were previously denied or had reduced spousal/survivor benefits should contact SSA to file a new claim or receive adjusted payments.',
+      citation: 'Social Security Fairness Act (Pub. L. 118-215); SSA.gov/benefits/retirement/social-security-fairness-act.html',
     },
   ],
 
@@ -615,12 +615,12 @@ export const QUIZ_QUESTIONS = {
       question: 'CSRS employees generally do not pay into Social Security. What is the primary consequence at retirement?',
       options: [
         'They receive a higher CSRS annuity that replaces Social Security completely',
-        'They may be subject to WEP and GPO if they also have Social Security credits from other work',
+        'They were historically subject to WEP and GPO (now repealed) if they had Social Security credits from other work',
         'They are required to enroll in Medicare Part A at age 60',
         'They cannot participate in FEHB',
       ],
       correct: 1,
-      explanation: 'Because most CSRS positions are not covered by Social Security, CSRS employees who have worked in SS-covered jobs outside federal service may have their Social Security benefits reduced by WEP. Additionally, spousal and survivor SS benefits may be reduced by GPO. CSRS-Offset employees are an exception — they pay reduced CSRS contributions and also pay into Social Security.',
+      explanation: 'Because most CSRS positions are not covered by Social Security, CSRS employees who worked in SS-covered jobs outside federal service were historically subject to WEP (reducing their own SS benefit) and GPO (reducing spousal/survivor SS benefits). However, both WEP and GPO were repealed by the Social Security Fairness Act in January 2025. CSRS employees now receive their full Social Security benefits. CSRS-Offset employees pay reduced CSRS contributions and also pay into Social Security.',
       citation: '42 U.S.C. § 415(a)(7); 42 U.S.C. § 402(k)(5)',
     },
     {
