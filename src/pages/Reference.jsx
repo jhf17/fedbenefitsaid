@@ -235,14 +235,14 @@ export default function Reference() {
           <div style={styles.detail}>
             {/* Overview */}
             <div style={styles.detailCard}>
-              <h3 style={styles.detailSection}>Overview</h3>
+              <h2 style={styles.detailSection}>Overview</h2>
               <p style={styles.detailOverview}>{selectedTopic.overview}</p>
             </div>
 
             {/* Key Numbers */}
             {selectedTopic.numbers?.length > 0 && (
               <div style={styles.detailCard}>
-                <h3 style={styles.detailSection}>Key Numbers</h3>
+                <h2 style={styles.detailSection}>Key Numbers</h2>
                 <div style={styles.numbersGrid}>
                   {selectedTopic.numbers.map((n, i) => (
                     <div key={i} style={{ ...styles.numberCard, borderTopColor: currentCat?.color }}>
@@ -257,7 +257,7 @@ export default function Reference() {
             {/* Rules */}
             {selectedTopic.rules?.length > 0 && (
               <div style={styles.detailCard}>
-                <h3 style={styles.detailSection}>Rules & Requirements</h3>
+                <h2 style={styles.detailSection}>Rules & Requirements</h2>
                 <ul style={styles.rulesList}>
                   {selectedTopic.rules.map((rule, i) => (
                     <li key={i} style={styles.rule}>
@@ -272,7 +272,7 @@ export default function Reference() {
             {/* Watch Out */}
             {selectedTopic.watch?.length > 0 && (
               <div style={{ ...styles.detailCard, ...styles.watchCard }}>
-                <h3 style={styles.detailSection}>Watch Out For</h3>
+                <h2 style={styles.detailSection}>Watch Out For</h2>
                 <ul style={styles.watchList}>
                   {selectedTopic.watch.map((w, i) => (
                     <li key={i} style={styles.watchItem}>
