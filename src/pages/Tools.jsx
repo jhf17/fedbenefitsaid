@@ -13,7 +13,7 @@ const Calculators = () => {
     {
       id: 'countdown',
       title: 'Retirement Countdown',
-      description: 'Find out exactly when you\\'re eligible to retire based on your birth year, hire date, and years of service. Covers all FERS, CSRS, and special provision paths.',
+      description: 'Find out exactly when you\'re eligible to retire based on your birth year, hire date, and years of service. Covers all FERS, CSRS, and special provision paths.',
       link: '/calculators/countdown',
       icon: 'countdown'
     }
