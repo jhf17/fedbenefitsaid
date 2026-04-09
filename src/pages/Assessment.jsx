@@ -1325,12 +1325,14 @@ export default function Assessment() {
 
         {/* Question Card */}
         <div style={{ background: '#fff', borderRadius: 14, padding: '28px 24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', marginBottom: 16, border: '1px solid #cbd5e1' }}>
-          <h2 style={{ fontSize: 19, fontWeight: 700, color: navy, margin: '0 0 6px', lineHeight: 1.4, fontFamily: fontSerif }}>{question.question}</h2>
+          <h2 id="assessment-question" style={{ fontSize: 19, fontWeight: 700, color: navy, margin: '0 0 6px', lineHeight: 1.4, fontFamily: fontSerif }}>{question.question}</h2>
           <p style={{ fontSize: 13, color: '#475569', margin: '0 0 24px', lineHeight: 1.5, fontFamily: fontSans }}>{question.sub}</p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div role="radiogroup" aria-labelledby="assessment-question" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {question.options.map(opt => (
               <button type="button"
+                role="radio"
+                aria-checked={selected === opt.value}
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
                 style={{
