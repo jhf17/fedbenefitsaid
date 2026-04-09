@@ -1,49 +1,21 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-const Tools = () => {
-  const tools = [
+const Calculators = () => {
+  const calculators = [
     {
       id: 'calculator',
       title: 'FERS Retirement Calculator',
-      description: 'Estimate your pension, FERS supplement, TSP income, FEGLI costs, and total retirement income.',
+      description: 'Estimate your pension, FERS supplement, TSP income, FEGLI costs, and total retirement income. Includes COLA projections and year-by-year FEGLI analysis.',
       link: '/calculator',
       icon: 'calculator'
     },
     {
       id: 'countdown',
       title: 'Retirement Countdown',
-      description: 'Find out exactly when you\'re eligible to retire based on your birth year, hire date, and years of service.',
-      link: '/tools/countdown',
+      description: 'Find out exactly when you\\'re eligible to retire based on your birth year, hire date, and years of service. Covers all FERS, CSRS, and special provision paths.',
+      link: '/calculators/countdown',
       icon: 'countdown'
-    },
-    {
-      id: 'assessment',
-      title: 'Retirement Readiness Assessment',
-      description: 'Answer 6 quick questions and get a personalized retirement readiness checklist.',
-      link: '/assessment',
-      icon: 'checklist'
-    },
-    {
-      id: 'chat',
-      title: 'AI Benefits Advisor',
-      description: 'Get instant answers about FERS, TSP, FEHB, FEGLI, Social Security, and more from our AI assistant.',
-      link: '/chat',
-      icon: 'chat'
-    },
-    {
-      id: 'reference',
-      title: 'Reference Guide',
-      description: 'Comprehensive reference data for federal retirement benefits — pension formulas, TSP funds, FEHB plans, and more.',
-      link: '/reference',
-      icon: 'book'
-    },
-    {
-      id: 'timeline',
-      title: 'Key Dates & Deadlines',
-      description: 'Every important date a federal employee needs to know — enrollment windows, filing deadlines, and optimal retirement timing.',
-      link: '/timeline',
-      icon: 'calendar'
     }
   ]
 
@@ -74,7 +46,7 @@ const Tools = () => {
     switch (iconType) {
       case 'calculator':
         return (
-          <svg {...iconProps}>
+          <svg {...iconProps} aria-hidden="true">
             {defs}
             <rect x="8" y="6" width="32" height="36" rx="2" />
             <line x1="8" y1="18" x2="40" y2="18" />
@@ -88,7 +60,7 @@ const Tools = () => {
         )
       case 'countdown':
         return (
-          <svg {...iconProps}>
+          <svg {...iconProps} aria-hidden="true">
             {defs}
             <circle cx="24" cy="24" r="18" />
             <line x1="24" y1="10" x2="24" y2="16" />
@@ -97,54 +69,6 @@ const Tools = () => {
             <line x1="32" y1="24" x2="38" y2="24" />
             <line x1="24" y1="24" x2="28" y2="20" />
             <line x1="24" y1="24" x2="20" y2="28" />
-          </svg>
-        )
-      case 'checklist':
-        return (
-          <svg {...iconProps}>
-            {defs}
-            <rect x="8" y="8" width="32" height="32" rx="2" />
-            <line x1="14" y1="18" x2="20" y2="24" />
-            <line x1="20" y1="24" x2="34" y2="10" />
-            <line x1="14" y1="30" x2="20" y2="36" />
-            <line x1="20" y1="36" x2="34" y2="22" />
-          </svg>
-        )
-      case 'chat':
-        return (
-          <svg {...iconProps}>
-            {defs}
-            <path d="M8 12c0-2.2 1.8-4 4-4h24c2.2 0 4 1.8 4 4v20c0 2.2-1.8 4-4 4h-6l-6 6v-6h-12c-2.2 0-4-1.8-4-4V12z" />
-            <circle cx="16" cy="22" r="2" />
-            <circle cx="24" cy="22" r="2" />
-            <circle cx="32" cy="22" r="2" />
-          </svg>
-        )
-      case 'book':
-        return (
-          <svg {...iconProps}>
-            {defs}
-            <path d="M10 8c0-1.1.9-2 2-2h20c1.1 0 2 .9 2 2v28c0 1.1-.9 2-2 2H12c-1.1 0-2-.9-2-2V8z" />
-            <line x1="24" y1="6" x2="24" y2="40" />
-            <line x1="14" y1="14" x2="18" y2="14" />
-            <line x1="14" y1="20" x2="18" y2="20" />
-            <line x1="14" y1="26" x2="18" y2="26" />
-            <line x1="14" y1="32" x2="18" y2="32" />
-          </svg>
-        )
-      case 'calendar':
-        return (
-          <svg {...iconProps}>
-            {defs}
-            <rect x="8" y="10" width="32" height="28" rx="2" />
-            <line x1="8" y1="18" x2="40" y2="18" />
-            <rect x="12" y="4" width="4" height="6" />
-            <rect x="32" y="4" width="4" height="6" />
-            <circle cx="16" cy="26" r="2" />
-            <circle cx="24" cy="26" r="2" />
-            <circle cx="32" cy="26" r="2" />
-            <circle cx="16" cy="34" r="2" />
-            <circle cx="24" cy="34" r="2" />
           </svg>
         )
       default:
@@ -160,7 +84,7 @@ const Tools = () => {
         }
 
         @media (max-width: 768px) {
-          .tools-grid {
+          .calc-grid {
             grid-template-columns: 1fr !important;
           }
 
@@ -174,8 +98,8 @@ const Tools = () => {
             line-height: 1.6 !important;
           }
 
-          .tools-container {
-            padding: 32px 16px !important;
+          .calc-container {
+            padding: 48px 16px !important;
           }
 
           .cta-section {
@@ -205,6 +129,7 @@ const Tools = () => {
       {/* Hero Section */}
       <div
         className="hero-section"
+        role="banner"
         style={{
           background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
           padding: '80px 48px',
@@ -229,7 +154,7 @@ const Tools = () => {
               margin: '0 0 20px 0'
             }}
           >
-            Federal Retirement Tools
+            Retirement Calculators
           </h1>
           <p
             style={{
@@ -240,37 +165,37 @@ const Tools = () => {
               marginBottom: '0'
             }}
           >
-            Free, accurate tools built on official OPM, SSA, and IRS data — designed to help you make confident retirement decisions.
+            Free, accurate calculators built on official OPM, SSA, and IRS data — designed to help you make confident retirement decisions.
           </p>
         </div>
       </div>
 
-      {/* Tools Grid */}
+      {/* Calculators Grid */}
       <div
-        className="tools-container"
+        className="calc-container"
         style={{
           padding: '80px 48px',
-          maxWidth: '1200px',
+          maxWidth: '900px',
           margin: '0 auto'
         }}
       >
         <div
-          className="tools-grid"
+          className="calc-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: '32px',
             marginBottom: '80px'
           }}
         >
-          {tools.map((tool) => (
+          {calculators.map((calc) => (
             <div
-              key={tool.id}
+              key={calc.id}
               style={{
                 backgroundColor: '#fff',
                 borderRadius: '14px',
                 boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
-                padding: '40px 32px',
+                padding: '48px 36px',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'transform 0.2s, box-shadow 0.2s'
@@ -292,45 +217,45 @@ const Tools = () => {
                   justifyContent: 'center'
                 }}
               >
-                {renderIcon(tool.icon)}
+                {renderIcon(calc.icon)}
               </div>
 
               {/* Title */}
-              <h3
+              <h2
                 style={{
                   fontFamily: "'Merriweather', Georgia, serif",
-                  fontSize: '20px',
+                  fontSize: '22px',
                   fontWeight: '400',
                   color: '#1e293b',
-                  marginBottom: '12px',
-                  margin: '0 0 12px 0'
+                  marginBottom: '14px',
+                  margin: '0 0 14px 0'
                 }}
               >
-                {tool.title}
-              </h3>
+                {calc.title}
+              </h2>
 
               {/* Description */}
               <p
                 style={{
                   fontFamily: "'Source Sans 3', -apple-system, sans-serif",
                   fontSize: '15px',
-                  lineHeight: '1.6',
+                  lineHeight: '1.7',
                   color: '#475569',
-                  marginBottom: '24px',
-                  margin: '0 0 24px 0',
+                  marginBottom: '28px',
+                  margin: '0 0 28px 0',
                   flex: '1'
                 }}
               >
-                {tool.description}
+                {calc.description}
               </p>
 
               {/* Link */}
               <Link
-                to={tool.link}
+                to={calc.link}
                 style={{
                   fontFamily: "'Source Sans 3', -apple-system, sans-serif",
                   fontSize: '15px',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   color: '#7b1c2e',
                   textDecoration: 'none',
                   display: 'inline-flex',
@@ -345,7 +270,7 @@ const Tools = () => {
                   e.currentTarget.style.gap = '6px'
                 }}
               >
-                Explore <span style={{ fontSize: '16px' }}>→</span>
+                Open Calculator <span aria-hidden="true" style={{ fontSize: '16px' }}>→</span>
               </Link>
             </div>
           ))}
@@ -420,4 +345,4 @@ const Tools = () => {
   )
 }
 
-export default Tools
+export default Calculators
