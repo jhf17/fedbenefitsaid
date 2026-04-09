@@ -9,8 +9,8 @@ const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 // ============================================================
 
 // Social Security 2026 bend points (monthly AIME)
-const SS_BEND1 = 1226   // 90% below this
-const SS_BEND2 = 7391   // 32% between bend1 and bend2, 15% above
+const SS_BEND1 = 1286   // 90% below this (2026 per SSA.gov)
+const SS_BEND2 = 7749   // 32% between bend1 and bend2, 15% above
 
 // FERS multipliers
 const FERS_STANDARD = 0.010   // 1.0% — all cases except age 62+ with 20+ years
@@ -53,7 +53,7 @@ const FEGLI_OPTION_C_RATES = {
 }
 
 // Basic Insurance rates
-const FEGLI_BASIC_EMPLOYEE = 0.3250 // per $1000 biweekly
+const FEGLI_BASIC_EMPLOYEE = 0.1600 // per $1000 biweekly (OPM.gov rate table, eff 10/1/2021)
 const FEGLI_BASIC_POSTAL = 0.00     // employer paid for postal workers
 const FEGLI_BASIC_ANNUITANT = 0.3467 // monthly rate per $1000
 
@@ -351,8 +351,8 @@ function calcSpecialPension(yearsService, high3, survivorBenefit, category) {
 function calcSSBenefit(sstAt62, claimAge) {
   const ageShift = Math.max(0, claimAge - 62)
   const increases = {
-    0: 1.0, 1: 1.08, 2: 1.16, 3: 1.24, 4: 1.32, 5: 1.40,
-    6: 1.50, 7: 1.60, 8: 1.70, 9: 1.80, 10: 1.90
+    0: 1.000, 1: 1.071, 2: 1.143, 3: 1.238, 4: 1.333, 5: 1.429, // SSA.gov actual for FRA 67
+    6: 1.543, 7: 1.657, 8: 1.771, 9: 1.771, 10: 1.771 // DRC caps at age 70
   }
   const factor = increases[Math.min(ageShift, 10)] || 1.9
   return (sstAt62 * factor) / 12
@@ -1381,7 +1381,7 @@ export default function Calculator() {
                     <div style={{ ...s.resultBox, borderLeft: '4px solid #d97706', background: '#fffbeb', marginTop: 16 }}>
                       <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Earnings Test Warning</div>
                       <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6 }}>
-                        The FERS Supplement is subject to the Social Security earnings test. In 2026, if you earn more than $23,400/year from wages or self-employment before age 62, your supplement is reduced by $1 for every $2 earned above the limit.
+                        The FERS Supplement is subject to the Social Security earnings test. In 2026, if you earn more than $24,480/year from wages or self-employment before age 62, your supplement is reduced by $1 for every $2 earned above the limit.
                       </div>
                     </div>
                   )}
