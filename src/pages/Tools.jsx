@@ -5,17 +5,17 @@ const Calculators = () => {
   const calculators = [
     {
       id: 'calculator',
-      title: 'FERS Retirement Calculator',
-      description: 'Estimate your pension, FERS supplement, TSP income, FEGLI costs, and total retirement income. Includes COLA projections and year-by-year FEGLI analysis.',
+      title: 'Retirement Income Calculator',
+      description: 'Estimate your FERS or CSRS pension, FERS supplement, TSP income, and total retirement income. Includes COLA projections, FEHB deductions, and Medicare costs.',
       link: '/calculator',
       icon: 'calculator'
     },
     {
-      id: 'countdown',
-      title: 'Retirement Countdown',
-      description: 'Find out exactly when you\'re eligible to retire based on your birth year, hire date, and years of service. Covers all FERS, CSRS, and special provision paths.',
-      link: '/calculators/countdown',
-      icon: 'countdown'
+      id: 'fegli',
+      title: 'FEGLI Life Insurance Calculator',
+      description: 'Understand your federal life insurance coverage, current costs, and how premiums change in retirement. Compare FEGLI options and reduction elections.',
+      link: '/calculator?tab=fegli',
+      icon: 'fegli'
     }
   ]
 
@@ -58,17 +58,13 @@ const Calculators = () => {
             <circle cx="34" cy="38" r="2" />
           </svg>
         )
-      case 'countdown':
+      case 'fegli':
         return (
           <svg {...iconProps} aria-hidden="true">
             {defs}
-            <circle cx="24" cy="24" r="18" />
-            <line x1="24" y1="10" x2="24" y2="16" />
-            <line x1="24" y1="32" x2="24" y2="38" />
-            <line x1="10" y1="24" x2="16" y2="24" />
-            <line x1="32" y1="24" x2="38" y2="24" />
-            <line x1="24" y1="24" x2="28" y2="20" />
-            <line x1="24" y1="24" x2="20" y2="28" />
+            <path d="M24 8 C18 8, 10 14, 10 22 C10 32, 24 40, 24 40 C24 40, 38 32, 38 22 C38 14, 30 8, 24 8Z" />
+            <line x1="24" y1="18" x2="24" y2="30" />
+            <line x1="18" y1="24" x2="30" y2="24" />
           </svg>
         )
       default:
