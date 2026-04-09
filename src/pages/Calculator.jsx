@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -378,7 +378,9 @@ function calcFERSSupplement(yearsService, ssAt62) {
 
 export default function Calculator() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState('fers')
+  const [searchParams] = useSearchParams()
+  const initialTab = searchParams.get('tab') || 'fers'
+  const [tab, setTab] = useState(initialTab)
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
 
