@@ -237,9 +237,9 @@ function calcFERSPension(yearsService, high3, retireAge, survivorBenefit, earlyR
 
   let survivorDeduct = 0
   if (survivorBenefit === 'reduced') {
-    survivorDeduct = grossAfterEarly * 0.005 * yrs
+    survivorDeduct = grossAfterEarly * 0.05
   } else if (survivorBenefit === 'full') {
-    survivorDeduct = grossAfterEarly * 0.010 * yrs
+    survivorDeduct = grossAfterEarly * 0.10
   }
 
   const netAnnual = grossAfterEarly - survivorDeduct
@@ -276,9 +276,9 @@ function calcCSRSPension(yearsService, high3, survivorBenefit) {
 
   let survivorDeduct = 0
   if (survivorBenefit === 'reduced') {
-    survivorDeduct = grossPension * 0.005 * yrs
+    survivorDeduct = grossPension * 0.05
   } else if (survivorBenefit === 'full') {
-    survivorDeduct = grossPension * 0.010 * yrs
+    survivorDeduct = grossPension * 0.10
   }
 
   const netAnnual = grossPension - survivorDeduct
@@ -300,14 +300,14 @@ function calcCSRSPension_Helper(yrs, h3, firstFive, remaining, tier, survivorBen
     grossPension = firstFive + remaining + thirdTier
   }
 
-  grossPension = (grossPension * h3) / yrs
+  grossPension = grossPension * h3
   grossPension = Math.min(grossPension, h3 * CSRS_MAX)
 
   let survivorDeduct = 0
   if (survivorBenefit === 'reduced') {
-    survivorDeduct = grossPension * 0.005 * yrs
+    survivorDeduct = grossPension * 0.05
   } else if (survivorBenefit === 'full') {
-    survivorDeduct = grossPension * 0.010 * yrs
+    survivorDeduct = grossPension * 0.10
   }
 
   const netAnnual = grossPension - survivorDeduct
@@ -324,24 +324,24 @@ function calcSpecialPension(yearsService, high3, survivorBenefit, category) {
   const yrs = parseFloat(yearsService) || 0
   const h3 = parseFloat(high3) || 0
 
-  let multiplierRate = SP_LOW
+  let grossPension
   if (yrs <= 20) {
-    multiplierRate = SP_HIGH
+    grossPension = yrs * SP_HIGH * h3
+  } else {
+    grossPension = (20 * SP_HIGH + (yrs - 20) * SP_LOW) * h3
   }
-
-  const grossPension = yrs * multiplierRate * h3
 
   let survivorDeduct = 0
   if (survivorBenefit === 'reduced') {
-    survivorDeduct = grossPension * 0.005 * yrs
+    survivorDeduct = grossPension * 0.05
   } else if (survivorBenefit === 'full') {
-    survivorDeduct = grossPension * 0.010 * yrs
+    survivorDeduct = grossPension * 0.10
   }
 
   const netAnnual = grossPension - survivorDeduct
 
   return {
-    multiplierPct: multiplierRate * 100,
+    multiplierPct: (grossPension / h3 / yrs) * 100,
     gross: grossPension,
     survivorDeduct,
     netAnnual
