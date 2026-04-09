@@ -14,7 +14,7 @@ const Calculators = () => {
       id: 'fegli',
       title: 'FEGLI Life Insurance Calculator',
       description: 'Understand your federal life insurance coverage, current costs, and how premiums change in retirement. Compare FEGLI options and reduction elections.',
-      link: '/calculator?tab=fegli',
+      link: '/calculators/fegli',
       icon: 'fegli'
     }
   ]
