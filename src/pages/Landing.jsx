@@ -10,7 +10,7 @@ const colors = {
   gray50: '#f8f7f4',
   gray100: '#f1f0ed',
   gray300: '#cbd5e1',
-  gray400: '#64748b',
+  gray400: '#475569',
   gray600: '#475569',
   gray800: '#1e293b',
 };
@@ -57,6 +57,10 @@ export default function Landing() {
   return (
     <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
       <style>{`
+        a:focus-visible, button:focus-visible {
+          outline: 2px solid #7b1c2e;
+          outline-offset: 2px;
+        }
         @keyframes drawLine {
           to { stroke-dashoffset: 0; }
         }
