@@ -20,11 +20,101 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif";
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif";
 
 export default function Landing() {
-  const [cookieConsent, setCookieConsent] = useState(() => {
-    try { return document.cookie.includes('fba_consent=1') } catch { return false }
-  });
-
+  const [calcPreview, setCalcPreview] = useState('income');
   const revealRefs = useRef([]);
+
+  // Eagle animation system — JS-driven with requestAnimationFrame
+  useEffect(() => {
+    const ec = document.getElementById('eagle-anim-container');
+    if (!ec) return;
+    const eSide = document.getElementById('eagle-side');
+    const eFront = document.getElementById('eagle-front');
+    const eFrontLW = document.getElementById('eagle-front-lwing');
+    const eFrontRW = document.getElementById('eagle-front-rwing');
+    const ePerch = document.getElementById('eagle-perched');
+    if (!eSide || !eFront || !ePerch) return;
+
+    const DUR = 8000;
+    let t0 = null, raf = null;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const smooth = (t) => t * t * (3 - 2 * t);
+
+    // Waypoints: progress(0-1), x, y, scale
+    const W = [
+      { t:0.00, x:-60,  y:105, s:0.7 },
+      { t:0.06, x:20,   y:85,  s:0.75 },
+      { t:0.12, x:85,   y:110, s:0.8 },
+      { t:0.18, x:150,  y:80,  s:0.85 },
+      { t:0.24, x:215,  y:108, s:0.9 },
+      { t:0.30, x:275,  y:78,  s:0.95 },
+      { t:0.36, x:340,  y:95,  s:1.05 },
+      // Loop entry — eagle approaches viewer, grows larger
+      { t:0.42, x:410,  y:58,  s:1.3 },
+      { t:0.48, x:465,  y:28,  s:1.6 },
+      { t:0.54, x:495,  y:18,  s:1.8 },
+      { t:0.60, x:480,  y:35,  s:1.6 },
+      { t:0.66, x:435,  y:58,  s:1.4 },
+      // Descent to finial (finial at 280,48; eagle talons at +17 from origin)
+      { t:0.72, x:375,  y:38,  s:1.3 },
+      { t:0.78, x:325,  y:34,  s:1.2 },
+      { t:0.84, x:295,  y:32,  s:1.1 },
+      { t:0.90, x:283,  y:31,  s:1.05 },
+      { t:0.95, x:280,  y:30,  s:1.0 },
+      { t:1.00, x:280,  y:30,  s:1.0 },
+    ];
+
+    function getState(p) {
+      p = Math.max(0, Math.min(1, p));
+      let i = 0;
+      for (let j = 1; j < W.length; j++) { if (W[j].t >= p) { i = j - 1; break; } if (j === W.length - 1) i = j - 1; }
+      const a = W[i], b = W[Math.min(i + 1, W.length - 1)];
+      const seg = b.t === a.t ? 1 : smooth((p - a.t) / (b.t - a.t));
+      return { x: lerp(a.x, b.x, seg), y: lerp(a.y, b.y, seg), s: lerp(a.s, b.s, seg) };
+    }
+
+    function frame(ts) {
+      if (!t0) t0 = ts;
+      const t = Math.min((ts - t0) / DUR, 1);
+      const st = getState(t);
+
+      // Heading tilt for side-view
+      const ah = getState(Math.min(t + 0.015, 1));
+      const tilt = Math.atan2(ah.y - st.y, ah.x - st.x) * (180 / Math.PI);
+
+      ec.setAttribute('transform', `translate(${st.x},${st.y}) scale(${st.s})`);
+      ec.setAttribute('opacity', t < 0.03 ? (t / 0.03).toFixed(2) : '1');
+
+      // Cross-fade: side → front (t 0.38-0.50), front → perched (t 0.86-0.94)
+      const sO = t < 0.38 ? 1 : t < 0.50 ? 1 - (t - 0.38) / 0.12 : 0;
+      const fO = t < 0.38 ? 0 : t < 0.50 ? (t - 0.38) / 0.12 : t < 0.86 ? 1 : t < 0.94 ? 1 - (t - 0.86) / 0.08 : 0;
+      const pO = t < 0.86 ? 0 : t < 0.94 ? (t - 0.86) / 0.08 : 1;
+
+      eSide.setAttribute('opacity', Math.max(0, Math.min(1, sO)).toFixed(2));
+      eFront.setAttribute('opacity', Math.max(0, Math.min(1, fO)).toFixed(2));
+      ePerch.setAttribute('opacity', Math.max(0, Math.min(1, pO)).toFixed(2));
+
+      // Tilt side-view to follow path slope
+      if (sO > 0) eSide.setAttribute('transform', `rotate(${(tilt * 0.4).toFixed(1)})`);
+
+      // Wing flap on front-view during landing approach (t 0.64-0.88)
+      if (eFrontLW && eFrontRW) {
+        if (t > 0.64 && t < 0.88) {
+          const fp = (t - 0.64) / 0.24;
+          const angle = Math.sin(fp * 6 * Math.PI * 2) * 22;
+          eFrontLW.setAttribute('transform', `rotate(${angle.toFixed(1)}, -8, 0)`);
+          eFrontRW.setAttribute('transform', `rotate(${(-angle).toFixed(1)}, 8, 0)`);
+        } else {
+          eFrontLW.setAttribute('transform', 'rotate(0,-8,0)');
+          eFrontRW.setAttribute('transform', 'rotate(0,8,0)');
+        }
+      }
+
+      if (t < 1) raf = requestAnimationFrame(frame);
+    }
+
+    const timer = setTimeout(() => { raf = requestAnimationFrame(frame); }, 500);
+    return () => { clearTimeout(timer); if (raf) cancelAnimationFrame(raf); };
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -58,11 +148,6 @@ export default function Landing() {
 
   return (
     <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
-      {/* Financial Disclaimer Banner */}
-      <div style={{ background: '#fef3c7', borderBottom: '1px solid #f59e0b', padding: '10px 24px', textAlign: 'center', fontSize: '0.8rem', color: '#92400e', fontFamily: "'Source Sans 3', -apple-system, sans-serif" }}>
-        This site provides educational information only and does not constitute financial, legal, or tax advice. FedBenefitsAid is not affiliated with OPM or any government agency. <a href="/disclaimer" style={{ color: '#92400e', fontWeight: 600 }}>Learn more</a>
-      </div>
-
       <style>{`
         @keyframes drawLine {
           to { stroke-dashoffset: 0; }
@@ -71,7 +156,21 @@ export default function Landing() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-                        .flow-line {
+        @keyframes flagSway {
+          0% { transform: rotate(0deg) skewX(0deg) skewY(0deg); }
+          12% { transform: rotate(2.5deg) skewX(1.5deg) skewY(1deg); }
+          28% { transform: rotate(-1.2deg) skewX(-0.8deg) skewY(-0.6deg); }
+          40% { transform: rotate(1.8deg) skewX(2deg) skewY(0.8deg); }
+          55% { transform: rotate(-0.8deg) skewX(-1.2deg) skewY(-0.5deg); }
+          68% { transform: rotate(2deg) skewX(1.8deg) skewY(0.9deg); }
+          82% { transform: rotate(-0.5deg) skewX(-0.6deg) skewY(-0.3deg); }
+          100% { transform: rotate(0deg) skewX(0deg) skewY(0deg); }
+        }
+        .flag-sway {
+          transform-origin: 283px 50px;
+          animation: flagSway 8s ease-in-out infinite;
+        }
+        .flow-line {
           stroke-dasharray: 600;
           stroke-dashoffset: 600;
           animation: drawLine 3s ease forwards;
@@ -139,7 +238,13 @@ export default function Landing() {
                 <stop offset="100%" stopColor="#b8860b" stopOpacity="0.15" />
               </linearGradient>
               {/* Cloth ripple — fractalNoise for smooth waves, very slow for light breeze */}
-                          </defs>
+              <filter id="flagCloth" x="-3%" y="-5%" width="108%" height="112%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.015 0.04" numOctaves="2" seed="3" result="noise">
+                  <animate attributeName="seed" dur="45s" values="3;8;5;12;7;10;4;9;3" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+            </defs>
 
             {/* Flowing lines */}
             <path className="flow-line" d="M40 380 Q150 340 280 320 Q410 300 520 260" stroke="url(#goldGrad)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
@@ -176,7 +281,7 @@ export default function Landing() {
               {/* Flagpole finial */}
               <circle cx="280" cy="48" r="4.5" fill="url(#goldGrad)" />
               {/* American Flag - 50 stars, 13 stripes, cloth ripple + gentle sway */}
-              <g>
+              <g className="flag-sway" filter="url(#flagCloth)">
                 {/* 13 stripes - slightly taller for overlap so ripple doesn't create gaps */}
                 {[0,1,2,3,4,5,6,7,8,9,10,11,12].map((i) => (
                   <rect key={`stripe-${i}`} x="283" y={49.5 + i * 3.5} width="76" height="4.2" fill={i % 2 === 0 ? '#bf0a30' : '#ffffff'} />
@@ -196,6 +301,86 @@ export default function Landing() {
               </g>
             </g>
 
+            {/* === EAGLE ANIMATION — 3-state JS-driven === */}
+            <g id="eagle-anim-container" opacity="0">
+
+              {/* STATE 1: Side-view soaring eagle (facing right, wings spread) */}
+              <g id="eagle-side" opacity="1">
+                <ellipse cx="0" cy="0" rx="14" ry="5.5" fill="#3b1f0b" />
+                {/* Left wing layers */}
+                <path d="M-4,-2 Q-18,-20 -46,-26 Q-42,-16 -34,-10 Q-24,-4 -8,-1Z" fill="#4a2810" />
+                <path d="M-5,0 Q-22,-14 -50,-18 Q-44,-9 -36,-4 Q-26,0 -10,1Z" fill="#3b1f0b" />
+                <path d="M-4,2 Q-20,-6 -44,-10 Q-38,-2 -30,2 Q-20,4 -8,3Z" fill="#2d1608" />
+                {/* Right wing layers */}
+                <path d="M4,-2 Q18,-20 46,-26 Q42,-16 34,-10 Q24,-4 8,-1Z" fill="#4a2810" />
+                <path d="M5,0 Q22,-14 50,-18 Q44,-9 36,-4 Q26,0 10,1Z" fill="#3b1f0b" />
+                <path d="M4,2 Q20,-6 44,-10 Q38,-2 30,2 Q20,4 8,3Z" fill="#2d1608" />
+                {/* White head */}
+                <ellipse cx="16" cy="-1.5" rx="5.5" ry="4.5" fill="white" />
+                <circle cx="18.5" cy="-2.5" r="1" fill="#1a1a1a" />
+                <path d="M22,-1.5 L27,-0.5 Q25,1 22,0Z" fill="#f5a623" />
+                {/* Tail */}
+                <path d="M-13,1 Q-24,4 -32,10 Q-26,6 -16,3Z" fill="#3b1f0b" />
+                <path d="M-14,-0.5 Q-26,1 -34,6 Q-28,3 -16,1Z" fill="#4a2810" />
+                <path d="M-30,8 Q-33,11 -31,10Z" fill="white" opacity="0.5" />
+              </g>
+
+              {/* STATE 2: Front-facing flying eagle (wings spread, flappable) */}
+              <g id="eagle-front" opacity="0">
+                {/* Body */}
+                <ellipse cx="0" cy="3" rx="8" ry="12" fill="#3b1f0b" />
+                {/* Breast highlight */}
+                <ellipse cx="0" cy="0" rx="5" ry="6" fill="#4a2810" />
+                {/* Left wing group (flaps) */}
+                <g id="eagle-front-lwing">
+                  <path d="M-8,-1 Q-22,-14 -48,-10 Q-42,-4 -32,0 Q-20,2 -8,2Z" fill="#4a2810" />
+                  <path d="M-7,1 Q-20,-8 -44,-4 Q-38,1 -28,4 Q-18,4 -7,3Z" fill="#3b1f0b" />
+                  <path d="M-7,3 Q-18,-2 -40,0 Q-34,4 -24,6 Q-16,5 -7,4Z" fill="#2d1608" />
+                </g>
+                {/* Right wing group (flaps) */}
+                <g id="eagle-front-rwing">
+                  <path d="M8,-1 Q22,-14 48,-10 Q42,-4 32,0 Q20,2 8,2Z" fill="#4a2810" />
+                  <path d="M7,1 Q20,-8 44,-4 Q38,1 28,4 Q18,4 7,3Z" fill="#3b1f0b" />
+                  <path d="M7,3 Q18,-2 40,0 Q34,4 24,6 Q16,5 7,4Z" fill="#2d1608" />
+                </g>
+                {/* White head */}
+                <ellipse cx="0" cy="-9" rx="5.5" ry="5" fill="white" />
+                <circle cx="-2" cy="-9.5" r="0.9" fill="#1a1a1a" />
+                <circle cx="2" cy="-9.5" r="0.9" fill="#1a1a1a" />
+                {/* Beak */}
+                <path d="M-1.5,-7 L0,-4 L1.5,-7Z" fill="#f5a623" />
+                <path d="M-0.8,-5.5 L0,-4 L0.8,-5.5Z" fill="#d4891a" />
+                {/* Tail fan */}
+                <path d="M-5,14 Q0,19 5,14 Q3,16 0,18 Q-3,16 -5,14Z" fill="#4a2810" />
+                {/* Talons */}
+                <path d="M-3,14 L-5,18 L-3,16 L-4,19 L-1,16Z" fill="#f5a623" />
+                <path d="M3,14 L5,18 L3,16 L4,19 L1,16Z" fill="#f5a623" />
+              </g>
+
+              {/* STATE 3: Perched eagle (front-facing, wings folded, upright) */}
+              <g id="eagle-perched" opacity="0">
+                {/* Body (upright, compact) */}
+                <ellipse cx="0" cy="5" rx="7" ry="12" fill="#3b1f0b" />
+                {/* Folded wing edges */}
+                <path d="M-7,0 Q-9,7 -7,14 Q-6.5,10 -7,0Z" fill="#2d1608" />
+                <path d="M7,0 Q9,7 7,14 Q6.5,10 7,0Z" fill="#2d1608" />
+                {/* Breast */}
+                <ellipse cx="0" cy="2" rx="5" ry="7" fill="#4a2810" />
+                {/* White head */}
+                <ellipse cx="0" cy="-9" rx="5.2" ry="4.8" fill="white" />
+                <circle cx="-2" cy="-9" r="0.85" fill="#1a1a1a" />
+                <circle cx="2" cy="-9" r="0.85" fill="#1a1a1a" />
+                {/* Beak (prominent, hooked) */}
+                <path d="M-1.5,-6.5 L0,-3 L1.5,-6.5Z" fill="#f5a623" />
+                <path d="M-0.7,-4.5 L0,-3 L0.7,-4.5Z" fill="#d4891a" />
+                {/* Tail behind */}
+                <path d="M-4,16 Q0,20 4,16Z" fill="#4a2810" />
+                {/* Talons gripping finial */}
+                <path d="M-3,16 L-4.5,19 L-2.5,17.5 L-3.5,20 L-1,17Z" fill="#f5a623" />
+                <path d="M3,16 L4.5,19 L2.5,17.5 L3.5,20 L1,17Z" fill="#f5a623" />
+              </g>
+
+            </g>
 
             {/* Decorative particles */}
             <circle cx="140" cy="200" r="2.5" fill="#daa520" opacity="0.3">
@@ -223,7 +408,7 @@ export default function Landing() {
               <br />
               Make sure you understand them.
             </h2>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.8)', maxWidth: '560px', margin: '0 auto' }}>
+            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.55)', maxWidth: '560px', margin: '0 auto' }}>
               The federal benefits system is one of the most generous in America — but also one of the most confusing. FedBenefitsAid makes it simple.
             </p>
           </div>
@@ -245,7 +430,7 @@ export default function Landing() {
                 <h3 style={{ fontFamily: fontSerif, fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '10px' }}>
                   {card.title}
                 </h3>
-                <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.8)' }}>
+                <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.5)' }}>
                   {card.desc}
                 </p>
               </div>
@@ -259,57 +444,126 @@ export default function Landing() {
         <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: colors.maroon, background: 'rgba(123,28,46,0.06)' }}>
-              Retirement Calculator
+              Retirement Calculators
             </div>
             <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: '700', lineHeight: '1.18', letterSpacing: '-0.01em', marginBottom: '20px', color: colors.navy }}>
               See your complete retirement picture.
             </h2>
             <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: colors.gray600, marginBottom: '32px', maxWidth: '480px' }}>
-              Enter your years of service, high-3 salary, and retirement age. Get a detailed breakdown of your FERS pension, Supplement, TSP, Social Security, and FEHB costs — all in one place.
+              Model your FERS pension, TSP, Social Security, and FEHB costs — or run a full FEGLI life insurance analysis with year-by-year projections and cost comparisons.
             </p>
             <Link to="/calculator" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', color: colors.maroon, transition: 'gap 0.2s', cursor: 'pointer' }}>
-              Calculate your retirement →
+              Try the calculators →
             </Link>
           </div>
-          <div style={{ borderRadius: '20px', overflow: 'hidden', background: colors.white, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', maxWidth: '480px' }}>
-            {/* Navy header - total monthly income */}
-            <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Estimated Total Monthly Retirement Income</div>
-              <div style={{ fontFamily: fontSerif, fontSize: '2.2rem', fontWeight: '900', color: 'white' }}>$5,318</div>
-              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>$63,810 per year</div>
+          <div style={{ maxWidth: '480px' }}>
+            {/* Tab toggle */}
+            <div style={{ display: 'flex', background: colors.gray100, borderRadius: '12px 12px 0 0', padding: '4px', gap: '4px' }}>
+              <button onClick={() => setCalcPreview('income')} style={{ flex: 1, padding: '10px 0', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.04em', cursor: 'pointer', transition: 'all 0.2s', background: calcPreview === 'income' ? colors.white : 'transparent', color: calcPreview === 'income' ? colors.navy : colors.gray400, boxShadow: calcPreview === 'income' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
+                Income Calculator
+              </button>
+              <button onClick={() => setCalcPreview('fegli')} style={{ flex: 1, padding: '10px 0', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.04em', cursor: 'pointer', transition: 'all 0.2s', background: calcPreview === 'fegli' ? colors.white : 'transparent', color: calcPreview === 'fegli' ? colors.navy : colors.gray400, boxShadow: calcPreview === 'fegli' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
+                FEGLI Calculator
+              </button>
             </div>
-            {/* 3 summary cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
-              {[
-                { icon: '$', label: 'Monthly Pension', value: '$1,543', sub: '$18,513/yr' },
-                { icon: 'T', label: 'TSP Income', value: '$918', sub: '4% withdrawal' },
-                { icon: 'SS', label: 'Social Security', value: '$2,857', sub: 'At age 67' },
-              ].map((card, i) => (
-                <div key={i} style={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderTop: `2.5px solid ${colors.maroon}`, padding: '12px 10px' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '5px', background: colors.gray100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: '700', color: colors.gray600, marginBottom: '8px' }}>{card.icon}</div>
-                  <div style={{ fontSize: '0.52rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.maroon, marginBottom: '4px' }}>{card.label}</div>
-                  <div style={{ fontFamily: fontSerif, fontSize: '1.15rem', fontWeight: '800', color: colors.navy }}>{card.value}</div>
-                  <div style={{ fontSize: '0.65rem', color: colors.gray400, marginTop: '2px' }}>{card.sub}</div>
-                </div>
-              ))}
-            </div>
-            {/* Compact income breakdown */}
-            <div style={{ padding: '10px 20px 18px' }}>
-              <div style={{ fontSize: '0.58rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.navy, marginBottom: '8px' }}>Income Breakdown</div>
-              {[
-                { label: 'FERS Pension', value: '$1,543', color: '#166534' },
-                { label: 'TSP Income', value: '+$918', color: '#166534' },
-                { label: 'Social Security', value: '+$2,857', color: '#166534' },
-              ].map((row, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.05)' : 'none', fontSize: '0.78rem' }}>
-                  <span style={{ color: colors.gray600 }}>{row.label}</span>
-                  <span style={{ fontWeight: '700', color: row.color, fontVariantNumeric: 'tabular-nums' }}>{row.value}</span>
-                </div>
-              ))}
-              <div style={{ borderTop: `2px solid ${colors.navyMid}`, marginTop: '6px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
-                <span style={{ color: colors.navy, fontWeight: '600' }}>Total Monthly Income</span>
-                <span style={{ fontFamily: fontSerif, fontWeight: '800', color: '#166534', fontSize: '0.95rem' }}>$5,318</span>
-              </div>
+            <div style={{ borderRadius: '0 0 20px 20px', overflow: 'hidden', background: colors.white, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', borderTop: 'none' }}>
+              {calcPreview === 'income' ? (
+                <>
+                  {/* Navy header - total monthly income */}
+                  <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Estimated Total Monthly Retirement Income</div>
+                    <div style={{ fontFamily: fontSerif, fontSize: '2.2rem', fontWeight: '900', color: 'white' }}>$5,318</div>
+                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>$63,810 per year</div>
+                  </div>
+                  {/* 3 summary cards */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
+                    {[
+                      { icon: '$', label: 'Monthly Pension', value: '$1,543', sub: '$18,513/yr' },
+                      { icon: 'T', label: 'TSP Income', value: '$918', sub: '4% withdrawal' },
+                      { icon: 'SS', label: 'Social Security', value: '$2,857', sub: 'At age 67' },
+                    ].map((card, i) => (
+                      <div key={i} style={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderTop: `2.5px solid ${colors.maroon}`, padding: '12px 10px' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '5px', background: colors.gray100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: '700', color: colors.gray600, marginBottom: '8px' }}>{card.icon}</div>
+                        <div style={{ fontSize: '0.52rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.maroon, marginBottom: '4px' }}>{card.label}</div>
+                        <div style={{ fontFamily: fontSerif, fontSize: '1.15rem', fontWeight: '800', color: colors.navy }}>{card.value}</div>
+                        <div style={{ fontSize: '0.65rem', color: colors.gray400, marginTop: '2px' }}>{card.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Compact income breakdown */}
+                  <div style={{ padding: '10px 20px 18px' }}>
+                    <div style={{ fontSize: '0.58rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.navy, marginBottom: '8px' }}>Income Breakdown</div>
+                    {[
+                      { label: 'FERS Pension', value: '$1,543', color: '#166534' },
+                      { label: 'TSP Income', value: '+$918', color: '#166534' },
+                      { label: 'Social Security', value: '+$2,857', color: '#166534' },
+                    ].map((row, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.05)' : 'none', fontSize: '0.78rem' }}>
+                        <span style={{ color: colors.gray600 }}>{row.label}</span>
+                        <span style={{ fontWeight: '700', color: row.color, fontVariantNumeric: 'tabular-nums' }}>{row.value}</span>
+                      </div>
+                    ))}
+                    <div style={{ borderTop: `2px solid ${colors.navyMid}`, marginTop: '6px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
+                      <span style={{ color: colors.navy, fontWeight: '600' }}>Total Monthly Income</span>
+                      <span style={{ fontFamily: fontSerif, fontWeight: '800', color: '#166534', fontSize: '0.95rem' }}>$5,318</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* FEGLI preview — navy header with total coverage */}
+                  <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Total FEGLI Coverage</div>
+                    <div style={{ fontFamily: fontSerif, fontSize: '2.2rem', fontWeight: '900', color: 'white' }}>$582,000</div>
+                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>$59.97/month premium</div>
+                  </div>
+                  {/* 3 coverage cards */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
+                    {[
+                      { icon: 'B', label: 'Basic (BIA)', value: '$97,000', sub: 'Incl. AD&D' },
+                      { icon: 'B+', label: 'Option B (5x)', value: '$475,000', sub: '5x salary' },
+                      { icon: 'C', label: 'Option C Family', value: '$10,000', sub: 'Spouse + child' },
+                    ].map((card, i) => (
+                      <div key={i} style={{ borderRadius: '10px', border: '1px solid rgba(0,0,0,0.06)', borderTop: `2.5px solid ${colors.maroon}`, padding: '12px 10px' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '5px', background: colors.gray100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: '700', color: colors.gray600, marginBottom: '8px' }}>{card.icon}</div>
+                        <div style={{ fontSize: '0.52rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.maroon, marginBottom: '4px' }}>{card.label}</div>
+                        <div style={{ fontFamily: fontSerif, fontSize: '1.15rem', fontWeight: '800', color: colors.navy }}>{card.value}</div>
+                        <div style={{ fontSize: '0.65rem', color: colors.gray400, marginTop: '2px' }}>{card.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Premium breakdown */}
+                  <div style={{ padding: '10px 20px 18px' }}>
+                    <div style={{ fontSize: '0.58rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.navy, marginBottom: '8px' }}>Premium Breakdown</div>
+                    {[
+                      { label: 'Basic Insurance', value: '$12.20', color: colors.gray600 },
+                      { label: 'Option B (5x salary)', value: '+$33.15', color: colors.gray600 },
+                      { label: 'Option C (Family)', value: '+$14.62', color: colors.gray600 },
+                    ].map((row, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.05)' : 'none', fontSize: '0.78rem' }}>
+                        <span style={{ color: colors.gray600 }}>{row.label}</span>
+                        <span style={{ fontWeight: '700', color: row.color, fontVariantNumeric: 'tabular-nums' }}>{row.value}</span>
+                      </div>
+                    ))}
+                    <div style={{ borderTop: `2px solid ${colors.navyMid}`, marginTop: '6px', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
+                      <span style={{ color: colors.navy, fontWeight: '600' }}>Total Monthly Cost</span>
+                      <span style={{ fontFamily: fontSerif, fontWeight: '800', color: colors.maroon, fontSize: '0.95rem' }}>$59.97</span>
+                    </div>
+                    {/* Retirement projection teaser */}
+                    <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '8px', background: 'rgba(123,28,46,0.04)', border: '1px solid rgba(123,28,46,0.08)' }}>
+                      <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.maroon, marginBottom: '6px' }}>Retirement Projection</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: colors.gray600 }}>
+                        <span>At 65 (75% reduction)</span>
+                        <span style={{ fontWeight: '700', color: '#166534' }}>FREE</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: colors.gray600, marginTop: '4px' }}>
+                        <span>Coverage after reduction</span>
+                        <span style={{ fontWeight: '700', color: colors.navy }}>$24,250</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -343,10 +597,10 @@ export default function Landing() {
               <div style={{ width: '80px', height: '80px', borderRadius: '50%', border: '5px solid rgba(255,255,255,0.15)', borderTopColor: '#f5a623', borderRightColor: '#f5a623', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', transform: 'rotate(30deg)' }}>
                 <div style={{ transform: 'rotate(-30deg)', textAlign: 'center' }}>
                   <div style={{ fontFamily: fontSerif, fontSize: '1.6rem', fontWeight: '900', color: 'white', lineHeight: 1 }}>66</div>
-                  <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.8)' }}>out of 100</div>
+                  <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)' }}>out of 100</div>
                 </div>
               </div>
-              <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.5', maxWidth: '320px', margin: '0 auto' }}>
+              <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', lineHeight: '1.5', maxWidth: '320px', margin: '0 auto' }}>
                 You have a solid foundation in survivor benefits and healthcare planning, but your TSP strategy and income optimization need attention.
               </p>
             </div>
@@ -426,7 +680,7 @@ export default function Landing() {
               Every rule, number, and pitfall — organized.
             </h2>
             <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: colors.gray600, marginBottom: '32px', maxWidth: '480px' }}>
-              Eleven comprehensive categories covering FERS, CSRS, TSP, FEHB, FEGLI, Social Security, Medicare, and Survivor Benefits. Each topic includes key figures, rules, and common mistakes to watch for. Each topic includes key figures, rules, and common mistakes to watch for.
+              Six comprehensive categories covering FERS, CSRS, TSP, FEHB, FEGLI, Social Security, and Medicare. Each topic includes key figures, rules, and common mistakes to watch for.
             </p>
             <Link to="/reference" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', color: colors.navyMid, transition: 'gap 0.2s', cursor: 'pointer' }}>
               Explore the guide →
@@ -520,7 +774,7 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.8)', padding: '64px 48px 32px' }}>
+      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.5)', padding: '64px 48px 32px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '48px', marginBottom: '48px' }}>
           <div style={{ maxWidth: '300px' }}>
             <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '1rem', color: 'white', marginBottom: '12px' }}>
@@ -532,45 +786,45 @@ export default function Landing() {
           </div>
           <div style={{ display: 'flex', gap: '56px' }}>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '14px' }}>
                 Tools
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Link to="/calculator" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <Link to="/calculator" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Retirement Calculator
                 </Link>
-                <Link to="/assessment" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <Link to="/assessment" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Readiness Assessment
                 </Link>
-                <Link to="/chat" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <Link to="/chat" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   AI Benefits Chat
                 </Link>
-                <Link to="/reference" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <Link to="/reference" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Reference Guide
                 </Link>
-                <Link to="/resources" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <Link to="/resources" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Resources and Forms
                 </Link>
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '14px' }}>
                 Company
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Book a Consultation
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Federal Market Associates
                 </a>
-                <a href="/disclaimer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Disclaimer
                 </a>
-                <a href="/privacy" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Privacy Policy
                 </a>
-                <a href="/terms" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.8)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
                   Terms of Service
                 </a>
               </div>
@@ -582,15 +836,6 @@ export default function Landing() {
           <span>Information updated for 2026 figures.</span>
         </div>
       </footer>
-    
-      {/* Cookie Consent Banner */}
-      {!cookieConsent && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#1e293b', color: '#e2e8f0', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, zIndex: 9999, boxShadow: '0 -4px 20px rgba(0,0,0,0.15)', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.85rem', maxWidth: 600 }}>We use cookies and Google Analytics to improve your experience. By continuing, you consent to our use of cookies. <a href="/privacy" style={{ color: '#93c5fd', textDecoration: 'underline' }}>Privacy Policy</a></span>
-          <button onClick={() => { document.cookie = 'fba_consent=1; max-age=31536000; path=/; SameSite=Lax'; setCookieConsent(true); }} style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 20px', fontWeight: 600, cursor: 'pointer', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>Accept</button>
-          <button onClick={() => setCookieConsent(true)} style={{ background: 'transparent', color: '#94a3b8', border: '1px solid #475569', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>Decline</button>
-        </div>
-      )}
-</div>
+    </div>
   );
 }
