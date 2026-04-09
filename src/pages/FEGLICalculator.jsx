@@ -781,6 +781,8 @@ const styles = {
   resultLabel: { fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 },
   resultValue: { fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' },
 
+  button: { background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '14px 36px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", marginTop: 8, marginBottom: 8 },
+
   errorBox: { background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: 12, color: '#991b1b', fontSize: '0.9rem', marginTop: 16, marginBottom: 16 },
 
   assumptionsBox: { background: '#f0f9ff', borderRadius: 12, padding: 24, marginTop: 24, marginBottom: 24 },
