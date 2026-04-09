@@ -71,85 +71,207 @@ function getRate(rateTable, age) {
   return rateTable[bracket] || 0
 }
 
-function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basicReduction, optAReduction, optBReduction, optCReduction) {
-  // Basic Insurance (BIA)
-  const bia = Math.ceil(salary / 1000) * 1000 + 2000
+// Extra Benefit multiplier: doubles BIA under 36, phases down 10%/yr to age 45
+function getExtraBenefitMultiplier(age) {
+  if (age < 36) return 1.0
+  if (age >= 45) return 0
+  return (45 - age) * 0.1
+}
 
-  // Current (employee) costs - all ages
-  const basicBiw = (bia / 1000) * 0.1600  // $0.16 per $1000
-  const optABiw = optA ? (10000 / 10000) * getRate(FEGLI_OPTION_A_RATES.employee, currentAge) : 0
-  const optBPerK = parseFloat(optBMult) || 0
-  const optBBiw = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.employee, currentAge) : 0
-  const optCPerMult = parseFloat(optCMult) || 0
-  const optCBiw = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.employee, currentAge) : 0
+// Coverage reduction at/after 65: 2% per month of the original amount
+function getReductionFactor(age, startAge, targetPct) {
+  if (age < startAge) return 1.0
+  const monthsElapsed = (age - startAge) * 12
+  const reduced = 1.0 - monthsElapsed * 0.02
+  return Math.max(targetPct, reduced)
+}
+
+function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basicReduction, optAReduction, optBReduction, optCReduction, isPostal, numChildren) {
+  // Basic Insurance Amount (BIA): salary rounded up to next $1,000 + $2,000
+  const roundedPay = Math.ceil(salary / 1000) * 1000
+  const bia = roundedPay + 2000
+
+  // Extra Benefit (free — no additional premium)
+  const extraMult = getExtraBenefitMultiplier(currentAge)
+  const extraBenefit = bia * extraMult
+  const totalBasicCoverage = bia + extraBenefit
+
+  // Option A: $10,000 standard
+  const optACoverage = optA ? 10000 : 0
+
+  // Option B: multiples of annual pay rounded to next $1,000
+  const optBNum = parseFloat(optBMult) || 0
+  const optBCoverage = optBNum * roundedPay
+
+  // Option C: family coverage — $5,000 spouse + $2,500/child per multiple
+  const optCNum = parseFloat(optCMult) || 0
+  const nChildren = parseInt(numChildren) || 0
+  const optCSpouse = optCNum * 5000
+  const optCPerChild = optCNum * 2500
+  const optCChildrenTotal = optCPerChild * nChildren
+  const optCCoverage = optCSpouse + optCChildrenTotal
+
+  // Accidental Death & Dismemberment (included with Basic at no extra cost)
+  const addCoverage = bia
+
+  // ── Current (employee) costs ──
+  const basicBiw = isPostal ? 0 : (bia / 1000) * 0.1600
+  const optABiw = optA ? getRate(FEGLI_OPTION_A_RATES.employee, currentAge) : 0
+  const optBBiw = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.employee, currentAge) : 0
+  const optCBiw = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.employee, currentAge) : 0
 
   const totalBiw = basicBiw + optABiw + optBBiw + optCBiw
   const totalMonthly = totalBiw * 26 / 12
   const totalAnnual = totalBiw * 26
 
-  // Post-retirement costs at various ages
-  const projectionAges = [60, 65, 70, 75, 80]
-  const retireCosts = {}
+  // Per-option cost breakdown
+  const costBreakdown = {
+    basic: { biweekly: basicBiw, monthly: basicBiw * 26 / 12, annual: basicBiw * 26 },
+    optA:  { biweekly: optABiw,  monthly: optABiw * 26 / 12,  annual: optABiw * 26 },
+    optB:  { biweekly: optBBiw,  monthly: optBBiw * 26 / 12,  annual: optBBiw * 26 },
+    optC:  { biweekly: optCBiw,  monthly: optCBiw * 26 / 12,  annual: optCBiw * 26 },
+  }
 
-  projectionAges.forEach(projAge => {
+  // ── Extra Benefit phase-down schedule ──
+  const extraBenefitSchedule = []
+  if (currentAge < 45) {
+    for (let a = currentAge; a <= 46; a++) {
+      const m = getExtraBenefitMultiplier(a)
+      extraBenefitSchedule.push({ age: a, multiplier: m, extraAmount: bia * m, totalBasic: bia + bia * m })
+    }
+  }
+
+  // ── Year-by-year projections from retirement age to 85 ──
+  const rAge = parseInt(retireAge) || 62
+  const yearByYear = []
+  for (let age = rAge; age <= 85; age++) {
     let basicMo = 0, optAMo = 0, optBMo = 0, optCMo = 0
+    let basicCov = bia, optACov = optACoverage, optBCov = optBCoverage, optCCov = optCCoverage
 
-    if (projAge < 65) {
-      // Before 65: annuitant rates apply
-      basicMo = (bia / 1000) * {
-        '75': 0.3467,  // 75% reduction: $0.3467/mo per $1000 until 65, then FREE
-        '50': 1.0967,  // 50% reduction: $1.0967/mo per $1000 until 65
-        'no': 2.5967   // No reduction: $2.5967/mo per $1000
-      }[basicReduction]
-
-      optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, projAge) : 0
-      optBMo = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, projAge) : 0
-      optCMo = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.annuitant, projAge) : 0
-    } else {
-      // At 65 and beyond
+    if (age >= 65) {
+      // Basic coverage & cost after 65
       if (basicReduction === '75') {
-        basicMo = 0  // Coverage reduces to 25% of BIA, but after 65 reduction is free
+        basicCov = bia * getReductionFactor(age, 65, 0.25)
+        basicMo = 0 // free with 75% reduction
       } else if (basicReduction === '50') {
-        basicMo = (bia / 1000) * 0.75  // 50% reduction: stays at $0.75/mo per $1000
+        basicCov = bia * getReductionFactor(age, 65, 0.50)
+        basicMo = (bia / 1000) * 0.75
       } else {
-        basicMo = (bia / 1000) * 2.25  // No reduction: stays at $2.25/mo per $1000
+        basicCov = bia // no reduction
+        basicMo = (bia / 1000) * 2.25
       }
-
+      // Option A after 65
       if (optAReduction === 'full') {
-        optAMo = 0  // Coverage reduces to $0 with full reduction
+        optACov = optA ? 10000 * Math.max(0, getReductionFactor(age, 65, 0)) : 0
+        optAMo = 0
       } else {
-        optAMo = getRate(FEGLI_OPTION_A_RATES.annuitant, projAge)
+        optACov = optACoverage
+        optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, age) : 0
       }
-
+      // Option B after 65
       if (optBReduction === 'full') {
+        optBCov = optBNum > 0 ? optBNum * roundedPay * Math.max(0, getReductionFactor(age, 65, 0)) : 0
         optBMo = 0
       } else {
-        optBMo = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, projAge) : 0
+        optBCov = optBCoverage
+        optBMo = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, age) : 0
       }
-
+      // Option C after 65
       if (optCReduction === 'full') {
+        optCCov = optCNum > 0 ? optCCoverage * Math.max(0, getReductionFactor(age, 65, 0)) : 0
         optCMo = 0
       } else {
-        optCMo = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.annuitant, projAge) : 0
+        optCCov = optCCoverage
+        optCMo = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, age) : 0
       }
+    } else {
+      // Before 65: annuitant rates, no coverage reduction yet
+      basicMo = (bia / 1000) * ({ '75': 0.3467, '50': 1.0967, 'no': 2.5967 }[basicReduction])
+      optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, age) : 0
+      optBMo = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, age) : 0
+      optCMo = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, age) : 0
     }
 
-    retireCosts[projAge] = {
-      monthly: basicMo + optAMo + optBMo + optCMo,
-      annual: (basicMo + optAMo + optBMo + optCMo) * 12
+    yearByYear.push({
+      age,
+      coverage: { basic: Math.round(basicCov), optA: Math.round(optACov), optB: Math.round(optBCov), optC: Math.round(optCCov), total: Math.round(basicCov + optACov + optBCov + optCCov) },
+      cost: { monthly: basicMo + optAMo + optBMo + optCMo, annual: (basicMo + optAMo + optBMo + optCMo) * 12, basic: basicMo, optA: optAMo, optB: optBMo, optC: optCMo },
+    })
+  }
+
+  // Also build retireCosts for backward compat
+  const retireCosts = {}
+  ;[60, 65, 70, 75, 80].forEach(pa => {
+    const row = yearByYear.find(y => y.age === pa)
+    if (row) retireCosts[pa] = { monthly: row.cost.monthly, annual: row.cost.annual }
+    else {
+      // If retire age > projection age, calculate independently
+      let bM = 0, aM = 0, bBM = 0, cM = 0
+      if (pa < 65) {
+        bM = (bia / 1000) * ({ '75': 0.3467, '50': 1.0967, 'no': 2.5967 }[basicReduction])
+        aM = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, pa) : 0
+        bBM = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, pa) : 0
+        cM = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, pa) : 0
+      } else {
+        bM = basicReduction === '75' ? 0 : basicReduction === '50' ? (bia / 1000) * 0.75 : (bia / 1000) * 2.25
+        aM = optAReduction === 'full' ? 0 : (optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, pa) : 0)
+        bBM = optBReduction === 'full' ? 0 : (optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, pa) : 0)
+        cM = optCReduction === 'full' ? 0 : (optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, pa) : 0)
+      }
+      retireCosts[pa] = { monthly: bM + aM + bBM + cM, annual: (bM + aM + bBM + cM) * 12 }
     }
+  })
+
+  // Lifetime cost calculation
+  const yearsToRetire = Math.max(0, rAge - currentAge)
+  const preRetirementCost = totalAnnual * yearsToRetire
+  let postRetirementCost = 0
+  yearByYear.forEach(y => { postRetirementCost += y.cost.annual })
+  const totalLifetimeCost = preRetirementCost + postRetirementCost
+
+  // Premium comparison: show cost at each age band the user will pass through
+  const premiumByAgeBand = []
+  const bands = ['<35','35-39','40-44','45-49','50-54','55-59','60-64','65-69','70-74','75-79','80+']
+  const bandMinAge = [18,35,40,45,50,55,60,65,70,75,80]
+  bands.forEach((band, i) => {
+    const repAge = bandMinAge[i]
+    if (repAge < currentAge - 5 && repAge < 35) return // skip irrelevant past bands
+    const bBiw = isPostal ? 0 : (bia / 1000) * 0.16
+    const aBiw = optA ? (FEGLI_OPTION_A_RATES.employee[band] || 0) : 0
+    const bOptBiw = optBNum > 0 ? optBNum * (roundedPay / 1000) * (FEGLI_OPTION_B_RATES.employee[band] || 0) : 0
+    const cBiw = optCNum > 0 ? optCNum * (FEGLI_OPTION_C_RATES.employee[band] || 0) : 0
+    const tot = bBiw + aBiw + bOptBiw + cBiw
+    premiumByAgeBand.push({ band, biweekly: tot, monthly: tot * 26 / 12, annual: tot * 26, isCurrent: currentAge >= bandMinAge[i] && (i === bands.length - 1 || currentAge < bandMinAge[i + 1]) })
   })
 
   return {
     bia,
-    optA: optA ? 10000 : 0,
-    optB: optBPerK * (salary / 1000),
-    optC: optCPerMult * 5000,  // 1 multiple = $5K spouse + $2.5K per child (approx $5K per multiple)
-    totalCoverage: bia + (optA ? 10000 : 0) + (optBPerK * (salary / 1000)) + (optCPerMult * 5000),
+    roundedPay,
+    extraBenefit,
+    extraMult,
+    totalBasicCoverage,
+    optA: optACoverage,
+    optB: optBCoverage,
+    optBPerMult: roundedPay,
+    optCSpouse,
+    optCPerChild,
+    optCChildrenTotal,
+    optC: optCCoverage,
+    addCoverage,
+    totalCoverage: totalBasicCoverage + optACoverage + optBCoverage + optCCoverage,
     currentCostBiw: totalBiw,
     currentCostMonthly: totalMonthly,
     currentCostAnnual: totalAnnual,
-    retireCosts
+    costBreakdown,
+    extraBenefitSchedule,
+    yearByYear,
+    premiumByAgeBand,
+    retireCosts,
+    lifetimeCost: totalLifetimeCost,
+    preRetirementCost,
+    postRetirementCost,
+    isPostal,
+    nChildren,
   }
 }
 
@@ -391,6 +513,8 @@ export default function Calculator() {
   const [fegliOptAReduction, setFegliOptAReduction] = useState('full')
   const [fegliOptBReduction, setFegliOptBReduction] = useState('full')
   const [fegliOptCReduction, setFegliOptCReduction] = useState('full')
+  const [fegliIsPostal, setFegliIsPostal] = useState(false)
+  const [fegliNumChildren, setFegliNumChildren] = useState('0')
   const [fegliResults, setFegliResults] = useState(null)
 
   const [errors, setErrors] = useState([])
@@ -418,9 +542,9 @@ export default function Calculator() {
       setFegliResults(null)
       return
     }
-    const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction)
+    const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliNumChildren)
     setFegliResults(result)
-  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction])
+  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliNumChildren])
 
   const handleEmailCapture = async (e) => {
     e.preventDefault()
@@ -506,7 +630,9 @@ export default function Calculator() {
         fegliBasicReduction,
         fegliOptAReduction,
         fegliOptBReduction,
-        fegliOptCReduction
+        fegliOptCReduction,
+        fegliIsPostal,
+        fegliNumChildren
       )
 
       setFegliResults(result)
@@ -606,7 +732,7 @@ export default function Calculator() {
 
   return (
     <main id="main-content" style={s.page}>
-      <div style={s.container}>
+      <div style={{ ...s.container, maxWidth: tab === 'fegli' ? 1100 : 900 }}>
 
         {/* Header */}
         <div style={s.header}>
@@ -650,201 +776,128 @@ export default function Calculator() {
           ))}
         </div>
 
-        {/* FEGLI Form & Results - Two Column Layout */}
+        {/* FEGLI Form — Full Width */}
         {tab === 'fegli' && (
-          <div style={{ display: 'flex', gap: 24, marginBottom: 24, flexDirection: isWide ? 'row' : 'column' }}>
-            {/* LEFT COLUMN - FORM */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {/* Your Information Card */}
-              <div style={s.card}>
-                <div style={s.cardTitle}>Your Information</div>
-                <Field label="Annual Gross Salary ($)">
-                  <input
-                    type="number" min="20000"
-                    value={fegliSalary}
-                    onChange={e => setFegliSalary(e.target.value)}
-                    placeholder="e.g. 95000"
-                    style={s.input}
-                  />
+          <>
+            {/* Your Information Card */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Your Information</div>
+              <div style={s.grid2}>
+                <Field label="Annual Gross Salary ($)" hint="Your current basic pay before deductions">
+                  <input type="number" min="20000" value={fegliSalary} onChange={e => setFegliSalary(e.target.value)} placeholder="e.g. 95000" style={s.input} />
                 </Field>
+                <Field label="Current Age">
+                  <input type="number" min="18" max="80" value={fegliAge} onChange={e => setFegliAge(e.target.value)} placeholder="e.g. 50" style={s.input} />
+                </Field>
+              </div>
+              <div style={{ ...s.grid2, marginTop: 16 }}>
+                <Field label="Planned Retirement Age">
+                  <input type="number" min="50" max="80" value={fegliRetireAge} onChange={e => setFegliRetireAge(e.target.value)} placeholder="e.g. 62" style={s.input} />
+                </Field>
+                <Field label="Number of Eligible Children" hint="Under 22 (or disabled). Used for Option C coverage amounts.">
+                  <input type="number" min="0" max="10" value={fegliNumChildren} onChange={e => setFegliNumChildren(e.target.value)} placeholder="0" style={s.input} />
+                </Field>
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <Toggle checked={fegliIsPostal} onChange={e => setFegliIsPostal(e.target.checked)} label="U.S. Postal Service Employee" sublabel="USPS pays 100% of your Basic insurance premium (you pay $0 for Basic)" />
+              </div>
+            </div>
 
-                <div style={{ marginTop: 16 }}>
-                  <Field label="Current Age">
-                    <input
-                      type="number" min="25" max="80"
-                      value={fegliAge}
-                      onChange={e => setFegliAge(e.target.value)}
-                      placeholder="e.g. 50"
-                      style={s.input}
-                    />
-                  </Field>
-                </div>
+            {/* Coverage Elections Card */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Coverage Elections</div>
 
-                <div style={{ marginTop: 16 }}>
-                  <Field label="Planned Retirement Age">
-                    <input
-                      type="number" min="50" max="75"
-                      value={fegliRetireAge}
-                      onChange={e => setFegliRetireAge(e.target.value)}
-                      placeholder="e.g. 62"
-                      style={s.input}
-                    />
-                  </Field>
+              {/* Basic — always enrolled */}
+              <div style={{ background: '#f0f9ff', borderRadius: 8, padding: 16, marginBottom: 20, borderLeft: '3px solid #0ea5e9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem' }}>Basic Insurance (Automatic)</div>
+                    <div style={{ fontSize: '0.82rem', color: '#475569', marginTop: 4 }}>Annual salary rounded up to next $1,000 + $2,000. All federal employees are enrolled.</div>
+                  </div>
+                  {fegliResults && <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.bia)}</div>}
                 </div>
+                {fegliResults && fegliResults.extraMult > 0 && (
+                  <div style={{ marginTop: 12, background: '#dbeafe', borderRadius: 6, padding: 10, fontSize: '0.82rem', color: '#1e40af' }}>
+                    <strong>Extra Benefit (Free):</strong> Because you are under 45, your Basic coverage is multiplied by {(1 + fegliResults.extraMult).toFixed(1)}x. Current total Basic coverage: <strong>{fmt(fegliResults.totalBasicCoverage)}</strong>. This extra benefit phases down by 10% per year starting at age 36 and reaches 0 at age 45.
+                  </div>
+                )}
+                {fegliResults && (
+                  <div style={{ marginTop: 8, fontSize: '0.78rem', color: '#64748b' }}>
+                    Includes Accidental Death & Dismemberment (AD&D) coverage equal to your BIA ({fmt(fegliResults.addCoverage)}) at no additional cost.
+                  </div>
+                )}
               </div>
 
-              {/* Coverage Elections Card */}
-              <div style={s.card}>
-                <div style={s.cardTitle}>Coverage Elections</div>
+              <div style={{ marginBottom: 20 }}>
+                <Toggle checked={fegliOptA} onChange={e => setFegliOptA(e.target.checked)} label="Option A — Standard Insurance" sublabel="$10,000 additional life insurance coverage" />
+              </div>
 
-                <div style={{ marginBottom: 20 }}>
-                  <Toggle
-                    checked={fegliOptA}
-                    onChange={e => setFegliOptA(e.target.checked)}
-                    label="Option A"
-                    sublabel="Standard life insurance – $10,000"
-                  />
-                </div>
-
-                <Field label="Option B – Multiples of salary">
+              <div style={s.grid2}>
+                <Field label="Option B — Additional Insurance" hint="Multiples of your annual pay (rounded to next $1,000)">
                   <select value={fegliOptBMult} onChange={e => setFegliOptBMult(e.target.value)} style={s.select}>
                     <option value="0">Not elected</option>
-                    <option value="1">1 multiple</option>
-                    <option value="2">2 multiples</option>
-                    <option value="3">3 multiples</option>
-                    <option value="4">4 multiples</option>
-                    <option value="5">5 multiples</option>
+                    <option value="1">1x salary ({fegliResults ? fmt(fegliResults.roundedPay) : '...'})</option>
+                    <option value="2">2x salary ({fegliResults ? fmt(fegliResults.roundedPay * 2) : '...'})</option>
+                    <option value="3">3x salary ({fegliResults ? fmt(fegliResults.roundedPay * 3) : '...'})</option>
+                    <option value="4">4x salary ({fegliResults ? fmt(fegliResults.roundedPay * 4) : '...'})</option>
+                    <option value="5">5x salary ({fegliResults ? fmt(fegliResults.roundedPay * 5) : '...'})</option>
                   </select>
                 </Field>
-
-                <div style={{ marginTop: 16 }}>
-                  <Field label="Option C – Family coverage multiples">
-                    <select value={fegliOptCMult} onChange={e => setFegliOptCMult(e.target.value)} style={s.select}>
-                      <option value="0">Not elected</option>
-                      <option value="1">1 multiple</option>
-                      <option value="2">2 multiples</option>
-                      <option value="3">3 multiples</option>
-                      <option value="4">4 multiples</option>
-                      <option value="5">5 multiples</option>
-                    </select>
-                  </Field>
-                </div>
+                <Field label="Option C — Family Insurance" hint={`$5,000/spouse + $2,500/child per multiple${parseInt(fegliNumChildren) > 0 ? ' (' + fegliNumChildren + ' children)' : ''}`}>
+                  <select value={fegliOptCMult} onChange={e => setFegliOptCMult(e.target.value)} style={s.select}>
+                    <option value="0">Not elected</option>
+                    {[1,2,3,4,5].map(n => (
+                      <option key={n} value={n}>{n}x ({fegliResults ? fmt(n * 5000 + n * 2500 * (parseInt(fegliNumChildren) || 0)) : '...'})</option>
+                    ))}
+                  </select>
+                </Field>
               </div>
+            </div>
 
-              {/* Reduction Elections Card */}
-              <div style={s.card}>
-                <div style={s.cardTitle}>Post-Retirement Reductions at Age 65</div>
+            {/* Reduction Elections Card */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Post-Retirement Reduction Elections (at Age 65)</div>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 20, lineHeight: 1.6 }}>
+                After retirement, starting at age 65 your coverage begins to reduce at 2% per month. Choosing a higher reduction means lower (or zero) premiums but less coverage. These elections are made at retirement and are <strong>irrevocable</strong>.
+              </p>
 
-                <Field label="Basic Insurance">
+              <div style={s.grid2}>
+                <Field label="Basic Insurance Reduction" hint="75% = free after 65 (25% coverage). 50% = reduced premium (50% coverage). None = full premium, full coverage.">
                   <select value={fegliBasicReduction} onChange={e => setFegliBasicReduction(e.target.value)} style={s.select}>
-                    <option value="75">75% Reduction – Lower cost</option>
-                    <option value="50">50% Reduction – Moderate cost</option>
-                    <option value="no">No Reduction – Full coverage</option>
+                    <option value="75">75% Reduction — Coverage drops to 25%, then FREE</option>
+                    <option value="50">50% Reduction — Coverage drops to 50%, lower premium</option>
+                    <option value="no">No Reduction — Keep 100% coverage, highest premium</option>
                   </select>
                 </Field>
-
-                <div style={{ marginTop: 16 }}>
-                  <Field label="Option A">
-                    <select value={fegliOptAReduction} onChange={e => setFegliOptAReduction(e.target.value)} style={s.select}>
-                      <option value="full">Full Reduction – Free after 65</option>
-                      <option value="none">No Reduction – Keep coverage</option>
-                    </select>
-                  </Field>
-                </div>
-
-                <div style={{ marginTop: 16 }}>
-                  <Field label="Option B">
-                    <select value={fegliOptBReduction} onChange={e => setFegliOptBReduction(e.target.value)} style={s.select}>
-                      <option value="full">Full Reduction – Drops at 65</option>
-                      <option value="none">No Reduction – Continues for life</option>
-                    </select>
-                  </Field>
-                </div>
-
-                <div style={{ marginTop: 16 }}>
-                  <Field label="Option C">
-                    <select value={fegliOptCReduction} onChange={e => setFegliOptCReduction(e.target.value)} style={s.select}>
-                      <option value="full">Full Reduction – Drops at 65</option>
-                      <option value="none">No Reduction – Continues for life</option>
-                    </select>
-                  </Field>
-                </div>
+                <Field label="Option A Reduction">
+                  <select value={fegliOptAReduction} onChange={e => setFegliOptAReduction(e.target.value)} style={s.select}>
+                    <option value="full">Full Reduction — Coverage drops to $0, FREE</option>
+                    <option value="none">No Reduction — Keep $10,000, continue paying</option>
+                  </select>
+                </Field>
               </div>
-
-              {errors.length > 0 && (
-                <div style={s.errorBox}>
-                  {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT COLUMN - STICKY SUMMARY */}
-            <div style={{ width: isWide ? 360 : '100%', flexShrink: 0 }}>
-              <div style={{ position: isWide ? 'sticky' : 'relative', top: isWide ? 20 : 0 }}>
-                <div style={s.summaryPanel}>
-                  {fegliResults ? (
-                    <>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>Your Coverage Summary</div>
-
-                      <div style={{ marginBottom: 24 }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Total Coverage</div>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#7b1c2e' }}>{fmt(fegliResults.totalCoverage)}</div>
-                      </div>
-
-                      <div style={{ background: '#f8f7f4', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: '0.85rem' }}>
-                        <div style={{ color: '#64748b', marginBottom: 8 }}>
-                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Basic</div>
-                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.bia)}</div>
-                        </div>
-                        {fegliResults.optA > 0 && <div style={{ color: '#64748b', marginBottom: 8 }}>
-                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Option A</div>
-                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.optA)}</div>
-                        </div>}
-                        {fegliResults.optB > 0 && <div style={{ color: '#64748b', marginBottom: 8 }}>
-                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Option B</div>
-                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.optB)}</div>
-                        </div>}
-                        {fegliResults.optC > 0 && <div style={{ color: '#64748b' }}>
-                          <div style={{ fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Option C</div>
-                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(fegliResults.optC)}</div>
-                        </div>}
-                      </div>
-
-                      <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 16, marginBottom: 16 }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Current Costs</div>
-                        <div style={{ fontSize: '0.9rem', marginBottom: 6 }}>
-                          <div style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>Monthly</div>
-                          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.currentCostMonthly)}</div>
-                        </div>
-                        <div style={{ fontSize: '0.9rem' }}>
-                          <div style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase' }}>Annual</div>
-                          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.currentCostAnnual)}</div>
-                        </div>
-                      </div>
-
-                      <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 16, marginBottom: 16 }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>Cost at Key Ages</div>
-                        {fegliResults.retireCosts['65'] && <div style={{ fontSize: '0.9rem', marginBottom: 8 }}>
-                          <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Age 65 – {fmt(fegliResults.retireCosts['65'].monthly)}/mo</div>
-                        </div>}
-                        {fegliResults.retireCosts['75'] && <div style={{ fontSize: '0.9rem' }}>
-                          <div style={{ color: '#64748b', fontSize: '0.75rem' }}>Age 75 – {fmt(fegliResults.retireCosts['75'].monthly)}/mo</div>
-                        </div>}
-                      </div>
-
-                      <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'block', width: '100%', background: '#7b1c2e', color: '#fff', padding: '12px', textAlign: 'center', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-                        Book Consultation
-                      </a>
-                    </>
-                  ) : (
-                    <div style={{ fontSize: '0.9rem', color: '#64748b', fontStyle: 'italic' }}>
-                      Enter your salary and age to see your coverage summary.
-                    </div>
-                  )}
-                </div>
+              <div style={s.grid2}>
+                <Field label="Option B Reduction">
+                  <select value={fegliOptBReduction} onChange={e => setFegliOptBReduction(e.target.value)} style={s.select}>
+                    <option value="full">Full Reduction — Coverage drops to $0, FREE</option>
+                    <option value="none">No Reduction — Keep coverage, continue paying</option>
+                  </select>
+                </Field>
+                <Field label="Option C Reduction">
+                  <select value={fegliOptCReduction} onChange={e => setFegliOptCReduction(e.target.value)} style={s.select}>
+                    <option value="full">Full Reduction — Coverage drops to $0, FREE</option>
+                    <option value="none">No Reduction — Keep coverage, continue paying</option>
+                  </select>
+                </Field>
               </div>
             </div>
-          </div>
+
+            {errors.length > 0 && (
+              <div style={s.errorBox}>
+                {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
+              </div>
+            )}
+          </>
         )}
 
         {/* Retirement Form (shown for non-FEGLI tabs) */}
@@ -1077,92 +1130,290 @@ export default function Calculator() {
           </div>
         )}
 
-        {/* FEGLI ADDITIONAL RESULTS - Year by Year Projection & Comparison */}
+        {/* FEGLI COMPREHENSIVE RESULTS DASHBOARD */}
         {tab === 'fegli' && fegliResults && (
           <div id="calc-results">
-            {/* Year-by-Year Projection Table */}
+
+            {/* ── Coverage Summary ── */}
             <div style={s.card}>
-              <div style={s.cardTitle}>Retirement Cost Projection</div>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>
-                Costs based on your elected reductions. Actual costs may vary with future rate increases.
-              </p>
+              <div style={s.cardTitle}>Your FEGLI Coverage Summary</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
+                <div style={{ ...s.resultBox, borderLeft: '3px solid #0ea5e9' }}>
+                  <div style={s.resultLabel}>Basic Insurance (BIA)</div>
+                  <div style={s.resultValue}>{fmt(fegliResults.bia)}</div>
+                  {fegliResults.extraMult > 0 && <div style={{ fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 600, marginTop: 4 }}>+{fmt(fegliResults.extraBenefit)} Extra Benefit</div>}
+                </div>
+                {fegliResults.optA > 0 && <div style={{ ...s.resultBox, borderLeft: '3px solid #8b5cf6' }}>
+                  <div style={s.resultLabel}>Option A</div>
+                  <div style={s.resultValue}>{fmt(fegliResults.optA)}</div>
+                </div>}
+                {fegliResults.optB > 0 && <div style={{ ...s.resultBox, borderLeft: '3px solid #f59e0b' }}>
+                  <div style={s.resultLabel}>Option B ({fegliOptBMult}x Salary)</div>
+                  <div style={s.resultValue}>{fmt(fegliResults.optB)}</div>
+                </div>}
+                {fegliResults.optC > 0 && <div style={{ ...s.resultBox, borderLeft: '3px solid #10b981' }}>
+                  <div style={s.resultLabel}>Option C (Family)</div>
+                  <div style={s.resultValue}>{fmt(fegliResults.optC)}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 4 }}>
+                    Spouse: {fmt(fegliResults.optCSpouse)}{fegliResults.nChildren > 0 ? ` | Children: ${fmt(fegliResults.optCChildrenTotal)}` : ''}
+                  </div>
+                </div>}
+                <div style={{ ...s.resultBox, borderLeft: '3px solid #64748b' }}>
+                  <div style={s.resultLabel}>AD&D (Included Free)</div>
+                  <div style={s.resultValue}>{fmt(fegliResults.addCoverage)}</div>
+                </div>
+              </div>
+
+              <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', borderRadius: 8, padding: 20, textAlign: 'center' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>Total Life Insurance Coverage</div>
+                <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#fff' }}>{fmt(fegliResults.totalCoverage)}</div>
+                {fegliResults.extraMult > 0 && <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>Including {fmt(fegliResults.extraBenefit)} Extra Benefit (until age 45)</div>}
+              </div>
+            </div>
+
+            {/* ── Current Premium Breakdown ── */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Your Current Premium Breakdown</div>
+              {fegliResults.isPostal && <div style={{ background: '#dbeafe', borderRadius: 6, padding: 10, fontSize: '0.82rem', color: '#1e40af', marginBottom: 16 }}>USPS pays your Basic insurance premium. Your cost for Basic: <strong>$0.00</strong></div>}
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                      <th style={{ textAlign: 'left', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
-                      <th style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly Premium</th>
-                      <th style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Annual Premium</th>
+                      <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Coverage</th>
+                      <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Biweekly</th>
+                      <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly</th>
+                      <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.entries(fegliResults.retireCosts).map(([age, costs]) => (
-                      <tr key={age} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '10px 8px', color: '#0f172a' }}>Age {age}</td>
-                        <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>{fmt(costs.monthly)}</td>
-                        <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600, color: '#0f172a' }}>{fmt(costs.annual)}</td>
-                      </tr>
-                    ))}
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '10px 8px' }}>Basic Insurance</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.basic.biweekly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.basic.monthly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.basic.annual.toFixed(2)}</td>
+                    </tr>
+                    {fegliResults.optA > 0 && <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '10px 8px' }}>Option A ($10,000)</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optA.biweekly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optA.monthly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.optA.annual.toFixed(2)}</td>
+                    </tr>}
+                    {fegliResults.optB > 0 && <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '10px 8px' }}>Option B ({fegliOptBMult}x)</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optB.biweekly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optB.monthly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.optB.annual.toFixed(2)}</td>
+                    </tr>}
+                    {fegliResults.optC > 0 && <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '10px 8px' }}>Option C ({fegliOptCMult}x Family)</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optC.biweekly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optC.monthly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.optC.annual.toFixed(2)}</td>
+                    </tr>}
+                    <tr style={{ borderTop: '2px solid #0f172a', background: '#f8f7f4' }}>
+                      <td style={{ padding: '12px 8px', fontWeight: 800, color: '#0f172a' }}>Total</td>
+                      <td style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 800, color: '#7b1c2e' }}>${fegliResults.currentCostBiw.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 800, color: '#7b1c2e' }}>${fegliResults.currentCostMonthly.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 800, color: '#7b1c2e', fontSize: '1.05rem' }}>${fegliResults.currentCostAnnual.toFixed(2)}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
-            {/* Keep vs Drop Comparison */}
+            {/* ── Premium by Age Band ── */}
+            {fegliResults.premiumByAgeBand.length > 0 && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>How Your Premiums Change With Age</div>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
+                  FEGLI premiums increase as you enter each new age band. This table shows your total premium at each age bracket based on your current elections. {fegliResults.isPostal ? 'Basic premium is $0 because USPS covers it.' : 'The government pays ~1/3 of your Basic premium; the rest is shown here.'}
+                </p>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Age Band</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Biweekly</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fegliResults.premiumByAgeBand.map(row => (
+                        <tr key={row.band} style={{ borderBottom: '1px solid #e2e8f0', background: row.isCurrent ? '#fffbeb' : 'transparent' }}>
+                          <td style={{ padding: '10px 8px', fontWeight: row.isCurrent ? 700 : 400, color: '#0f172a' }}>
+                            {row.band}{row.isCurrent ? ' (current)' : ''}
+                          </td>
+                          <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${row.biweekly.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${row.monthly.toFixed(2)}</td>
+                          <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${row.annual.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* ── Extra Benefit Phase-Down ── */}
+            {fegliResults.extraBenefitSchedule.length > 0 && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>Extra Benefit Phase-Down Schedule</div>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
+                  The Extra Benefit doubles your Basic coverage at no cost for employees under 36. Starting at 36, it reduces by 10% of BIA per year until it reaches zero at age 45. This is automatic and costs nothing.
+                </p>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Extra Benefit</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Total Basic Coverage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fegliResults.extraBenefitSchedule.map(row => (
+                        <tr key={row.age} style={{ borderBottom: '1px solid #e2e8f0', background: row.age === parseInt(fegliAge) ? '#fffbeb' : 'transparent' }}>
+                          <td style={{ padding: '10px 8px', fontWeight: row.age === parseInt(fegliAge) ? 700 : 400 }}>Age {row.age}{row.age === parseInt(fegliAge) ? ' (now)' : ''}</td>
+                          <td style={{ textAlign: 'right', padding: '10px 8px', color: row.multiplier > 0 ? '#0ea5e9' : '#94a3b8', fontWeight: 600 }}>
+                            {row.multiplier > 0 ? `+${fmt(row.extraAmount)} (${(row.multiplier * 100).toFixed(0)}%)` : 'None'}
+                          </td>
+                          <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600, color: '#0f172a' }}>{fmt(row.totalBasic)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* ── Retirement Cost & Coverage Projection ── */}
             <div style={s.card}>
-              <div style={s.cardTitle}>Keep FEGLI vs Drop Coverage: Lifetime Cost Analysis</div>
-              <p style={{ fontSize: '0.95rem', color: '#475569', marginBottom: 12 }}>
-                This shows the cost difference between keeping your current FEGLI coverage through age 85 versus dropping it and buying private term life insurance.
+              <div style={s.cardTitle}>Retirement Coverage & Cost Projection (Age {parseInt(fegliRetireAge) || 62} to 85)</div>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
+                Year-by-year projection showing how your coverage and premiums change after retirement based on your elected reductions. At age 65, reductions begin at 2% per month.
               </p>
-
-              <div style={{ ...s.grid2, marginTop: 12 }}>
-                <div style={{ ...s.resultBox, background: '#fef2f2' }}>
-                  <div style={s.resultLabel}>FEGLI Coverage Cost (Age {Math.round(parseFloat(fegliAge) || 50)} to 85)</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#7b1c2e', marginTop: 8 }}>
-                    {fmt(fegliResults.currentCostMonthly * 12 * (85 - parseFloat(fegliAge)))}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
-                    {fegliResults.currentCostMonthly.toFixed(2)}/mo × 12 months × {85 - Math.round(parseFloat(fegliAge) || 50)} years
-                  </div>
-                </div>
-
-                <div style={{ ...s.resultBox, background: '#fef3f2' }}>
-                  <div style={s.resultLabel}>Private Term Insurance Est. Cost (Age {Math.round(parseFloat(fegliAge) || 50)} to 85)</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#9f1239', marginTop: 8 }}>
-                    {fmt(estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage))}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
-                    Based on typical industry rates (~$50-165/mo per $100K)
-                  </div>
-                </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                      <th style={{ textAlign: 'left', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Age</th>
+                      <th style={{ textAlign: 'right', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Total Coverage</th>
+                      <th style={{ textAlign: 'right', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Monthly Cost</th>
+                      <th style={{ textAlign: 'right', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Annual Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fegliResults.yearByYear.map(row => (
+                      <tr key={row.age} style={{ borderBottom: '1px solid #e2e8f0', background: row.age === 65 ? '#fef3c7' : row.age % 5 === 0 ? '#f8f7f4' : 'transparent' }}>
+                        <td style={{ padding: '8px 6px', fontWeight: row.age === 65 || row.age % 10 === 0 ? 700 : 400, color: '#0f172a' }}>
+                          {row.age}{row.age === 65 ? ' *' : ''}
+                        </td>
+                        <td style={{ textAlign: 'right', padding: '8px 6px', color: row.coverage.total === 0 ? '#94a3b8' : '#0f172a', fontWeight: 600 }}>{fmt(row.coverage.total)}</td>
+                        <td style={{ textAlign: 'right', padding: '8px 6px', color: row.cost.monthly === 0 ? '#16a34a' : '#475569' }}>
+                          {row.cost.monthly === 0 ? 'FREE' : '$' + row.cost.monthly.toFixed(2)}
+                        </td>
+                        <td style={{ textAlign: 'right', padding: '8px 6px', fontWeight: 600, color: row.cost.annual === 0 ? '#16a34a' : '#0f172a' }}>
+                          {row.cost.annual === 0 ? 'FREE' : fmt(row.cost.annual)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 12 }}>* Age 65: Coverage reduction begins (2% per month based on your elections)</div>
+            </div>
 
-              <div style={{ ...s.resultBox, background: '#f0fdf4', borderLeft: '4px solid #16a34a' }}>
-                <div style={s.resultLabel}>Your Potential Savings with FEGLI</div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#16a34a', marginTop: 8 }}>
-                  {fmt(estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage) - (fegliResults.currentCostMonthly * 12 * (85 - parseFloat(fegliAge))))}
+            {/* ── Lifetime Cost Analysis ── */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Lifetime Cost Analysis</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
+                <div style={{ ...s.resultBox, borderLeft: '3px solid #f59e0b' }}>
+                  <div style={s.resultLabel}>Pre-Retirement Cost</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.preRetirementCost)}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Age {Math.round(parseFloat(fegliAge))} to {parseInt(fegliRetireAge) || 62} ({Math.max(0, (parseInt(fegliRetireAge) || 62) - Math.round(parseFloat(fegliAge)))} years)</div>
                 </div>
-              </div>
-
-              <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 12, lineHeight: 1.6 }}>
-                <strong>Disclaimer:</strong> Private term insurance estimates are industry averages and vary significantly by health, age, and underwriting. FEGLI rates are as of 10/1/2021 and may have been updated. This is for comparison only — not a quote. Consult a licensed insurance professional for personalized analysis.
+                <div style={{ ...s.resultBox, borderLeft: '3px solid #8b5cf6' }}>
+                  <div style={s.resultLabel}>Post-Retirement Cost</div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.postRetirementCost)}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Age {parseInt(fegliRetireAge) || 62} to 85 ({85 - (parseInt(fegliRetireAge) || 62)} years)</div>
+                </div>
+                <div style={{ ...s.resultBox, borderLeft: '3px solid #7b1c2e', background: '#fef2f2' }}>
+                  <div style={s.resultLabel}>Total Lifetime FEGLI Cost</div>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#7b1c2e' }}>{fmt(fegliResults.lifetimeCost)}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Age {Math.round(parseFloat(fegliAge))} to 85</div>
+                </div>
               </div>
             </div>
 
-            {/* Consultation CTA */}
+            {/* ── Keep FEGLI vs Private Insurance ── */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Keep FEGLI vs. Private Term Insurance</div>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
+                Comparing your FEGLI lifetime cost against estimated private term insurance. Private rates are industry averages — actual quotes depend on your health, coverage amount, and insurer.
+              </p>
+              <div style={s.grid2}>
+                <div style={{ ...s.resultBox, background: '#f0f9ff', borderLeft: '3px solid #0ea5e9' }}>
+                  <div style={s.resultLabel}>FEGLI Lifetime Cost (to Age 85)</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0369a1', marginTop: 8 }}>{fmt(fegliResults.lifetimeCost)}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 4 }}>Based on OPM rates (eff. 10/1/2021)</div>
+                </div>
+                <div style={{ ...s.resultBox, background: '#fef2f2', borderLeft: '3px solid #dc2626' }}>
+                  <div style={s.resultLabel}>Private Term Insurance Est. (to Age 85)</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc2626', marginTop: 8 }}>{fmt(estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage))}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 4 }}>~$50-250/mo per $100K by age</div>
+                </div>
+              </div>
+              {(() => {
+                const diff = estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage) - fegliResults.lifetimeCost
+                const fegliBetter = diff > 0
+                return (
+                  <div style={{ ...s.resultBox, background: fegliBetter ? '#f0fdf4' : '#fef2f2', borderLeft: `4px solid ${fegliBetter ? '#16a34a' : '#dc2626'}`, marginTop: 12 }}>
+                    <div style={s.resultLabel}>{fegliBetter ? 'Estimated Savings with FEGLI' : 'FEGLI Costs More by'}</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: fegliBetter ? '#16a34a' : '#dc2626', marginTop: 8 }}>{fmt(Math.abs(diff))}</div>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 4 }}>
+                      {fegliBetter ? 'FEGLI is likely more cost-effective for your situation.' : 'You may save money with private term insurance — but FEGLI has guaranteed acceptance with no medical underwriting.'}
+                    </div>
+                  </div>
+                )
+              })()}
+              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 16, lineHeight: 1.6, background: '#f8f7f4', borderRadius: 6, padding: 12 }}>
+                <strong>Important:</strong> FEGLI offers guaranteed coverage with no medical exam. Private insurance requires underwriting and may deny coverage based on health conditions. FEGLI premiums may change; rates shown are effective 10/1/2021 from OPM. This comparison is for educational purposes only.
+              </div>
+            </div>
+
+            {/* ── FEGLI Assumptions & Notes ── */}
+            <div style={s.assumptionsBox}>
+              <div style={s.assumptionsTitle}>FEGLI Calculation Notes & Assumptions</div>
+              <div style={s.assumptionsGrid}>
+                <div style={s.assumptionItem}><strong>BIA Formula:</strong> Annual salary rounded up to next $1,000, plus $2,000. All federal employees are automatically enrolled in Basic.</div>
+                <div style={s.assumptionItem}><strong>Extra Benefit:</strong> Free coverage that doubles your BIA before age 36, then reduces by 10% of BIA per year until reaching zero at age 45.</div>
+                <div style={s.assumptionItem}><strong>AD&D:</strong> Accidental Death & Dismemberment is included automatically with Basic at no extra premium. Pays BIA for accidental death.</div>
+                <div style={s.assumptionItem}><strong>Option B:</strong> 1-5 multiples of annual pay (rounded to next $1,000). Premium increases with each age band. You pay 100% of the cost.</div>
+                <div style={s.assumptionItem}><strong>Option C:</strong> 1-5 multiples of family coverage. Each multiple = $5,000 spouse + $2,500 per eligible child (under 22 or disabled).</div>
+                <div style={s.assumptionItem}><strong>Postal Workers:</strong> USPS pays the full cost of Basic insurance. Postal employees still pay 100% of all Optional coverages.</div>
+                <div style={s.assumptionItem}><strong>75% Basic Reduction:</strong> Coverage reduces to 25% of BIA starting at 65 (2% per month). After reduction completes, premium is free for life.</div>
+                <div style={s.assumptionItem}><strong>50% Basic Reduction:</strong> Coverage reduces to 50% of BIA starting at 65. You continue paying a reduced premium ($0.75/mo per $1,000 of BIA).</div>
+                <div style={s.assumptionItem}><strong>No Reduction:</strong> Coverage stays at 100% of BIA. Highest ongoing premium ($2.25/mo per $1,000 of BIA). Most expensive option.</div>
+                <div style={s.assumptionItem}><strong>Rate Source:</strong> OPM FEGLI premium rates effective October 1, 2021. Rates are subject to change. Verify current rates at opm.gov.</div>
+              </div>
+            </div>
+
+            {/* ── Consultation CTA ── */}
             <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                <div style={{ fontSize: '2rem', lineHeight: 1 }}>💡</div>
+                <div style={{ fontSize: '2rem', lineHeight: 1 }}>{'\u{1F4A1}'}</div>
                 <div>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Expert Review</div>
                   <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Optimize Your Life Insurance Strategy</div>
                   <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: 0 }}>
-                    Your FEGLI election will stay with you into retirement. A benefits specialist can review your coverage, compare to private insurance, and help you make the best choice for your situation and family.
+                    Your FEGLI election will stay with you into retirement and is irrevocable. A benefits specialist can review your coverage, compare to private insurance, and help you make the best choice for your family.
                   </p>
                   <div style={{ marginTop: 16 }}>
                     <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
                       Schedule Free Consultation
                     </a>
+                    <span style={{ marginLeft: 12, fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>30 min. No cost. No obligation.</span>
                   </div>
                 </div>
               </div>
@@ -1476,10 +1727,22 @@ export default function Calculator() {
 }
 
 function estimatePrivateTermCost(currentAge, coverageAmount) {
-  const monthlyPerK = currentAge < 55 ? 50 : currentAge < 60 ? 85 : currentAge < 65 ? 165 : 250
-  const monthlyRate = (coverageAmount / 100000) * monthlyPerK
-  const yearsToAge85 = Math.max(0, 85 - currentAge)
-  return monthlyRate * 12 * yearsToAge85
+  // More granular age-banded private term insurance estimate
+  let totalCost = 0
+  for (let age = Math.round(currentAge); age < 85; age++) {
+    let monthlyPer100K
+    if (age < 40) monthlyPer100K = 25
+    else if (age < 45) monthlyPer100K = 35
+    else if (age < 50) monthlyPer100K = 50
+    else if (age < 55) monthlyPer100K = 75
+    else if (age < 60) monthlyPer100K = 110
+    else if (age < 65) monthlyPer100K = 175
+    else if (age < 70) monthlyPer100K = 280
+    else if (age < 75) monthlyPer100K = 400
+    else monthlyPer100K = 550
+    totalCost += (coverageAmount / 100000) * monthlyPer100K * 12
+  }
+  return totalCost
 }
 
 function Toggle({ checked, onChange, label, sublabel }) {
