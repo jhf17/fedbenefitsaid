@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
@@ -150,7 +150,7 @@ function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basi
     bia,
     optA: optA ? 10000 : 0,
     optB: optBPerK * (salary / 1000),
-    optC: optCPerMult * 5000,  // 1 multiple = $5K spouse + $2.5K per child (approx $5K per multiple)
+    optC: optCPerMult * 5000,  // Per OPM: 1 multiple = $5,000 spouse + $2,500 per eligible child
     totalCoverage: bia + (optA ? 10000 : 0) + (optBPerK * (salary / 1000)) + (optCPerMult * 5000),
     currentCostBiw: totalBiw,
     currentCostMonthly: totalMonthly,
@@ -163,6 +163,14 @@ function calcCOLAProjection(pensionMonthly, retireAge, yearsToRetirement, tab) {
   if (tab !== 'fers') return null
   const retirementAge = Math.round(retireAge)
   const projections = []
+  // FERS COLA rules (applied to assumed average CPI of 2%):
+  // - If CPI ≤ 2%: COLA = CPI (full adjustment)
+  // - If 2% < CPI ≤ 3%: COLA = 2%
+  // - If CPI > 3%: COLA = CPI - 1%
+  // With our 2% average CPI assumption, effective COLA = 2%
+  // No COLA until age 62 (except for disability/survivor)
+  const assumedCPI = COLA_AVERAGE_ANNUAL
+  const effectiveCOLA = assumedCPI <= 0.02 ? assumedCPI : (assumedCPI <= 0.03 ? 0.02 : assumedCPI - 0.01)
   for (const yearsAfter of [5, 10, 15, 20]) {
     const ageAtYear = retirementAge + yearsAfter
     let projectedMonthly = pensionMonthly
@@ -171,8 +179,8 @@ function calcCOLAProjection(pensionMonthly, retireAge, yearsToRetirement, tab) {
     for (let year = 1; year <= yearsAfter; year++) {
       currentAge = retirementAge + year
       if (currentAge >= 62) {
-        projectedMonthly = projectedMonthly * (1 + COLA_AVERAGE_ANNUAL)
-        totalColaApplied += COLA_AVERAGE_ANNUAL
+        projectedMonthly = projectedMonthly * (1 + effectiveCOLA)
+        totalColaApplied += effectiveCOLA
       }
     }
     projections.push({ yearsAfter, ageAtYear, projectedMonthly: Math.round(projectedMonthly * 100) / 100, totalColaApplied })
@@ -221,7 +229,7 @@ function calcFERSPension(yearsService, high3, retireAge, survivorBenefit, earlyR
   let earlyReductionAmt = 0
   let grossAfterEarly = grossPension
   if (rAge < 62 && earlyRetirement === 'mra10') {
-    const yearsUnder62 = Math.min(62 - rAge, 5)
+    const yearsUnder62 = 62 - rAge
     const reductionPercent = yearsUnder62 * 0.05
     earlyReductionAmt = grossPension * reductionPercent
     grossAfterEarly = grossPension - earlyReductionAmt
@@ -426,6 +434,8 @@ export default function Calculator() {
   const [fegliRetireAge, setFegliRetireAge] = useState('')
   const [fegliOptA, setFegliOptA] = useState(true)
   const [fegliOptBMult, setFegliOptBMult] = useState('1')
+  const [fegliOptCSpouse, setFegliOptCSpouse] = useState(false)
+  const [fegliOptCChildren, setFegliOptCChildren] = useState(false)
   const [fegliOptCMult, setFegliOptCMult] = useState('0')
   const [fegliBasicReduction, setFegliBasicReduction] = useState('75')
   const [fegliOptAReduction, setFegliOptAReduction] = useState('full')
@@ -462,7 +472,7 @@ export default function Calculator() {
     }
     const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus)
     setFegliResults(result)
-  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus])
+  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliOptCSpouse, fegliOptCChildren, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus])
 
   const handleEmailCapture = async (e) => {
     e.preventDefault()
@@ -785,16 +795,36 @@ export default function Calculator() {
               </Field>
 
               <div style={{ marginTop: 16 }}>
-                <Field label="Option C – Family coverage multiples">
-                  <select value={fegliOptCMult} onChange={e => setFegliOptCMult(e.target.value)} style={s.select}>
-                    <option value="0">Not elected</option>
-                    <option value="1">1 multiple</option>
-                    <option value="2">2 multiples</option>
-                    <option value="3">3 multiples</option>
-                    <option value="4">4 multiples</option>
-                    <option value="5">5 multiples</option>
-                  </select>
-                </Field>
+                <div style={{ fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#475569', marginBottom: 8 }}>Option C – Family Coverage</div>
+                <div style={{ background: '#f8f7f4', borderRadius: 8, padding: 16 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: '0.9rem', color: '#0f172a', marginBottom: 10 }}>
+                    <input type="checkbox" checked={fegliOptCSpouse} onChange={e => { setFegliOptCSpouse(e.target.checked); if (!e.target.checked && !fegliOptCChildren) setFegliOptCMult('0'); if (e.target.checked && fegliOptCMult === '0') setFegliOptCMult('1'); }}
+                      style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#7b1c2e' }} />
+                    <span><strong>Spouse</strong> — $5,000 per multiple</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: '0.9rem', color: '#0f172a', marginBottom: 12 }}>
+                    <input type="checkbox" checked={fegliOptCChildren} onChange={e => { setFegliOptCChildren(e.target.checked); if (!e.target.checked && !fegliOptCSpouse) setFegliOptCMult('0'); if (e.target.checked && fegliOptCMult === '0') setFegliOptCMult('1'); }}
+                      style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#7b1c2e' }} />
+                    <span><strong>Children</strong> — $2,500 per child per multiple</span>
+                  </label>
+                  {(fegliOptCSpouse || fegliOptCChildren) && (
+                    <Field label="Number of Multiples (1–5)">
+                      <select value={fegliOptCMult} onChange={e => setFegliOptCMult(e.target.value)} style={s.select}>
+                        <option value="1">1 multiple</option>
+                        <option value="2">2 multiples</option>
+                        <option value="3">3 multiples</option>
+                        <option value="4">4 multiples</option>
+                        <option value="5">5 multiples</option>
+                      </select>
+                    </Field>
+                  )}
+                  {(fegliOptCSpouse || fegliOptCChildren) && (
+                    <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 10, lineHeight: 1.5 }}>
+                      {fegliOptCSpouse && <div>Spouse coverage: {fmt(parseInt(fegliOptCMult) * 5000)}</div>}
+                      {fegliOptCChildren && <div>Each child: {fmt(parseInt(fegliOptCMult) * 2500)}</div>}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -839,7 +869,7 @@ export default function Calculator() {
             </div>
 
             {errors.length > 0 && (
-              <div style={s.errorBox}>
+              <div role="alert" style={s.errorBox}>
                 {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
               </div>
             )}
@@ -868,8 +898,13 @@ export default function Calculator() {
                     )}
                     {fegliResults.optC > 0 && (
                       <div style={{ ...s.resultBox, borderLeft: '4px solid #64748b' }}>
-                        <div style={s.resultLabel}>Option C</div>
+                        <div style={s.resultLabel}>Option C – Family</div>
                         <div style={s.resultValue}>{fmt(fegliResults.optC)}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 6 }}>
+                          {fegliOptCSpouse && <span>Spouse: {fmt(parseInt(fegliOptCMult) * 5000)}</span>}
+                          {fegliOptCSpouse && fegliOptCChildren && <span> + </span>}
+                          {fegliOptCChildren && <span>Children: {fmt(parseInt(fegliOptCMult) * 2500)}/ea</span>}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -934,7 +969,7 @@ export default function Calculator() {
                 </div>
                 <div>
                   <strong style={{ color: '#0f172a' }}>Option C:</strong> Fixed rate × Number of Multiples = Monthly Cost
-                  <br /><span style={{ fontSize: '0.85rem', color: '#64748b' }}>One multiple ≈ $5,000 family coverage</span>
+                  <br /><span style={{ fontSize: '0.85rem', color: '#64748b' }}>One multiple = $5,000 spouse + $2,500 per eligible child</span>
                 </div>
               </div>
             </div>
@@ -948,11 +983,11 @@ export default function Calculator() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', marginBottom: 20 }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #cbd5e1', background: '#f8f7f4' }}>
-                      <th style={{ textAlign: 'left', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
-                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Basic</th>
-                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option A</th>
-                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option B/K</th>
-                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option C</th>
+                      <th scope="col" style={{ textAlign: 'left', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
+                      <th scope="col" style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Basic</th>
+                      <th scope="col" style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option A</th>
+                      <th scope="col" style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option B/K</th>
+                      <th scope="col" style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option C</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -998,9 +1033,9 @@ export default function Calculator() {
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
                       <tr style={{ borderBottom: '2px solid #cbd5e1', background: '#f8f7f4' }}>
-                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly Cost</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual Cost</th>
+                        <th scope="col" style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
+                        <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly Cost</th>
+                        <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual Cost</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1110,7 +1145,7 @@ export default function Calculator() {
                   <strong>Option B:</strong> Multiple of salary. Cost = (Salary × Multiples) ÷ 1,000 × Age-Based Rate.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>Option C:</strong> Family coverage (spouse + children). One multiple ≈ $5,000 coverage.
+                  <strong>Option C:</strong> Family coverage. One multiple = $5,000 for spouse + $2,500 per eligible child. Up to 5 multiples.
                 </div>
                 <div style={s.assumptionItem}>
                   <strong>Reduction Elections:</strong> Post-65 reductions affect coverage and cost differently by option. 75% Basic reduction = free after 65. Full A/B/C reductions = coverage drops to $0.
@@ -1312,7 +1347,7 @@ export default function Calculator() {
 
 
             {errors.length > 0 && (
-              <div style={s.errorBox}>
+              <div role="alert" style={s.errorBox}>
                 {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
               </div>
             )}
@@ -1341,6 +1376,21 @@ export default function Calculator() {
                         <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>Until age 62</div>
                       </div>
                     )}
+                  </div>
+                  {results.supplementMonthly > 0 && (
+                    <div style={{ ...s.resultBox, borderLeft: '4px solid #d97706', background: '#fffbeb', marginTop: 16 }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Earnings Test Warning</div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6 }}>
+                        The FERS Supplement is subject to the Social Security earnings test. In 2026, if you earn more than $23,400/year from wages or self-employment before age 62, your supplement is reduced by $1 for every $2 earned above the limit.
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Income Details */}
+                <div style={s.card}>
+                  <div style={s.cardTitle}>Other Income Sources</div>
+                  <div style={s.grid2}>
                     {results.ssMonthly > 0 && (
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>Social Security</div>
@@ -1366,6 +1416,14 @@ export default function Calculator() {
                       </div>
                     )}
                   </div>
+                  {results.ssMonthly > 0 && (
+                    <div style={{ ...s.resultBox, borderLeft: '4px solid #d97706', background: '#fffbeb', marginTop: 16 }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>WEP/GPO Notice</div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6 }}>
+                        If you have a pension from work not covered by Social Security, your Social Security benefit may be reduced by the Windfall Elimination Provision (WEP) or Government Pension Offset (GPO). CSRS employees and some FERS transfers are commonly affected.
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Pension Breakdown */}
@@ -1659,10 +1717,11 @@ function Toggle({ checked, onChange, label, sublabel }) {
 }
 
 function Field({ label, hint, children }) {
+  const id = 'field-' + label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <label style={fieldStyles.label}>{label}</label>
-      {children}
+      <label htmlFor={id} style={fieldStyles.label}>{label}</label>
+      {React.isValidElement(children) ? React.cloneElement(children, { id }) : children}
       {hint && <div style={fieldStyles.hint}>{hint}</div>}
     </div>
   )
