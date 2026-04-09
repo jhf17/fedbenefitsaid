@@ -85,13 +85,6 @@ export default function Landing() {
           opacity: 1;
           transform: translateY(0);
         }
-
-        @media (max-width: 900px) {
-          .key-dates-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 560px) {
-          .key-dates-grid { grid-template-columns: 1fr !important; }
-        }
       `}</style>
 
       {/* HERO SECTION */}
@@ -383,82 +376,6 @@ export default function Landing() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', height: '1px', background: 'rgba(0,0,0,0.06)' }}></div>
 
 
-      {/* KEY DATES TEASER */}
-      <section style={{ padding: '100px 48px 80px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal">
-          <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <div style={{
-              fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em',
-              textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block',
-              padding: '6px 14px', borderRadius: '6px', color: '#8a6d1b',
-              background: 'rgba(201,168,76,0.1)'
-            }}>
-              Key Dates & Deadlines
-            </div>
-            <h2 style={{
-              fontFamily: "'Merriweather', Georgia, serif", fontSize: '36px',
-              fontWeight: '400', color: '#1e293b', marginBottom: '16px',
-              margin: '0 0 16px 0'
-            }}>
-              Don't miss a deadline.
-            </h2>
-            <p style={{
-              fontFamily: "'Source Sans 3', -apple-system, sans-serif", fontSize: '17px',
-              lineHeight: '1.7', color: '#64748b', maxWidth: '600px',
-              margin: '0 auto'
-            }}>
-              Federal benefits run on strict enrollment windows. Here are the dates that matter most.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }} className="key-dates-grid">
-            {[
-              { label: 'FEHB Open Season', date: 'Nov 10 – Dec 8, 2025', detail: 'Change or enroll in health insurance coverage for the following year.', color: '#1e3a5f' },
-              { label: '2026 TSP Limits', date: '$23,500 + $7,500 catch-up', detail: 'Annual elective deferral limit. Catch-up available if age 50+.', color: '#7b1c2e' },
-              { label: 'Medicare Part B', date: '$185/month (2025)', detail: 'Standard premium. Enroll during Initial Enrollment Period around age 65.', color: '#8a6d1b' },
-              { label: 'Retirement Filing', date: '60–90 days before', detail: 'Submit your retirement application to your agency HR well in advance.', color: '#475569' }
-            ].map((item, i) => (
-              <div key={i} style={{
-                background: '#fff', borderRadius: '12px', padding: '28px 24px',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9',
-                display: 'flex', flexDirection: 'column', gap: '8px'
-              }}>
-                <div style={{
-                  fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.08em',
-                  textTransform: 'uppercase', color: item.color,
-                  fontFamily: "'Source Sans 3', -apple-system, sans-serif"
-                }}>
-                  {item.label}
-                </div>
-                <div style={{
-                  fontFamily: "'Merriweather', Georgia, serif", fontSize: '20px',
-                  fontWeight: '400', color: '#1e293b', lineHeight: '1.3'
-                }}>
-                  {item.date}
-                </div>
-                <p style={{
-                  fontFamily: "'Source Sans 3', -apple-system, sans-serif", fontSize: '14px',
-                  lineHeight: '1.6', color: '#64748b', margin: '0'
-                }}>
-                  {item.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: '40px' }}>
-            <Link to="/timeline" style={{
-              fontFamily: "'Source Sans 3', -apple-system, sans-serif",
-              fontSize: '15px', fontWeight: '600', color: '#7b1c2e',
-              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px'
-            }}>
-              View All Key Dates <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <div style={{ maxWidth: '1200px', margin: '0 auto', height: '1px', background: 'rgba(0,0,0,0.06)' }}></div>
 
       {/* ASSESSMENT */}
       <section style={{ padding: '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
