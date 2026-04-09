@@ -591,9 +591,14 @@ const RetirementCountdown = () => {
           }
         }
         input:focus, select:focus {
-          outline: none;
+          outline: 2px solid #7b1c2e;
+          outline-offset: 2px;
           border-color: #7b1c2e;
-          box-shadow: 0 0 0 3px rgba(123, 28, 46, 0.1);
+          box-shadow: 0 0 0 3px rgba(123, 28, 46, 0.25);
+        }
+        button:focus-visible {
+          outline: 2px solid #7b1c2e;
+          outline-offset: 2px;
         }
         button:hover {
           opacity: 0.9;
