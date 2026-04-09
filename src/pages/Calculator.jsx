@@ -39,7 +39,7 @@ const COLA_AVERAGE_ANNUAL = 0.02
 // FEGLI rate tables by age
 const FEGLI_OPTION_A_RATES = {
   employee: { '<35': 0.20, '35-39': 0.20, '40-44': 0.30, '45-49': 0.60, '50-54': 1.00, '55-59': 1.80, '60+': 6.00 },
-  annuitant: { '<35': 0.43, '35-39': 0.43, '40-44': 0.65, '45-49': 1.30, '50-54': 2.17, '55-59': 3.90, '60-64': 13.00 }
+  annuitant: { '<35': 0.43, '35-39': 0.43, '40-44': 0.65, '45-49': 1.30, '50-54': 2.17, '55-59': 3.90, '60-64': 13.00, '65-69': 13.00, '70-74': 13.00, '75-79': 13.00, '80+': 13.00 }
 }
 
 const FEGLI_OPTION_B_RATES = {
@@ -51,6 +51,11 @@ const FEGLI_OPTION_C_RATES = {
   employee: { '<35': 0.20, '35-39': 0.24, '40-44': 0.37, '45-49': 0.53, '50-54': 0.83, '55-59': 1.33, '60-64': 2.43, '65-69': 2.83, '70-74': 3.83, '75-79': 5.76, '80+': 7.80 },
   annuitant: { '<35': 0.43, '35-39': 0.52, '40-44': 0.80, '45-49': 1.15, '50-54': 1.80, '55-59': 2.88, '60-64': 5.27, '65-69': 6.13, '70-74': 8.30, '75-79': 12.48, '80+': 16.90 }
 }
+
+// Basic Insurance rates
+const FEGLI_BASIC_EMPLOYEE = 0.3250 // per $1000 biweekly
+const FEGLI_BASIC_POSTAL = 0.00     // employer paid for postal workers
+const FEGLI_BASIC_ANNUITANT = 0.3467 // monthly rate per $1000
 
 function getAgeBracket(age) {
   if (age < 35) return '<35'
@@ -71,207 +76,86 @@ function getRate(rateTable, age) {
   return rateTable[bracket] || 0
 }
 
-// Extra Benefit multiplier: doubles BIA under 36, phases down 10%/yr to age 45
-function getExtraBenefitMultiplier(age) {
-  if (age < 36) return 1.0
-  if (age >= 45) return 0
-  return (45 - age) * 0.1
-}
+function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basicReduction, optAReduction, optBReduction, optCReduction, isPostal = false, retirementStatus = 'active') {
+  // Basic Insurance (BIA)
+  const bia = Math.ceil(salary / 1000) * 1000 + 2000
 
-// Coverage reduction at/after 65: 2% per month of the original amount
-function getReductionFactor(age, startAge, targetPct) {
-  if (age < startAge) return 1.0
-  const monthsElapsed = (age - startAge) * 12
-  const reduced = 1.0 - monthsElapsed * 0.02
-  return Math.max(targetPct, reduced)
-}
-
-function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basicReduction, optAReduction, optBReduction, optCReduction, isPostal, numChildren) {
-  // Basic Insurance Amount (BIA): salary rounded up to next $1,000 + $2,000
-  const roundedPay = Math.ceil(salary / 1000) * 1000
-  const bia = roundedPay + 2000
-
-  // Extra Benefit (free — no additional premium)
-  const extraMult = getExtraBenefitMultiplier(currentAge)
-  const extraBenefit = bia * extraMult
-  const totalBasicCoverage = bia + extraBenefit
-
-  // Option A: $10,000 standard
-  const optACoverage = optA ? 10000 : 0
-
-  // Option B: multiples of annual pay rounded to next $1,000
-  const optBNum = parseFloat(optBMult) || 0
-  const optBCoverage = optBNum * roundedPay
-
-  // Option C: family coverage — $5,000 spouse + $2,500/child per multiple
-  const optCNum = parseFloat(optCMult) || 0
-  const nChildren = parseInt(numChildren) || 0
-  const optCSpouse = optCNum * 5000
-  const optCPerChild = optCNum * 2500
-  const optCChildrenTotal = optCPerChild * nChildren
-  const optCCoverage = optCSpouse + optCChildrenTotal
-
-  // Accidental Death & Dismemberment (included with Basic at no extra cost)
-  const addCoverage = bia
-
-  // ── Current (employee) costs ──
-  const basicBiw = isPostal ? 0 : (bia / 1000) * 0.1600
-  const optABiw = optA ? getRate(FEGLI_OPTION_A_RATES.employee, currentAge) : 0
-  const optBBiw = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.employee, currentAge) : 0
-  const optCBiw = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.employee, currentAge) : 0
+  // Current (employee) costs - all ages
+  const basicBiwRate = isPostal ? FEGLI_BASIC_POSTAL : FEGLI_BASIC_EMPLOYEE
+  const basicBiw = (bia / 1000) * basicBiwRate
+  const optABiw = optA ? (10000 / 10000) * getRate(FEGLI_OPTION_A_RATES.employee, currentAge) : 0
+  const optBPerK = parseFloat(optBMult) || 0
+  const optBBiw = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.employee, currentAge) : 0
+  const optCPerMult = parseFloat(optCMult) || 0
+  const optCBiw = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.employee, currentAge) : 0
 
   const totalBiw = basicBiw + optABiw + optBBiw + optCBiw
   const totalMonthly = totalBiw * 26 / 12
   const totalAnnual = totalBiw * 26
 
-  // Per-option cost breakdown
-  const costBreakdown = {
-    basic: { biweekly: basicBiw, monthly: basicBiw * 26 / 12, annual: basicBiw * 26 },
-    optA:  { biweekly: optABiw,  monthly: optABiw * 26 / 12,  annual: optABiw * 26 },
-    optB:  { biweekly: optBBiw,  monthly: optBBiw * 26 / 12,  annual: optBBiw * 26 },
-    optC:  { biweekly: optCBiw,  monthly: optCBiw * 26 / 12,  annual: optCBiw * 26 },
-  }
+  // Post-retirement costs at various ages
+  const projectionAges = [60, 65, 70, 75, 80]
+  const retireCosts = {}
 
-  // ── Extra Benefit phase-down schedule ──
-  const extraBenefitSchedule = []
-  if (currentAge < 45) {
-    for (let a = currentAge; a <= 46; a++) {
-      const m = getExtraBenefitMultiplier(a)
-      extraBenefitSchedule.push({ age: a, multiplier: m, extraAmount: bia * m, totalBasic: bia + bia * m })
-    }
-  }
-
-  // ── Year-by-year projections from retirement age to 85 ──
-  const rAge = parseInt(retireAge) || 62
-  const yearByYear = []
-  for (let age = rAge; age <= 85; age++) {
+  projectionAges.forEach(projAge => {
     let basicMo = 0, optAMo = 0, optBMo = 0, optCMo = 0
-    let basicCov = bia, optACov = optACoverage, optBCov = optBCoverage, optCCov = optCCoverage
 
-    if (age >= 65) {
-      // Basic coverage & cost after 65
+    if (projAge < 65) {
+      // Before 65: annuitant rates apply
+      basicMo = (bia / 1000) * {
+        '75': 0.3467,  // 75% reduction: $0.3467/mo per $1000 until 65, then FREE
+        '50': 1.0967,  // 50% reduction: $1.0967/mo per $1000 until 65
+        'no': 2.5967   // No reduction: $2.5967/mo per $1000
+      }[basicReduction]
+
+      optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, projAge) : 0
+      optBMo = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, projAge) : 0
+      optCMo = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.annuitant, projAge) : 0
+    } else {
+      // At 65 and beyond
       if (basicReduction === '75') {
-        basicCov = bia * getReductionFactor(age, 65, 0.25)
-        basicMo = 0 // free with 75% reduction
+        basicMo = 0  // Coverage reduces to 25% of BIA, but after 65 reduction is free
       } else if (basicReduction === '50') {
-        basicCov = bia * getReductionFactor(age, 65, 0.50)
-        basicMo = (bia / 1000) * 0.75
+        basicMo = (bia / 1000) * 0.75  // 50% reduction: stays at $0.75/mo per $1000
       } else {
-        basicCov = bia // no reduction
-        basicMo = (bia / 1000) * 2.25
+        basicMo = (bia / 1000) * 2.25  // No reduction: stays at $2.25/mo per $1000
       }
-      // Option A after 65
+
       if (optAReduction === 'full') {
-        optACov = optA ? 10000 * Math.max(0, getReductionFactor(age, 65, 0)) : 0
-        optAMo = 0
+        optAMo = 0  // Coverage reduces to $0 with full reduction
       } else {
-        optACov = optACoverage
-        optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, age) : 0
+        optAMo = getRate(FEGLI_OPTION_A_RATES.annuitant, projAge)
       }
-      // Option B after 65
+
       if (optBReduction === 'full') {
-        optBCov = optBNum > 0 ? optBNum * roundedPay * Math.max(0, getReductionFactor(age, 65, 0)) : 0
         optBMo = 0
       } else {
-        optBCov = optBCoverage
-        optBMo = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, age) : 0
+        optBMo = optBPerK > 0 ? optBPerK * (salary / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, projAge) : 0
       }
-      // Option C after 65
+
       if (optCReduction === 'full') {
-        optCCov = optCNum > 0 ? optCCoverage * Math.max(0, getReductionFactor(age, 65, 0)) : 0
         optCMo = 0
       } else {
-        optCCov = optCCoverage
-        optCMo = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, age) : 0
+        optCMo = optCPerMult > 0 ? optCPerMult * getRate(FEGLI_OPTION_C_RATES.annuitant, projAge) : 0
       }
-    } else {
-      // Before 65: annuitant rates, no coverage reduction yet
-      basicMo = (bia / 1000) * ({ '75': 0.3467, '50': 1.0967, 'no': 2.5967 }[basicReduction])
-      optAMo = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, age) : 0
-      optBMo = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, age) : 0
-      optCMo = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, age) : 0
     }
 
-    yearByYear.push({
-      age,
-      coverage: { basic: Math.round(basicCov), optA: Math.round(optACov), optB: Math.round(optBCov), optC: Math.round(optCCov), total: Math.round(basicCov + optACov + optBCov + optCCov) },
-      cost: { monthly: basicMo + optAMo + optBMo + optCMo, annual: (basicMo + optAMo + optBMo + optCMo) * 12, basic: basicMo, optA: optAMo, optB: optBMo, optC: optCMo },
-    })
-  }
-
-  // Also build retireCosts for backward compat
-  const retireCosts = {}
-  ;[60, 65, 70, 75, 80].forEach(pa => {
-    const row = yearByYear.find(y => y.age === pa)
-    if (row) retireCosts[pa] = { monthly: row.cost.monthly, annual: row.cost.annual }
-    else {
-      // If retire age > projection age, calculate independently
-      let bM = 0, aM = 0, bBM = 0, cM = 0
-      if (pa < 65) {
-        bM = (bia / 1000) * ({ '75': 0.3467, '50': 1.0967, 'no': 2.5967 }[basicReduction])
-        aM = optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, pa) : 0
-        bBM = optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, pa) : 0
-        cM = optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, pa) : 0
-      } else {
-        bM = basicReduction === '75' ? 0 : basicReduction === '50' ? (bia / 1000) * 0.75 : (bia / 1000) * 2.25
-        aM = optAReduction === 'full' ? 0 : (optA ? getRate(FEGLI_OPTION_A_RATES.annuitant, pa) : 0)
-        bBM = optBReduction === 'full' ? 0 : (optBNum > 0 ? optBNum * (roundedPay / 1000) * getRate(FEGLI_OPTION_B_RATES.annuitant, pa) : 0)
-        cM = optCReduction === 'full' ? 0 : (optCNum > 0 ? optCNum * getRate(FEGLI_OPTION_C_RATES.annuitant, pa) : 0)
-      }
-      retireCosts[pa] = { monthly: bM + aM + bBM + cM, annual: (bM + aM + bBM + cM) * 12 }
+    retireCosts[projAge] = {
+      monthly: basicMo + optAMo + optBMo + optCMo,
+      annual: (basicMo + optAMo + optBMo + optCMo) * 12
     }
-  })
-
-  // Lifetime cost calculation
-  const yearsToRetire = Math.max(0, rAge - currentAge)
-  const preRetirementCost = totalAnnual * yearsToRetire
-  let postRetirementCost = 0
-  yearByYear.forEach(y => { postRetirementCost += y.cost.annual })
-  const totalLifetimeCost = preRetirementCost + postRetirementCost
-
-  // Premium comparison: show cost at each age band the user will pass through
-  const premiumByAgeBand = []
-  const bands = ['<35','35-39','40-44','45-49','50-54','55-59','60-64','65-69','70-74','75-79','80+']
-  const bandMinAge = [18,35,40,45,50,55,60,65,70,75,80]
-  bands.forEach((band, i) => {
-    const repAge = bandMinAge[i]
-    if (repAge < currentAge - 5 && repAge < 35) return // skip irrelevant past bands
-    const bBiw = isPostal ? 0 : (bia / 1000) * 0.16
-    const aBiw = optA ? (FEGLI_OPTION_A_RATES.employee[band] || 0) : 0
-    const bOptBiw = optBNum > 0 ? optBNum * (roundedPay / 1000) * (FEGLI_OPTION_B_RATES.employee[band] || 0) : 0
-    const cBiw = optCNum > 0 ? optCNum * (FEGLI_OPTION_C_RATES.employee[band] || 0) : 0
-    const tot = bBiw + aBiw + bOptBiw + cBiw
-    premiumByAgeBand.push({ band, biweekly: tot, monthly: tot * 26 / 12, annual: tot * 26, isCurrent: currentAge >= bandMinAge[i] && (i === bands.length - 1 || currentAge < bandMinAge[i + 1]) })
   })
 
   return {
     bia,
-    roundedPay,
-    extraBenefit,
-    extraMult,
-    totalBasicCoverage,
-    optA: optACoverage,
-    optB: optBCoverage,
-    optBPerMult: roundedPay,
-    optCSpouse,
-    optCPerChild,
-    optCChildrenTotal,
-    optC: optCCoverage,
-    addCoverage,
-    totalCoverage: totalBasicCoverage + optACoverage + optBCoverage + optCCoverage,
+    optA: optA ? 10000 : 0,
+    optB: optBPerK * (salary / 1000),
+    optC: optCPerMult * 5000,  // 1 multiple = $5K spouse + $2.5K per child (approx $5K per multiple)
+    totalCoverage: bia + (optA ? 10000 : 0) + (optBPerK * (salary / 1000)) + (optCPerMult * 5000),
     currentCostBiw: totalBiw,
     currentCostMonthly: totalMonthly,
     currentCostAnnual: totalAnnual,
-    costBreakdown,
-    extraBenefitSchedule,
-    yearByYear,
-    premiumByAgeBand,
-    retireCosts,
-    lifetimeCost: totalLifetimeCost,
-    preRetirementCost,
-    postRetirementCost,
-    isPostal,
-    nChildren,
+    retireCosts
   }
 }
 
@@ -322,120 +206,162 @@ function fmtDec(n, d = 1) {
   return n.toFixed(d)
 }
 
-// ============================================================
-// CORE CALCULATION FUNCTIONS
-// ============================================================
-
 function calcFERSPension(yearsService, high3, retireAge, survivorBenefit, earlyRetirement) {
-  const multiplier = (retireAge >= 62 && yearsService >= 20) ? FERS_ENHANCED : FERS_STANDARD
-  let gross = yearsService * multiplier * high3
-  let earlyReduction = 0
-  let earlyReductionAmt = 0
+  const yrs = parseFloat(yearsService) || 0
+  const h3 = parseFloat(high3) || 0
+  const rAge = parseFloat(retireAge) || 62
 
-  if (earlyRetirement === 'mra10' && retireAge < 62) {
-    // 5% per year under 62, max 50%
-    earlyReduction = Math.min((62 - retireAge) * 0.05, 0.50)
-    earlyReductionAmt = gross * earlyReduction
-    gross = gross * (1 - earlyReduction)
+  let multiplierRate = FERS_STANDARD
+  if (rAge >= 62 && yrs >= 20) {
+    multiplierRate = FERS_ENHANCED
+  }
+
+  const grossPension = yrs * multiplierRate * h3
+
+  let earlyReductionAmt = 0
+  let grossAfterEarly = grossPension
+  if (rAge < 62 && earlyRetirement === 'mra10') {
+    const yearsUnder62 = Math.min(62 - rAge, 5)
+    const reductionPercent = yearsUnder62 * 0.05
+    earlyReductionAmt = grossPension * reductionPercent
+    grossAfterEarly = grossPension - earlyReductionAmt
   }
 
   let survivorDeduct = 0
-  if (survivorBenefit === 'full') survivorDeduct = gross * 0.10
-  if (survivorBenefit === 'partial') survivorDeduct = gross * 0.05
+  if (survivorBenefit === 'reduced') {
+    survivorDeduct = grossAfterEarly * 0.005 * yrs
+  } else if (survivorBenefit === 'full') {
+    survivorDeduct = grossAfterEarly * 0.010 * yrs
+  }
+
+  const netAnnual = grossAfterEarly - survivorDeduct
 
   return {
-    gross: yearsService * multiplier * high3,
-    earlyReduction,
+    multiplierPct: multiplierRate * 100,
+    gross: grossPension,
     earlyReductionAmt,
-    grossAfterEarly: gross,
+    grossAfterEarly,
     survivorDeduct,
-    netAnnual: gross - survivorDeduct,
-    multiplierPct: multiplier * 100
+    netAnnual
   }
-}
-
-function calcFERSSupplement(yearsService, ssAt62Monthly) {
-  // (Years of FERS service / 40) x estimated SS benefit at age 62
-  // Only payable on immediate retirement before age 62
-  return (yearsService / 40) * ssAt62Monthly
 }
 
 function calcCSRSPension(yearsService, high3, survivorBenefit) {
-  const t1amt = Math.min(yearsService, 5) * CSRS_T1 * high3
-  const t2amt = Math.max(0, Math.min(yearsService, 10) - 5) * CSRS_T2 * high3
-  const t3amt = Math.max(0, yearsService - 10) * CSRS_T3 * high3
-  const rate = Math.min(
-    Math.min(yearsService, 5) * CSRS_T1 +
-    Math.max(0, Math.min(yearsService, 10) - 5) * CSRS_T2 +
-    Math.max(0, yearsService - 10) * CSRS_T3,
-    CSRS_MAX
-  )
-  const gross = rate * high3
+  const yrs = parseFloat(yearsService) || 0
+  const h3 = parseFloat(high3) || 0
+
+  let multiplierRate = 0
+  if (yrs <= 5) {
+    multiplierRate = CSRS_T1
+  } else if (yrs <= 10) {
+    const firstFive = 5 * CSRS_T1
+    const remaining = (yrs - 5) * CSRS_T2
+    return calcCSRSPension_Helper(yrs, h3, firstFive, remaining, 'CSRS', survivorBenefit)
+  } else {
+    const firstFive = 5 * CSRS_T1
+    const nextFive = 5 * CSRS_T2
+    const remaining = (yrs - 10) * CSRS_T3
+    return calcCSRSPension_Helper(yrs, h3, firstFive, nextFive, 'CSRS_T3', survivorBenefit, remaining)
+  }
+
+  const grossPension = Math.min(yrs * multiplierRate * h3, h3 * CSRS_MAX)
+
   let survivorDeduct = 0
-  if (survivorBenefit === 'full') survivorDeduct = gross * 0.10
-  if (survivorBenefit === 'partial') survivorDeduct = gross * 0.05
+  if (survivorBenefit === 'reduced') {
+    survivorDeduct = grossPension * 0.005 * yrs
+  } else if (survivorBenefit === 'full') {
+    survivorDeduct = grossPension * 0.010 * yrs
+  }
+
+  const netAnnual = grossPension - survivorDeduct
 
   return {
-    t1amt, t2amt, t3amt,
-    ratePct: rate * 100,
-    gross,
+    multiplierPct: (grossPension / h3 / yrs) * 100,
+    gross: grossPension,
     survivorDeduct,
-    netAnnual: gross - survivorDeduct
+    netAnnual
+  }
+}
+
+function calcCSRSPension_Helper(yrs, h3, firstFive, remaining, tier, survivorBenefit, thirdTier = 0) {
+  let grossPension
+  if (tier === 'CSRS') {
+    const nextFive = (yrs - 5) * CSRS_T2
+    grossPension = firstFive + nextFive
+  } else {
+    grossPension = firstFive + remaining + thirdTier
+  }
+
+  grossPension = (grossPension * h3) / yrs
+  grossPension = Math.min(grossPension, h3 * CSRS_MAX)
+
+  let survivorDeduct = 0
+  if (survivorBenefit === 'reduced') {
+    survivorDeduct = grossPension * 0.005 * yrs
+  } else if (survivorBenefit === 'full') {
+    survivorDeduct = grossPension * 0.010 * yrs
+  }
+
+  const netAnnual = grossPension - survivorDeduct
+
+  return {
+    multiplierPct: (grossPension / h3 / yrs) * 100,
+    gross: grossPension,
+    survivorDeduct,
+    netAnnual
   }
 }
 
 function calcSpecialPension(yearsService, high3, survivorBenefit, category) {
-  let gross = 0
-  let breakdown = ''
-  if (category === 'leo' || category === 'ff' || category === 'atc') {
-    const p1 = Math.min(yearsService, 20) * SP_HIGH * high3
-    const p2 = Math.max(0, yearsService - 20) * SP_LOW * high3
-    gross = p1 + p2
-    breakdown = `${Math.min(yearsService,20)} yrs x 1.7% + ${Math.max(0,yearsService-20)} yrs x 1.0%`
-  } else if (category === 'congressional') {
-    const p1 = Math.min(yearsService, 10) * SP_HIGH * high3
-    const p2 = Math.max(0, yearsService - 10) * SP_LOW * high3
-    gross = p1 + p2
-    breakdown = `${Math.min(yearsService,10)} yrs x 1.7% + ${Math.max(0,yearsService-10)} yrs x 1.0%`
-  } else {
-    gross = yearsService * SP_LOW * high3
-    breakdown = `${yearsService} yrs x 1.0%`
+  const yrs = parseFloat(yearsService) || 0
+  const h3 = parseFloat(high3) || 0
+
+  let multiplierRate = SP_LOW
+  if (yrs <= 20) {
+    multiplierRate = SP_HIGH
   }
+
+  const grossPension = yrs * multiplierRate * h3
+
   let survivorDeduct = 0
-  if (survivorBenefit === 'full') survivorDeduct = gross * 0.10
-  if (survivorBenefit === 'partial') survivorDeduct = gross * 0.05
-  return { gross, survivorDeduct, netAnnual: gross - survivorDeduct, breakdown }
-}
+  if (survivorBenefit === 'reduced') {
+    survivorDeduct = grossPension * 0.005 * yrs
+  } else if (survivorBenefit === 'full') {
+    survivorDeduct = grossPension * 0.010 * yrs
+  }
 
-function calcSSBenefit(ssAt62, claimAge) {
-  // Adjustments relative to age-62 benefit (FRA assumed 67)
-  // At 62: already 70% of PIA (passed in by user as monthly estimate at 62)
-  // Each year delayed from 62 adds back some benefit
-  const monthsFrom62 = (claimAge - 62) * 12
-  if (claimAge <= 62) return ssAt62
-  // From 62 to 67: each month adds ~0.556% (8% / 12 months * FRA adjustment approximation)
-  // Simplified: at 67 = ssAt62 / 0.70 (full PIA), then +8%/yr after 67
-  const pia = ssAt62 / 0.70
-  if (claimAge <= 67) {
-    // Linear interpolation between 70% at 62 and 100% at 67
-    const pct = 0.70 + (claimAge - 62) * 0.06
-    return pia * Math.min(pct, 1.0)
-  } else {
-    // +8% per year after FRA
-    return pia * (1 + (claimAge - 67) * 0.08)
+  const netAnnual = grossPension - survivorDeduct
+
+  return {
+    multiplierPct: multiplierRate * 100,
+    gross: grossPension,
+    survivorDeduct,
+    netAnnual
   }
 }
 
-function calcTSPFutureValue(balance, monthlyContrib, yearsToRetirement, annualRatePct) {
-  const r = annualRatePct / 100 / 12
-  const n = Math.max(0, yearsToRetirement) * 12
-  if (n === 0) return balance
-  if (r === 0) return balance + monthlyContrib * n
-  const fvBalance = balance * Math.pow(1 + r, n)
-  const fvContribs = monthlyContrib > 0
-    ? monthlyContrib * (Math.pow(1 + r, n) - 1) / r
-    : 0
-  return fvBalance + fvContribs
+function calcSSBenefit(sstAt62, claimAge) {
+  const ageShift = Math.max(0, claimAge - 62)
+  const increases = {
+    0: 1.0, 1: 1.08, 2: 1.16, 3: 1.24, 4: 1.32, 5: 1.40,
+    6: 1.50, 7: 1.60, 8: 1.70, 9: 1.80, 10: 1.90
+  }
+  const factor = increases[Math.min(ageShift, 10)] || 1.9
+  return (sstAt62 * factor) / 12
+}
+
+function calcTSPFutureValue(balance, monthlyContrib, yearsToRetire, annualGrowthRate) {
+  const months = Math.round(yearsToRetire * 12)
+  const monthlyRate = (annualGrowthRate / 100) / 12
+  const months_fv = balance * Math.pow(1 + monthlyRate, months)
+  const contrib_fv = monthlyContrib * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate
+  return months_fv + contrib_fv
+}
+
+function calcFERSSupplement(yearsService, ssAt62) {
+  const yrs = parseFloat(yearsService) || 0
+  const ss = parseFloat(ssAt62) || 0
+  return (yrs / 40) * ss / 12
 }
 
 // ============================================================
@@ -447,14 +373,6 @@ export default function Calculator() {
   const [tab, setTab] = useState('fers')
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
-
-  // Responsive layout for FEGLI two-column
-  const [isWide, setIsWide] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true)
-  useEffect(() => {
-    const handler = () => setIsWide(window.innerWidth >= 1024)
-    window.addEventListener('resize', handler)
-    return () => window.removeEventListener('resize', handler)
-  }, [])
 
   // Shared inputs
   const [currentAge, setCurrentAge] = useState('')
@@ -514,7 +432,7 @@ export default function Calculator() {
   const [fegliOptBReduction, setFegliOptBReduction] = useState('full')
   const [fegliOptCReduction, setFegliOptCReduction] = useState('full')
   const [fegliIsPostal, setFegliIsPostal] = useState(false)
-  const [fegliNumChildren, setFegliNumChildren] = useState('0')
+  const [fegliRetirementStatus, setFegliRetirementStatus] = useState('active')
   const [fegliResults, setFegliResults] = useState(null)
 
   const [errors, setErrors] = useState([])
@@ -542,9 +460,9 @@ export default function Calculator() {
       setFegliResults(null)
       return
     }
-    const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliNumChildren)
+    const result = calcFEGLI(salary, age, parseFloat(fegliRetireAge) || 62, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus)
     setFegliResults(result)
-  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliNumChildren])
+  }, [tab, fegliSalary, fegliAge, fegliRetireAge, fegliOptA, fegliOptBMult, fegliOptCMult, fegliBasicReduction, fegliOptAReduction, fegliOptBReduction, fegliOptCReduction, fegliIsPostal, fegliRetirementStatus])
 
   const handleEmailCapture = async (e) => {
     e.preventDefault()
@@ -632,7 +550,7 @@ export default function Calculator() {
         fegliOptBReduction,
         fegliOptCReduction,
         fegliIsPostal,
-        fegliNumChildren
+        fegliRetirementStatus
       )
 
       setFegliResults(result)
@@ -732,7 +650,7 @@ export default function Calculator() {
 
   return (
     <main id="main-content" style={s.page}>
-      <div style={{ ...s.container, maxWidth: tab === 'fegli' ? 1100 : 900 }}>
+      <div style={s.container}>
 
         {/* Header */}
         <div style={s.header}>
@@ -776,30 +694,63 @@ export default function Calculator() {
           ))}
         </div>
 
-        {/* FEGLI Form — Full Width */}
+        {/* FEGLI Tab - Full Width Single Column */}
         {tab === 'fegli' && (
-          <>
+          <div>
             {/* Your Information Card */}
             <div style={s.card}>
               <div style={s.cardTitle}>Your Information</div>
-              <div style={s.grid2}>
-                <Field label="Annual Gross Salary ($)" hint="Your current basic pay before deductions">
-                  <input type="number" min="20000" value={fegliSalary} onChange={e => setFegliSalary(e.target.value)} placeholder="e.g. 95000" style={s.input} />
-                </Field>
+              <Field label="Annual Gross Salary ($)">
+                <input
+                  type="number" min="20000"
+                  value={fegliSalary}
+                  onChange={e => setFegliSalary(e.target.value)}
+                  placeholder="e.g. 95000"
+                  style={s.input}
+                />
+              </Field>
+
+              <div style={{ marginTop: 16 }}>
                 <Field label="Current Age">
-                  <input type="number" min="18" max="80" value={fegliAge} onChange={e => setFegliAge(e.target.value)} placeholder="e.g. 50" style={s.input} />
+                  <input
+                    type="number" min="25" max="80"
+                    value={fegliAge}
+                    onChange={e => setFegliAge(e.target.value)}
+                    placeholder="e.g. 50"
+                    style={s.input}
+                  />
                 </Field>
               </div>
-              <div style={{ ...s.grid2, marginTop: 16 }}>
+
+              <div style={{ marginTop: 16 }}>
+                <Field label="Employment Status">
+                  <select value={fegliRetirementStatus} onChange={e => setFegliRetirementStatus(e.target.value)} style={s.select}>
+                    <option value="active">Active Employee</option>
+                    <option value="retired-pre65">Retired (Under 65)</option>
+                    <option value="retired-65plus">Retired (Age 65+)</option>
+                  </select>
+                </Field>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <Field label="Employee Type">
+                  <select value={fegliIsPostal ? 'postal' : 'regular'} onChange={e => setFegliIsPostal(e.target.value === 'postal')} style={s.select}>
+                    <option value="regular">Regular Federal Employee</option>
+                    <option value="postal">USPS Postal Employee</option>
+                  </select>
+                </Field>
+              </div>
+
+              <div style={{ marginTop: 16 }}>
                 <Field label="Planned Retirement Age">
-                  <input type="number" min="50" max="80" value={fegliRetireAge} onChange={e => setFegliRetireAge(e.target.value)} placeholder="e.g. 62" style={s.input} />
+                  <input
+                    type="number" min="50" max="75"
+                    value={fegliRetireAge}
+                    onChange={e => setFegliRetireAge(e.target.value)}
+                    placeholder="e.g. 62"
+                    style={s.input}
+                  />
                 </Field>
-                <Field label="Number of Eligible Children" hint="Under 22 (or disabled). Used for Option C coverage amounts.">
-                  <input type="number" min="0" max="10" value={fegliNumChildren} onChange={e => setFegliNumChildren(e.target.value)} placeholder="0" style={s.input} />
-                </Field>
-              </div>
-              <div style={{ marginTop: 20 }}>
-                <Toggle checked={fegliIsPostal} onChange={e => setFegliIsPostal(e.target.checked)} label="U.S. Postal Service Employee" sublabel="USPS pays 100% of your Basic insurance premium (you pay $0 for Basic)" />
               </div>
             </div>
 
@@ -807,48 +758,35 @@ export default function Calculator() {
             <div style={s.card}>
               <div style={s.cardTitle}>Coverage Elections</div>
 
-              {/* Basic — always enrolled */}
-              <div style={{ background: '#f0f9ff', borderRadius: 8, padding: 16, marginBottom: 20, borderLeft: '3px solid #0ea5e9' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                  <div>
-                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.95rem' }}>Basic Insurance (Automatic)</div>
-                    <div style={{ fontSize: '0.82rem', color: '#475569', marginTop: 4 }}>Annual salary rounded up to next $1,000 + $2,000. All federal employees are enrolled.</div>
-                  </div>
-                  {fegliResults && <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.bia)}</div>}
-                </div>
-                {fegliResults && fegliResults.extraMult > 0 && (
-                  <div style={{ marginTop: 12, background: '#dbeafe', borderRadius: 6, padding: 10, fontSize: '0.82rem', color: '#1e40af' }}>
-                    <strong>Extra Benefit (Free):</strong> Because you are under 45, your Basic coverage is multiplied by {(1 + fegliResults.extraMult).toFixed(1)}x. Current total Basic coverage: <strong>{fmt(fegliResults.totalBasicCoverage)}</strong>. This extra benefit phases down by 10% per year starting at age 36 and reaches 0 at age 45.
-                  </div>
-                )}
-                {fegliResults && (
-                  <div style={{ marginTop: 8, fontSize: '0.78rem', color: '#64748b' }}>
-                    Includes Accidental Death & Dismemberment (AD&D) coverage equal to your BIA ({fmt(fegliResults.addCoverage)}) at no additional cost.
-                  </div>
-                )}
-              </div>
-
               <div style={{ marginBottom: 20 }}>
-                <Toggle checked={fegliOptA} onChange={e => setFegliOptA(e.target.checked)} label="Option A — Standard Insurance" sublabel="$10,000 additional life insurance coverage" />
+                <Toggle
+                  checked={fegliOptA}
+                  onChange={e => setFegliOptA(e.target.checked)}
+                  label="Option A"
+                  sublabel="Standard life insurance – $10,000"
+                />
               </div>
 
-              <div style={s.grid2}>
-                <Field label="Option B — Additional Insurance" hint="Multiples of your annual pay (rounded to next $1,000)">
-                  <select value={fegliOptBMult} onChange={e => setFegliOptBMult(e.target.value)} style={s.select}>
-                    <option value="0">Not elected</option>
-                    <option value="1">1x salary ({fegliResults ? fmt(fegliResults.roundedPay) : '...'})</option>
-                    <option value="2">2x salary ({fegliResults ? fmt(fegliResults.roundedPay * 2) : '...'})</option>
-                    <option value="3">3x salary ({fegliResults ? fmt(fegliResults.roundedPay * 3) : '...'})</option>
-                    <option value="4">4x salary ({fegliResults ? fmt(fegliResults.roundedPay * 4) : '...'})</option>
-                    <option value="5">5x salary ({fegliResults ? fmt(fegliResults.roundedPay * 5) : '...'})</option>
-                  </select>
-                </Field>
-                <Field label="Option C — Family Insurance" hint={`$5,000/spouse + $2,500/child per multiple${parseInt(fegliNumChildren) > 0 ? ' (' + fegliNumChildren + ' children)' : ''}`}>
+              <Field label="Option B – Multiples of salary">
+                <select value={fegliOptBMult} onChange={e => setFegliOptBMult(e.target.value)} style={s.select}>
+                  <option value="0">Not elected</option>
+                  <option value="1">1 multiple</option>
+                  <option value="2">2 multiples</option>
+                  <option value="3">3 multiples</option>
+                  <option value="4">4 multiples</option>
+                  <option value="5">5 multiples</option>
+                </select>
+              </Field>
+
+              <div style={{ marginTop: 16 }}>
+                <Field label="Option C – Family coverage multiples">
                   <select value={fegliOptCMult} onChange={e => setFegliOptCMult(e.target.value)} style={s.select}>
                     <option value="0">Not elected</option>
-                    {[1,2,3,4,5].map(n => (
-                      <option key={n} value={n}>{n}x ({fegliResults ? fmt(n * 5000 + n * 2500 * (parseInt(fegliNumChildren) || 0)) : '...'})</option>
-                    ))}
+                    <option value="1">1 multiple</option>
+                    <option value="2">2 multiples</option>
+                    <option value="3">3 multiples</option>
+                    <option value="4">4 multiples</option>
+                    <option value="5">5 multiples</option>
                   </select>
                 </Field>
               </div>
@@ -856,37 +794,39 @@ export default function Calculator() {
 
             {/* Reduction Elections Card */}
             <div style={s.card}>
-              <div style={s.cardTitle}>Post-Retirement Reduction Elections (at Age 65)</div>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 20, lineHeight: 1.6 }}>
-                After retirement, starting at age 65 your coverage begins to reduce at 2% per month. Choosing a higher reduction means lower (or zero) premiums but less coverage. These elections are made at retirement and are <strong>irrevocable</strong>.
-              </p>
+              <div style={s.cardTitle}>Post-Retirement Reductions at Age 65</div>
 
-              <div style={s.grid2}>
-                <Field label="Basic Insurance Reduction" hint="75% = free after 65 (25% coverage). 50% = reduced premium (50% coverage). None = full premium, full coverage.">
-                  <select value={fegliBasicReduction} onChange={e => setFegliBasicReduction(e.target.value)} style={s.select}>
-                    <option value="75">75% Reduction — Coverage drops to 25%, then FREE</option>
-                    <option value="50">50% Reduction — Coverage drops to 50%, lower premium</option>
-                    <option value="no">No Reduction — Keep 100% coverage, highest premium</option>
-                  </select>
-                </Field>
-                <Field label="Option A Reduction">
+              <Field label="Basic Insurance">
+                <select value={fegliBasicReduction} onChange={e => setFegliBasicReduction(e.target.value)} style={s.select}>
+                  <option value="75">75% Reduction – Coverage becomes free after 65</option>
+                  <option value="50">50% Reduction – Moderate cost; keep more coverage</option>
+                  <option value="no">No Reduction – Full coverage; highest cost</option>
+                </select>
+              </Field>
+
+              <div style={{ marginTop: 16 }}>
+                <Field label="Option A">
                   <select value={fegliOptAReduction} onChange={e => setFegliOptAReduction(e.target.value)} style={s.select}>
-                    <option value="full">Full Reduction — Coverage drops to $0, FREE</option>
-                    <option value="none">No Reduction — Keep $10,000, continue paying</option>
+                    <option value="full">Full Reduction – Coverage reduces to $0 after 65</option>
+                    <option value="none">No Reduction – Keep coverage for life</option>
                   </select>
                 </Field>
               </div>
-              <div style={s.grid2}>
-                <Field label="Option B Reduction">
+
+              <div style={{ marginTop: 16 }}>
+                <Field label="Option B">
                   <select value={fegliOptBReduction} onChange={e => setFegliOptBReduction(e.target.value)} style={s.select}>
-                    <option value="full">Full Reduction — Coverage drops to $0, FREE</option>
-                    <option value="none">No Reduction — Keep coverage, continue paying</option>
+                    <option value="full">Full Reduction – Coverage drops at 65</option>
+                    <option value="none">No Reduction – Continue paying; coverage continues</option>
                   </select>
                 </Field>
-                <Field label="Option C Reduction">
+              </div>
+
+              <div style={{ marginTop: 16 }}>
+                <Field label="Option C">
                   <select value={fegliOptCReduction} onChange={e => setFegliOptCReduction(e.target.value)} style={s.select}>
-                    <option value="full">Full Reduction — Coverage drops to $0, FREE</option>
-                    <option value="none">No Reduction — Keep coverage, continue paying</option>
+                    <option value="full">Full Reduction – Coverage drops at 65</option>
+                    <option value="none">No Reduction – Continue paying; coverage continues</option>
                   </select>
                 </Field>
               </div>
@@ -897,716 +837,214 @@ export default function Calculator() {
                 {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
               </div>
             )}
-          </>
-        )}
 
-        {/* Retirement Form (shown for non-FEGLI tabs) */}
-        {tab !== 'fegli' && (
-          <div style={s.card}>
-
-            {/* Service & Salary */}
-            <div style={s.cardTitle}>Your Service Information</div>
-            <div style={s.grid2}>
-              <Field label="Years of Federal Service" hint="Total creditable service years">
-                <input
-                  type="number" min="1" max="50"
-                  value={yearsService}
-                  onChange={e => setYearsService(e.target.value)}
-                  placeholder="e.g. 28"
-                  style={s.input}
-                />
-              </Field>
-              <Field label="High-3 Average Salary ($)" hint="Average of your 3 highest consecutive earning years">
-                <input
-                  type="number" min="20000"
-                  value={high3}
-                  onChange={e => setHigh3(e.target.value)}
-                  placeholder="e.g. 95000"
-                  style={s.input}
-                />
-              </Field>
-            </div>
-
-            {/* Age fields - shown for FERS and Special */}
-            {(tab === 'fers' || tab === 'special') && (
-              <div style={{ ...s.grid2, marginTop: 16 }}>
-                <Field label="Current Age">
-                  <input
-                    type="number" min="25" max="80"
-                    value={currentAge}
-                    onChange={e => setCurrentAge(e.target.value)}
-                    placeholder="e.g. 55"
-                    style={s.input}
-                  />
-                </Field>
-                <Field label="Planned Retirement Age">
-                  <input
-                    type="number" min="50" max="70"
-                    value={retireAge}
-                    onChange={e => setRetireAge(e.target.value)}
-                    placeholder="e.g. 62"
-                    style={s.input}
-                  />
-                </Field>
-              </div>
-            )}
-
-            {/* Special category selector */}
-            {tab === 'special' && (
-              <div style={{ marginTop: 16 }}>
-                <Field label="Special Category">
-                  <select value={specialCat} onChange={e => setSpecialCat(e.target.value)} style={s.select}>
-                    <option value="leo">Law Enforcement Officer (LEO)</option>
-                    <option value="ff">Firefighter (FF)</option>
-                    <option value="atc">Air Traffic Controller (ATC)</option>
-                    <option value="congressional">Congressional Employee</option>
-                  </select>
-                </Field>
-              </div>
-            )}
-
-            {/* Survivor Benefit */}
-            <div style={{ marginTop: 16 }}>
-              <Field label="Survivor Benefit Election" hint="Reduces your pension to provide income to a surviving spouse">
-                <select value={survivorBenefit} onChange={e => setSurvivorBenefit(e.target.value)} style={s.select}>
-                  <option value="full">Full (50% to survivor - 10% deduction from your pension)</option>
-                  <option value="partial">Partial (25% to survivor - 5% deduction from your pension)</option>
-                  <option value="none">None (0% deduction - no survivor benefit)</option>
-                </select>
-              </Field>
-            </div>
-
-            {/* TSP Section */}
-            <div style={{ ...s.cardTitle, marginTop: 28 }}>Your TSP (Thrift Savings Plan)</div>
-
-            <div style={s.grid2}>
-              <Field label="Current TSP Balance ($)" hint="Leave blank if $0">
-                <input
-                  type="number" min="0"
-                  value={tspBalance}
-                  onChange={e => setTspBalance(e.target.value)}
-                  placeholder="e.g. 250000"
-                  style={s.input}
-                />
-              </Field>
-              <Field label="Monthly TSP Contribution ($)" hint="Your biweekly contribution ÷ 2. Leave blank if not contributing.">
-                <input
-                  type="number" min="0"
-                  value={monthlyContrib}
-                  onChange={e => setMonthlyContrib(e.target.value)}
-                  placeholder="e.g. 1000"
-                  style={s.input}
-                />
-              </Field>
-            </div>
-
-            <div style={s.grid2}>
-              <Field label="Expected Annual TSP Growth (%)" hint="Conservative: 5%, Moderate: 6%, Aggressive: 7%">
-                <input
-                  type="number" min="1" max="12" step="0.5"
-                  value={tspGrowthRate}
-                  onChange={e => setTspGrowthRate(e.target.value)}
-                  style={s.input}
-                />
-              </Field>
-            </div>
-
-            {/* Social Security Section */}
-            <div style={{ ...s.cardTitle, marginTop: 28 }}>Social Security Estimate</div>
-
-            <div style={s.grid2}>
-              <Field label="Estimated Benefit at Age 62 ($/month)" hint="Use your Social Security Statement or ssa.gov">
-                <input
-                  type="number" min="0"
-                  value={ssAt62}
-                  onChange={e => setSsAt62(e.target.value)}
-                  placeholder="e.g. 2100"
-                  style={s.input}
-                />
-              </Field>
-              <Field label="Planned Claim Age" hint="Earliest 62, Full Retirement Age ~67, Delayed 70">
-                <input
-                  type="number" min="62" max="80"
-                  value={ssClaimAge}
-                  onChange={e => setSsClaimAge(e.target.value)}
-                  style={s.input}
-                />
-              </Field>
-            </div>
-
-            {/* Benefits Deductions */}
-            <div style={{ ...s.cardTitle, marginTop: 28 }}>Post-Retirement Deductions</div>
-
-            <div style={{ marginTop: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={includeMedicare}
-                  onChange={e => setIncludeMedicare(e.target.checked)}
-                  style={{ cursor: 'pointer' }}
-                />
-                <span>Include Medicare Part B Premium (${MEDICARE_B_MONTHLY}/mo)</span>
-              </label>
-            </div>
-
-            <div style={{ marginTop: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={includeFEHB}
-                  onChange={e => setIncludeFEHB(e.target.checked)}
-                  style={{ cursor: 'pointer' }}
-                />
-                <span>Include FEHB Health Insurance Premium</span>
-              </label>
-            </div>
-
-            {includeFEHB && (
-              <div style={{ marginTop: 12 }}>
-                <Field label="Select FEHB Plan">
-                  <select value={fehbPlan} onChange={e => setFehbPlan(e.target.value)} style={s.select}>
-                    {FEHB_PLANS.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.label}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-
-                {fehbPlan !== 'custom' && (
-                  <Field label="Coverage Type" style={{ marginTop: 12 }}>
-                    <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
-                      <option value="self">Self Only</option>
-                      <option value="self1">Self + One</option>
-                      <option value="family">Self + Family</option>
-                    </select>
-                  </Field>
-                )}
-
-                {fehbPlan === 'custom' && (
-                  <Field label="Custom Monthly Premium ($)" style={{ marginTop: 12 }}>
-                    <input
-                      type="number" min="0"
-                      value={fehbCustom}
-                      onChange={e => setFehbCustom(e.target.value)}
-                      placeholder="e.g. 400"
-                      style={s.input}
-                    />
-                  </Field>
-                )}
-              </div>
-            )}
-
-            {tab === 'fers' && (
-              <div style={{ marginTop: 12 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={includeSupp}
-                    onChange={e => setIncludeSupp(e.target.checked)}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <span>Include FERS Supplement (payable until age 62 on immediate retirement)</span>
-                </label>
-              </div>
-            )}
-
-            {/* Error messages */}
-            {errors.length > 0 && (
-              <div style={s.errorBox}>
-                {errors.map((err, i) => (
-                  <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>
-                    {err}
+            {/* Coverage Summary Cards - Inline */}
+            {fegliResults && (
+              <div>
+                <div style={s.card}>
+                  <div style={s.cardTitle}>Your Coverage Breakdown</div>
+                  <div style={s.grid2}>
+                    <div style={{ ...s.resultBox, borderLeft: '4px solid #7b1c2e' }}>
+                      <div style={s.resultLabel}>Basic Insurance</div>
+                      <div style={s.resultValue}>{fmt(fegliResults.bia)}</div>
+                    </div>
+                    {fegliResults.optA > 0 && (
+                      <div style={{ ...s.resultBox, borderLeft: '4px solid #0f172a' }}>
+                        <div style={s.resultLabel}>Option A</div>
+                        <div style={s.resultValue}>{fmt(fegliResults.optA)}</div>
+                      </div>
+                    )}
+                    {fegliResults.optB > 0 && (
+                      <div style={{ ...s.resultBox, borderLeft: '4px solid #1e3a5f' }}>
+                        <div style={s.resultLabel}>Option B</div>
+                        <div style={s.resultValue}>{fmt(fegliResults.optB)}</div>
+                      </div>
+                    )}
+                    {fegliResults.optC > 0 && (
+                      <div style={{ ...s.resultBox, borderLeft: '4px solid #64748b' }}>
+                        <div style={s.resultLabel}>Option C</div>
+                        <div style={s.resultValue}>{fmt(fegliResults.optC)}</div>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Calculate Button */}
-            <button onClick={calculate} style={{ ...s.button, marginTop: 24, width: '100%', padding: '14px 24px', fontSize: 16 }}>
-              Calculate My Retirement Income
-            </button>
-
-          </div>
-        )}
-
-        {/* FEGLI COMPREHENSIVE RESULTS DASHBOARD */}
-        {tab === 'fegli' && fegliResults && (
-          <div id="calc-results">
-
-            {/* ── Coverage Summary ── */}
-            <div style={s.card}>
-              <div style={s.cardTitle}>Your FEGLI Coverage Summary</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 20 }}>
-                <div style={{ ...s.resultBox, borderLeft: '3px solid #0ea5e9' }}>
-                  <div style={s.resultLabel}>Basic Insurance (BIA)</div>
-                  <div style={s.resultValue}>{fmt(fegliResults.bia)}</div>
-                  {fegliResults.extraMult > 0 && <div style={{ fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 600, marginTop: 4 }}>+{fmt(fegliResults.extraBenefit)} Extra Benefit</div>}
-                </div>
-                {fegliResults.optA > 0 && <div style={{ ...s.resultBox, borderLeft: '3px solid #8b5cf6' }}>
-                  <div style={s.resultLabel}>Option A</div>
-                  <div style={s.resultValue}>{fmt(fegliResults.optA)}</div>
-                </div>}
-                {fegliResults.optB > 0 && <div style={{ ...s.resultBox, borderLeft: '3px solid #f59e0b' }}>
-                  <div style={s.resultLabel}>Option B ({fegliOptBMult}x Salary)</div>
-                  <div style={s.resultValue}>{fmt(fegliResults.optB)}</div>
-                </div>}
-                {fegliResults.optC > 0 && <div style={{ ...s.resultBox, borderLeft: '3px solid #10b981' }}>
-                  <div style={s.resultLabel}>Option C (Family)</div>
-                  <div style={s.resultValue}>{fmt(fegliResults.optC)}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: 4 }}>
-                    Spouse: {fmt(fegliResults.optCSpouse)}{fegliResults.nChildren > 0 ? ` | Children: ${fmt(fegliResults.optCChildrenTotal)}` : ''}
+                  <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>Total Coverage</div>
+                    <div style={{ fontSize: '2rem', fontWeight: 900, color: '#7b1c2e' }}>{fmt(fegliResults.totalCoverage)}</div>
                   </div>
-                </div>}
-                <div style={{ ...s.resultBox, borderLeft: '3px solid #64748b' }}>
-                  <div style={s.resultLabel}>AD&D (Included Free)</div>
-                  <div style={s.resultValue}>{fmt(fegliResults.addCoverage)}</div>
                 </div>
-              </div>
 
-              <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e3a5f)', borderRadius: 8, padding: 20, textAlign: 'center' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>Total Life Insurance Coverage</div>
-                <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#fff' }}>{fmt(fegliResults.totalCoverage)}</div>
-                {fegliResults.extraMult > 0 && <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>Including {fmt(fegliResults.extraBenefit)} Extra Benefit (until age 45)</div>}
-              </div>
-            </div>
-
-            {/* ── Current Premium Breakdown ── */}
-            <div style={s.card}>
-              <div style={s.cardTitle}>Your Current Premium Breakdown</div>
-              {fegliResults.isPostal && <div style={{ background: '#dbeafe', borderRadius: 6, padding: 10, fontSize: '0.82rem', color: '#1e40af', marginBottom: 16 }}>USPS pays your Basic insurance premium. Your cost for Basic: <strong>$0.00</strong></div>}
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Coverage</th>
-                      <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Biweekly</th>
-                      <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly</th>
-                      <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '10px 8px' }}>Basic Insurance</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.basic.biweekly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.basic.monthly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.basic.annual.toFixed(2)}</td>
-                    </tr>
-                    {fegliResults.optA > 0 && <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '10px 8px' }}>Option A ($10,000)</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optA.biweekly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optA.monthly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.optA.annual.toFixed(2)}</td>
-                    </tr>}
-                    {fegliResults.optB > 0 && <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '10px 8px' }}>Option B ({fegliOptBMult}x)</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optB.biweekly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optB.monthly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.optB.annual.toFixed(2)}</td>
-                    </tr>}
-                    {fegliResults.optC > 0 && <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '10px 8px' }}>Option C ({fegliOptCMult}x Family)</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optC.biweekly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${fegliResults.costBreakdown.optC.monthly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${fegliResults.costBreakdown.optC.annual.toFixed(2)}</td>
-                    </tr>}
-                    <tr style={{ borderTop: '2px solid #0f172a', background: '#f8f7f4' }}>
-                      <td style={{ padding: '12px 8px', fontWeight: 800, color: '#0f172a' }}>Total</td>
-                      <td style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 800, color: '#7b1c2e' }}>${fegliResults.currentCostBiw.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 800, color: '#7b1c2e' }}>${fegliResults.currentCostMonthly.toFixed(2)}</td>
-                      <td style={{ textAlign: 'right', padding: '12px 8px', fontWeight: 800, color: '#7b1c2e', fontSize: '1.05rem' }}>${fegliResults.currentCostAnnual.toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* ── Premium by Age Band ── */}
-            {fegliResults.premiumByAgeBand.length > 0 && (
-              <div style={s.card}>
-                <div style={s.cardTitle}>How Your Premiums Change With Age</div>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
-                  FEGLI premiums increase as you enter each new age band. This table shows your total premium at each age bracket based on your current elections. {fegliResults.isPostal ? 'Basic premium is $0 because USPS covers it.' : 'The government pays ~1/3 of your Basic premium; the rest is shown here.'}
-                </p>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Age Band</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Biweekly</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {fegliResults.premiumByAgeBand.map(row => (
-                        <tr key={row.band} style={{ borderBottom: '1px solid #e2e8f0', background: row.isCurrent ? '#fffbeb' : 'transparent' }}>
-                          <td style={{ padding: '10px 8px', fontWeight: row.isCurrent ? 700 : 400, color: '#0f172a' }}>
-                            {row.band}{row.isCurrent ? ' (current)' : ''}
-                          </td>
-                          <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${row.biweekly.toFixed(2)}</td>
-                          <td style={{ textAlign: 'right', padding: '10px 8px', color: '#475569' }}>${row.monthly.toFixed(2)}</td>
-                          <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600 }}>${row.annual.toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* ── Extra Benefit Phase-Down ── */}
-            {fegliResults.extraBenefitSchedule.length > 0 && (
-              <div style={s.card}>
-                <div style={s.cardTitle}>Extra Benefit Phase-Down Schedule</div>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
-                  The Extra Benefit doubles your Basic coverage at no cost for employees under 36. Starting at 36, it reduces by 10% of BIA per year until it reaches zero at age 45. This is automatic and costs nothing.
-                </p>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Extra Benefit</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Total Basic Coverage</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {fegliResults.extraBenefitSchedule.map(row => (
-                        <tr key={row.age} style={{ borderBottom: '1px solid #e2e8f0', background: row.age === parseInt(fegliAge) ? '#fffbeb' : 'transparent' }}>
-                          <td style={{ padding: '10px 8px', fontWeight: row.age === parseInt(fegliAge) ? 700 : 400 }}>Age {row.age}{row.age === parseInt(fegliAge) ? ' (now)' : ''}</td>
-                          <td style={{ textAlign: 'right', padding: '10px 8px', color: row.multiplier > 0 ? '#0ea5e9' : '#94a3b8', fontWeight: 600 }}>
-                            {row.multiplier > 0 ? `+${fmt(row.extraAmount)} (${(row.multiplier * 100).toFixed(0)}%)` : 'None'}
-                          </td>
-                          <td style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 600, color: '#0f172a' }}>{fmt(row.totalBasic)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* ── Retirement Cost & Coverage Projection ── */}
-            <div style={s.card}>
-              <div style={s.cardTitle}>Retirement Coverage & Cost Projection (Age {parseInt(fegliRetireAge) || 62} to 85)</div>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
-                Year-by-year projection showing how your coverage and premiums change after retirement based on your elected reductions. At age 65, reductions begin at 2% per month.
-              </p>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Age</th>
-                      <th style={{ textAlign: 'right', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Total Coverage</th>
-                      <th style={{ textAlign: 'right', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Monthly Cost</th>
-                      <th style={{ textAlign: 'right', padding: '10px 6px', fontWeight: 700, color: '#0f172a' }}>Annual Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fegliResults.yearByYear.map(row => (
-                      <tr key={row.age} style={{ borderBottom: '1px solid #e2e8f0', background: row.age === 65 ? '#fef3c7' : row.age % 5 === 0 ? '#f8f7f4' : 'transparent' }}>
-                        <td style={{ padding: '8px 6px', fontWeight: row.age === 65 || row.age % 10 === 0 ? 700 : 400, color: '#0f172a' }}>
-                          {row.age}{row.age === 65 ? ' *' : ''}
-                        </td>
-                        <td style={{ textAlign: 'right', padding: '8px 6px', color: row.coverage.total === 0 ? '#94a3b8' : '#0f172a', fontWeight: 600 }}>{fmt(row.coverage.total)}</td>
-                        <td style={{ textAlign: 'right', padding: '8px 6px', color: row.cost.monthly === 0 ? '#16a34a' : '#475569' }}>
-                          {row.cost.monthly === 0 ? 'FREE' : '$' + row.cost.monthly.toFixed(2)}
-                        </td>
-                        <td style={{ textAlign: 'right', padding: '8px 6px', fontWeight: 600, color: row.cost.annual === 0 ? '#16a34a' : '#0f172a' }}>
-                          {row.cost.annual === 0 ? 'FREE' : fmt(row.cost.annual)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 12 }}>* Age 65: Coverage reduction begins (2% per month based on your elections)</div>
-            </div>
-
-            {/* ── Lifetime Cost Analysis ── */}
-            <div style={s.card}>
-              <div style={s.cardTitle}>Lifetime Cost Analysis</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
-                <div style={{ ...s.resultBox, borderLeft: '3px solid #f59e0b' }}>
-                  <div style={s.resultLabel}>Pre-Retirement Cost</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.preRetirementCost)}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Age {Math.round(parseFloat(fegliAge))} to {parseInt(fegliRetireAge) || 62} ({Math.max(0, (parseInt(fegliRetireAge) || 62) - Math.round(parseFloat(fegliAge)))} years)</div>
-                </div>
-                <div style={{ ...s.resultBox, borderLeft: '3px solid #8b5cf6' }}>
-                  <div style={s.resultLabel}>Post-Retirement Cost</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>{fmt(fegliResults.postRetirementCost)}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Age {parseInt(fegliRetireAge) || 62} to 85 ({85 - (parseInt(fegliRetireAge) || 62)} years)</div>
-                </div>
-                <div style={{ ...s.resultBox, borderLeft: '3px solid #7b1c2e', background: '#fef2f2' }}>
-                  <div style={s.resultLabel}>Total Lifetime FEGLI Cost</div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#7b1c2e' }}>{fmt(fegliResults.lifetimeCost)}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4 }}>Age {Math.round(parseFloat(fegliAge))} to 85</div>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Keep FEGLI vs Private Insurance ── */}
-            <div style={s.card}>
-              <div style={s.cardTitle}>Keep FEGLI vs. Private Term Insurance</div>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>
-                Comparing your FEGLI lifetime cost against estimated private term insurance. Private rates are industry averages — actual quotes depend on your health, coverage amount, and insurer.
-              </p>
-              <div style={s.grid2}>
-                <div style={{ ...s.resultBox, background: '#f0f9ff', borderLeft: '3px solid #0ea5e9' }}>
-                  <div style={s.resultLabel}>FEGLI Lifetime Cost (to Age 85)</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0369a1', marginTop: 8 }}>{fmt(fegliResults.lifetimeCost)}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 4 }}>Based on OPM rates (eff. 10/1/2021)</div>
-                </div>
-                <div style={{ ...s.resultBox, background: '#fef2f2', borderLeft: '3px solid #dc2626' }}>
-                  <div style={s.resultLabel}>Private Term Insurance Est. (to Age 85)</div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#dc2626', marginTop: 8 }}>{fmt(estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage))}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 4 }}>~$50-250/mo per $100K by age</div>
-                </div>
-              </div>
-              {(() => {
-                const diff = estimatePrivateTermCost(parseFloat(fegliAge) || 50, fegliResults.totalCoverage) - fegliResults.lifetimeCost
-                const fegliBetter = diff > 0
-                return (
-                  <div style={{ ...s.resultBox, background: fegliBetter ? '#f0fdf4' : '#fef2f2', borderLeft: `4px solid ${fegliBetter ? '#16a34a' : '#dc2626'}`, marginTop: 12 }}>
-                    <div style={s.resultLabel}>{fegliBetter ? 'Estimated Savings with FEGLI' : 'FEGLI Costs More by'}</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: fegliBetter ? '#16a34a' : '#dc2626', marginTop: 8 }}>{fmt(Math.abs(diff))}</div>
-                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 4 }}>
-                      {fegliBetter ? 'FEGLI is likely more cost-effective for your situation.' : 'You may save money with private term insurance — but FEGLI has guaranteed acceptance with no medical underwriting.'}
+                {/* Current Costs Card */}
+                <div style={s.card}>
+                  <div style={s.cardTitle}>Current Monthly Cost</div>
+                  <div style={s.grid2}>
+                    <div style={{ ...s.resultBox, borderLeft: '4px solid #7b1c2e' }}>
+                      <div style={s.resultLabel}>Monthly Deduction</div>
+                      <div style={s.resultValue}>{fmt(fegliResults.currentCostMonthly)}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 8 }}>Biweekly: {fmt(fegliResults.currentCostBiw)}</div>
+                    </div>
+                    <div style={{ ...s.resultBox, borderLeft: '4px solid #0f172a' }}>
+                      <div style={s.resultLabel}>Annual Cost</div>
+                      <div style={s.resultValue}>{fmt(fegliResults.currentCostAnnual)}</div>
                     </div>
                   </div>
-                )
-              })()}
-              <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 16, lineHeight: 1.6, background: '#f8f7f4', borderRadius: 6, padding: 12 }}>
-                <strong>Important:</strong> FEGLI offers guaranteed coverage with no medical exam. Private insurance requires underwriting and may deny coverage based on health conditions. FEGLI premiums may change; rates shown are effective 10/1/2021 from OPM. This comparison is for educational purposes only.
-              </div>
-            </div>
+                </div>
 
-            {/* ── FEGLI Assumptions & Notes ── */}
-            <div style={s.assumptionsBox}>
-              <div style={s.assumptionsTitle}>FEGLI Calculation Notes & Assumptions</div>
-              <div style={s.assumptionsGrid}>
-                <div style={s.assumptionItem}><strong>BIA Formula:</strong> Annual salary rounded up to next $1,000, plus $2,000. All federal employees are automatically enrolled in Basic.</div>
-                <div style={s.assumptionItem}><strong>Extra Benefit:</strong> Free coverage that doubles your BIA before age 36, then reduces by 10% of BIA per year until reaching zero at age 45.</div>
-                <div style={s.assumptionItem}><strong>AD&D:</strong> Accidental Death & Dismemberment is included automatically with Basic at no extra premium. Pays BIA for accidental death.</div>
-                <div style={s.assumptionItem}><strong>Option B:</strong> 1-5 multiples of annual pay (rounded to next $1,000). Premium increases with each age band. You pay 100% of the cost.</div>
-                <div style={s.assumptionItem}><strong>Option C:</strong> 1-5 multiples of family coverage. Each multiple = $5,000 spouse + $2,500 per eligible child (under 22 or disabled).</div>
-                <div style={s.assumptionItem}><strong>Postal Workers:</strong> USPS pays the full cost of Basic insurance. Postal employees still pay 100% of all Optional coverages.</div>
-                <div style={s.assumptionItem}><strong>75% Basic Reduction:</strong> Coverage reduces to 25% of BIA starting at 65 (2% per month). After reduction completes, premium is free for life.</div>
-                <div style={s.assumptionItem}><strong>50% Basic Reduction:</strong> Coverage reduces to 50% of BIA starting at 65. You continue paying a reduced premium ($0.75/mo per $1,000 of BIA).</div>
-                <div style={s.assumptionItem}><strong>No Reduction:</strong> Coverage stays at 100% of BIA. Highest ongoing premium ($2.25/mo per $1,000 of BIA). Most expensive option.</div>
-                <div style={s.assumptionItem}><strong>Rate Source:</strong> OPM FEGLI premium rates effective October 1, 2021. Rates are subject to change. Verify current rates at opm.gov.</div>
+                {/* Cost at Key Ages */}
+                <div style={s.card}>
+                  <div style={s.cardTitle}>Projected Costs at Key Ages</div>
+                  <div style={s.grid2}>
+                    {fegliResults.retireCosts['65'] && (
+                      <div style={{ ...s.resultBox, borderLeft: '4px solid #1e3a5f' }}>
+                        <div style={s.resultLabel}>Age 65 (Monthly)</div>
+                        <div style={s.resultValue}>{fmt(fegliResults.retireCosts['65'].monthly)}</div>
+                      </div>
+                    )}
+                    {fegliResults.retireCosts['75'] && (
+                      <div style={{ ...s.resultBox, borderLeft: '4px solid #1e3a5f' }}>
+                        <div style={s.resultLabel}>Age 75 (Monthly)</div>
+                        <div style={s.resultValue}>{fmt(fegliResults.retireCosts['75'].monthly)}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* ── Consultation CTA ── */}
-            <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                <div style={{ fontSize: '2rem', lineHeight: 1 }}>{'\u{1F4A1}'}</div>
+            {/* How to Calculate Section */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>How FEGLI Costs Are Calculated</div>
+              <div style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.8 }}>
+                <div style={{ marginBottom: 16 }}>
+                  <strong style={{ color: '#0f172a' }}>Basic Insurance:</strong> (Coverage ÷ 1,000) × Rate per $1,000 = Monthly Cost
+                  <br /><span style={{ fontSize: '0.85rem', color: '#64748b' }}>Regular employees pay $0.3250 per $1,000 biweekly; Postal employees pay $0.00</span>
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <strong style={{ color: '#0f172a' }}>Option A:</strong> Fixed monthly rate from age brackets
+                  <br /><span style={{ fontSize: '0.85rem', color: '#64748b' }}>$0.20–$6.00 biweekly (employee rates) or $0.43–$13.00 monthly (annuitant rates)</span>
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <strong style={{ color: '#0f172a' }}>Option B:</strong> (Salary × Multiples ÷ 1,000) × Rate per $1,000 = Monthly Cost
+                  <br /><span style={{ fontSize: '0.85rem', color: '#64748b' }}>Per $1,000 of coverage elected</span>
+                </div>
                 <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Expert Review</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Optimize Your Life Insurance Strategy</div>
-                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: 0 }}>
-                    Your FEGLI election will stay with you into retirement and is irrevocable. A benefits specialist can review your coverage, compare to private insurance, and help you make the best choice for your family.
-                  </p>
-                  <div style={{ marginTop: 16 }}>
-                    <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
-                      Schedule Free Consultation
-                    </a>
-                    <span style={{ marginLeft: 12, fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>30 min. No cost. No obligation.</span>
-                  </div>
+                  <strong style={{ color: '#0f172a' }}>Option C:</strong> Fixed rate × Number of Multiples = Monthly Cost
+                  <br /><span style={{ fontSize: '0.85rem', color: '#64748b' }}>One multiple ≈ $5,000 family coverage</span>
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* RETIREMENT RESULTS */}
-        {tab !== 'fegli' && results && (
-          <div id="calc-results" style={{ marginTop: 32 }}>
-            {/* Main Results Card */}
+            {/* FEGLI Rate Table */}
             <div style={s.card}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 8 }}>Your Retirement Summary</div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, marginTop: 0 }}>Monthly Income at Retirement</h2>
-              <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#7b1c2e', marginBottom: 16, lineHeight: 1 }}>{fmt(results.totalMonthly)}/mo</div>
-              <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 20 }}>
-                ({fmt(results.totalAnnual)}/year) — Based on your inputs above and verified 2026 OPM figures.
-              </div>
+              <div style={s.cardTitle}>FEGLI Premium Rate Table (Biweekly / Monthly)</div>
+              <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: 16 }}>Rates effective 10/1/2021. Postal employees: $0.00 for Basic (employer pays).</p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 20 }}>
-                {results.pensionMonthly > 0 && (
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>{results.tab === 'csrs' ? 'CSRS Pension' : results.tab === 'special' ? 'Special Provision Pension' : 'FERS Pension'}</div>
-                    <div style={s.resultValue}>{fmt(results.pensionMonthly)}</div>
-                  </div>
-                )}
-                {results.supplementMonthly > 0 && (
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>FERS Supplement</div>
-                    <div style={s.resultValue}>{fmt(results.supplementMonthly)}</div>
-                  </div>
-                )}
-                {results.ssMonthly > 0 && (
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Social Security</div>
-                    <div style={s.resultValue}>{fmt(results.ssMonthly)}</div>
-                  </div>
-                )}
-                {results.tspMonthly4pct > 0 && (
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>TSP Withdrawal (4%)</div>
-                    <div style={s.resultValue}>{fmt(results.tspMonthly4pct)}</div>
-                  </div>
-                )}
-                {results.medicareDeduct > 0 && (
-                  <div style={{ ...s.resultBox, background: '#fff5f5' }}>
-                    <div style={s.resultLabel}>Medicare Part B</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.medicareDeduct)}</div>
-                  </div>
-                )}
-                {results.fehbDeduct > 0 && (
-                  <div style={{ ...s.resultBox, background: '#fff5f5' }}>
-                    <div style={s.resultLabel}>FEHB Premium</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.fehbDeduct)}</div>
-                  </div>
-                )}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', marginBottom: 20 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #cbd5e1', background: '#f8f7f4' }}>
+                      <th style={{ textAlign: 'left', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
+                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Basic</th>
+                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option A</th>
+                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option B/K</th>
+                      <th style={{ textAlign: 'center', padding: '12px 8px', fontWeight: 700, color: '#0f172a' }}>Option C</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { age: 'Under 35', bracket: '<35', bia: '$0.33', a: '$0.20', b: '$0.02', c: '$0.20' },
+                      { age: '35–39', bracket: '35-39', bia: '$0.33', a: '$0.20', b: '$0.02', c: '$0.24' },
+                      { age: '40–44', bracket: '40-44', bia: '$0.33', a: '$0.30', b: '$0.03', c: '$0.37' },
+                      { age: '45–49', bracket: '45-49', bia: '$0.33', a: '$0.60', b: '$0.06', c: '$0.53' },
+                      { age: '50–54', bracket: '50-54', bia: '$0.33', a: '$1.00', b: '$0.10', c: '$0.83' },
+                      { age: '55–59', bracket: '55-59', bia: '$0.33', a: '$1.80', b: '$0.18', c: '$1.33' },
+                      { age: '60–64', bracket: '60-64', bia: '$0.33', a: '$6.00', b: '$0.40', c: '$2.43' },
+                      { age: '65–69', bracket: '65-69', bia: '$0.33', a: '$6.00', b: '$0.48', c: '$2.83' },
+                      { age: '70–74', bracket: '70-74', bia: '$0.33', a: '$6.00', b: '$0.86', c: '$3.83' },
+                      { age: '75–79', bracket: '75-79', bia: '$0.33', a: '$6.00', b: '$1.80', c: '$5.76' },
+                      { age: '80+', bracket: '80+', bia: '$0.33', a: '$6.00', b: '$2.88', c: '$7.80' },
+                    ].map((row, idx) => {
+                      const currentBracket = fegliAge ? getAgeBracket(parseFloat(fegliAge)) === row.bracket : false
+                      return (
+                        <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', background: currentBracket ? '#fffbeb' : 'transparent' }}>
+                          <td style={{ padding: '10px 8px', color: '#475569', fontWeight: currentBracket ? 700 : 400 }}>
+                            {row.age}
+                            {currentBracket && <span style={{ color: '#7b1c2e', marginLeft: 8 }}>← You</span>}
+                          </td>
+                          <td style={{ textAlign: 'center', padding: '10px 8px', color: '#475569' }}>{row.bia}</td>
+                          <td style={{ textAlign: 'center', padding: '10px 8px', color: '#475569' }}>{row.a}</td>
+                          <td style={{ textAlign: 'center', padding: '10px 8px', color: '#475569' }}>{row.b}</td>
+                          <td style={{ textAlign: 'center', padding: '10px 8px', color: '#475569' }}>{row.c}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
+              <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Rates shown are <strong>employee</strong> rates (biweekly). Annuitant (retiree) rates for Options A, B, C are typically higher. Consult OPM for full annuitant rate table.</p>
             </div>
 
-            {/* Pension Breakdown */}
-            {results.pensionResult && (
+            {/* Cost Projection Over Time */}
+            {fegliResults && (
               <div style={s.card}>
-                <div style={s.cardTitle}>{results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS'} Pension Calculation</div>
-                <div style={s.grid2}>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>High-3 Salary</div>
-                    <div style={s.resultValue}>{fmt(results.h3)}</div>
-                  </div>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Years of Service</div>
-                    <div style={s.resultValue}>{fmtDec(results.yrs)}</div>
-                  </div>
-                </div>
-                <div style={s.grid2}>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Multiplier Rate</div>
-                    <div style={s.resultValue}>{fmtDec(results.pensionResult.multiplierPct)}%</div>
-                  </div>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Gross Annual Pension</div>
-                    <div style={s.resultValue}>{fmt(results.pensionResult.gross)}</div>
-                  </div>
-                </div>
-                {results.pensionResult.earlyReductionAmt > 0 && (
-                  <div style={s.grid2}>
-                    <div style={{ ...s.resultBox, background: '#fff5f5' }}>
-                      <div style={s.resultLabel}>Early Retirement Reduction (MRA+10)</div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.earlyReductionAmt)}</div>
-                    </div>
-                    <div style={s.resultBox}>
-                      <div style={s.resultLabel}>After Early Reduction</div>
-                      <div style={s.resultValue}>{fmt(results.pensionResult.grossAfterEarly)}</div>
-                    </div>
-                  </div>
-                )}
-                {results.pensionResult.survivorDeduct > 0 && (
-                  <div style={s.grid2}>
-                    <div style={{ ...s.resultBox, background: '#fff5f5' }}>
-                      <div style={s.resultLabel}>Survivor Benefit Deduction</div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.survivorDeduct)}</div>
-                    </div>
-                    <div style={{ ...s.resultBox, background: '#f0fdf4' }}>
-                      <div style={s.resultLabel}>Your Net Annual Pension</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#16a34a' }}>{fmt(results.pensionAnnual)}</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* TSP Projection */}
-            {results.tspAtRetirement > 0 && (
-              <div style={s.card}>
-                <div style={s.cardTitle}>TSP at Retirement</div>
-                <div style={s.grid2}>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Projected TSP Balance</div>
-                    <div style={s.resultValue}>{fmt(results.tspAtRetirement)}</div>
-                  </div>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Annual 4% Withdrawal</div>
-                    <div style={s.resultValue}>{fmt(results.tspAtRetirement * 0.04)}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
-                  <strong>Conservative approach:</strong> A 4% annual withdrawal (${Math.round(results.tspAtRetirement * 0.04 / 12)}/mo) has historically supported a 30-year retirement. Adjust based on your risk tolerance and lifespan expectations.
-                </div>
-              </div>
-            )}
-
-            {/* COLA Projection (FERS only) */}
-            {results.tab === 'fers' && results.colaProjection && (
-              <div style={s.card}>
-                <div style={s.cardTitle}>FERS Pension Growth with COLA Adjustments</div>
-                <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
-                  Cost-of-living adjustments (COLA) begin at age 62. Projected at historical 2% average annual increase.
-                </p>
+                <div style={s.cardTitle}>Cost Projection Over Time</div>
+                <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>Estimated monthly and annual costs at key ages, based on your elections.</p>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Years After Retirement</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
-                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Projected Monthly Pension</th>
+                      <tr style={{ borderBottom: '2px solid #cbd5e1', background: '#f8f7f4' }}>
+                        <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Age</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Monthly Cost</th>
+                        <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Annual Cost</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {results.colaProjection.map((proj) => (
-                        <tr key={proj.yearsAfter} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                          <td style={{ padding: '8px', color: '#475569' }}>{proj.yearsAfter} years</td>
-                          <td style={{ textAlign: 'right', padding: '8px', color: '#475569' }}>Age {proj.ageAtYear}</td>
-                          <td style={{ textAlign: 'right', padding: '8px', fontWeight: 600, color: '#0f172a' }}>{fmt(proj.projectedMonthly)}</td>
-                        </tr>
-                      ))}
+                      {[60, 65, 70, 75, 80].map((age) => {
+                        const costs = fegliResults.retireCosts[age]
+                        const isCurrent = parseFloat(fegliAge) >= age - 2 && parseFloat(fegliAge) < age + 5
+                        return (
+                          <tr key={age} style={{ borderBottom: '1px solid #e2e8f0', background: isCurrent ? '#fffbeb' : 'transparent' }}>
+                            <td style={{ padding: '8px', color: '#475569', fontWeight: isCurrent ? 700 : 400 }}>
+                              Age {age}
+                              {isCurrent && <span style={{ color: '#7b1c2e', marginLeft: 8 }}>← Current bracket</span>}
+                            </td>
+                            <td style={{ textAlign: 'right', padding: '8px', color: '#475569' }}>{fmt(costs.monthly)}</td>
+                            <td style={{ textAlign: 'right', padding: '8px', fontWeight: 600, color: '#0f172a' }}>{fmt(costs.annual)}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
               </div>
             )}
 
-            {/* FIA Alternative */}
+            {/* Keep vs Drop Comparison */}
             <div style={s.card}>
-              <div style={s.cardTitle}>TSP Payout Alternatives (FIA or Withdrawal Options)</div>
-              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
-                Instead of manual withdrawals, you may elect a Fixed Immediate Annuity (FIA) from your TSP balance. Using TSP annuity rates, estimate your lifetime monthly income (these vary with market rates when you purchase).
-              </p>
-
-              <button onClick={() => setShowFIA(!showFIA)} style={{ ...s.button, marginBottom: 12, background: '#1e3a5f' }}>
-                {showFIA ? 'Hide' : 'Show'} Annuity Scenarios
-              </button>
-
-              {showFIA && results.tspAtRetirement > 0 && (
-                <div style={s.grid2}>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Conservative 4.5% Payout</div>
-                    <div style={s.resultValue}>{fmt(results.fiaPayouts.conservative)}/mo</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.conservative * 12)}/yr</div>
-                  </div>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Moderate 5.5% Payout</div>
-                    <div style={s.resultValue}>{fmt(results.fiaPayouts.moderate)}/mo</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.moderate * 12)}/yr</div>
-                  </div>
-                  <div style={s.resultBox}>
-                    <div style={s.resultLabel}>Aggressive 6.5% Payout</div>
-                    <div style={s.resultValue}>{fmt(results.fiaPayouts.aggressive)}/mo</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.aggressive * 12)}/yr</div>
+              <div style={s.cardTitle}>Keep vs Drop Comparison</div>
+              <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>See why federal FEGLI is typically better than private term insurance.</p>
+              <div style={s.grid2}>
+                <div style={{ ...s.resultBox, borderLeft: '4px solid #16a34a' }}>
+                  <div style={s.resultLabel}>FEGLI Cost Advantage</div>
+                  <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.6, margin: '8px 0' }}>
+                    FEGLI is guaranteed, portable, and covers pre-existing conditions with NO medical underwriting.
+                  </p>
+                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
+                    ✓ No medical exam required<br/>
+                    ✓ Rates locked by age<br/>
+                    ✓ Coverage up to retirement
                   </div>
                 </div>
-              )}
-
-              <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 12 }}>
-                Annuity rates are quoted at time of purchase and depend on Treasury rates, mortality assumptions, and TSP terms. Compare to your 4% withdrawal strategy.
+                <div style={{ ...s.resultBox, borderLeft: '4px solid #dc2626' }}>
+                  <div style={s.resultLabel}>Private Term Risk</div>
+                  <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.6, margin: '8px 0' }}>
+                    Private insurance requires medical underwriting and becomes very expensive at retirement.
+                  </p>
+                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
+                    ✗ Medical exam required<br/>
+                    ✗ Rates increase with age<br/>
+                    ✗ Coverage ends at term limit
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1669,9 +1107,9 @@ export default function Calculator() {
                 <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎯</div>
                 <div>
                   <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if you're on track?</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if your FEGLI strategy is right?</div>
                   <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 12px 0' }}>
-                    Your numbers above are a great starting point, but every federal retirement situation is unique. A benefits specialist can review your specific scenario, identify gaps, and help you make the most of your FERS pension, TSP, and Social Security timing.
+                    Your calculator results above are a great starting point, but every federal employee's situation is unique. A benefits specialist can review your coverage elections, retirement goals, and family situation to help you make the best choice.
                   </p>
                   <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
                     Book a Free Consultation
@@ -1686,39 +1124,537 @@ export default function Calculator() {
               <div style={s.assumptionsTitle}>Calculation Notes & Assumptions</div>
               <div style={s.assumptionsGrid}>
                 <div style={s.assumptionItem}>
-                  <strong>FERS Multiplier:</strong> 1.0% standard; 1.1% if age 62+ with 20+ years of service (OPM verified)
+                  <strong>Basic Insurance:</strong> BIA = Gross Salary (rounded to nearest $1,000) + $2,000. Regular employees pay $0.3250/K biweekly; Postal employees pay $0.00.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>CSRS:</strong> Tiered - 1.5% (yrs 1-5), 1.75% (yrs 6-10), 2.0% (yrs 11+), max 80% of High-3
+                  <strong>Option A:</strong> $10,000 fixed coverage. Rates increase sharply at age 60+. Annuitant rates apply in retirement.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>Special Provisions:</strong> 1.7% per year first 20 years (LEO/FF/ATC), 1.0% thereafter
+                  <strong>Option B:</strong> Multiple of salary. Cost = (Salary × Multiples) ÷ 1,000 × Age-Based Rate.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>FERS Supplement:</strong> (FERS years / 40) x estimated SS at 62. Payable until age 62 on immediate retirement only.
+                  <strong>Option C:</strong> Family coverage (spouse + children). One multiple ≈ $5,000 coverage.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>TSP Projection:</strong> Compound growth including future contributions. Past performance does not guarantee future results.
+                  <strong>Reduction Elections:</strong> Post-65 reductions affect coverage and cost differently by option. 75% Basic reduction = free after 65. Full A/B/C reductions = coverage drops to $0.
                 </div>
                 <div style={s.assumptionItem}>
-                  <strong>Social Security:</strong> Based on your entered age-62 estimate. Adjustments for claiming age use SSA reduction/credit factors.
-                </div>
-                <div style={s.assumptionItem}>
-                  <strong>Medicare Part B:</strong> 2026 standard premium $202.90/mo (CMS verified). Higher earners may pay more (IRMAA).
-                </div>
-                <div style={s.assumptionItem}>
-                  <strong>MRA+10 Penalty:</strong> 5% reduction for each year you are under age 62 at retirement, up to 50%.
-                </div>
-                <div style={s.assumptionItem}>
-                  <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
-                </div>
-                <div style={s.assumptionItem}>
-                  <strong>FERS COLA:</strong> No adjustment until age 62. After 62, projected at 2% average annual COLA (historical mean). Actual adjustments vary yearly based on CPI-W.
+                  <strong>Postal Employees:</strong> No cost for Basic Insurance (employer pays 100%). Options A, B, C rates are the same.
                 </div>
               </div>
             </div>
-
           </div>
+        )}
+
+        {/* Retirement Calculator (FERS/CSRS/Special) */}
+        {tab !== 'fegli' && (
+          <>
+            {/* Shared Retirement Form */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Your Service & Salary</div>
+              <div style={s.grid2}>
+                <Field label="Years of Federal Service">
+                  <input
+                    type="number" min="0" max="80"
+                    value={yearsService}
+                    onChange={e => setYearsService(e.target.value)}
+                    placeholder="e.g. 25"
+                    style={s.input}
+                  />
+                </Field>
+                <Field label="High-3 Average Salary (annual)">
+                  <input
+                    type="number" min="0"
+                    value={high3}
+                    onChange={e => setHigh3(e.target.value)}
+                    placeholder="e.g. 95000"
+                    style={s.input}
+                  />
+                </Field>
+              </div>
+
+              <div style={s.grid2}>
+                <Field label="Current Age">
+                  <input
+                    type="number" min="25" max="80"
+                    value={currentAge}
+                    onChange={e => setCurrentAge(e.target.value)}
+                    placeholder="e.g. 50"
+                    style={s.input}
+                  />
+                </Field>
+                <Field label="Planned Retirement Age">
+                  <input
+                    type="number" min="50" max="75"
+                    value={retireAge}
+                    onChange={e => setRetireAge(e.target.value)}
+                    placeholder="e.g. 62"
+                    style={s.input}
+                  />
+                </Field>
+              </div>
+
+              <Field label="Survivor Benefit Option">
+                <select value={survivorBenefit} onChange={e => setSurvivorBenefit(e.target.value)} style={s.select}>
+                  <option value="none">None</option>
+                  <option value="reduced">Reduced (5% deduction)</option>
+                  <option value="full">Full (10% deduction)</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* Special Provisions Category */}
+            {tab === 'special' && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>Special Provision Category</div>
+                <Field label="Category">
+                  <select value={specialCat} onChange={e => setSpecialCat(e.target.value)} style={s.select}>
+                    <option value="leo">Law Enforcement Officer (LEO)</option>
+                    <option value="firefighter">Firefighter</option>
+                    <option value="atc">Air Traffic Controller (ATC)</option>
+                    <option value="congressional">Congressional</option>
+                  </select>
+                </Field>
+              </div>
+            )}
+
+            {/* TSP & Social Security */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>TSP & Social Security Projections</div>
+              <div style={s.grid2}>
+                <Field label="Current TSP Balance ($)">
+                  <input
+                    type="number" min="0"
+                    value={tspBalance}
+                    onChange={e => setTspBalance(e.target.value)}
+                    placeholder="e.g. 150000"
+                    style={s.input}
+                  />
+                </Field>
+                <Field label="Monthly TSP Contribution ($)">
+                  <input
+                    type="number" min="0"
+                    value={monthlyContrib}
+                    onChange={e => setMonthlyContrib(e.target.value)}
+                    placeholder="e.g. 500"
+                    style={s.input}
+                  />
+                </Field>
+              </div>
+
+              <div style={s.grid2}>
+                <Field label="Expected Annual Growth (%)" hint="Conservative: 5%, Moderate: 6%, Aggressive: 7%">
+                  <input
+                    type="number" min="0" max="15"
+                    value={tspGrowthRate}
+                    onChange={e => setTspGrowthRate(e.target.value)}
+                    placeholder="e.g. 6"
+                    style={s.input}
+                  />
+                </Field>
+                <Field label="Estimated Social Security at Age 62 ($)">
+                  <input
+                    type="number" min="0"
+                    value={ssAt62}
+                    onChange={e => setSsAt62(e.target.value)}
+                    placeholder="e.g. 2200"
+                    style={s.input}
+                  />
+                </Field>
+              </div>
+
+              <Field label="Estimated Claiming Age">
+                <select value={ssClaimAge} onChange={e => setSsClaimAge(e.target.value)} style={s.select}>
+                  <option value="62">Age 62 (Reduced)</option>
+                  <option value="67">Age 67 (Full Retirement Age)</option>
+                  <option value="70">Age 70 (Delayed, Max Credit)</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* FEHB & Medicare */}
+            <div style={s.card}>
+              <div style={s.cardTitle}>Health Insurance Deductions</div>
+
+              <div style={{ marginBottom: 20 }}>
+                <Toggle
+                  checked={includeMedicare}
+                  onChange={e => setIncludeMedicare(e.target.checked)}
+                  label="Include Medicare Part B"
+                  sublabel="2026 standard premium: $202.90/month"
+                />
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <Toggle
+                  checked={includeFEHB}
+                  onChange={e => setIncludeFEHB(e.target.checked)}
+                  label="Include FEHB Health Insurance"
+                  sublabel="Deducted from your pension"
+                />
+              </div>
+
+              {includeFEHB && (
+                <>
+                  <Field label="FEHB Plan">
+                    <select value={fehbPlan} onChange={e => setFehbPlan(e.target.value)} style={s.select}>
+                      {FEHB_PLANS.map(plan => (
+                        <option key={plan.id} value={plan.id}>{plan.label}</option>
+                      ))}
+                    </select>
+                  </Field>
+
+                  {fehbPlan !== 'custom' && (
+                    <div style={{ marginTop: 16 }}>
+                      <Field label="Coverage Type">
+                        <select value={fehbCoverage} onChange={e => setFehbCoverage(e.target.value)} style={s.select}>
+                          <option value="self">Self Only</option>
+                          <option value="self1">Self + One</option>
+                          <option value="fam">Self + Family</option>
+                        </select>
+                      </Field>
+                    </div>
+                  )}
+
+                  {fehbPlan === 'custom' && (
+                    <div style={{ marginTop: 16 }}>
+                      <Field label="Custom Monthly Premium ($)">
+                        <input
+                          type="number" min="0"
+                          value={fehbCustom}
+                          onChange={e => setFehbCustom(e.target.value)}
+                          placeholder="e.g. 300"
+                          style={s.input}
+                        />
+                      </Field>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* FERS-Only: Supplement Option */}
+            {tab === 'fers' && (
+              <div style={s.card}>
+                <div style={s.cardTitle}>FERS Supplement</div>
+                <div style={{ marginBottom: 12 }}>
+                  <Toggle
+                    checked={includeSupp}
+                    onChange={e => setIncludeSupp(e.target.checked)}
+                    label="Include FERS Supplement"
+                    sublabel="Bridging income before age 62 (if retiring early)"
+                  />
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5 }}>
+                  The FERS supplement is an annuity payable only on immediate retirement before age 62. It equals (Years of Service ÷ 40) × Estimated Social Security at 62.
+                </p>
+              </div>
+            )}
+
+            {errors.length > 0 && (
+              <div style={s.errorBox}>
+                {errors.map((err, i) => <div key={i} style={{ marginBottom: i < errors.length - 1 ? 8 : 0 }}>{err}</div>)}
+              </div>
+            )}
+
+            <button onClick={calculate} style={s.button}>Calculate My Retirement</button>
+
+            {/* Results Section */}
+            {results && (
+              <div id="calc-results" style={{ marginTop: 32 }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 24 }}>Your Retirement Income</div>
+
+                {/* Monthly Income Breakdown */}
+                <div style={s.card}>
+                  <div style={s.cardTitle}>Monthly Income at Retirement</div>
+                  <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#7b1c2e', marginBottom: 24 }}>{fmt(results.totalMonthly)}</div>
+
+                  <div style={s.grid2}>
+                    <div style={s.resultBox}>
+                      <div style={s.resultLabel}>Pension</div>
+                      <div style={s.resultValue}>{fmt(results.pensionMonthly)}</div>
+                    </div>
+                    {results.supplementMonthly > 0 && (
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>FERS Supplement</div>
+                        <div style={s.resultValue}>{fmt(results.supplementMonthly)}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>Until age 62</div>
+                      </div>
+                    )}
+                    {results.ssMonthly > 0 && (
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Social Security</div>
+                        <div style={s.resultValue}>{fmt(results.ssMonthly)}</div>
+                      </div>
+                    )}
+                    {results.tspMonthly4pct > 0 && (
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>TSP Withdrawal (4%)</div>
+                        <div style={s.resultValue}>{fmt(results.tspMonthly4pct)}</div>
+                      </div>
+                    )}
+                    {results.medicareDeduct > 0 && (
+                      <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                        <div style={s.resultLabel}>Medicare Part B</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.medicareDeduct)}</div>
+                      </div>
+                    )}
+                    {results.fehbDeduct > 0 && (
+                      <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                        <div style={s.resultLabel}>FEHB Premium</div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.fehbDeduct)}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Pension Breakdown */}
+                {results.pensionResult && (
+                  <div style={s.card}>
+                    <div style={s.cardTitle}>{results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS'} Pension Calculation</div>
+                    <div style={s.grid2}>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>High-3 Salary</div>
+                        <div style={s.resultValue}>{fmt(results.h3)}</div>
+                      </div>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Years of Service</div>
+                        <div style={s.resultValue}>{fmtDec(results.yrs)}</div>
+                      </div>
+                    </div>
+                    <div style={s.grid2}>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Multiplier Rate</div>
+                        <div style={s.resultValue}>{fmtDec(results.pensionResult.multiplierPct)}%</div>
+                      </div>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Gross Annual Pension</div>
+                        <div style={s.resultValue}>{fmt(results.pensionResult.gross)}</div>
+                      </div>
+                    </div>
+                    {results.pensionResult.earlyReductionAmt > 0 && (
+                      <div style={s.grid2}>
+                        <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                          <div style={s.resultLabel}>Early Retirement Reduction (MRA+10)</div>
+                          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.earlyReductionAmt)}</div>
+                        </div>
+                        <div style={s.resultBox}>
+                          <div style={s.resultLabel}>After Early Reduction</div>
+                          <div style={s.resultValue}>{fmt(results.pensionResult.grossAfterEarly)}</div>
+                        </div>
+                      </div>
+                    )}
+                    {results.pensionResult.survivorDeduct > 0 && (
+                      <div style={s.grid2}>
+                        <div style={{ ...s.resultBox, background: '#fff5f5' }}>
+                          <div style={s.resultLabel}>Survivor Benefit Deduction</div>
+                          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.survivorDeduct)}</div>
+                        </div>
+                        <div style={{ ...s.resultBox, background: '#f0fdf4' }}>
+                          <div style={s.resultLabel}>Your Net Annual Pension</div>
+                          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#16a34a' }}>{fmt(results.pensionAnnual)}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TSP Projection */}
+                {results.tspAtRetirement > 0 && (
+                  <div style={s.card}>
+                    <div style={s.cardTitle}>TSP at Retirement</div>
+                    <div style={s.grid2}>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Projected TSP Balance</div>
+                        <div style={s.resultValue}>{fmt(results.tspAtRetirement)}</div>
+                      </div>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Annual 4% Withdrawal</div>
+                        <div style={s.resultValue}>{fmt(results.tspAtRetirement * 0.04)}</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 12 }}>
+                      <strong>Conservative approach:</strong> A 4% annual withdrawal (${Math.round(results.tspAtRetirement * 0.04 / 12)}/mo) has historically supported a 30-year retirement. Adjust based on your risk tolerance and lifespan expectations.
+                    </div>
+                  </div>
+                )}
+
+                {/* COLA Projection (FERS only) */}
+                {results.tab === 'fers' && results.colaProjection && (
+                  <div style={s.card}>
+                    <div style={s.cardTitle}>FERS Pension Growth with COLA Adjustments</div>
+                    <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
+                      Cost-of-living adjustments (COLA) begin at age 62. Projected at historical 2% average annual increase.
+                    </p>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                            <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Years After Retirement</th>
+                            <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
+                            <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Projected Monthly Pension</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {results.colaProjection.map((proj) => (
+                            <tr key={proj.yearsAfter} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                              <td style={{ padding: '8px', color: '#475569' }}>{proj.yearsAfter} years</td>
+                              <td style={{ textAlign: 'right', padding: '8px', color: '#475569' }}>Age {proj.ageAtYear}</td>
+                              <td style={{ textAlign: 'right', padding: '8px', fontWeight: 600, color: '#0f172a' }}>{fmt(proj.projectedMonthly)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* FIA Alternative */}
+                <div style={s.card}>
+                  <div style={s.cardTitle}>TSP Payout Alternatives (FIA or Withdrawal Options)</div>
+                  <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
+                    Instead of manual withdrawals, you may elect a Fixed Immediate Annuity (FIA) from your TSP balance. Using TSP annuity rates, estimate your lifetime monthly income (these vary with market rates when you purchase).
+                  </p>
+
+                  <button onClick={() => setShowFIA(!showFIA)} style={{ ...s.button, marginBottom: 12, background: '#1e3a5f' }}>
+                    {showFIA ? 'Hide' : 'Show'} Annuity Scenarios
+                  </button>
+
+                  {showFIA && results.tspAtRetirement > 0 && (
+                    <div style={s.grid2}>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Conservative 4.5% Payout</div>
+                        <div style={s.resultValue}>{fmt(results.fiaPayouts.conservative)}/mo</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.conservative * 12)}/yr</div>
+                      </div>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Moderate 5.5% Payout</div>
+                        <div style={s.resultValue}>{fmt(results.fiaPayouts.moderate)}/mo</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.moderate * 12)}/yr</div>
+                      </div>
+                      <div style={s.resultBox}>
+                        <div style={s.resultLabel}>Aggressive 6.5% Payout</div>
+                        <div style={s.resultValue}>{fmt(results.fiaPayouts.aggressive)}/mo</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.aggressive * 12)}/yr</div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 12 }}>
+                    Annuity rates are quoted at time of purchase and depend on Treasury rates, mortality assumptions, and TSP terms. Compare to your 4% withdrawal strategy.
+                  </div>
+                </div>
+
+                {/* Email Capture */}
+                <div style={s.card}>
+                  <div style={s.cardTitle}>Save & Share Your Results</div>
+                  {captureSent ? (
+                    <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                      <p style={{ color: '#16a34a', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>
+                      <p style={{ color: '#4ade80', fontSize: 14, margin: 0 }}>Check your email for a summary of your numbers.</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleEmailCapture}>
+                      <div style={s.grid2}>
+                        <Field label="Name">
+                          <input
+                            type="text"
+                            value={captureName}
+                            onChange={e => setCaptureName(e.target.value)}
+                            placeholder="Your full name"
+                            style={s.input}
+                            required
+                          />
+                        </Field>
+                        <Field label="Email">
+                          <input
+                            type="email"
+                            value={captureEmail}
+                            onChange={e => setCaptureEmail(e.target.value)}
+                            placeholder="your@email.com"
+                            style={s.input}
+                            required
+                          />
+                        </Field>
+                      </div>
+                      <Field label="Phone (optional)">
+                        <input
+                          type="tel"
+                          value={capturePhone}
+                          onChange={e => setCapturePhone(e.target.value)}
+                          placeholder="(555) 123-4567"
+                          style={s.input}
+                        />
+                      </Field>
+                      {captureError && <div style={{ color: '#dc2626', fontSize: 14, marginBottom: 12 }}>{captureError}</div>}
+                      <button
+                        type="submit"
+                        disabled={captureLoading}
+                        style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}
+                      >
+                        {captureLoading ? 'Sending...' : 'Email My Results'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* Consultation CTA */}
+                <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                    <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎯</div>
+                    <div>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if you're on track?</div>
+                      <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 12px 0' }}>
+                        Your numbers above are a great starting point, but every federal retirement situation is unique. A benefits specialist can review your specific scenario, identify gaps, and help you make the most of your FERS pension, TSP, and Social Security timing.
+                      </p>
+                      <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
+                        Book a Free Consultation
+                      </a>
+                      <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>30 minutes. No cost. No obligation.</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Important Assumptions */}
+                <div style={s.assumptionsBox}>
+                  <div style={s.assumptionsTitle}>Calculation Notes & Assumptions</div>
+                  <div style={s.assumptionsGrid}>
+                    <div style={s.assumptionItem}>
+                      <strong>FERS Multiplier:</strong> 1.0% standard; 1.1% if age 62+ with 20+ years of service (OPM verified)
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>CSRS:</strong> Tiered - 1.5% (yrs 1-5), 1.75% (yrs 6-10), 2.0% (yrs 11+), max 80% of High-3
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>Special Provisions:</strong> 1.7% per year first 20 years (LEO/FF/ATC), 1.0% thereafter
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>FERS Supplement:</strong> (FERS years / 40) x estimated SS at 62. Payable until age 62 on immediate retirement only.
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>TSP Projection:</strong> Compound growth including future contributions. Past performance does not guarantee future results.
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>Social Security:</strong> Based on your entered age-62 estimate. Adjustments for claiming age use SSA reduction/credit factors.
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>Medicare Part B:</strong> 2026 standard premium $202.90/mo (CMS verified). Higher earners may pay more (IRMAA).
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>MRA+10 Penalty:</strong> 5% reduction for each year you are under age 62 at retirement, up to 50%.
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>FEHB Premium:</strong> 2026 OPM biweekly rates (BCBS FEP verified; GEHA/Aetna estimated). Deducted monthly from pension. Verify your plan at opm.gov/premiums.
+                    </div>
+                    <div style={s.assumptionItem}>
+                      <strong>FERS COLA:</strong> No adjustment until age 62. After 62, projected at 2% average annual COLA (historical mean). Actual adjustments vary yearly based on CPI-W.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
       </div>
@@ -1727,22 +1663,10 @@ export default function Calculator() {
 }
 
 function estimatePrivateTermCost(currentAge, coverageAmount) {
-  // More granular age-banded private term insurance estimate
-  let totalCost = 0
-  for (let age = Math.round(currentAge); age < 85; age++) {
-    let monthlyPer100K
-    if (age < 40) monthlyPer100K = 25
-    else if (age < 45) monthlyPer100K = 35
-    else if (age < 50) monthlyPer100K = 50
-    else if (age < 55) monthlyPer100K = 75
-    else if (age < 60) monthlyPer100K = 110
-    else if (age < 65) monthlyPer100K = 175
-    else if (age < 70) monthlyPer100K = 280
-    else if (age < 75) monthlyPer100K = 400
-    else monthlyPer100K = 550
-    totalCost += (coverageAmount / 100000) * monthlyPer100K * 12
-  }
-  return totalCost
+  const monthlyPerK = currentAge < 55 ? 50 : currentAge < 60 ? 85 : currentAge < 65 ? 165 : 250
+  const monthlyRate = (coverageAmount / 100000) * monthlyPerK
+  const yearsToAge85 = Math.max(0, 85 - currentAge)
+  return monthlyRate * 12 * yearsToAge85
 }
 
 function Toggle({ checked, onChange, label, sublabel }) {
@@ -1825,7 +1749,4 @@ const styles = {
   assumptionsTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0f172a', marginBottom: 16 },
   assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 },
   assumptionItem: { fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 },
-
-  // FEGLI summary panel
-  summaryPanel: { background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)', borderTop: '4px solid #7b1c2e' },
 }
