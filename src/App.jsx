@@ -13,7 +13,7 @@ const Calculator = lazy(() => import('./pages/Calculator'))
 const Resources = lazy(() => import('./pages/Resources'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Assessment = lazy(() => import('./pages/Assessment'))
-const Tools = lazy(() => import('./pages/Tools'))
+const Calculators = lazy(() => import('./pages/Tools'))
 const RetirementCountdown = lazy(() => import('./pages/RetirementCountdown'))
 const Timeline = lazy(() => import('./pages/Timeline'))
 import Disclaimer from './pages/Disclaimer'
@@ -106,8 +106,8 @@ export default function App() {
           }
         />
         <Route path="/assessment" element={<Assessment />} />
-        <Route path="/tools" element={<Tools />} />
-        <Route path="/tools/countdown" element={<RetirementCountdown />} />
+        <Route path="/calculators" element={<Calculators />} />
+        <Route path="/calculators/countdown" element={<RetirementCountdown />} />
         <Route path="/timeline" element={<Timeline />} />
         <Route path="/consultation" element={<Consultation />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
