@@ -391,7 +391,7 @@ export const REF_DATA = [
      overview:'Three optional FEGLI coverages supplement Basic. All Optional premiums are paid entirely by the employee — there is no government contribution.',
      rules:[
        'Option A (Standard): flat $10,000 additional coverage; employee pays full premium',
-       'Option B (Additional): 1× to 5× salary in whole multiples; can change multiples only during FEGLI Open Season or QLE',
+       'Option B (Additional): 1× to 5× salary in whole multiples; can change multiples only during a Qualifying Life Event (file SF-2817 within 60 days)',
        'Option C (Family): covers spouse and eligible children; 1–5 multiples; spouse = $5,000 per multiple, each child = $2,500 per multiple',
        'All Options: employee pays 100% of premium; no government contribution',
        'Enrollment: during initial 31-day window or qualifying life event only (rare FEGLI Open Seasons otherwise)'
@@ -868,33 +868,6 @@ export const REF_DATA = [
      ],
      numbers:[
        {label:'TSP-3 filed with',value:'TSP (tsp.gov) — NOT your HR office'},
-     {
-       id:'how-to-change',
-       title:'How to Change Your Benefits',
-       summary:'Which forms to file and when you can make changes to each benefit',
-       overview:'Federal benefits can only be changed during specific windows or qualifying events. Understanding which form to file and when is critical to avoiding gaps in coverage or missed deadlines. This guide covers every major benefit change scenario.',
-       numbers:[
-         {label:'FEHB Changes',value:'Open Season or QLE'},
-         {label:'FEGLI Changes',value:'QLE + SF-2817'},
-         {label:'TSP Changes',value:'Any pay period'},
-         {label:'Retirement Application',value:'SF-3107 (FERS) or SF-2801 (CSRS)'}
-       ],
-       rules:[
-         'FEHB: Change plans during Open Season (mid-Nov \u2013 mid-Dec) or within 60 days of a Qualifying Life Event (marriage, divorce, birth, loss of other coverage)',
-         'FEGLI: No open season \u2014 changes only via QLE within 60 days (file SF-2817) or by passing a physical exam for optional coverage',
-         'TSP contributions: Start, stop, or change any pay period via myPay, Employee Express, or your agency HR',
-         'TSP fund allocation: Change via TSP.gov (interfund transfers) at any time; limited to 2 interfund transfers per month',
-         'Beneficiary designations: Update TSP-3 (TSP beneficiary) and SF-2823 (FEGLI beneficiary) and SF-3102 (FERS beneficiary) after any life event \u2014 these override your will',
-         'Retirement application: File SF-3107 (FERS) or SF-2801 (CSRS) with your agency HR 60\u201390 days before your planned retirement date',
-         'FEDVIP dental/vision: Change during Open Season (mid-Nov \u2013 mid-Dec) or within 60 days of a QLE',
-         'FSAFEDS: Re-enroll each year during Open Season (does not carry over); mid-year changes only with QLE'
-       ],
-       watch:[
-         'Beneficiary forms (TSP-3, SF-2823) override your will \u2014 outdated forms mean benefits go to the wrong person',
-         'Missing the 60-day QLE window means waiting until the next Open Season for FEHB/FEDVIP changes',
-         'FEGLI has NO open season \u2014 if you cancel coverage, getting it back requires a physical exam'
-       ]
-     },
        {label:'SF-2823 filed with',value:'OPM via agency HR'},
        {label:'How often to review',value:'After every major life event'}
      ],
@@ -903,5 +876,28 @@ export const REF_DATA = [
        'Many employees believe HR has their beneficiary designation on file — HR does NOT have TSP-3; it goes directly to TSP',
        'A new TSP-3 automatically supersedes all prior TSP-3s on file — you cannot have partial designations from different dates'
      ]}
-  ]}
+  ,
+     {id:'how-to-change',title:'How to Change Your Benefits',summary:'Which forms to file and when you can make changes to each benefit',
+      overview:'Federal benefits can only be changed during specific windows or qualifying events. Understanding which form to file and when is critical to avoiding gaps in coverage or missed deadlines.',
+      numbers:[
+        {label:'FEHB Changes',value:'Open Season or QLE'},
+        {label:'FEGLI Changes',value:'QLE + SF-2817'},
+        {label:'TSP Changes',value:'Any pay period'},
+        {label:'Retirement App',value:'SF-3107 (FERS) / SF-2801 (CSRS)'}
+      ],
+      rules:[
+        'FEHB: Change plans during Open Season (mid-Nov through mid-Dec) or within 60 days of a Qualifying Life Event (marriage, divorce, birth, loss of other coverage)',
+        'FEGLI: No open season \u2014 changes only via QLE within 60 days (file SF-2817 with your servicing HR office) or by passing a physical exam for optional coverage',
+        'TSP contributions: Start, stop, or change any pay period via myPay, Employee Express, or your agency HR',
+        'TSP fund allocation: Change via TSP.gov (interfund transfers) at any time; limited to 2 interfund transfers per month',
+        'Beneficiary designations: Update TSP-3 (TSP), SF-2823 (FEGLI), and SF-3102 (FERS survivor) after any life event \u2014 these override your will',
+        'Retirement application: File SF-3107 (FERS) or SF-2801 (CSRS) with your agency HR 60\u201390 days before your planned retirement date',
+        'FEDVIP dental/vision: Change during Open Season or within 60 days of a QLE',
+        'FSAFEDS: Re-enroll each year during Open Season; does not carry over year to year; mid-year changes only with QLE'
+      ],
+      watch:[
+        'Beneficiary forms (TSP-3, SF-2823) override your will \u2014 outdated forms mean benefits go to the wrong person',
+        'Missing the 60-day QLE window means waiting until the next Open Season for FEHB/FEDVIP changes',
+        'FEGLI has NO open season \u2014 if you cancel coverage, getting it back requires a physical exam'
+      ]}]}
 ]
