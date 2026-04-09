@@ -255,6 +255,14 @@ export default function Calculator() {
   const [tab, setTab] = useState('fers')
   const [results, setResults] = useState(null)
   const [showFIA, setShowFIA] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  // Handle mobile responsiveness
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   // Shared inputs
   const [currentAge, setCurrentAge] = useState('')
@@ -475,7 +483,7 @@ export default function Calculator() {
       <div style={s.container}>
 
         {/* Header */}
-        <div style={s.header}>
+        <div style={s.header(isMobile)}>
           <div style={s.badge}>Free Tool - No Account Required</div>
           <h1 style={s.h1}>{'Federal Retirement Income Calculator'}</h1>
           <p style={s.subtitle}>
@@ -485,7 +493,7 @@ export default function Calculator() {
 
         {/* Disclaimer Banner */}
         <div style={s.disclaimerBanner}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', marginRight: 8, verticalAlign: 'text-bottom' }}>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', marginRight: 8, verticalAlign: 'text-bottom' }}>
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -514,9 +522,9 @@ export default function Calculator() {
 
 
             {/* Shared Retirement Form */}
-            <div style={s.card}>
+            <div style={s.card(isMobile)}>
               <div style={s.cardTitle}>Your Service & Salary</div>
-              <div style={s.grid2}>
+              <div style={s.grid2(isMobile)}>
                 <Field label="Years of Federal Service">
                   <input
                     type="number" min="0" max="80"
@@ -537,7 +545,7 @@ export default function Calculator() {
                 </Field>
               </div>
 
-              <div style={s.grid2}>
+              <div style={s.grid2(isMobile)}>
                 <Field label="Current Age">
                   <input
                     type="number" min="25" max="80"
@@ -569,7 +577,7 @@ export default function Calculator() {
 
             {/* Special Provisions Category */}
             {tab === 'special' && (
-              <div style={s.card}>
+              <div style={s.card(isMobile)}>
                 <div style={s.cardTitle}>Special Provision Category</div>
                 <Field label="Category">
                   <select value={specialCat} onChange={e => setSpecialCat(e.target.value)} style={s.select}>
@@ -583,9 +591,9 @@ export default function Calculator() {
             )}
 
             {/* TSP & Social Security */}
-            <div style={s.card}>
+            <div style={s.card(isMobile)}>
               <div style={s.cardTitle}>TSP & Social Security Projections</div>
-              <div style={s.grid2}>
+              <div style={s.grid2(isMobile)}>
                 <Field label="Current TSP Balance ($)">
                   <input
                     type="number" min="0"
@@ -606,7 +614,7 @@ export default function Calculator() {
                 </Field>
               </div>
 
-              <div style={s.grid2}>
+              <div style={s.grid2(isMobile)}>
                 <Field label="Expected Annual Growth (%)" hint="Conservative: 5%, Moderate: 6%, Aggressive: 7%">
                   <input
                     type="number" min="0" max="15"
@@ -637,7 +645,7 @@ export default function Calculator() {
             </div>
 
             {/* FEHB & Medicare */}
-            <div style={s.card}>
+            <div style={s.card(isMobile)}>
               <div style={s.cardTitle}>Health Insurance Deductions</div>
 
               <div style={{ marginBottom: 20 }}>
@@ -712,11 +720,11 @@ export default function Calculator() {
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 24 }}>Your Retirement Income</div>
 
                 {/* Monthly Income Breakdown */}
-                <div style={s.card}>
+                <div style={s.card(isMobile)}>
                   <div style={s.cardTitle}>Monthly Income at Retirement</div>
                   <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#7b1c2e', marginBottom: 24 }}>{fmt(results.totalMonthly)}</div>
 
-                  <div style={s.grid2}>
+                  <div style={s.grid2(isMobile)}>
                     <div style={s.resultBox}>
                       <div style={s.resultLabel}>Pension</div>
                       <div style={s.resultValue}>{fmt(results.pensionMonthly)}</div>
@@ -740,9 +748,9 @@ export default function Calculator() {
                 </div>
 
                 {/* Income Details */}
-                <div style={s.card}>
+                <div style={s.card(isMobile)}>
                   <div style={s.cardTitle}>Other Income Sources</div>
-                  <div style={s.grid2}>
+                  <div style={s.grid2(isMobile)}>
                     {results.ssMonthly > 0 && (
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>Social Security</div>
@@ -780,9 +788,9 @@ export default function Calculator() {
 
                 {/* Pension Breakdown */}
                 {results.pensionResult && (
-                  <div style={s.card}>
+                  <div style={s.card(isMobile)}>
                     <div style={s.cardTitle}>{results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS'} Pension Calculation</div>
-                    <div style={s.grid2}>
+                    <div style={s.grid2(isMobile)}>
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>High-3 Salary</div>
                         <div style={s.resultValue}>{fmt(results.h3)}</div>
@@ -792,7 +800,7 @@ export default function Calculator() {
                         <div style={s.resultValue}>{fmtDec(results.yrs)}</div>
                       </div>
                     </div>
-                    <div style={s.grid2}>
+                    <div style={s.grid2(isMobile)}>
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>Multiplier Rate</div>
                         <div style={s.resultValue}>{fmtDec(results.pensionResult.multiplierPct)}%</div>
@@ -803,7 +811,7 @@ export default function Calculator() {
                       </div>
                     </div>
                     {results.pensionResult.earlyReductionAmt > 0 && (
-                      <div style={s.grid2}>
+                      <div style={s.grid2(isMobile)}>
                         <div style={{ ...s.resultBox, background: '#fff5f5' }}>
                           <div style={s.resultLabel}>Early Retirement Reduction (MRA+10)</div>
                           <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.earlyReductionAmt)}</div>
@@ -815,7 +823,7 @@ export default function Calculator() {
                       </div>
                     )}
                     {results.pensionResult.survivorDeduct > 0 && (
-                      <div style={s.grid2}>
+                      <div style={s.grid2(isMobile)}>
                         <div style={{ ...s.resultBox, background: '#fff5f5' }}>
                           <div style={s.resultLabel}>Survivor Benefit Deduction</div>
                           <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.pensionResult.survivorDeduct)}</div>
@@ -831,9 +839,9 @@ export default function Calculator() {
 
                 {/* TSP Projection */}
                 {results.tspAtRetirement > 0 && (
-                  <div style={s.card}>
+                  <div style={s.card(isMobile)}>
                     <div style={s.cardTitle}>TSP at Retirement</div>
-                    <div style={s.grid2}>
+                    <div style={s.grid2(isMobile)}>
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>Projected TSP Balance</div>
                         <div style={s.resultValue}>{fmt(results.tspAtRetirement)}</div>
@@ -851,18 +859,18 @@ export default function Calculator() {
 
                 {/* COLA Projection (FERS only) */}
                 {results.tab === 'fers' && results.colaProjection && (
-                  <div style={s.card}>
+                  <div style={s.card(isMobile)}>
                     <div style={s.cardTitle}>FERS Pension Growth with COLA Adjustments</div>
                     <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
                       Cost-of-living adjustments (COLA) begin at age 62. Projected at historical 2% average annual increase.
                     </p>
-                    <div style={{ overflowX: 'auto' }}>
+                    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                         <thead>
                           <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                            <th style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Years After Retirement</th>
-                            <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
-                            <th style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Projected Monthly Pension</th>
+                            <th scope="col" style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Years After Retirement</th>
+                            <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
+                            <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Projected Monthly Pension</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -880,7 +888,7 @@ export default function Calculator() {
                 )}
 
                 {/* FIA Alternative */}
-                <div style={s.card}>
+                <div style={s.card(isMobile)}>
                   <div style={s.cardTitle}>TSP Payout Alternatives (FIA or Withdrawal Options)</div>
                   <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
                     Instead of manual withdrawals, you may elect a Fixed Immediate Annuity (FIA) from your TSP balance. Using TSP annuity rates, estimate your lifetime monthly income (these vary with market rates when you purchase).
@@ -891,7 +899,7 @@ export default function Calculator() {
                   </button>
 
                   {showFIA && results.tspAtRetirement > 0 && (
-                    <div style={s.grid2}>
+                    <div style={s.grid2(isMobile)}>
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>Conservative 4.5% Payout</div>
                         <div style={s.resultValue}>{fmt(results.fiaPayouts.conservative)}/mo</div>
@@ -916,7 +924,7 @@ export default function Calculator() {
                 </div>
 
                 {/* Email Capture */}
-                <div style={s.card}>
+                <div style={s.card(isMobile)}>
                   <div style={s.cardTitle}>Save & Share Your Results</div>
                   {captureSent ? (
                     <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: 12, textAlign: 'center' }}>
@@ -925,7 +933,7 @@ export default function Calculator() {
                     </div>
                   ) : (
                     <form onSubmit={handleEmailCapture}>
-                      <div style={s.grid2}>
+                      <div style={s.grid2(isMobile)}>
                         <Field label="Name">
                           <input
                             type="text"
@@ -987,7 +995,7 @@ export default function Calculator() {
                 </div>
 
                 {/* Important Assumptions */}
-                <div style={s.assumptionsBox}>
+                <div style={s.assumptionsBox(isMobile)}>
                   <div style={s.assumptionsTitle}>Calculation Notes & Assumptions</div>
                   <div style={s.assumptionsGrid}>
                     <div style={s.assumptionItem}>
@@ -1087,7 +1095,7 @@ const styles = {
   page: { minHeight: '100vh', background: '#faf9f6', paddingBottom: 80 },
   container: { maxWidth: 900, margin: '0 auto', padding: '40px 20px' },
 
-  header: { textAlign: 'center', marginBottom: 36, background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', color: '#fff', padding: '48px 32px', borderRadius: 12, marginLeft: -20, marginRight: -20, paddingLeft: 'calc(20px + 32px)', paddingRight: 'calc(20px + 32px)' },
+  header: (isMobile) => ({ textAlign: 'center', marginBottom: 36, background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', color: '#fff', padding: isMobile ? '32px 16px' : '48px 32px', borderRadius: 12, marginLeft: -20, marginRight: -20, paddingLeft: isMobile ? 'calc(20px + 16px)' : 'calc(20px + 32px)', paddingRight: isMobile ? 'calc(20px + 16px)' : 'calc(20px + 32px)' }),
   badge: { display: 'inline-block', background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20, marginBottom: 14 },
   h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#fff', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", letterSpacing: '-0.02em', marginBottom: 12 },
   subtitle: { fontSize: '1rem', color: 'rgba(255,255,255,0.85)', maxWidth: 580, margin: '0 auto', lineHeight: 1.6 },
@@ -1098,10 +1106,10 @@ const styles = {
   tabBtn: { padding: '8px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' },
   tabBtnActive: { background: '#0f172a', color: '#fff', borderColor: '#0f172a' },
 
-  card: { background: '#fff', borderRadius: 12, padding: 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)' },
+  card: (isMobile) => ({ background: '#fff', borderRadius: 12, padding: isMobile ? 20 : 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)' }),
   cardTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 20 },
 
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 },
+  grid2: (isMobile) => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 16 }),
 
   input: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
   select: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", background: '#fff' },
@@ -1114,7 +1122,7 @@ const styles = {
 
   errorBox: { background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: 12, color: '#991b1b', fontSize: '0.9rem', marginTop: 16, marginBottom: 16 },
 
-  assumptionsBox: { background: '#f0f9ff', borderRadius: 12, padding: 24, marginTop: 24 },
+  assumptionsBox: (isMobile) => ({ background: '#f0f9ff', borderRadius: 12, padding: isMobile ? 16 : 24, marginTop: 24 }),
   assumptionsTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0f172a', marginBottom: 16 },
   assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 },
   assumptionItem: { fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 },

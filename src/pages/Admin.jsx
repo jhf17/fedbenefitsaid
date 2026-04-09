@@ -24,6 +24,9 @@ const Admin = () => {
   const [addingNote, setAddingNote] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [tokenReady, setTokenReady] = useState(false);
+  const [tokenError, setTokenError] = useState(null);
 
   // Redirect non-admin users
   useEffect(() => {
@@ -32,6 +35,35 @@ const Admin = () => {
     }
   }, [user, navigate]);
 
+  // Handle mobile responsiveness
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Check token readiness before fetching
+  useEffect(() => {
+    const checkTokenReady = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          setTokenReady(true);
+          setTokenError(null);
+        } else {
+          setTokenError('No authentication token available');
+        }
+      } catch (err) {
+        console.error('Token check error:', err);
+        setTokenError('Failed to load authentication token');
+      }
+    };
+
+    if (user?.email === ADMIN_EMAIL) {
+      checkTokenReady();
+    }
+  }, [user]);
+
   // Fetch data
   const fetchData = async () => {
     try {
@@ -39,9 +71,20 @@ const Admin = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
+      if (!token) {
+        setError('Authentication token is not available. Please refresh and try again.');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/.netlify/functions/get-leads', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        headers: { 'Authorization': `Bearer ${token}` }
       });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
       const data = await response.json();
       setLeads(data.leads || []);
       setCampaigns(data.campaigns || []);
@@ -49,17 +92,19 @@ const Admin = () => {
       setError(null);
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to load leads');
+      setError('Failed to load leads. Please ensure you are properly authenticated.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user?.email === ADMIN_EMAIL) {
+    if (user?.email === ADMIN_EMAIL && tokenReady) {
       fetchData();
+    } else if (user?.email === ADMIN_EMAIL && tokenError) {
+      setLoading(false);
     }
-  }, [user]);
+  }, [user, tokenReady, tokenError]);
 
   // Handle Escape key to close detail panel
   useEffect(() => {
@@ -297,14 +342,16 @@ const Admin = () => {
       <div
         style={{
           background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)',
-          padding: '24px 32px',
+          padding: isMobile ? '16px' : '24px 32px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          flexWrap: isMobile ? 'wrap' : 'nowrap',
+          gap: isMobile ? '12px' : '0'
         }}
       >
-        <h1 style={{ color: '#ffffff', margin: 0, fontSize: '28px', fontWeight: '700' }}>
+        <h1 style={{ color: '#ffffff', margin: 0, fontSize: isMobile ? '20px' : '28px', fontWeight: '700', flex: isMobile ? '1 1 100%' : 'auto' }}>
           Lead Command Center
         </h1>
         <button
@@ -330,16 +377,17 @@ const Admin = () => {
       </div>
 
       {/* Main Content */}
-      <div style={{ padding: '32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '32px' }}>
         {activeTab === 'leads' ? (
           <>
             {/* Stat Cards */}
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gridTemplateColumns: `repeat(auto-fit, minmax(${isMobile ? '140px' : '200px'}, 1fr))`,
                 gap: '16px',
-                marginBottom: '32px'
+                marginBottom: isMobile ? '16px' : '32px',
+                padding: isMobile ? '0 8px' : '0'
               }}
             >
               {[
@@ -356,14 +404,14 @@ const Admin = () => {
                     backgroundColor: '#ffffff',
                     border: '1px solid #e5e7eb',
                     borderRadius: '12px',
-                    padding: '20px',
+                    padding: isMobile ? '14px' : '20px',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)'
                   }}
                 >
-                  <p style={{ color: '#6b7280', margin: '0 0 8px 0', fontSize: '13px', fontWeight: '500' }}>
+                  <p style={{ color: '#6b7280', margin: '0 0 8px 0', fontSize: isMobile ? '11px' : '13px', fontWeight: '500' }}>
                     {stat.label}
                   </p>
-                  <p style={{ color: stat.color, margin: 0, fontSize: '32px', fontWeight: '700' }}>
+                  <p style={{ color: stat.color, margin: 0, fontSize: isMobile ? '24px' : '32px', fontWeight: '700' }}>
                     {stat.value}
                   </p>
                 </div>
@@ -488,9 +536,9 @@ const Admin = () => {
             </div>
 
             {/* Leads Table */}
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-                Loading leads...
+            {loading || tokenError ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: tokenError ? '#ef4444' : '#6b7280' }}>
+                {tokenError ? tokenError : 'Loading leads...'}
               </div>
             ) : error ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>
@@ -505,13 +553,20 @@ const Admin = () => {
                   overflow: 'hidden'
                 }}
               >
-                <table
+                <div
                   style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    fontSize: '14px'
+                    overflowX: 'auto',
+                    WebkitOverflowScrolling: 'touch'
                   }}
                 >
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: isMobile ? '12px' : '14px',
+                      minWidth: isMobile ? '800px' : 'auto'
+                    }}
+                  >
                   <thead>
                     <tr style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                       <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>
@@ -596,7 +651,8 @@ const Admin = () => {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                  </table>
+                </div>
                 {filteredLeads.length === 0 && (
                   <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
                     No leads found
@@ -647,7 +703,7 @@ const Admin = () => {
             top: 0,
             right: 0,
             bottom: 0,
-            width: '400px',
+            width: isMobile ? 'min(400px, 90vw)' : '400px',
             backgroundColor: '#ffffff',
             boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.15)',
             zIndex: 1000,
@@ -659,14 +715,14 @@ const Admin = () => {
           {/* Panel Header */}
           <div
             style={{
-              padding: '24px',
+              padding: isMobile ? '16px' : '24px',
               borderBottom: '1px solid #e5e7eb',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}
           >
-            <h2 style={{ margin: 0, color: '#111827', fontSize: '20px', fontWeight: '700' }}>
+            <h2 style={{ margin: 0, color: '#111827', fontSize: isMobile ? '18px' : '20px', fontWeight: '700' }}>
               {selectedLead.fields?.['Name'] || 'Lead Details'}
             </h2>
             <button
@@ -693,7 +749,7 @@ const Admin = () => {
           </div>
 
           {/* Panel Content */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px' : '24px' }}>
             {/* Contact Info Section */}
             <div style={{ marginBottom: '24px' }}>
               <h3 style={{ color: '#374151', fontSize: '13px', fontWeight: '600', marginBottom: '12px', textTransform: 'uppercase' }}>
