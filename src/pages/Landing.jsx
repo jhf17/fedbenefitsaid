@@ -21,8 +21,14 @@ const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif
 
 export default function Landing() {
   const [calcPreview, setCalcPreview] = useState('income');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const revealRefs = useRef([]);
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -92,7 +98,7 @@ export default function Landing() {
       `}</style>
 
       {/* HERO SECTION */}
-      <section role="banner" style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', padding: '64px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: '40px' }}>
+      <section role="banner" style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', alignItems: 'center', padding: isMobile ? '40px 20px 0' : '64px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: isMobile ? '24px' : '40px' }}>
         <div style={{ paddingRight: '20px', animation: 'fadeUp 0.8s ease forwards' }}>
           <div style={{ display: 'inline-block', background: colors.navy, fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '8px 20px', borderRadius: '100px', marginBottom: '32px', backgroundImage: goldGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             For U.S. Federal Employees
@@ -208,7 +214,7 @@ export default function Landing() {
       </section>
 
       {/* VALUE PROPOSITION */}
-      <section style={{ background: colors.navy, padding: '120px 48px' }}>
+      <section style={{ background: colors.navy, padding: isMobile ? '60px 20px' : '120px 48px' }}>
         <div ref={addRevealRef} className="reveal" style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '72px' }}>
             <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.9rem, 4vw, 2.8rem)', fontWeight: '900', lineHeight: '1.15', letterSpacing: '-0.01em', color: 'white', marginBottom: '16px' }}>
@@ -221,7 +227,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '24px' }}>
             {[
               { id: 'personalized', title: 'Personalized to You', desc: 'Every tool adapts to your specific situation — years of service, salary, retirement system, and timeline. No generic advice.' },
               { id: 'accurate', title: 'Current and Accurate', desc: 'All figures updated for 2026. We cite actual OPM regulations so you can verify everything yourself.' },
@@ -248,8 +254,8 @@ export default function Landing() {
       </section>
 
       {/* CALCULATOR */}
-      <section style={{ padding: '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '60px 20px' : '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '32px' : '80px', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: colors.maroon, background: 'rgba(123,28,46,0.06)' }}>
               Retirement Calculators
@@ -284,7 +290,7 @@ export default function Landing() {
                     <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>$63,810 per year</div>
                   </div>
                   {/* 3 summary cards */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
                     {[
                       { icon: '$', label: 'Monthly Pension', value: '$1,543', sub: '$18,513/yr' },
                       { icon: 'T', label: 'TSP Income', value: '$918', sub: '4% withdrawal' },
@@ -326,7 +332,7 @@ export default function Landing() {
                     <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>$59.97/month premium</div>
                   </div>
                   {/* 3 coverage cards */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
                     {[
                       { icon: 'B', label: 'Basic (BIA)', value: '$97,000', sub: 'Incl. AD&D' },
                       { icon: 'B+', label: 'Option B (5x)', value: '$475,000', sub: '5x salary' },
@@ -382,8 +388,8 @@ export default function Landing() {
 
 
       {/* ASSESSMENT */}
-      <section style={{ padding: '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '60px 20px' : '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '32px' : '80px', alignItems: 'center' }}>
           <div style={{ order: 2 }}>
             <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: colors.navyMid, background: 'rgba(30,58,95,0.06)' }}>
               Readiness Assessment
@@ -443,8 +449,8 @@ export default function Landing() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', height: '1px', background: 'rgba(0,0,0,0.06)' }}></div>
 
       {/* AI CHAT */}
-      <section style={{ padding: '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '60px 20px' : '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '32px' : '80px', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: '#8a6d1b', background: 'rgba(201,168,76,0.1)' }}>
               AI Benefits Chat
@@ -480,8 +486,8 @@ export default function Landing() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', height: '1px', background: 'rgba(0,0,0,0.06)' }}></div>
 
       {/* REFERENCE GUIDE */}
-      <section style={{ padding: '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '60px 20px' : '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '32px' : '80px', alignItems: 'center' }}>
           <div style={{ order: 2 }}>
             <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: colors.navyMid, background: 'rgba(30,58,95,0.06)' }}>
               Reference Guide
@@ -498,7 +504,7 @@ export default function Landing() {
           </div>
           <div style={{ order: 1, maxWidth: '500px' }}>
             {/* Mini card grid matching actual reference page — brand colors */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
               {[
                 { color: '#1e3a5f', title: 'FERS Pension', topics: 6, desc: 'Eligibility, annuity calculations' },
                 { color: '#7b1c2e', title: 'TSP', topics: 5, desc: 'Fund options, Roth vs Traditional' },
@@ -527,8 +533,8 @@ export default function Landing() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', height: '1px', background: 'rgba(0,0,0,0.06)' }}></div>
 
       {/* RESOURCES */}
-      <section style={{ padding: '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '60px 20px' : '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '32px' : '80px', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: colors.maroon, background: 'rgba(123,28,46,0.06)' }}>
               Resources and Forms
@@ -584,8 +590,8 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.7)', padding: '64px 48px 32px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '48px', marginBottom: '48px' }}>
+      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.7)', padding: isMobile ? '40px 20px 24px' : '64px 48px 32px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: isMobile ? '24px' : '48px', marginBottom: isMobile ? '24px' : '48px' }}>
           <div style={{ maxWidth: '300px' }}>
             <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '1rem', color: 'white', marginBottom: '12px' }}>
               FedBenefitsAid
@@ -594,7 +600,7 @@ export default function Landing() {
               Educational tools for federal employees navigating retirement benefits. Not affiliated with OPM or the U.S. government.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '56px' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '24px' : '56px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
             <div>
               <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
                 Tools
