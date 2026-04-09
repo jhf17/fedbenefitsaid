@@ -39,8 +39,9 @@ export default function Auth({ mode = 'login' }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: fullName, email: userEmail, phone: userPhone, source: 'Website Signup' }),
       })
-    } catch {
-      // Silent fail — don't block the user experience
+    } catch (err) {
+      console.error('Failed to add lead to CRM:', err?.message || err)
+      // Don't block signup — CRM lead creation is non-critical
     }
   }
 

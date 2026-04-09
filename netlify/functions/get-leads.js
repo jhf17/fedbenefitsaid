@@ -60,9 +60,9 @@ exports.handler = async (event) => {
 
   try {
     const [leadsRes, campaignsRes, consultationsRes] = await Promise.all([
-      fetch(`https://api.airtable.com/v0/${BASE_ID}/${LEADS_TABLE}?maxRecords=100&sort[0][field]=Signed+Up&sort[0][direction]=desc`, { headers }),
-      fetch(`https://api.airtable.com/v0/${BASE_ID}/${CAMPAIGNS_TABLE}?maxRecords=50&sort[0][field]=Created&sort[0][direction]=desc`, { headers }),
-      fetch(`https://api.airtable.com/v0/${BASE_ID}/${CONSULTATIONS_TABLE}?maxRecords=50`, { headers })
+      fetch(`https://api.airtable.com/v0/${BASE_ID}/${LEADS_TABLE}?maxRecords=500&sort[0][field]=Signed+Up&sort[0][direction]=desc`, { headers }),
+      fetch(`https://api.airtable.com/v0/${BASE_ID}/${CAMPAIGNS_TABLE}?maxRecords=200&sort[0][field]=Created&sort[0][direction]=desc`, { headers }),
+      fetch(`https://api.airtable.com/v0/${BASE_ID}/${CONSULTATIONS_TABLE}?maxRecords=200`, { headers })
     ])
 
     const [leadsData, campaignsData, consultationsData] = await Promise.all([

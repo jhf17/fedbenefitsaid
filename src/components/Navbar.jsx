@@ -260,13 +260,16 @@ const styles = {
   },
   mobileLink: {
     display: 'block',
-    padding: '10px 12px',
+    padding: '12px 16px',
+    minHeight: 44,
     borderRadius: 8,
     fontSize: '0.95rem',
     fontWeight: 500,
     fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
     color: '#475569',
     textDecoration: 'none',
+    display: 'flex',
+    alignItems: 'center',
   },
   mobileDivider: {
     height: 1,

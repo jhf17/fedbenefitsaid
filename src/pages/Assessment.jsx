@@ -965,6 +965,9 @@ export default function Assessment() {
   const [showScore, setShowScore] = useState(false)
   const [showChecklist, setShowChecklist] = useState(false)
 
+  // Mobile responsiveness state
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+
   // Email capture state
   const [captureName, setCaptureName] = useState('')
   const [captureEmail, setCaptureEmail] = useState('')
@@ -993,6 +996,12 @@ export default function Assessment() {
   }
 
   useEffect(() => { document.title = 'Retirement Readiness Assessment | FedBenefitsAid' }, [])
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const question = QUESTIONS[step]
   const totalSteps = QUESTIONS.length
@@ -1150,7 +1159,7 @@ export default function Assessment() {
           </p>
         </div>
 
-        <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 24px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: isMobile ? '20px 16px' : '32px 24px' }}>
           {/* SECTION 2: Retirement Snapshot */}
           <div style={{ marginBottom: 40 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20, fontFamily: fontSerif }}>Your Retirement Snapshot</h2>
@@ -1184,31 +1193,57 @@ export default function Assessment() {
           </div>
 
           {/* SECTION 4: Retirement Timeline */}
-          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', padding: '24px 20px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', padding: isMobile ? '16px 12px' : '24px 20px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 20, fontFamily: fontSerif }}>Your Retirement Timeline</h2>
             <div style={{ position: 'relative', height: 'auto' }}>
-              {/* Timeline line */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, position: 'relative', overflowX: 'auto', paddingBottom: 20 }}>
-                {milestones.map((milestone, i) => {
-                  const isLast = i === milestones.length - 1
-                  const isFirst = i === 0
-                  return (
-                    <div key={i} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#cbd5e1'}`, marginBottom: 12 }} />
-                      <div style={{ fontSize: 12, fontWeight: isFirst ? 700 : 600, color: navy, textAlign: 'center', whiteSpace: 'nowrap', fontFamily: fontSans }}>{milestone.label}</div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, fontFamily: fontSans }}>Age {milestone.age}</div>
-                      {!isLast && (
-                        <div style={{ width: 40, height: 2, background: '#cbd5e1', margin: '12px 12px 0' }} />
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
+              {isMobile ? (
+                <div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {milestones.map((milestone, i) => {
+                      const isFirst = i === 0
+                      return (
+                        <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '0 0 auto' }}>
+                            <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#cbd5e1'}`, marginBottom: 0 }} />
+                            {i < milestones.length - 1 && (
+                              <div style={{ width: 2, height: 40, background: '#cbd5e1', margin: '8px 0' }} />
+                            )}
+                          </div>
+                          <div style={{ paddingTop: 2 }}>
+                            <div style={{ fontSize: 13, fontWeight: isFirst ? 700 : 600, color: navy, fontFamily: fontSans }}>{milestone.label}</div>
+                            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, fontFamily: fontSans }}>Age {milestone.age}</div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 12, fontStyle: 'italic', fontFamily: fontSans }}>
+                    ↓ Scroll to see all milestones
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, position: 'relative', overflowX: 'auto', paddingBottom: 20 }}>
+                  {milestones.map((milestone, i) => {
+                    const isLast = i === milestones.length - 1
+                    const isFirst = i === 0
+                    return (
+                      <div key={i} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: 12, height: 12, borderRadius: '50%', background: isFirst ? navy : '#cbd5e1', border: `3px solid ${isFirst ? navy : '#cbd5e1'}`, marginBottom: 12 }} />
+                        <div style={{ fontSize: 12, fontWeight: isFirst ? 700 : 600, color: navy, textAlign: 'center', whiteSpace: 'nowrap', fontFamily: fontSans }}>{milestone.label}</div>
+                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, fontFamily: fontSans }}>Age {milestone.age}</div>
+                        {!isLast && (
+                          <div style={{ width: 40, height: 2, background: '#cbd5e1', margin: '12px 12px 0' }} />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
           {/* SECTION 5: Save Your Report (Email Capture) - NOT GATED */}
-          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', padding: '28px 24px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+          <div style={{ marginBottom: 40, background: '#fff', borderRadius: 12, border: '1px solid #cbd5e1', padding: isMobile ? '20px 16px' : '28px 24px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8, fontFamily: fontSerif }}>Save Your Retirement Readiness Report</h3>
             <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 480, margin: '0 auto 24px', fontFamily: fontSans }}>
               Get a copy of your personalized analysis sent to your inbox.
@@ -1267,16 +1302,16 @@ export default function Assessment() {
           </div>
 
           {/* SECTION 6: Next Steps */}
-          <div style={{ marginBottom: 32, background: lightGray, borderRadius: 12, padding: '32px 24px', textAlign: 'center' }}>
+          <div style={{ marginBottom: 32, background: lightGray, borderRadius: 12, padding: isMobile ? '20px 16px' : '32px 24px', textAlign: 'center' }}>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: navy, marginBottom: 8, fontFamily: fontSerif }}>Want to talk through your results?</h3>
             <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6, marginBottom: 24, maxWidth: 540, margin: '0 auto 24px', fontFamily: fontSans }}>
               A certified federal retirement consultant can review your specific numbers and help you build a personalized plan. Free, 30-minute video call.
             </p>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button type="button" onClick={() => navigate('/calculator')} style={{ background: '#fff', color: navy, border: '1.5px solid #cbd5e1', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 12, justifyContent: 'center' }}>
+              <button type="button" onClick={() => navigate('/calculator')} style={{ background: '#fff', color: navy, border: '1.5px solid #cbd5e1', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: fontSans, width: isMobile ? '100%' : 'auto' }}>
                 Explore the Calculator
               </button>
-              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: maroon, color: '#fff', border: '1.5px solid maroon', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', textDecoration: 'none', display: 'inline-block', fontFamily: fontSans }}>
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ background: maroon, color: '#fff', border: '1.5px solid maroon', borderRadius: 10, padding: '12px 28px', fontSize: 14, fontWeight: 600, cursor: 'pointer', textDecoration: 'none', display: 'block', fontFamily: fontSans, textAlign: 'center', width: isMobile ? '100%' : 'auto' }}>
                 Schedule a Conversation
               </a>
             </div>
@@ -1304,7 +1339,7 @@ export default function Assessment() {
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, margin: 0, fontFamily: fontSans }}>14 questions. Get your personalized federal retirement action plan.</p>
       </div>
 
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '32px 24px' }}>
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: isMobile ? '20px 16px' : '32px 24px' }}>
         {/* Progress */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', marginBottom: 6, fontFamily: fontSans }}>
@@ -1324,7 +1359,7 @@ export default function Assessment() {
         </div>
 
         {/* Question Card */}
-        <div style={{ background: '#fff', borderRadius: 14, padding: '28px 24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', marginBottom: 16, border: '1px solid #cbd5e1' }}>
+        <div style={{ background: '#fff', borderRadius: 14, padding: isMobile ? '20px 16px' : '28px 24px', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', marginBottom: 16, border: '1px solid #cbd5e1' }}>
           <h2 id="assessment-question" style={{ fontSize: 19, fontWeight: 700, color: navy, margin: '0 0 6px', lineHeight: 1.4, fontFamily: fontSerif }}>{question.question}</h2>
           <p style={{ fontSize: 13, color: '#475569', margin: '0 0 24px', lineHeight: 1.5, fontFamily: fontSans }}>{question.sub}</p>
 

@@ -6,8 +6,18 @@ export default function ProtectedRoute({ children }) {
   const location = useLocation()
 
   if (!user) {
+    // Generate route-aware message
+    let message = 'Please sign in to continue.'
+    const path = location.pathname.toLowerCase()
+
+    if (path.includes('training') || path.includes('quiz')) {
+      message = 'Please sign in to access Training.'
+    } else if (path.includes('chat')) {
+      message = 'Please sign in to access the AI Chat.'
+    }
+
     // Redirect to login, saving the page they tried to visit
-    return <Navigate to="/login" state={{ from: location, message: 'Please sign in to access the AI Chat.' }} replace />
+    return <Navigate to="/login" state={{ from: location, message }} replace />
   }
 
   return children

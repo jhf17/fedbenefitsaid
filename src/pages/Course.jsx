@@ -75,6 +75,11 @@ export default function Course() {
           Cancel anytime. No long-term contracts. Access to all modules from day one.
         </p>
 
+        {/* Educational Disclaimer */}
+        <div style={styles.disclaimer}>
+          This course is for educational purposes only and does not constitute financial, legal, or tax advice. Always verify details with official sources and consider consulting a qualified advisor.
+        </div>
+
         <div style={styles.pricingGrid}>
 
           {/* Professional */}
@@ -197,7 +202,7 @@ export default function Course() {
 
 const styles = {
   hero: {
-    background: 'linear-gradient(160deg, #1e3a5f 0%, #2d5f8a 100%)',
+    background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
     color: 'white',
     padding: '64px 0 56px',
   },
@@ -235,6 +240,15 @@ const styles = {
 
   pricingTitle: { fontSize: '1.6rem', fontWeight: 800, color: '#0f172a', marginBottom: 8, letterSpacing: '-0.02em' },
   pricingSubtitle: { color: '#64748b', fontSize: '0.95rem', marginBottom: 36 },
+  disclaimer: {
+    background: '#fffbeb',
+    border: '1px solid #f59e0b',
+    borderRadius: 8,
+    padding: '12px 16px',
+    fontSize: '0.82rem',
+    color: '#92400e',
+    marginBottom: 20,
+  },
   pricingGrid: {
     display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: 24, maxWidth: 760,
