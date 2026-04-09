@@ -1,5 +1,6 @@
-// Shared color constants for FedBenefitsAid
-// Import these instead of hardcoding hex values throughout the codebase
+// Shared design tokens for FedBenefitsAid
+// Import these instead of hardcoding hex values in inline styles.
+// CSS class equivalents are in App.css (:root variables + .btn, .card, etc.)
 
 export const colors = {
   // Primary palette
