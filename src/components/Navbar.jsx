@@ -46,8 +46,8 @@ export default function Navbar() {
           <Link to="/assessment" style={{ ...styles.link, ...(isActive('/assessment') ? { ...styles.linkActive, color: '#7b1c2e', background: '#fef2f2' } : {}) }} aria-current={isActive('/assessment') ? 'page' : undefined}>
             Assessment
           </Link>
-          <Link to="/tools" style={{ ...styles.link, ...(isActive('/tools') ? styles.linkActive : {}) }} aria-current={isActive('/tools') ? 'page' : undefined}>
-            Tools
+          <Link to="/calculators" style={{ ...styles.link, ...(isActive('/calculators') ? styles.linkActive : {}) }} aria-current={isActive('/calculators') ? 'page' : undefined}>
+            Calculators
           </Link>
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }} aria-current={isActive('/reference') ? 'page' : undefined}>
             Reference
@@ -109,8 +109,8 @@ export default function Navbar() {
           <Link to="/assessment" style={{ ...styles.mobileLink, color: '#7b1c2e', fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
             Retirement Assessment
           </Link>
-          <Link to="/tools" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Tools
+          <Link to="/calculators" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            Calculators
           </Link>
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Reference
