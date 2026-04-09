@@ -589,69 +589,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.7)', padding: isMobile ? '40px 20px 24px' : '64px 48px 32px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: isMobile ? '24px' : '48px', marginBottom: isMobile ? '24px' : '48px' }}>
-          <div style={{ maxWidth: '300px' }}>
-            <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '1rem', color: 'white', marginBottom: '12px' }}>
-              FedBenefitsAid
-            </div>
-            <p style={{ fontSize: '0.82rem', lineHeight: '1.6' }}>
-              Educational tools for federal employees navigating retirement benefits. Not affiliated with OPM or the U.S. government.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: isMobile ? '24px' : '56px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
-            <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
-                Tools
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Link to="/calculators" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Retirement Calculator
-                </Link>
-                <Link to="/assessment" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Readiness Assessment
-                </Link>
-                <Link to="/chat" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  AI Benefits Chat
-                </Link>
-                <Link to="/reference" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Reference Guide
-                </Link>
-                <Link to="/resources" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Resources and Forms
-                </Link>
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
-                Company
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Book a Consultation
-                </a>
-                <a href="https://federalmarketassociates.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Federal Market Associates
-                </a>
-                <Link to="/disclaimer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Disclaimer
-                </Link>
-                <Link to="/privacy" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Privacy Policy
-                </Link>
-                <Link to="/terms" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
-                  Terms of Service
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', flexWrap: 'wrap', gap: '8px' }}>
-          <span>2026 FedBenefitsAid. All rights reserved.</span>
-          <span>Information updated for 2026 figures.</span>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -20,6 +20,7 @@ import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import Consultation from './pages/Consultation'
 import ProtectedRoute from './components/ProtectedRoute'
+import Footer from './components/Footer'
 
 // Auth context — available throughout the app
 export const AuthContext = createContext(null)
@@ -115,6 +116,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>
+      <Footer />
       </ErrorBoundary>
     </AuthContext.Provider>
   )
