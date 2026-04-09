@@ -104,7 +104,7 @@ export default function Landing() {
             <Link to="/signup" style={{ background: colors.maroon, color: 'white', fontSize: '0.95rem', fontWeight: '600', padding: '15px 32px', borderRadius: '10px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>
               Get Started Free
             </Link>
-            <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ background: 'transparent', color: colors.navy, fontSize: '0.95rem', fontWeight: '600', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', border: `2px solid rgba(15,23,42,0.15)`, transition: 'all 0.25s', display: 'inline-block', cursor: 'pointer' }} onMouseEnter={(e) => { e.target.style.borderColor = colors.navy; e.target.style.background = colors.navy; e.target.style.color = 'white'; }} onMouseLeave={(e) => { e.target.style.borderColor = 'rgba(15,23,42,0.15)'; e.target.style.background = 'transparent'; e.target.style.color = colors.navy; }}>
+            <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ background: 'transparent', color: colors.navy, fontSize: '0.95rem', fontWeight: '600', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', border: `2px solid rgba(15,23,42,0.15)`, transition: 'all 0.25s', display: 'inline-block', cursor: 'pointer' }} onMouseEnter={(e) => { e.target.style.borderColor = colors.navy; e.target.style.background = colors.navy; e.target.style.color = 'white'; }} onMouseLeave={(e) => { e.target.style.borderColor = 'rgba(15,23,42,0.15)'; e.target.style.background = 'transparent'; e.target.style.color = colors.navy; }}>
               Book a Consultation
             </a>
           </div>
@@ -234,7 +234,7 @@ export default function Landing() {
                 <h3 style={{ fontFamily: fontSerif, fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '10px' }}>
                   {card.title}
                 </h3>
-                <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.5)' }}>
+                <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.7)' }}>
                   {card.desc}
                 </p>
               </div>
@@ -275,9 +275,9 @@ export default function Landing() {
                 <>
                   {/* Navy header - total monthly income */}
                   <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Estimated Total Monthly Retirement Income</div>
+                    <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>Estimated Total Monthly Retirement Income</div>
                     <div style={{ fontFamily: fontSerif, fontSize: '2.2rem', fontWeight: '900', color: 'white' }}>$5,318</div>
-                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>$63,810 per year</div>
+                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>$63,810 per year</div>
                   </div>
                   {/* 3 summary cards */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
@@ -317,9 +317,9 @@ export default function Landing() {
                 <>
                   {/* FEGLI preview — navy header with total coverage */}
                   <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Total FEGLI Coverage</div>
+                    <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>Total FEGLI Coverage</div>
                     <div style={{ fontFamily: fontSerif, fontSize: '2.2rem', fontWeight: '900', color: 'white' }}>$582,000</div>
-                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginTop: '2px' }}>$59.97/month premium</div>
+                    <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>$59.97/month premium</div>
                   </div>
                   {/* 3 coverage cards */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '16px 16px 10px' }}>
@@ -395,13 +395,13 @@ export default function Landing() {
           <div style={{ order: 1, borderRadius: '20px', overflow: 'hidden', background: colors.white, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', maxWidth: '480px' }}>
             {/* Navy header with score */}
             <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', padding: '24px 28px', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '4px' }}>Your Results</div>
+              <div style={{ fontSize: '0.6rem', fontWeight: '700', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '4px' }}>Your Results</div>
               <div style={{ fontFamily: fontSerif, fontSize: '1.1rem', fontWeight: '800', color: 'white', marginBottom: '14px' }}>Retirement Readiness Assessment</div>
               {/* Score circle */}
               <div style={{ width: '80px', height: '80px', borderRadius: '50%', border: '5px solid rgba(255,255,255,0.15)', borderTopColor: '#f5a623', borderRightColor: '#f5a623', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', transform: 'rotate(30deg)' }}>
                 <div style={{ transform: 'rotate(-30deg)', textAlign: 'center' }}>
                   <div style={{ fontFamily: fontSerif, fontSize: '1.6rem', fontWeight: '900', color: 'white', lineHeight: 1 }}>66</div>
-                  <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)' }}>out of 100</div>
+                  <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.7)' }}>out of 100</div>
                 </div>
               </div>
               <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.5', maxWidth: '320px', margin: '0 auto' }}>
@@ -571,7 +571,7 @@ export default function Landing() {
           <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: colors.gray600, maxWidth: '500px', margin: '0 auto 44px' }}>
             Book a free 30-minute call with a federal retirement specialist at Federal Market Associates. No sales pitch — just honest guidance.
           </p>
-          <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ background: '#7b1c2e', color: '#ffffff', fontSize: '1.1rem', fontWeight: '600', padding: '18px 48px', borderRadius: '12px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>
+          <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ background: '#7b1c2e', color: '#ffffff', fontSize: '1.1rem', fontWeight: '600', padding: '18px 48px', borderRadius: '12px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>
             Book Free Consultation
           </a>
         </div>
@@ -590,7 +590,7 @@ export default function Landing() {
           </div>
           <div style={{ display: 'flex', gap: '56px' }}>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
                 Tools
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -612,25 +612,25 @@ export default function Landing() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
                 Company
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
+                <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Book a Consultation
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
+                <a href="https://federalmarketassociates.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Federal Market Associates
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
+                <Link to="/disclaimer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Disclaimer
-                </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
+                </Link>
+                <Link to="/privacy" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Privacy Policy
-                </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
+                </Link>
+                <Link to="/terms" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Terms of Service
-                </a>
+                </Link>
               </div>
             </div>
           </div>
