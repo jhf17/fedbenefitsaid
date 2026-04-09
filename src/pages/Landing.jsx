@@ -163,6 +163,26 @@ export default function Landing() {
               <path d="M218 264 Q222 212 280 186 Q338 212 342 264" fill="#1e3a5f" opacity="0.35" />
               {/* Lantern */}
               <rect x="268" y="155" width="24" height="18" rx="3" fill="#0f172a" />
+              {/* Flagpole */}
+              <rect x="279" y="120" width="2" height="38" fill="#1e3a5f" />
+              <circle cx="280" cy="119" r="2.5" fill="#daa520" />
+              {/* American Flag (static) */}
+              <g>
+                <rect x="281" y="122" width="22" height="12" rx="1" fill="#bf0a30" />
+                <rect x="281" y="124.4" width="22" height="1.2" fill="#fff" />
+                <rect x="281" y="126.8" width="22" height="1.2" fill="#fff" />
+                <rect x="281" y="129.2" width="22" height="1.2" fill="#fff" />
+                <rect x="281" y="131.6" width="22" height="1.2" fill="#fff" />
+                <rect x="281" y="122" width="9" height="6.5" fill="#002868" />
+                <circle cx="283.5" cy="123.5" r="0.5" fill="#fff" />
+                <circle cx="286" cy="123.5" r="0.5" fill="#fff" />
+                <circle cx="288.5" cy="123.5" r="0.5" fill="#fff" />
+                <circle cx="284.5" cy="125" r="0.5" fill="#fff" />
+                <circle cx="287" cy="125" r="0.5" fill="#fff" />
+                <circle cx="283.5" cy="126.5" r="0.5" fill="#fff" />
+                <circle cx="286" cy="126.5" r="0.5" fill="#fff" />
+                <circle cx="288.5" cy="126.5" r="0.5" fill="#fff" />
+              </g>
             </g>
 
 
@@ -192,7 +212,7 @@ export default function Landing() {
               <br />
               Make sure you understand them.
             </h2>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.55)', maxWidth: '560px', margin: '0 auto' }}>
+            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: 'rgba(255,255,255,0.7)', maxWidth: '560px', margin: '0 auto' }}>
               The federal benefits system is one of the most generous in America — but also one of the most confusing. FedBenefitsAid makes it simple.
             </p>
           </div>
@@ -384,7 +404,7 @@ export default function Landing() {
                   <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)' }}>out of 100</div>
                 </div>
               </div>
-              <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.55)', lineHeight: '1.5', maxWidth: '320px', margin: '0 auto' }}>
+              <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.5', maxWidth: '320px', margin: '0 auto' }}>
                 You have a solid foundation in survivor benefits and healthcare planning, but your TSP strategy and income optimization need attention.
               </p>
             </div>
@@ -558,7 +578,7 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.5)', padding: '64px 48px 32px' }}>
+      <footer style={{ background: colors.navy, color: 'rgba(255,255,255,0.7)', padding: '64px 48px 32px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '48px', marginBottom: '48px' }}>
           <div style={{ maxWidth: '300px' }}>
             <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '1rem', color: 'white', marginBottom: '12px' }}>
@@ -570,45 +590,45 @@ export default function Landing() {
           </div>
           <div style={{ display: 'flex', gap: '56px' }}>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '14px' }}>
                 Tools
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Link to="/calculator" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <Link to="/calculator" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Retirement Calculator
                 </Link>
-                <Link to="/assessment" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <Link to="/assessment" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Readiness Assessment
                 </Link>
-                <Link to="/chat" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <Link to="/chat" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   AI Benefits Chat
                 </Link>
-                <Link to="/reference" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <Link to="/reference" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Reference Guide
                 </Link>
-                <Link to="/resources" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <Link to="/resources" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Resources and Forms
                 </Link>
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '14px' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '14px' }}>
                 Company
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Book a Consultation
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Federal Market Associates
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Disclaimer
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Privacy Policy
                 </a>
-                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                <a href="#" style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.7)'}>
                   Terms of Service
                 </a>
               </div>
