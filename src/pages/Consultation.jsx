@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import Footer from '../components/Footer';
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min';
 
@@ -305,24 +304,13 @@ export default function Consultation() {
                     fontSize: '22px',
                     fontWeight: 700,
                     color: '#0f172a',
-                    marginBottom: '8px',
-                    margin: '0 0 8px 0',
+                    marginBottom: '16px',
+                    margin: '0 0 16px 0',
                     fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
                   }}
                 >
-                  [Consultant Name]
+                  Federal Market Associates
                 </h3>
-                <div
-                  style={{
-                    fontSize: '14px',
-                    color: '#7b1c2e',
-                    fontWeight: 600,
-                    marginBottom: '16px',
-                    fontStyle: 'italic',
-                  }}
-                >
-                  [Your credentials here — e.g. Chartered Federal Employee Benefits Counselor]
-                </div>
                 <p
                   style={{
                     fontSize: '16px',
@@ -332,18 +320,17 @@ export default function Consultation() {
                     margin: '0 0 16px 0',
                   }}
                 >
-                  [Brief bio — years of experience, number of federal employees helped, areas of specialty, and what makes your approach different.]
+                  Federal Market Associates specializes in federal employee retirement benefits education. Our educators work with hundreds of federal employees each year and understand the nuances of FERS, CSRS, TSP, FEHB, and FEGLI.
                 </p>
                 <p
                   style={{
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                    color: '#64748b',
-                    fontStyle: 'italic',
+                    fontSize: '16px',
+                    lineHeight: 1.7,
+                    color: '#475569',
                     margin: 0,
                   }}
                 >
-                  [Optional: licensing, affiliations, or a short quote about your philosophy.]
+                  Your consultant is a certified federal retirement specialist who will provide objective, personalized guidance based on your unique situation and goals.
                 </p>
               </div>
             </div>
@@ -702,7 +689,6 @@ export default function Consultation() {
           </p>
         </div>
       </section>
-    <Footer />
     </div>
   );
 }
