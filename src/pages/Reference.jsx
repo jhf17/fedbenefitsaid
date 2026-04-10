@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { REF_DATA } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
 import { useAuth } from '../App'
+import Footer from '../components/Footer'
 
 export default function Reference() {
   const { user } = useAuth()
@@ -317,6 +318,7 @@ export default function Reference() {
           </div>
         )}
       </div>
+    <Footer />
     </main>
   )
 }
