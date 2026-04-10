@@ -87,7 +87,7 @@ export default function Course() {
           <div style={styles.pricingCard}>
             <div style={styles.cardHeader}>
               <div style={styles.cardIcon}>Pro</div>
-              <div style={styles.cardTitle}>Professional</div>
+              <h3 style={styles.cardTitle}>Professional</h3>
               <div style={styles.cardSubtitle}>For individual advisors &amp; consultants</div>
             </div>
             <div style={styles.cardPrice}>
@@ -139,7 +139,7 @@ export default function Course() {
             <div style={styles.bestBadge}>BEST VALUE</div>
             <div style={styles.cardHeader}>
               <div style={{ ...styles.cardIcon, background: 'rgba(255,255,255,0.15)', color: 'white' }}>Firm</div>
-              <div style={{ ...styles.cardTitle, color: 'white' }}>Agency / Firm</div>
+              <h3 style={{ ...styles.cardTitle, color: 'white' }}>Agency / Firm</h3>
               <div style={{ ...styles.cardSubtitle, color: 'rgba(255,255,255,0.7)' }}>For teams, HR offices &amp; consulting firms</div>
             </div>
             <div style={{ ...styles.cardPrice, color: 'white' }}>
@@ -276,7 +276,7 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     marginBottom: 10,
   },
-  cardTitle: { fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginBottom: 4 },
+  cardTitle: { fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' },
   cardSubtitle: { fontSize: '0.82rem', color: '#64748b' },
   cardPrice: {
     fontSize: '2.6rem', fontWeight: 800, color: '#0f172a',
