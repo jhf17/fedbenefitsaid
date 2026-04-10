@@ -46,9 +46,18 @@ export default function Chat() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const hasUserSentRef = useRef(false)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // Only auto-scroll to bottom AFTER the user has sent their first message.
+    // Before that, let the page stay scrolled to the top like every other route.
+    if (!hasUserSentRef.current) return
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages, loading])
+
+  useEffect(() => {
+    // Mark "user has interacted" once messages grow beyond the initial welcome state.
+    if (messages.length > 1) hasUserSentRef.current = true
+  }, [messages.length])
 
   const sendMessage = async (text) => {
     const userText = (text || input).trim()
