@@ -22,6 +22,7 @@ import Consultation from './pages/Consultation'
 import ProtectedRoute from './components/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
 import Footer from './components/Footer'
+import CookieConsent from './components/CookieConsent'
 
 // Auth context — available throughout the app
 export const AuthContext = createContext(null)
@@ -119,6 +120,7 @@ export default function App() {
       </Routes>
       </Suspense>
       <Footer />
+      <CookieConsent />
       </ErrorBoundary>
     </AuthContext.Provider>
   )

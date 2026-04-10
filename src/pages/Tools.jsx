@@ -184,14 +184,19 @@ const Calculators = () => {
             marginBottom: '80px'
           }}
         >
+          {/* Estimates disclaimer */}
+          <div style={{ gridColumn: '1 / -1', background: '#fffbeb', border: '1px solid #f59e0b', borderRadius: 8, padding: '12px 16px', fontSize: '0.82rem', color: '#92400e', fontFamily: "'Source Sans 3', -apple-system, sans-serif" }}>
+            All calculators provide estimates only based on current federal rules and publicly available data. Results are for educational purposes and should not be used as the sole basis for retirement decisions. Consult a qualified advisor for personalized guidance.
+          </div>
+
           {calculators.map((calc) => (
             <div
               key={calc.id}
               style={{
                 backgroundColor: '#fff',
-                borderRadius: '14px',
+                borderRadius: '12px',
                 boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
-                padding: '48px 36px',
+                padding: '32px 28px',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'transform 0.2s, box-shadow 0.2s'

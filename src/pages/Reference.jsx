@@ -121,6 +121,13 @@ export default function Reference() {
       </header>
 
       <div className="container" style={{ padding: '40px 24px' }}>
+        {/* Educational Disclaimer */}
+        {!selectedCat && (
+          <div style={{ background: '#fffbeb', border: '1px solid #f59e0b', borderRadius: 8, padding: '12px 16px', fontSize: '0.82rem', color: '#92400e', marginBottom: 24 }}>
+            This reference guide is for educational purposes only and does not constitute financial, legal, or tax advice. Information is sourced from official OPM, SSA, TSP, and IRS publications. Always verify details with official sources and consider consulting a qualified advisor for your specific situation.
+          </div>
+        )}
+
         {/* Search Results */}
         {searchResults && (
           <div>
@@ -420,7 +427,7 @@ const styles = {
     background: 'white',
     border: '1px solid rgba(0,0,0,0.06)',
     borderLeft: '4px solid',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: '18px 20px',
     textAlign: 'left',
     cursor: 'pointer',
@@ -459,7 +466,7 @@ const styles = {
     background: 'white',
     border: '1px solid rgba(0,0,0,0.06)',
     borderLeft: '4px solid',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: '24px 24px 18px',
     textAlign: 'left',
     cursor: 'pointer',
@@ -482,7 +489,7 @@ const styles = {
   topicCard: {
     background: 'white',
     border: '1px solid rgba(0,0,0,0.06)',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: '22px 28px',
     textAlign: 'left',
     cursor: 'pointer',
@@ -617,7 +624,7 @@ const styles = {
   detailActionCard: {
     background: 'linear-gradient(135deg, #f0f4ff 0%, #eff6ff 100%)',
     border: '1px solid rgba(30,58,95,0.08)',
-    borderRadius: 14,
+    borderRadius: 12,
     padding: '24px 28px',
     display: 'flex',
     alignItems: 'center',
