@@ -33,15 +33,30 @@ export default function Auth({ mode = 'login' }) {
   }, [mode])
 
   const addLeadToCRM = async (fullName, userEmail, userPhone) => {
-    try {
-      await fetch('/.netlify/functions/add-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: fullName, email: userEmail, phone: userPhone, source: 'Website Signup' }),
-      })
-    } catch (err) {
-      console.error('Failed to add lead to CRM:', err?.message || err)
-      // Don't block signup — CRM lead creation is non-critical
+    const payload = { name: fullName, email: userEmail, phone: userPhone, source: 'Website Signup' }
+    const attempt = async (tryNum) => {
+      try {
+        const resp = await fetch('/.netlify/functions/add-lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        if (!resp.ok) {
+          const bodyText = await resp.text().catch(() => '')
+          throw new Error('HTTP ' + resp.status + (bodyText ? ' — ' + bodyText.slice(0, 200) : ''))
+        }
+        return true
+      } catch (err) {
+        console.error('[add-lead] attempt ' + tryNum + ' failed for ' + userEmail + ':', err?.message || err)
+        return false
+      }
+    }
+    const ok = await attempt(1)
+    if (ok) return
+    await new Promise((r) => setTimeout(r, 800))
+    const retryOk = await attempt(2)
+    if (!retryOk) {
+      console.error('[add-lead] BOTH attempts failed — lead not written to CRM for ' + userEmail + '. Manual recovery required.')
     }
   }
 
