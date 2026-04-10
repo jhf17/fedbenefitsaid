@@ -58,7 +58,7 @@ export default function ConsultantCTA({ compact = false }) {
 const styles = {
   banner: {
     background: 'linear-gradient(135deg, #1e3a5f 0%, #2d4f7c 100%)',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: '32px 36px',
     display: 'flex',
     alignItems: 'center',

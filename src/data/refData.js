@@ -336,8 +336,8 @@ export const REF_DATA = [
        'HSA funds roll over indefinitely — no use-or-lose rule'
      ],
      numbers:[
-       {label:'2026 HSA limit (self-only)',value:'$4,300'},
-       {label:'2026 HSA limit (family)',value:'$8,550'},
+       {label:'2026 HSA limit (self-only)',value:'$4,400'},
+       {label:'2026 HSA limit (family)',value:'$8,750'},
        {label:'HSA catch-up (age 55+)',value:'+$1,000 additional'}
      ],
      watch:[

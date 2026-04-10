@@ -29,7 +29,7 @@ export default function Course() {
   const [chatAddon2, setChatAddon2] = useState(false)
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)', background: '#f8fafc' }}>
+    <div style={{ minHeight: 'calc(100vh - 64px)', background: '#faf9f6' }}>
 
       {/* Hero */}
       <div style={styles.hero}>
@@ -225,7 +225,7 @@ const styles = {
   stats: { display: 'flex', gap: 32, flexWrap: 'wrap' },
   statItem: { textAlign: 'left' },
   statValue: { fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1 },
-  statLabel: { fontSize: '0.8rem', opacity: 0.65, marginTop: 4, fontWeight: 500 },
+  statLabel: { fontSize: '0.8rem', opacity: 0.8, marginTop: 4, fontWeight: 500 },
 
   sectionLabel: {
     fontSize: '0.78rem', fontWeight: 700, color: '#1e3a5f',

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif"
 const navy = '#0f172a'
-const linkStyle = { fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }
+const linkStyle = { fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }
 
 export default function Footer() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -14,10 +14,10 @@ export default function Footer() {
   }, [])
 
   const hoverOn = (e) => { e.target.style.color = 'white' }
-  const hoverOff = (e) => { e.target.style.color = 'rgba(255,255,255,0.7)' }
+  const hoverOff = (e) => { e.target.style.color = 'rgba(255,255,255,0.75)' }
 
   return (
-    <footer style={{ background: navy, color: 'rgba(255,255,255,0.7)', padding: isMobile ? '40px 20px 24px' : '64px 48px 32px' }}>
+    <footer style={{ background: navy, color: 'rgba(255,255,255,0.75)', padding: isMobile ? '40px 20px 24px' : '64px 48px 32px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: isMobile ? '24px' : '48px', marginBottom: isMobile ? '24px' : '48px' }}>
         <div style={{ maxWidth: '300px' }}>
           <div style={{ fontFamily: fontSerif, fontWeight: '700', fontSize: '1rem', color: 'white', marginBottom: '12px' }}>
@@ -29,7 +29,7 @@ export default function Footer() {
         </div>
         <div style={{ display: 'flex', gap: isMobile ? '24px' : '56px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
           <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', marginBottom: '14px' }}>
               Tools
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -41,7 +41,7 @@ export default function Footer() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)', marginBottom: '14px' }}>
               Company
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>

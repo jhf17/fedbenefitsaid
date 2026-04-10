@@ -316,13 +316,13 @@ export const QUIZ_QUESTIONS = {
       id: 'fehb-3',
       question: 'In 2026, what is the HSA contribution limit for FEHB HDHP coverage for self + family?',
       options: [
-        '$4,300',
-        '$7,300',
-        '$8,550',
+        '$4,400',
+        '$7,750',
+        '$8,750',
         '$10,000',
       ],
       correct: 2,
-      explanation: 'The 2026 HSA limit for family coverage is $8,550 (self-only: $4,300). Federal employees enrolled in an HDHP through FEHB can contribute to an HSA up to this limit. HSA funds roll over year to year and can be invested.',
+      explanation: 'The 2026 HSA limit for family coverage is $8,750 (self-only: $4,400). Federal employees enrolled in an HDHP through FEHB can contribute to an HSA up to this limit. HSA funds roll over year to year and can be invested.',
       citation: 'IRS Revenue Procedure 2025-19; OPM FEHB HDHP Guide',
     },
     {
