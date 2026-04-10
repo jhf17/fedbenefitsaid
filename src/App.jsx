@@ -20,6 +20,7 @@ import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import Consultation from './pages/Consultation'
 import ProtectedRoute from './components/ProtectedRoute'
+import ScrollToTop from './components/ScrollToTop'
 import Footer from './components/Footer'
 
 // Auth context — available throughout the app
@@ -72,6 +73,7 @@ export default function App() {
   return (
     <AuthContext.Provider value={{ session, user: session?.user ?? null }}>
       <ErrorBoundary>
+      <ScrollToTop />
       <Navbar />
       <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:'60vh'}}><div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTop:'4px solid #7b1c2e',borderRadius:'50%',animation:'spin 1s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>
       <Routes>
