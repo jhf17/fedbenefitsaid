@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import Footer from '../components/Footer'
 export default function Resources() {
   useEffect(() => { document.title = 'Retirement Resources | FedBenefitsAid' }, [])
 
@@ -260,7 +259,6 @@ export default function Resources() {
         </div>
 
       </div>
-    <Footer />
     </main>
   )
 }
