@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { colors } from '../constants/theme'
 
 const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif"
-const navy = '#0f172a'
+const navy = colors.navy
 const linkStyle = { fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)', textDecoration: 'none', marginBottom: '10px', transition: 'color 0.15s', cursor: 'pointer' }
 
 export default function Footer() {
@@ -55,7 +56,7 @@ export default function Footer() {
         </div>
       </div>
       <div style={{ maxWidth: '1200px', margin: '0 auto', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', flexWrap: 'wrap', gap: '8px' }}>
-        <span>2026 FedBenefitsAid. All rights reserved.</span>
+        <span>© 2026 FedBenefitsAid. All rights reserved.</span>
         <span>Information updated for 2026 figures.</span>
       </div>
     </footer>
