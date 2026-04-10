@@ -279,24 +279,26 @@ export default function Consultation() {
               }}
             >
               <div
-                aria-hidden="true"
                 style={{
-                  width: '120px',
-                  height: '120px',
+                  width: '140px',
+                  height: '140px',
                   borderRadius: '50%',
-                  background: '#e2e8f0',
-                  border: '2px dashed #94a3b8',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#64748b',
-                  fontSize: '12px',
-                  textAlign: 'center',
                   flexShrink: 0,
-                  fontStyle: 'italic',
+                  padding: '16px',
+                  boxSizing: 'border-box',
+                  boxShadow: '0 1px 3px rgba(15,23,42,0.06)',
                 }}
               >
-                [Photo]
+                <img
+                  src="/fma-logo.png"
+                  alt="Federal Market Associates logo"
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                />
               </div>
               <div style={{ flex: '1 1 300px', minWidth: 0 }}>
                 <h3
