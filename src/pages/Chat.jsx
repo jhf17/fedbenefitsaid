@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../App'
 import ConsultantCTA from '../components/ConsultantCTA'
-import Footer from '../components/Footer'
 
 const WELCOME_MESSAGE = {
   role: 'assistant',
@@ -284,7 +283,6 @@ export default function Chat() {
         </div>
       </div>
     </div>
-    <Footer />
     </>
   )
 }
