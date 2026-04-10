@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import { supabase } from '../lib/supabase';
+import Footer from '../components/Footer';
 
 const ADMIN_EMAIL = 'jhf17@icloud.com';
 
@@ -1089,6 +1090,7 @@ const Admin = () => {
           </div>
         </div>
       )}
+    <Footer />
     </div>
   );
 };
