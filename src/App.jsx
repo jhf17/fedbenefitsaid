@@ -84,14 +84,7 @@ export default function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/login" element={<Auth mode="login" />} />
         <Route path="/signup" element={<Auth mode="signup" />} />
-        <Route
-          path="/chat"
-          element={
-            <ProtectedRoute>
-              <Chat />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/chat" element={<Chat />} />
         <Route
           path="/training"
           element={
