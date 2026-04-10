@@ -703,7 +703,7 @@ const Admin = () => {
             top: 0,
             right: 0,
             bottom: 0,
-            width: isMobile ? 'min(400px, 90vw)' : '400px',
+            width: isMobile ? '100%' : '400px',
             backgroundColor: '#ffffff',
             boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.15)',
             zIndex: 1000,
