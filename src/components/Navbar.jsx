@@ -201,7 +201,10 @@ const styles = {
     flex: 1,
   },
   link: {
-    padding: '6px 14px',
+    minHeight: 44,
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px 14px',
     borderRadius: 8,
     fontSize: '0.9rem',
     fontWeight: 500,
