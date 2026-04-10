@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Footer from '../components/Footer'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -230,13 +229,27 @@ function calcSpecialPension(yearsService, high3, survivorBenefit, category) {
 }
 
 function calcSSBenefit(sstAt62, claimAge) {
+  // Input sstAt62 is the user's estimated MONTHLY benefit if claimed at age 62.
+  // Factors below are ratios of (benefit at claim age) / (benefit at 62), computed
+  // from SSA.gov rules for workers with Full Retirement Age = 67 (born 1960+):
+  //   Age 62 = 70% of PIA, 63 = 75%, 64 = 80%, 65 = 86.67%, 66 = 93.33%,
+  //   Age 67 (FRA) = 100%, 68 = 108%, 69 = 116%, 70 = 124% (DRCs cap at 70).
+  // Source: https://www.ssa.gov/benefits/retirement/planner/agereduction.html
+  // Source: https://www.ssa.gov/benefits/retirement/planner/delayret.html
   const ageShift = Math.max(0, claimAge - 62)
   const increases = {
-    0: 1.000, 1: 1.071, 2: 1.143, 3: 1.238, 4: 1.333, 5: 1.429, // SSA.gov actual for FRA 67
-    6: 1.543, 7: 1.657, 8: 1.771, 9: 1.771, 10: 1.771 // DRC caps at age 70
+    0: 1.000,                // 62: 70/70
+    1: 75 / 70,              // 63: 75/70  ≈ 1.0714
+    2: 80 / 70,              // 64: 80/70  ≈ 1.1429
+    3: 86.67 / 70,           // 65: 86.67/70 ≈ 1.2381
+    4: 93.33 / 70,           // 66: 93.33/70 ≈ 1.3333
+    5: 100 / 70,             // 67 FRA: 100/70 ≈ 1.4286
+    6: 108 / 70,             // 68: 108/70 ≈ 1.5429
+    7: 116 / 70,             // 69: 116/70 ≈ 1.6571
+    8: 124 / 70,             // 70: 124/70 ≈ 1.7714 (DRCs cap)
   }
-  const factor = increases[Math.min(ageShift, 10)] || 1.9
-  return (sstAt62 * factor) / 12
+  const factor = increases[Math.min(ageShift, 8)] || 1.000
+  return sstAt62 * factor
 }
 
 function calcTSPFutureValue(balance, monthlyContrib, yearsToRetire, annualGrowthRate) {
@@ -642,24 +655,32 @@ export default function Calculator() {
                     style={s.input}
                   />
                 </Field>
-                <Field label="Estimated Social Security at Age 62 ($)">
-                  <input
-                    type="number" min="0"
-                    value={ssAt62}
-                    onChange={e => setSsAt62(e.target.value)}
-                    placeholder="e.g. 2200"
-                    style={s.input}
-                  />
-                </Field>
+                {tab !== 'csrs' && (
+                  <Field label="Estimated Social Security at Age 62 ($/mo)">
+                    <input
+                      type="number" min="0"
+                      value={ssAt62}
+                      onChange={e => setSsAt62(e.target.value)}
+                      placeholder="e.g. 2200"
+                      style={s.input}
+                    />
+                  </Field>
+                )}
               </div>
 
-              <Field label="Estimated Claiming Age">
-                <select value={ssClaimAge} onChange={e => setSsClaimAge(e.target.value)} style={s.select}>
-                  <option value="62">Age 62 (Reduced)</option>
-                  <option value="67">Age 67 (Full Retirement Age)</option>
-                  <option value="70">Age 70 (Delayed, Max Credit)</option>
-                </select>
-              </Field>
+              {tab !== 'csrs' ? (
+                <Field label="Estimated Claiming Age">
+                  <select value={ssClaimAge} onChange={e => setSsClaimAge(e.target.value)} style={s.select}>
+                    <option value="62">Age 62 (Reduced)</option>
+                    <option value="67">Age 67 (Full Retirement Age)</option>
+                    <option value="70">Age 70 (Delayed, Max Credit)</option>
+                  </select>
+                </Field>
+              ) : (
+                <div style={{ marginTop: 12, fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic' }}>
+                  CSRS employees generally do not pay Social Security through federal service. If you have SS credits from non-federal employment, be aware that WEP and GPO were repealed by the Social Security Fairness Act (Jan 2025), so prior-service benefits are no longer reduced.
+                </div>
+              )}
             </div>
 
             {/* FEHB & Medicare */}
@@ -905,40 +926,20 @@ export default function Calculator() {
                   </div>
                 )}
 
-                {/* FIA Alternative */}
+                {/* TSP Withdrawal Consultation CTA */}
                 <div style={s.card(isMobile)}>
-                  <div style={s.cardTitle}>TSP Payout Alternatives (FIA or Withdrawal Options)</div>
-                  <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
-                    Instead of manual withdrawals, you may elect a Fixed Immediate Annuity (FIA) from your TSP balance. Using TSP annuity rates, estimate your lifetime monthly income (these vary with market rates when you purchase).
+                  <div style={s.cardTitle}>Need help with your TSP withdrawal strategy?</div>
+                  <p style={{ fontSize: '0.95rem', color: '#475569', lineHeight: 1.6, marginBottom: 16 }}>
+                    Want help understanding your TSP withdrawal options? Book a free 30-minute consultation to review your TSP strategy, income options, and tax implications.
                   </p>
-
-                  <button onClick={() => setShowFIA(!showFIA)} style={{ ...s.button, marginBottom: 12, background: '#1e3a5f' }}>
-                    {showFIA ? 'Hide' : 'Show'} Annuity Scenarios
-                  </button>
-
-                  {showFIA && results.tspAtRetirement > 0 && (
-                    <div style={s.grid2(isMobile)}>
-                      <div style={s.resultBox}>
-                        <div style={s.resultLabel}>Conservative 4.5% Payout</div>
-                        <div style={s.resultValue}>{fmt(results.fiaPayouts.conservative)}/mo</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.conservative * 12)}/yr</div>
-                      </div>
-                      <div style={s.resultBox}>
-                        <div style={s.resultLabel}>Moderate 5.5% Payout</div>
-                        <div style={s.resultValue}>{fmt(results.fiaPayouts.moderate)}/mo</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.moderate * 12)}/yr</div>
-                      </div>
-                      <div style={s.resultBox}>
-                        <div style={s.resultLabel}>Aggressive 6.5% Payout</div>
-                        <div style={s.resultValue}>{fmt(results.fiaPayouts.aggressive)}/mo</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>{fmt(results.fiaPayouts.aggressive * 12)}/yr</div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 12 }}>
-                    Annuity rates are quoted at time of purchase and depend on Treasury rates, mortality assumptions, and TSP terms. Compare to your 4% withdrawal strategy.
-                  </div>
+                  <a
+                    href={CALENDLY_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: 'inline-block', background: '#7b1c2e', color: '#fff', padding: '12px 24px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
+                  >
+                    Book Free Consultation
+                  </a>
                 </div>
 
                 {/* Email Capture */}
@@ -986,7 +987,7 @@ export default function Calculator() {
                       <button
                         type="submit"
                         disabled={captureLoading}
-                        style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}
+                        style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap', marginTop: 16 }}
                       >
                         {captureLoading ? 'Sending...' : 'Email My Results'}
                       </button>
@@ -1051,7 +1052,6 @@ export default function Calculator() {
               </div>
             )}
       </div>
-    <Footer />
     </main>
   )
 }
