@@ -46,7 +46,7 @@ export default function Footer() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Book a Consultation</a>
-              <a href="https://federalmarketassociates.com" target="_blank" rel="noopener noreferrer" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Federal Market Associates</a>
+              Federal Market Associates
               <Link to="/disclaimer" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Disclaimer</Link>
               <Link to="/privacy" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Privacy Policy</Link>
               <Link to="/terms" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Terms of Service</Link>
