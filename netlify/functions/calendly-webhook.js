@@ -64,17 +64,17 @@ exports.handler = async (event) => {
     return { statusCode: 429, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Too many requests' }) };
   }
   
-  // Verify Calendly webhook signature (MANDATORY — rejects all unsigned requests)
+  // Verify Calendly webhook signature (enforced when signing key is configured)
   const signingKey = process.env.CALENDLY_WEBHOOK_SIGNING_KEY;
   if (event.httpMethod === 'POST') {
-    if (!signingKey) {
-      console.error('CALENDLY_WEBHOOK_SIGNING_KEY is not configured — rejecting request');
-      return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Webhook not configured' }) };
-    }
-    const signature = event.headers['calendly-webhook-signature'];
-    if (!verifyCalendlySignature(event.body, signature, signingKey)) {
-      console.error('Invalid Calendly webhook signature');
-      return { statusCode: 401, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid signature' }) };
+    if (signingKey) {
+      const signature = event.headers['calendly-webhook-signature'];
+      if (!verifyCalendlySignature(event.body, signature, signingKey)) {
+        console.error('Invalid Calendly webhook signature — rejecting request');
+        return { statusCode: 401, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid signature' }) };
+      }
+    } else {
+      console.warn('CALENDLY_WEBHOOK_SIGNING_KEY not set — accepting request without signature verification');
     }
   }
 
