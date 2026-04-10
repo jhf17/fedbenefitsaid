@@ -1128,7 +1128,7 @@ export default function Assessment() {
     return (
       <main id="main-content" aria-live="polite" aria-atomic="false" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Assessment results">
         {/* SECTION 1: Executive Summary Header */}
-        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
+        <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: isMobile ? '32px 20px 40px' : '48px 24px 56px', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Your Results</div>
           <h1 style={{ color: '#fff', fontSize: 'clamp(1.4rem, 4vw, 1.75rem)', fontWeight: 700, margin: '0 0 24px', fontFamily: fontSerif }}>Retirement Readiness Assessment</h1>
 
