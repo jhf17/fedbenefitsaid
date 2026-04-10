@@ -437,7 +437,7 @@ export default function Calculator() {
 
       const tspAtRetirement = calcTSPFutureValue(tspBal, mContrib, yearsToRetire, growthRate)
       const tspMonthly4pct = (tspAtRetirement * 0.04) / 12
-      const ssMonthly = ssEstimate > 0 ? calcSSBenefit(ssEstimate, claimAge) : 0
+      const ssMonthly = (tab !== 'csrs' && ssEstimate > 0) ? calcSSBenefit(ssEstimate, claimAge) : 0
       const pensionMonthly = pensionResult.netAnnual / 12
       const medicareDeduct = includeMedicare ? MEDICARE_B_MONTHLY : 0
 
@@ -623,7 +623,7 @@ export default function Calculator() {
 
             {/* TSP & Social Security */}
             <div style={s.card(isMobile)}>
-              <div style={s.cardTitle}>TSP & Social Security Projections</div>
+              <div style={s.cardTitle}>{tab === 'csrs' ? 'TSP Projections' : 'TSP & Social Security Projections'}</div>
               <div style={s.grid2(isMobile)}>
                 <Field label="Current TSP Balance ($)">
                   <input
@@ -995,24 +995,6 @@ export default function Calculator() {
                   )}
                 </div>
 
-                {/* Consultation CTA */}
-                <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                    <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎯</div>
-                    <div>
-                      <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
-                      <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if you're on track?</div>
-                      <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 12px 0' }}>
-                        Your numbers above are a great starting point, but every federal retirement situation is unique. A benefits specialist can review your specific scenario, identify gaps, and help you make the most of your FERS pension, TSP, and Social Security timing.
-                      </p>
-                      <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
-                        Book a Free Consultation
-                      </a>
-                      <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>30 minutes. No cost. No obligation.</div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Important Assumptions */}
                 <div style={s.assumptionsBox(isMobile)}>
                   <div style={s.assumptionsTitle}>Calculation Notes & Assumptions</div>
@@ -1032,9 +1014,11 @@ export default function Calculator() {
                     <div style={s.assumptionItem}>
                       <strong>TSP Projection:</strong> Compound growth including future contributions. Past performance does not guarantee future results.
                     </div>
-                    <div style={s.assumptionItem}>
-                      <strong>Social Security:</strong> Based on your entered age-62 estimate. Adjustments for claiming age use SSA reduction/credit factors.
-                    </div>
+                    {results.tab !== 'csrs' && (
+                      <div style={s.assumptionItem}>
+                        <strong>Social Security:</strong> Based on your entered age-62 estimate. Adjustments for claiming age use SSA reduction/credit factors.
+                      </div>
+                    )}
                     <div style={s.assumptionItem}>
                       <strong>Medicare Part B:</strong> 2026 standard premium $202.90/mo (CMS verified). Higher earners may pay more (IRMAA).
                     </div>
