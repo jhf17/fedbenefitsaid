@@ -1126,7 +1126,7 @@ export default function Assessment() {
     const personalizedSummary = generatePersonalizedSummary(catScores, answers)
 
     return (
-      <main id="main-content" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Assessment results">
+      <main id="main-content" aria-live="polite" aria-atomic="false" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Assessment results">
         {/* SECTION 1: Executive Summary Header */}
         <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '48px 24px 56px', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Your Results</div>
@@ -1332,7 +1332,7 @@ export default function Assessment() {
   // QUESTION SCREEN
   // ============================================================
   return (
-    <main id="main-content" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Retirement readiness assessment quiz">
+    <main id="main-content" aria-live="polite" aria-atomic="false" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Retirement readiness assessment quiz">
       <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Free Tool</div>
         <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px', fontFamily: fontSerif }}>Retirement Readiness Assessment</h1>
