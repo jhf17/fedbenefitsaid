@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../App'
+import Footer from '../components/Footer'
 
 const navy = '#0f172a'
 const secondaryNavy = '#1e3a5f'
@@ -1324,6 +1325,7 @@ export default function Assessment() {
             </button>
           </div>
         </div>
+      <Footer />
       </main>
     )
   }
@@ -1421,6 +1423,7 @@ export default function Assessment() {
           </button>
         </div>
       </div>
+    <Footer />
     </main>
   )
 }
