@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Footer from '../components/Footer';
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min';
 
@@ -660,6 +661,7 @@ export default function Consultation() {
           </p>
         </div>
       </section>
+    <Footer />
     </div>
   );
 }
