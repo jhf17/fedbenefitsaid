@@ -56,6 +56,18 @@ export default function Auth({ mode = 'login' }) {
       setError('Password must be at least 8 characters.')
       return false
     }
+    if (!isLogin && !/[A-Z]/.test(password)) {
+      setError('Password must include at least one uppercase letter.')
+      return false
+    }
+    if (!isLogin && !/[a-z]/.test(password)) {
+      setError('Password must include at least one lowercase letter.')
+      return false
+    }
+    if (!isLogin && !/[0-9]/.test(password)) {
+      setError('Password must include at least one number.')
+      return false
+    }
     if (!isLogin && !name.trim()) {
       setError('Please enter your full name.')
       return false
@@ -240,7 +252,7 @@ export default function Auth({ mode = 'login' }) {
                 className="form-input"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder={isLogin ? '••••••••' : 'At least 8 characters'}
+                placeholder={isLogin ? '••••••••' : '8+ chars, upper, lower, number'}
                 required
                 minLength={8}
                 autoComplete={isLogin ? 'current-password' : 'new-password'}

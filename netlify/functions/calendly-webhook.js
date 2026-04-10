@@ -64,9 +64,13 @@ exports.handler = async (event) => {
     return { statusCode: 429, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Too many requests' }) };
   }
   
-  // Verify Calendly webhook signature
+  // Verify Calendly webhook signature (MANDATORY — rejects all unsigned requests)
   const signingKey = process.env.CALENDLY_WEBHOOK_SIGNING_KEY;
-  if (signingKey && event.httpMethod === 'POST') {
+  if (event.httpMethod === 'POST') {
+    if (!signingKey) {
+      console.error('CALENDLY_WEBHOOK_SIGNING_KEY is not configured — rejecting request');
+      return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Webhook not configured' }) };
+    }
     const signature = event.headers['calendly-webhook-signature'];
     if (!verifyCalendlySignature(event.body, signature, signingKey)) {
       console.error('Invalid Calendly webhook signature');
@@ -133,13 +137,13 @@ exports.handler = async (event) => {
       const invitee = data.invitee || data
       const scheduledEvent = data.scheduled_event || data.event || {}
 
-      const name = invitee.name || ''
-      const email = invitee.email || ''
-      const phone = extractPhone(invitee.questions_and_answers || [])
-      const scheduledTime = scheduledEvent.start_time || ''
-      const eventName = scheduledEvent.name || 'Free Consultation'
-      const cancelUrl = invitee.cancel_url || ''
-      const rescheduleUrl = invitee.reschedule_url || ''
+      const name = sanitizeString(invitee.name || '')
+      const email = sanitizeEmail(invitee.email || '')
+      const phone = sanitizeString(extractPhone(invitee.questions_and_answers || []))
+      const scheduledTime = sanitizeString(scheduledEvent.start_time || '')
+      const eventName = sanitizeString(scheduledEvent.name || 'Free Consultation')
+      const cancelUrl = (invitee.cancel_url || '').substring(0, 500)
+      const rescheduleUrl = (invitee.reschedule_url || '').substring(0, 500)
 
       if (!email) {
         console.error('No email in Calendly webhook payload')
@@ -219,6 +223,22 @@ exports.handler = async (event) => {
 }
 
 /**
+ * Sanitize a string for safe Airtable insertion — strips injection characters
+ */
+function sanitizeString(val) {
+  if (!val || typeof val !== 'string') return ''
+  return val.replace(/[<>"';\\/\[\]{}]/g, '').trim().substring(0, 200)
+}
+
+/**
+ * Sanitize an email for Airtable formula (escape single quotes to prevent injection)
+ */
+function sanitizeEmail(email) {
+  if (!email || typeof email !== 'string') return ''
+  return email.replace(/'/g, "\\'").replace(/[<>";\\/\[\]{}]/g, '').trim().substring(0, 254)
+}
+
+/**
  * Extract phone number from Calendly custom questions
  */
 function extractPhone(questionsAndAnswers) {
@@ -239,7 +259,8 @@ async function upsertLead({ apiKey, baseId, tableId, name, email, phone, source,
   }
 
   // Search for existing lead
-  const encodedFormula = encodeURIComponent(`{Email}='${email}'`)
+  const safeEmail = email.replace(/'/g, "\\'")
+  const encodedFormula = encodeURIComponent(`{Email}='${safeEmail}'`)
   const searchUrl = `https://api.airtable.com/v0/${baseId}/${tableId}?filterByFormula=${encodedFormula}`
 
   const searchRes = await fetch(searchUrl, { method: 'GET', headers: { Authorization: `Bearer ${apiKey}` } })

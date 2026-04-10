@@ -18,12 +18,6 @@ const AIRTABLE_TABLE_ID = 'tblDRfHTvUeWAAyR5'
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://fedbenefitsaid.com'
 
 const CORS_HEADERS = {
-  // Rate limit
-  const clientIp = event.headers['x-forwarded-for'] || 'unknown';
-  if (!checkRateLimit(clientIp)) {
-    return { statusCode: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '60' }, body: JSON.stringify({ error: 'Too many requests. Please wait a minute.' }) };
-  }
-
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -89,10 +83,10 @@ async function searchAirtable(userMessage) {
 
     // Build formula searching Keywords, Rule Name, and Category
     const clauses = terms.map(rawTerm => {
-    const term = sanitizeSearchTerm(rawTerm); if (!term) return null;
-    return rawTerm; }).filter(Boolean).map(rawTerm => { const term = sanitizeSearchTerm(rawTerm);
-      `OR(FIND("${term}", LOWER({Keywords})), FIND("${term}", LOWER({Rule Name})), FIND("${term}", LOWER({Category})), FIND("${term}", LOWER({Subcategory})))`
-    )
+      const term = sanitizeSearchTerm(rawTerm)
+      if (!term) return null
+      return `OR(FIND("${term}", LOWER({Keywords})), FIND("${term}", LOWER({Rule Name})), FIND("${term}", LOWER({Category})), FIND("${term}", LOWER({Subcategory})))`
+    }).filter(Boolean)
     const formula = `OR(${clauses.join(',')})`
 
     const fields = [
@@ -159,6 +153,12 @@ function sanitizeSearchTerm(term) {
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: '' }
+  }
+
+  // Rate limit
+  const clientIp = event.headers['x-forwarded-for'] || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return { statusCode: 429, headers: { ...CORS_HEADERS, 'Retry-After': '60' }, body: JSON.stringify({ error: 'Too many requests. Please wait a minute.' }) };
   }
 
   if (event.httpMethod !== 'POST') {

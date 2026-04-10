@@ -5,9 +5,31 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json',
 }
 
+// === SECURITY: Rate Limiting ===
+const rateLimitMap = new Map();
+function checkRateLimit(ip, max = 10, windowMs = 15 * 60 * 1000) {
+  const now = Date.now();
+  const rec = rateLimitMap.get(ip);
+  if (!rec || now - rec.start > windowMs) { rateLimitMap.set(ip, { start: now, count: 1 }); return true; }
+  rec.count++;
+  return rec.count <= max;
+}
+
+// === SECURITY: HTML Escaping ===
+function escapeHtml(str) {
+  if (!str || typeof str !== 'string') return ''
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // Assessment email template (HTML)
 function buildAssessmentEmail(data) {
-  const { name, score, categories, actionItems } = data
+  const { score, categories, actionItems } = data
+  const name = escapeHtml(data.name)
 
   // Build category rows
   const categoryColors = {
@@ -28,11 +50,11 @@ function buildAssessmentEmail(data) {
       categoryRows += `
         <tr>
           <td style="padding: 16px; border: 1px solid #e2e8f0; ${isLast ? '' : 'border-bottom: none;'} background-color: #ffffff;">
-            <p style="margin: 0 0 8px 0; color: #1e293b; font-size: 14px; font-weight: 700;">${cat.label}</p>
-            <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.6;">${cat.description || ''}</p>
+            <p style="margin: 0 0 8px 0; color: #1e293b; font-size: 14px; font-weight: 700;">${escapeHtml(cat.label)}</p>
+            <p style="margin: 0; color: #64748b; font-size: 13px; line-height: 1.6;">${escapeHtml(cat.description || '')}</p>
           </td>
           <td style="padding: 16px; border: 1px solid #e2e8f0; ${isLast ? '' : 'border-bottom: none;'} text-align: right; background-color: #ffffff;">
-            <span style="display: inline-block; background-color: ${colors.bg}; color: ${colors.text}; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">${cat.score}/${cat.maxScore}</span>
+            <span style="display: inline-block; background-color: ${colors.bg}; color: ${colors.text}; padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 600;">${escapeHtml(String(cat.score))}/${escapeHtml(String(cat.maxScore))}</span>
           </td>
         </tr>`
     })
@@ -60,9 +82,9 @@ function buildAssessmentEmail(data) {
                   <div style="width: 22px; height: 22px; border-radius: 4px; background-color: ${iconBg}; text-align: center; line-height: 22px; color: #fff; font-size: 12px; font-weight: 700;">${iconText}</div>
                 </td>
                 <td>
-                  <p style="margin: 0 0 2px 0; color: ${labelColor}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${label}</p>
-                  <p style="margin: 0 0 4px 0; color: #1e293b; font-size: 14px; font-weight: 600;">${item.title}</p>
-                  <p style="margin: 0; color: #64748b; font-size: 13px;">${item.description}</p>
+                  <p style="margin: 0 0 2px 0; color: ${labelColor}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${escapeHtml(label)}</p>
+                  <p style="margin: 0 0 4px 0; color: #1e293b; font-size: 14px; font-weight: 600;">${escapeHtml(item.title)}</p>
+                  <p style="margin: 0; color: #64748b; font-size: 13px;">${escapeHtml(item.description)}</p>
                 </td>
               </tr>
             </table>
@@ -109,7 +131,11 @@ function buildAssessmentEmail(data) {
 
 // Calculator email template (HTML)
 function buildCalculatorEmail(data) {
-  const { name, totalMonthly, totalAnnual, retirementSystem, breakdown } = data
+  const name = escapeHtml(data.name)
+  const totalMonthly = escapeHtml(data.totalMonthly)
+  const totalAnnual = escapeHtml(data.totalAnnual)
+  const retirementSystem = escapeHtml(data.retirementSystem)
+  const { breakdown } = data
 
   // Build income rows — conditionally hide N/A items
   let incomeRows = ''
@@ -124,11 +150,11 @@ function buildCalculatorEmail(data) {
       incomeRows += `
         <tr>
           <td style="padding: 14px 16px; ${isLast ? '' : 'border-bottom: 1px solid #f1f5f9;'}">
-            <p style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 600;">${item.label}</p>
-            ${item.subtitle ? `<p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 12px;">${item.subtitle}</p>` : ''}
+            <p style="margin: 0; color: #1e293b; font-size: 14px; font-weight: 600;">${escapeHtml(item.label)}</p>
+            ${item.subtitle ? `<p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 12px;">${escapeHtml(item.subtitle)}</p>` : ''}
           </td>
           <td style="padding: 14px 16px; ${isLast ? '' : 'border-bottom: 1px solid #f1f5f9;'} text-align: right;">
-            <span style="color: ${valueColor}; font-size: 15px; font-weight: 700;">${prefix}${item.value}</span>
+            <span style="color: ${valueColor}; font-size: 15px; font-weight: 700;">${prefix}${escapeHtml(item.value)}</span>
             <span style="color: #94a3b8; font-size: 12px;">/mo</span>
           </td>
         </tr>`
@@ -180,6 +206,12 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers: CORS_HEADERS, body: '' }
   }
 
+  // Rate limit: 10 emails per 15 minutes per IP
+  const clientIp = event.headers['x-forwarded-for'] || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return { statusCode: 429, headers: { ...CORS_HEADERS, 'Retry-After': '900' }, body: JSON.stringify({ error: 'Too many requests. Please wait before sending another email.' }) };
+  }
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) }
   }
@@ -215,10 +247,10 @@ exports.handler = async (event) => {
   let html, subject
   if (type === 'assessment') {
     html = buildAssessmentEmail(data)
-    subject = `Your Retirement Readiness Score: ${data.score || ''}/42 — FedBenefitsAid`
+    subject = `Your Retirement Readiness Score: ${escapeHtml(String(data.score || ''))}/42 — FedBenefitsAid`
   } else if (type === 'calculator') {
     html = buildCalculatorEmail(data)
-    subject = `Your Retirement Estimate: ${data.totalMonthly || ''}/mo — FedBenefitsAid`
+    subject = `Your Retirement Estimate: ${escapeHtml(String(data.totalMonthly || ''))}/mo — FedBenefitsAid`
   } else {
     return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid type. Use "assessment" or "calculator".' }) }
   }
