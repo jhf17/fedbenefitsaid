@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import Footer from '../components/Footer'
 
 // =============================================================================
 // VERA / VSIP Guidance Page
@@ -266,8 +265,6 @@ export default function VeraVsip() {
         </section>
 
       </main>
-
-      <Footer />
     </div>
   )
 }
