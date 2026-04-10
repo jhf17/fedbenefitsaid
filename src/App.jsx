@@ -15,6 +15,7 @@ const Admin = lazy(() => import('./pages/Admin'))
 const Assessment = lazy(() => import('./pages/Assessment'))
 const Calculators = lazy(() => import('./pages/Tools'))
 const FEGLICalculator = lazy(() => import('./pages/FEGLICalculator'))
+const VeraVsip = lazy(() => import('./pages/VeraVsip'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
@@ -104,6 +105,7 @@ export default function App() {
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/calculators" element={<Calculators />} />
         <Route path="/calculators/fegli" element={<FEGLICalculator />} />
+        <Route path="/vera-vsip" element={<VeraVsip />} />
         <Route path="/consultation" element={<Consultation />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="/terms" element={<Terms />} />
