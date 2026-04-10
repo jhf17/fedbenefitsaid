@@ -665,21 +665,19 @@ export default function FEGLICalculator() {
             </div>
 
             {/* Consultation CTA */}
-            <div style={{ ...s.card, background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)', color: '#fff' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                <div style={{ fontSize: '2rem', lineHeight: 1 }}>🎯</div>
-                <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: 4 }}>Personalized Guidance</div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Want to know if your FEGLI strategy is right?</div>
-                  <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, margin: '0 0 12px 0' }}>
-                    Your calculator results above are a great starting point, but every federal employee's situation is unique. A benefits specialist can review your coverage elections, retirement goals, and family situation to help you make the best choice.
-                  </p>
-                  <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#fff', color: '#7b1c2e', padding: '12px 28px', borderRadius: 8, fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
-                    Book a Free Consultation
-                  </a>
-                  <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>30 minutes. No cost. No obligation.</div>
-                </div>
-              </div>
+            <div style={s.card}>
+              <div style={s.cardTitle}>Need help choosing the right FEGLI coverage?</div>
+              <p style={{ fontSize: '0.95rem', color: '#475569', lineHeight: 1.6, marginBottom: 16 }}>
+                Want a second opinion on your FEGLI elections? Book a free 30-minute consultation to review your coverage options, costs, and alternatives for your family situation.
+              </p>
+              <a
+                href={CALENDLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'inline-block', background: '#7b1c2e', color: '#fff', padding: '12px 24px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
+              >
+                Book Free Consultation
+              </a>
             </div>
             </>)}
 
