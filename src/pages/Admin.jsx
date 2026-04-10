@@ -1090,7 +1090,6 @@ const Admin = () => {
           </div>
         </div>
       )}
-    <Footer />
     </div>
   );
 };
