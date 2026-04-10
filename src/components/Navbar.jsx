@@ -55,6 +55,9 @@ export default function Navbar() {
           <Link to="/resources" style={{ ...styles.link, ...(isActive('/resources') ? styles.linkActive : {}) }} aria-current={isActive('/resources') ? 'page' : undefined}>
             Resources
           </Link>
+          <Link to="/vera-vsip" style={{ ...styles.link, ...(isActive('/vera-vsip') ? styles.linkActive : {}) }} aria-current={isActive('/vera-vsip') ? 'page' : undefined}>
+            VERA/VSIP
+          </Link>
           <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }} aria-current={isActive('/chat') ? 'page' : undefined}>
             Chat
           </Link>
@@ -114,6 +117,9 @@ export default function Navbar() {
           </Link>
           <Link to="/resources" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Forms &amp; Resources
+          </Link>
+          <Link to="/vera-vsip" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
+            VERA/VSIP
           </Link>
           <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Chat
