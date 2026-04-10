@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Footer from '../components/Footer'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -1050,6 +1051,7 @@ export default function Calculator() {
               </div>
             )}
       </div>
+    <Footer />
     </main>
   )
 }
