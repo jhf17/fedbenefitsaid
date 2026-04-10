@@ -271,41 +271,82 @@ export default function Consultation() {
               border: `1px solid #cbd5e1`,
             }}
           >
-            <h3
+            <div
               style={{
-                fontSize: '22px',
-                fontWeight: 700,
-                color: '#0f172a',
-                marginBottom: '16px',
-                margin: '0 0 16px 0',
-                fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+                display: 'flex',
+                gap: '24px',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
               }}
             >
-              Federal Market Associates
-            </h3>
-            <p
-              style={{
-                fontSize: '16px',
-                lineHeight: 1.7,
-                color: '#475569',
-                marginBottom: '16px',
-                margin: '0 0 16px 0',
-              }}
-            >
-              Federal Market Associates specializes in federal employee retirement benefits education. Our educators work with
-              hundreds of federal employees each year and understand the nuances of FERS, CSRS, TSP, FEHB, and FEGLI.
-            </p>
-            <p
-              style={{
-                fontSize: '16px',
-                lineHeight: 1.7,
-                color: '#475569',
-                margin: 0,
-              }}
-            >
-              Your consultant is a certified federal retirement specialist who will provide objective, personalized
-              guidance based on your unique situation and goals.
-            </p>
+              <div
+                aria-hidden="true"
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '50%',
+                  background: '#e2e8f0',
+                  border: '2px dashed #94a3b8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#64748b',
+                  fontSize: '12px',
+                  textAlign: 'center',
+                  flexShrink: 0,
+                  fontStyle: 'italic',
+                }}
+              >
+                [Photo]
+              </div>
+              <div style={{ flex: '1 1 300px', minWidth: 0 }}>
+                <h3
+                  style={{
+                    fontSize: '22px',
+                    fontWeight: 700,
+                    color: '#0f172a',
+                    marginBottom: '8px',
+                    margin: '0 0 8px 0',
+                    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+                  }}
+                >
+                  [Consultant Name]
+                </h3>
+                <div
+                  style={{
+                    fontSize: '14px',
+                    color: '#7b1c2e',
+                    fontWeight: 600,
+                    marginBottom: '16px',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  [Your credentials here — e.g. Chartered Federal Employee Benefits Counselor]
+                </div>
+                <p
+                  style={{
+                    fontSize: '16px',
+                    lineHeight: 1.7,
+                    color: '#475569',
+                    marginBottom: '16px',
+                    margin: '0 0 16px 0',
+                  }}
+                >
+                  [Brief bio — years of experience, number of federal employees helped, areas of specialty, and what makes your approach different.]
+                </p>
+                <p
+                  style={{
+                    fontSize: '14px',
+                    lineHeight: 1.6,
+                    color: '#64748b',
+                    fontStyle: 'italic',
+                    margin: 0,
+                  }}
+                >
+                  [Optional: licensing, affiliations, or a short quote about your philosophy.]
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
