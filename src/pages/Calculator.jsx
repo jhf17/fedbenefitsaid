@@ -88,17 +88,23 @@ function fmtDec(n, d = 1) {
   return n.toFixed(d)
 }
 
-function calcFERSPension(yearsService, high3, retireAge, survivorBenefit, earlyRetirement) {
+function calcFERSPension(yearsService, high3, retireAge, survivorBenefit, earlyRetirement, sickLeaveHours = 0) {
   const yrs = parseFloat(yearsService) || 0
   const h3 = parseFloat(high3) || 0
   const rAge = parseFloat(retireAge) || 62
+  // Sick leave credit: 174 hrs = 1 month of additional service (FERS, since 2010 NDAA)
+  // Source: OPM FERS Handbook — added to creditable service for annuity computation only
+  const slHours = parseFloat(sickLeaveHours) || 0
+  const sickLeaveMonths = Math.floor(slHours / 174)
+  const sickLeaveYears = sickLeaveMonths / 12
+  const effectiveYrs = yrs + sickLeaveYears
 
   let multiplierRate = FERS_STANDARD
   if (rAge >= 62 && yrs >= 20) {
     multiplierRate = FERS_ENHANCED
   }
 
-  const grossPension = yrs * multiplierRate * h3
+  const grossPension = effectiveYrs * multiplierRate * h3
 
   let earlyReductionAmt = 0
   let grossAfterEarly = grossPension
@@ -270,6 +276,7 @@ export default function Calculator() {
   const [yearsService, setYearsService] = useState('')
   const [high3, setHigh3] = useState('')
   const [survivorBenefit, setSurvivorBenefit] = useState('full')
+  const [sickLeaveHours, setSickLeaveHours] = useState('')
   const [tspBalance, setTspBalance] = useState('')
   const [monthlyContrib, setMonthlyContrib] = useState('')
   const [tspGrowthRate, setTspGrowthRate] = useState('6')
@@ -400,7 +407,7 @@ export default function Calculator() {
       let pensionResult, supplementMonthly = 0
 
       if (tab === 'fers') {
-        pensionResult = calcFERSPension(yrs, h3, rAge, survivorBenefit, earlyRetirement)
+        pensionResult = calcFERSPension(yrs, h3, rAge, survivorBenefit, earlyRetirement, sickLeaveHours)
         // FERS Supplement: auto-included when eligible (immediate retirement before 62)
         if (rAge < 62 && earlyRetirement !== 'mra10' && ssEstimate > 0) {
           supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
@@ -572,6 +579,16 @@ export default function Calculator() {
                   <option value="reduced">Reduced (5% deduction)</option>
                   <option value="full">Full (10% deduction)</option>
                 </select>
+              </Field>
+              <Field label="Sick Leave Hours (Optional)" hint="FERS only. 174 hours = 1 month of service credit. Enter unused sick leave at retirement.">
+                <input
+                  type="number"
+                  value={sickLeaveHours}
+                  onChange={e => setSickLeaveHours(e.target.value)}
+                  placeholder="e.g. 520"
+                  min="0"
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '0.9rem' }}
+                />
               </Field>
             </div>
 
