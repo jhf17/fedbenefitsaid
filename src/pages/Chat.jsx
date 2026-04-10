@@ -13,6 +13,14 @@ The more you tell me about your situation, the better I can tailor my answers �
 What would you like to know?`,
 }
 
+const FREE_MESSAGE_LIMIT = 3
+const readFreeCount = () => {
+  try {
+    const v = parseInt(localStorage.getItem('chatFreeCount') || '0', 10)
+    return Number.isFinite(v) && v >= 0 ? v : 0
+  } catch { return 0 }
+}
+
 export default function Chat() {
   const { user } = useAuth()
   const location = useLocation()
@@ -20,6 +28,9 @@ export default function Chat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [freeCount, setFreeCount] = useState(readFreeCount)
+  const isGuest = !user
+  const freeLimitReached = isGuest && freeCount >= FREE_MESSAGE_LIMIT
   useEffect(() => { document.title = 'AI Retirement Assistant | FedBenefitsAid' }, [])
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
@@ -44,12 +55,24 @@ export default function Chat() {
     const userText = (text || input).trim()
     if (!userText || loading) return
 
+    // Gate: guests get FREE_MESSAGE_LIMIT messages before we prompt signup
+    if (isGuest && freeCount >= FREE_MESSAGE_LIMIT) {
+      setError('You have used your free messages. Please create a free account to keep chatting.')
+      return
+    }
+
     const newMessages = [...messages, { role: 'user', content: userText }]
     setMessages(newMessages)
     setInput('')
     setError('')
     setLoading(true)
     if (inputRef.current) inputRef.current.style.height = 'auto'
+
+    if (isGuest) {
+      const next = freeCount + 1
+      setFreeCount(next)
+      try { localStorage.setItem('chatFreeCount', String(next)) } catch {}
+    }
 
     try {
       const res = await fetch('/.netlify/functions/chat', {
@@ -110,15 +133,26 @@ export default function Chat() {
   }
 
   return (
+    <>
     <div style={styles.page}>
       {/* Sidebar */}
       <div style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <div style={styles.sidebarTitle}>Federal Benefits AI</div>
-          <div style={styles.sidebarUser}>
-            Signed in as<br />
-            <strong>{user?.email}</strong>
-          </div>
+          {isGuest ? (
+            <div style={styles.sidebarUser}>
+              <strong>Guest preview</strong><br />
+              {Math.max(0, FREE_MESSAGE_LIMIT - freeCount)} of {FREE_MESSAGE_LIMIT} free messages left
+              <div style={{ marginTop: 10 }}>
+                <Link to="/signup" style={{ color: '#7b1c2e', fontWeight: 700, textDecoration: 'none' }}>Create a free account →</Link>
+              </div>
+            </div>
+          ) : (
+            <div style={styles.sidebarUser}>
+              Signed in as<br />
+              <strong>{user?.email}</strong>
+            </div>
+          )}
         </div>
 
         <div style={styles.sidebarSection}>
@@ -191,6 +225,23 @@ export default function Chat() {
             </div>
           )}
 
+          {freeLimitReached && (
+            <div style={{ background: '#fff8ef', border: '1px solid #e9d7a5', borderLeft: '4px solid #7b1c2e', borderRadius: 10, padding: '16px 20px', marginTop: 8 }}>
+              <div style={{ fontFamily: "'Merriweather', Georgia, serif", fontWeight: 700, fontSize: '1rem', color: '#0f172a', marginBottom: 6 }}>
+                You've hit your free preview limit
+              </div>
+              <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.55, margin: '0 0 12px 0' }}>
+                Create a free account to keep chatting — no credit card, no obligation. Your account also unlocks the Reference Guide and the Retirement Readiness Assessment.
+              </p>
+              <Link to="/signup" style={{ display: 'inline-block', background: '#7b1c2e', color: 'white', padding: '10px 18px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem' }}>
+                Create free account
+              </Link>
+              <Link to="/login" style={{ display: 'inline-block', marginLeft: 12, color: '#7b1c2e', fontSize: '0.88rem', textDecoration: 'none', fontWeight: 600, padding: '10px 4px' }}>
+                Already have one? Log in
+              </Link>
+            </div>
+          )}
+
           {error && (
             <div style={styles.errorMsg}>
               <svg style={{ display: 'inline-flex', width: '16px', height: '16px', marginRight: '8px', flexShrink: 0, color: '#dc2626' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -210,15 +261,15 @@ export default function Chat() {
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything about your federal benefits... (Enter to send, Shift+Enter for new line)"
-              disabled={loading}
+              placeholder={freeLimitReached ? 'Create a free account to keep chatting' : 'Ask anything about your federal benefits... (Enter to send, Shift+Enter for new line)'}
+              disabled={loading || freeLimitReached}
               style={styles.textarea}
               rows={1}
               aria-label="Message input"
             />
             <button
               onClick={() => sendMessage()}
-              disabled={loading || !input.trim()}
+              disabled={loading || !input.trim() || freeLimitReached}
               style={styles.sendBtn}
               aria-label="Send message"
             >
@@ -233,6 +284,8 @@ export default function Chat() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }
 
@@ -316,7 +369,6 @@ function TypingIndicator() {
           30% { transform: translateY(-6px); }
         }
       `}</style>
-    <Footer />
     </div>
   )
 }
