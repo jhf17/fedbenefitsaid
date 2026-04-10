@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../App'
+import Footer from '../components/Footer'
 
 const TOPICS = [
   'FERS Annuity Calculation',
@@ -196,6 +197,7 @@ export default function Course() {
           <a href="mailto:support@fedbenefitsaid.com" style={{ color: '#1e3a5f' }}>support@fedbenefitsaid.com</a>
         </p>
       </div>
+    <Footer />
     </div>
   )
 }
