@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import Footer from '../components/Footer'
 
 const colors = {
   navy: '#0f172a',
@@ -588,6 +589,8 @@ export default function Landing() {
           </a>
         </div>
       </section>
+
+      <Footer />
 
     </div>
   );
