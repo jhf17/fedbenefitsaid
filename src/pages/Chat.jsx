@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../App'
 import ConsultantCTA from '../components/ConsultantCTA'
+import Footer from '../components/Footer'
 
 const WELCOME_MESSAGE = {
   role: 'assistant',
@@ -315,6 +316,7 @@ function TypingIndicator() {
           30% { transform: translateY(-6px); }
         }
       `}</style>
+    <Footer />
     </div>
   )
 }
