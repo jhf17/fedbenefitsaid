@@ -234,7 +234,7 @@ export default function Landing() {
               { id: 'accurate', title: 'Current and Accurate', desc: 'All figures updated for 2026. We cite actual OPM regulations so you can verify everything yourself.' },
               { id: 'expert', title: 'Free Tools, Expert Access', desc: 'Every tool is free, forever. When you need human guidance, book a free 30-minute consultation with a federal retirement specialist.' },
             ].map((card, i) => (
-              <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '40px 32px' }}>
+              <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: isMobile ? '28px 22px' : '40px 32px' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', background: 'rgba(123, 28, 46, 0.1)' }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7b1c2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     {card.id === 'personalized' && <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
@@ -467,7 +467,7 @@ export default function Landing() {
               Start chatting →
             </Link>
           </div>
-          <div style={{ borderRadius: '24px', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: colors.navy }}>
+          <div style={{ borderRadius: '24px', padding: isMobile ? '28px 22px' : '40px', minHeight: isMobile ? 'auto' : '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: colors.navy }}>
             <div>
               {[
                 { user: true, text: "I'm 56 with 28 years of service. Can I retire with a full pension?" },
@@ -550,7 +550,7 @@ export default function Landing() {
               Browse resources →
             </Link>
           </div>
-          <div style={{ borderRadius: '24px', padding: '40px', minHeight: '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'linear-gradient(135deg, #fdf9ef, #fefcf5)', border: '1px solid rgba(201,168,76,0.08)' }}>
+          <div style={{ borderRadius: '24px', padding: isMobile ? '28px 22px' : '40px', minHeight: isMobile ? 'auto' : '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'linear-gradient(135deg, #fdf9ef, #fefcf5)', border: '1px solid rgba(201,168,76,0.08)' }}>
             <div>
               {[
                 { type: 'Form', name: 'SF-3107 — FERS Retirement Application' },
@@ -575,7 +575,7 @@ export default function Landing() {
       </section>
 
       {/* CONSULTATION CTA */}
-      <section style={{ padding: '140px 48px', textAlign: 'center', background: colors.white }}>
+      <section style={{ padding: isMobile ? '64px 20px' : '140px 48px', textAlign: 'center', background: colors.white }}>
         <div ref={addRevealRef} className="reveal">
           <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: '900', lineHeight: '1.12', letterSpacing: '-0.02em', marginBottom: '20px', color: colors.navy }}>
             Need to talk to<br />
