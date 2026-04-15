@@ -1,7 +1,7 @@
 export const REF_DATA = [
   {cat:'FERS Pension',icon:'🏛️',color:'#1e3a5f',topics:[
     {id:'fers-eligibility',title:'Retirement Types & Eligibility',summary:'Immediate, deferred, disability, and MRA+10 paths',
-     overview:'FERS offers several retirement paths depending on age and years of creditable service. Choosing the right type determines benefit amount, supplement eligibility, and FEH/ continuation.',
+     overview:'FERS offers several retirement paths depending on age and years of creditable service. Choosing the right type determines benefit amount, supplement eligibility, and FEHB continuation.',
      rules:[
        'Immediate Unreduced: MRA+30 years, Age 60+20 years, or Age 62+5 years',
        'Immediate Reduced (MRA+10): 5% per year under age 62 (or age 60 if 20+ years) — penalty avoided by postponing annuity start',
@@ -19,7 +19,7 @@ export const REF_DATA = [
        {label:'Disability minimum service',value:'18 months'}
      ],
      watch:[
-       'MRA+10 retirees who postpone annuity lose FEH/ during the postponement period — must pay full premium out of pocket',
+       'MRA+10 retirees who postpone annuity lose FEHB during the postponement period — must pay full premium out of pocket',
        'Deferred retirees do NOT receive the FERS Supplement at any age',
        'VERA retirees who retire before their MRA must wait until MRA for the FERS Supplement to begin'
      ]},
@@ -114,7 +114,7 @@ export const REF_DATA = [
        "Partial survivor annuity: 25% of unreduced annuity; retiree's annuity reduced by ~5%",
        'No survivor: full annuity to retiree; spouse receives nothing from OPM after death',
        'Spouse must consent in writing to less than full survivor election',
-       'FEH/ coverage: surviving spouse loses FEH/ if no survivor annuity is elected',
+       'FEHB coverage: surviving spouse loses FEHB if no survivor annuity is elected',
        'Post-retirement marriage: can add survivor within 2 years of marriage with OPM notification',
        'Insurable interest election: can provide survivor annuity to non-spouse dependent'
      ],
@@ -124,7 +124,7 @@ export const REF_DATA = [
        {label:'Deadline to add new spouse',value:'Within 2 years of marriage'}
      ],
      watch:[
-       "The 'no survivor' election saves money monthly but eliminates spouse's FEH/ — a critical consideration if spouse relies on FEHB",
+       "The 'no survivor' election saves money monthly but eliminates spouse's FEHB — a critical consideration if spouse relies on FEHB",
        'Once elected, the amount cannot be increased — only reduced or eliminated with spousal consent',
        "A divorced spouse may have court-ordered survivor annuity rights that override the retiree's wishes"
      ]},
@@ -261,7 +261,7 @@ export const REF_DATA = [
   ]},
   {cat:'FEHB',icon:'🏥',color:'#b8860b',topics:[
     {id:'fehb-overview',title:'Enrollment Options & Plan Types',summary:'Self, Self+1, Self+Family; FFS, HMO, HDHP',
-     overview:'FEH/ is one of the most comprehensive employer-sponsored health insurance programs in the world. Federal employees choose from hundreds of plans in three enrollment tiers.',
+     overview:'FEHB is one of the most comprehensive employer-sponsored health insurance programs in the world. Federal employees choose from hundreds of plans in three enrollment tiers.',
      rules:[
        'Enrollment tiers: Self Only, Self Plus One (Self+1), Self and Family',
        'Plan types: Fee-for-Service (FFS/PPO), Health Maintenance Organization (HMO), High Deductible Health Plan (HDHP), Consumer-Driven',
@@ -282,51 +282,51 @@ export const REF_DATA = [
        'Self+1 is often cheaper than Self+Family for couples without dependent children',
        'HMO plans require living or working within service area — retiring and moving out of area can disrupt coverage'
      ]},
-    {id:'fehb-5year',title:'5-Year Rule & Retirement Continuation',summary:'Requirements to carry FEH/ into retirement',
-     overview:'One of the most valuable features of federal employment is the ability to carry FEH/ into retirement with the same government premium subsidy. But a 5-year rule must be met.',
+    {id:'fehb-5year',title:'5-Year Rule & Retirement Continuation',summary:'Requirements to carry FEHB into retirement',
+     overview:'One of the most valuable features of federal employment is the ability to carry FEHB into retirement with the same government premium subsidy. But a 5-year rule must be met.',
      rules:[
-       'Must have been continuously enrolled in FEH/ for the 5 years immediately before retirement date',
-       'Does not have to be the same plan — just continuously enrolled in any FEH/ plan',
+       'Must have been continuously enrolled in FEHB for the 5 years immediately before retirement date',
+       'Does not have to be the same plan — just continuously enrolled in any FEHB plan',
        "Spouse does not need independent 5 years — they are covered under the employee's enrollment",
        'Government continues paying the same share in retirement as during active employment',
        'Annuity must be large enough to cover premium; if not, must pay separately to OPM',
        'Retirees may not add new family members except during Open Season or qualifying events',
-       "Survivor: if retiree elected survivor annuity, surviving spouse continues FEH/; if no survivor annuity elected, FEH/ ends at retiree's death"
+       "Survivor: if retiree elected survivor annuity, surviving spouse continues FEHB; if no survivor annuity elected, FEHB ends at retiree's death"
      ],
      numbers:[
        {label:'Continuous enrollment required',value:'5 years immediately before retirement'},
-       {label:'Same plan required?',value:'No — any FEH/ plan counts'},
+       {label:'Same plan required?',value:'No — any FEHB plan counts'},
        {label:'Government subsidy continues at',value:'Same rate as active employee'}
      ],
      watch:[
        'VERA retirees under age 62: carefully verify the 5 years were truly continuous — even a brief gap can disqualify',
-       'Deferred retirees (MRA+10 postponed): FEH/ ends at separation and cannot be restarted at annuity commencement',
-       "Surviving spouse without survivor annuity election: loses FEH/ immediately upon retiree's death"
+       'Deferred retirees (MRA+10 postponed): FEHB ends at separation and cannot be restarted at annuity commencement',
+       "Surviving spouse without survivor annuity election: loses FEHB immediately upon retiree's death"
      ]},
-    {id:'fehb-medicare',title:'FEH/ & Medicare Coordination',summary:'How FEH/ and Medicare work together in retirement',
-     overview:'Most federal retirees have both FEH/ and Medicare. Understanding which pays first — and how they coordinate — determines out-of-pocket costs and whether Medicare Part / is worth the premium.',
+    {id:'fehb-medicare',title:'FEHB & Medicare Coordination',summary:'How FEHB and Medicare work together in retirement',
+     overview:'Most federal retirees have both FEHB and Medicare. Understanding which pays first — and how they coordinate — determines out-of-pocket costs and whether Medicare Part B is worth the premium.',
      rules:[
-       'With Medicare Part A+B: Medicare pays first; FEH/ pays second (covering Medicare cost-sharing)',
-       'FEP Blue Cross Standard Option: pays Medicare Part / cost-sharing leaving retiree at $0 for most in-network care',
-       'Cannot be involuntarily removed from FEH/ for enrolling in Medicare',
+       'With Medicare Part A+B: Medicare pays first; FEHB pays second (covering Medicare cost-sharing)',
+       'FEP Blue Cross Standard Option: pays Medicare Part B cost-sharing leaving retiree at $0 for most in-network care',
+       'Cannot be involuntarily removed from FEHB for enrolling in Medicare',
        'Medicare Part A: premium-free for those with 40+ quarters SS-covered employment',
-       'Medicare Part /: premium $202.90/month (2026); higher for higher incomes (IRMAA)',
-       'Working past 65 with FEH/ as primary: can defer Part / enrollment without late penalty; 8-month SEP after coverage ends',
-       'Medicare Part D: most FEH/ plans have creditable prescription drug coverage — delaying Part D enrollment carries no penalty with active FEHB'
+       'Medicare Part B: premium $202.90/month (2026); higher for higher incomes (IRMAA)',
+       'Working past 65 with FEHB as primary: can defer Part B enrollment without late penalty; 8-month SEP after coverage ends',
+       'Medicare Part D: most FEHB plans have creditable prescription drug coverage — delaying Part D enrollment carries no penalty with active FEHB'
      ],
      numbers:[
-       {label:'2026 Part / standard premium',value:'$202.90/month'},
+       {label:'2026 Part B standard premium',value:'$202.90/month'},
        {label:'Part A free with',value:'40+ quarters (10 years) SS-covered work'},
        {label:'Part B late enrollment penalty',value:'10% per year for each year late (lifetime)'},
        {label:'SEP after coverage ends',value:'8 months'}
      ],
      watch:[
-       'Retirees in FEH/-only who delay Medicare Part / can face 10% permanent premium penalty per year late',
-       'Medicare Part / premium is worth it if your FEH/ plan + Part / total less than your out-of-pocket without B',
+       'Retirees in FEHB-only who delay Medicare Part B can face 10% permanent premium penalty per year late',
+       'Medicare Part B premium is worth it if your FEHB plan + Part B total less than your out-of-pocket without B',
        'IRMAA surcharges use income from 2 years prior — a working-to-retirement income drop may trigger an appeal'
      ]},
     {id:'fehb-hsa',title:'HSA & HDHP Eligibility',summary:'Triple tax-advantaged savings with a qualifying HDHP',
-     overview:'Health Savings Accounts (HSAs) provide a triple tax benefit, but strict eligibility rules apply. Only enrollment in a qualifying HDHP — not any FEH/ plan — qualifies.',
+     overview:'Health Savings Accounts (HSAs) provide a triple tax benefit, but strict eligibility rules apply. Only enrollment in a qualifying HDHP — not any FEHB plan — qualifies.',
      rules:[
        'HSA eligibility: must be enrolled in qualifying IRS-defined HDHP',
        'HSA disqualifiers: enrollment in Medicare Part A or /; general-purpose FSAFEDS Health Care FSA; coverage under non-HDHP plan',
@@ -346,7 +346,7 @@ export const REF_DATA = [
        'HDHP + HSA is ideal for healthy employees who can afford to accumulate — not ideal for those with predictable high medical costs'
      ]},
     {id:'fehb-fsafeds',title:'FSAFEDS — Flexible Spending Accounts',summary:'Health Care FSA, Dependent Care FSA, and LEX FSA',
-     overview:'FSAFEDS is the federal flexible spending account program, administered separately from FEH/. It allows pretax dollars to pay for eligible medical and dependent care expenses.',
+     overview:'FSAFEDS is the federal flexible spending account program, administered separately from FEHB. It allows pretax dollars to pay for eligible medical and dependent care expenses.',
      rules:[
        'Health Care FSA: covers most medical, dental, and vision expenses not covered by insurance',
        'Dependent Care FSA: covers childcare and care for dependent adults so you can work; NOT for medical care',
@@ -450,37 +450,37 @@ export const REF_DATA = [
   ]},
   {cat:'Medicare',icon:'⚕️',color:'#7b1c2e',topics:[
     {id:'medicare-parts',title:'Parts A, B, C, D Overview',summary:'What each part covers and how they fit together',
-     overview:'Medicare is the federal health insurance program for people age 65 and older. For federal employees, it layers on top of FEH/ in retirement, often resulting in near-zero out-of-pocket costs.',
+     overview:'Medicare is the federal health insurance program for people age 65 and older. For federal employees, it layers on top of FEHB in retirement, often resulting in near-zero out-of-pocket costs.',
      rules:[
        'Part A (Hospital): inpatient hospital, skilled nursing, hospice; premium-free with 40+ quarters SS-covered work',
        'Part B (Medical): doctors, outpatient, preventive care, durable medical equipment; monthly premium required',
        'Part C (Medicare Advantage): private plan covering A+B (often + D); alternative to traditional Medicare',
-       'Part D (Prescription Drugs): standalone drug coverage; separate premium; most FEH/ plans provide creditable coverage so Part D often unnecessary',
-       'Medigap: private supplemental insurance that fills A+B gaps; less relevant for federal retirees with FEH/'
+       'Part D (Prescription Drugs): standalone drug coverage; separate premium; most FEHB plans provide creditable coverage so Part D often unnecessary',
+       'Medigap: private supplemental insurance that fills A+B gaps; less relevant for federal retirees with FEHB'
      ],
      numbers:[
-       {label:'2026 Part / standard premium',value:'$202.90/month'},
+       {label:'2026 Part B standard premium',value:'$202.90/month'},
        {label:'Part A premium-free threshold',value:'40 quarters (10 years) SS-covered work'},
        {label:'2026 Part A deductible',value:'$1,676 per benefit period'}
      ],
      watch:[
-       'Federal retirees with FEH/ typically do NOT need Medicare Advantage or Medigap — FEH/ already fills the gaps',
-       'Enrolling in Part C (Medicare Advantage) suspends your FEH/ — understand the tradeoff before switching',
-       'Part D: enrolling when you have creditable FEH/ coverage carries no late penalty — skip it while FEH/ is active'
+       'Federal retirees with FEHB typically do NOT need Medicare Advantage or Medigap — FEHB already fills the gaps',
+       'Enrolling in Part C (Medicare Advantage) suspends your FEHB — understand the tradeoff before switching',
+       'Part D: enrolling when you have creditable FEHB coverage carries no late penalty — skip it while FEHB is active'
      ]},
     {id:'medicare-enrollment',title:'Enrollment Timing & Penalties',summary:'When to enroll, when to defer, and late penalty rules',
-     overview:'Missing Medicare enrollment windows can result in permanent premium surcharges. Federal employees have special protections that allow deferring Part B while still working with FEH/.',
+     overview:'Missing Medicare enrollment windows can result in permanent premium surcharges. Federal employees have special protections that allow deferring Part B while still working with FEHB.',
      rules:[
        'Initial Enrollment Period (IEP): 7-month window around 65th birthday (3 before, month of, 3 after)',
-       'Special Enrollment Period (SEP): 8 months after employer coverage ends; allows Part / enrollment without penalty',
-       'Working past 65 with active FEHB as primary: can defer Part / without penalty using employer SEP',
-       'Retired past 65 without Part /: enrolling outside IEP/SEP results in permanent premium surcharge',
-       'Part B late enrollment penalty: 10% per year for each year without Part / (permanent; added to premium)',
+       'Special Enrollment Period (SEP): 8 months after employer coverage ends; allows Part B enrollment without penalty',
+       'Working past 65 with active FEHB as primary: can defer Part B without penalty using employer SEP',
+       'Retired past 65 without Part B: enrolling outside IEP/SEP results in permanent premium surcharge',
+       'Part B late enrollment penalty: 10% per year for each year without Part B (permanent; added to premium)',
        'Part D late penalty: 1% per month without creditable coverage; avoidable with active FEHB (creditable)'
      ],
      numbers:[
        {label:'IEP window',value:'7 months (3 before, month of, 3 after 65th birthday)'},
-       {label:'SEP after FEH/ ends',value:'8 months'},
+       {label:'SEP after FEHB ends',value:'8 months'},
        {label:'Part B late penalty',value:'10% per year without coverage (permanent)'},
        {label:'Part D late penalty',value:'1% per month (permanent if no creditable coverage)'}
      ],
@@ -490,18 +490,18 @@ export const REF_DATA = [
        'General enrollment period (Jan–Mar each year) has a premium surcharge AND July start — avoid this situation'
      ]},
     {id:'medicare-irmaa',title:'IRMAA — Income-Related Adjustments',summary:'Higher-income retirees pay more for Parts / and D',
-     overview:'IRMAA adds income-based surcharges to Medicare Part / and D premiums. It affects higher-income retirees and is calculated based on income from 2 years prior.',
+     overview:'IRMAA adds income-based surcharges to Medicare Part B and D premiums. It affects higher-income retirees and is calculated based on income from 2 years prior.',
      rules:[
        'IRMAA based on Modified Adjusted Gross Income (MAGI) from 2 years prior',
-       '2026 surcharges based on 2024 income; applies to both Part / and Part D',
+       '2026 surcharges based on 2024 income; applies to both Part B and Part D',
        'Single filers: IRMAA begins at $106,000 MAGI; married filing jointly at $212,000',
        'Can appeal IRMAA if income has significantly decreased due to qualifying life event (retirement, death of spouse, divorce, etc.)',
        'IRMAA income includes: wages, pensions, SS, interest, dividends, capital gains, Roth conversions'
      ],
      numbers:[
-       {label:'2026 standard Part /',value:'$202.90/month'},
-       {label:'IRMAA tier 1 (single $106K–$133K)',value:'+$74.00/month Part /'},
-       {label:'Highest IRMAA tier (single $500K+)',value:'$628.90/month Part / total'},
+       {label:'2026 standard Part B',value:'$202.90/month'},
+       {label:'IRMAA tier 1 (single $106K–$133K)',value:'+$74.00/month Part B'},
+       {label:'Highest IRMAA tier (single $500K+)',value:'$628.90/month Part B total'},
        {label:'IRMAA income lookback',value:'2 years prior'}
      ],
      watch:[
@@ -640,12 +640,12 @@ export const REF_DATA = [
      ]}
   ]},
   {cat:'Survivor Benefits',icon:'👨‍👩‍👧',color:'#7b1c2e',topics:[
-    {id:'survivor-election',title:'Post-Retirement Survivor Elections',summary:'Full, partial, or no survivor; FEH/ implications',
+    {id:'survivor-election',title:'Post-Retirement Survivor Elections',summary:'Full, partial, or no survivor; FEHB implications',
      overview:'At retirement, FERS and CSRS employees must elect a survivor benefit for their spouse. This election permanently reduces the retiree\'s monthly annuity in exchange for providing income to the surviving spouse.',
      rules:[
        "Full survivor (FERS): spouse receives 50% of unreduced annuity; retiree's annuity reduced ~10%",
        "Partial survivor (FERS): spouse receives 25% of unreduced annuity; retiree's annuity reduced ~5%",
-       "No survivor: full annuity to retiree; spouse loses FEH/ access at retiree's death if no other coverage",
+       "No survivor: full annuity to retiree; spouse loses FEHB access at retiree's death if no other coverage",
        'Spouse must consent in writing to any election less than full survivor annuity',
        'Election is irrevocable unless there is a divorce, remarriage, or death of spouse',
        "CSRS full survivor: spouse receives 55% of unreduced annuity; retiree reduced ~10%",
@@ -658,7 +658,7 @@ export const REF_DATA = [
        {label:'Post-retirement new spouse deadline',value:'2 years after marriage'}
      ],
      watch:[
-       "No survivor + no FEH/ alternative for spouse = serious financial risk at retiree's death",
+       "No survivor + no FEHB alternative for spouse = serious financial risk at retiree's death",
        'Partial survivor may be appropriate if spouse has own pension/income — but the small premium saving is often not worth the reduced protection',
        'A divorce decree may require a survivor annuity election — OPM must be notified within 30 days of divorce'
      ]},
@@ -690,12 +690,12 @@ export const REF_DATA = [
        'FEGLI: NOT divisible by court order; FEGLI follows the SF-2823 beneficiary designation only',
        'Former spouse survivor annuity: must be awarded by court order AND employee must elect it at retirement',
        'Employee must notify OPM of divorce within 30 days to protect former spouse rights',
-       'Former spouse FEH/: can continue FEH/ coverage if receiving a survivor annuity or portion of annuity',
+       'Former spouse FEHB: can continue FEHB coverage if receiving a survivor annuity or portion of annuity',
        'TSP-3 controls TSP — a divorce decree alone does NOT change TSP beneficiary; TSP-3 must be updated'
      ],
      numbers:[
        {label:'Notification deadline to OPM',value:'30 days after divorce decree'},
-       {label:'Former spouse FEH/ eligibility',value:'Requires survivor annuity or annuity share award'}
+       {label:'Former spouse FEHB eligibility',value:'Requires survivor annuity or annuity share award'}
      ],
      watch:[
        'Divorce decree says "TSP shall be divided equally" — this is NOT automatically effective; requires separate RBCO filed with TSP',
