@@ -489,7 +489,7 @@ export const REF_DATA = [
        'Part A enrollment at 65 is usually free and low-risk — but it disqualifies from HSA contributions',
        'General enrollment period (Jan–Mar each year) has a premium surcharge AND July start — avoid this situation'
      ]},
-    {id:'medicare-irmaa',title:'IRMAA — Income-Related Adjustments',summary:'Higher-income retirees pay more for Parts / and D',
+    {id:'medicare-irmaa',title:'IRMAA — Income-Related Adjustments',summary:'Higher-income retirees pay more for Parts B and D',
      overview:'IRMAA adds income-based surcharges to Medicare Part B and D premiums. It affects higher-income retirees and is calculated based on income from 2 years prior.',
      rules:[
        'IRMAA based on Modified Adjusted Gross Income (MAGI) from 2 years prior',
