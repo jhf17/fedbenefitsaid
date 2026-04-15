@@ -123,9 +123,12 @@ function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basi
   return {
     bia,
     optA: optA ? 10000 : 0,
-    optB: optBPerK * (salary / 1000),
+    // Option B coverage = multiples × salary (e.g., 3 multiples on $120K = $360,000).
+    // The premium math on lines 62/86/107 correctly divides salary by 1,000 because
+    // the rate tables are per $1,000 of coverage; the COVERAGE DISPLAY must use dollars.
+    optB: optBPerK * salary,
     optC: optCPerMult * 5000,  // Per OPM: 1 multiple = $5,000 spouse + $2,500 per eligible child
-    totalCoverage: bia + (optA ? 10000 : 0) + (optBPerK * (salary / 1000)) + (optCPerMult * 5000),
+    totalCoverage: bia + (optA ? 10000 : 0) + (optBPerK * salary) + (optCPerMult * 5000),
     currentCostBiw: totalBiw,
     currentCostMonthly: totalMonthly,
     currentCostAnnual: totalAnnual,
