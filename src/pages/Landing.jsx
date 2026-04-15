@@ -469,10 +469,10 @@ export default function Landing() {
           <div style={{ borderRadius: '24px', padding: isMobile ? '28px 22px' : '40px', minHeight: isMobile ? 'auto' : '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: colors.navy }}>
             <div>
               {[
-                { user: true, text: "I'm 56 with 28 years of service. Can I retire with a full pension?" },
-                { user: false, text: 'Yes — you\'re eligible for an immediate, unreduced FERS retirement. Your pension would be approximately 30.8% of your high-3 salary. Want me to calculate the exact amount?' },
+                { user: true, text: "I'm 60 with 25 years of service. Can I retire with a full pension?" },
+                { user: false, text: 'Yes — you\'re eligible for an immediate, unreduced FERS retirement under the Age 60 + 20 years rule. Your pension would be 25% of your high-3 salary (1.0% × 25 years). Want me to calculate the exact amount?' },
                 { user: true, text: 'Yes, my high-3 is $125,000' },
-                { user: false, text: 'Your estimated FERS pension: $38,500/year ($3,208/month). You\'d also qualify for the FERS Supplement until age 62.' },
+                { user: false, text: 'Your estimated FERS pension: $31,250/year ($2,604/month). You\'d also qualify for the FERS Supplement until age 62.' },
               ].map((bubble, i) => (
                 <div key={i} style={{ padding: '14px 18px', borderRadius: '14px', fontSize: '0.88rem', lineHeight: '1.5', marginBottom: '10px', maxWidth: '88%', background: bubble.user ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)', color: bubble.user ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.75)', border: bubble.user ? 'none' : '1px solid rgba(255,255,255,0.08)', borderBottomRightRadius: bubble.user ? '4px' : '14px', borderBottomLeftRadius: bubble.user ? '14px' : '4px', marginLeft: bubble.user ? 'auto' : '0' }}>
                   {bubble.text}
