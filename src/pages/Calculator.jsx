@@ -263,7 +263,10 @@ function calcTSPFutureValue(balance, monthlyContrib, yearsToRetire, annualGrowth
 function calcFERSSupplement(yearsService, ssAt62) {
   const yrs = parseFloat(yearsService) || 0
   const ss = parseFloat(ssAt62) || 0
-  return (yrs / 40) * ss / 12
+  // ssAt62 input is collected as a MONTHLY figure (label: "Estimated Social
+  // Security at Age 62 ($/mo)"), and the OPM Supplement formula produces a
+  // monthly result: (years of FERS service / 40) × estimated age-62 monthly SS.
+  return (yrs / 40) * ss
 }
 
 // ============================================================
