@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "og-image": "node scripts/generate-og-image.mjs"
+    "og-image": "node scripts/generate-og-image.mjs",
+    "probe-resend": "node scripts/probe-resend.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.43.4",
