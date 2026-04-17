@@ -512,6 +512,22 @@ export default function Calculator() {
 
   const s = styles
 
+  // T2.2: classify eligibility for the results-panel chip. Uses values already
+  // present on `results` so no new state is introduced.
+  function classifyEligibility(r) {
+    if (!r) return null
+    if (r.tab === 'csrs') return 'CSRS Immediate Retirement'
+    if (r.tab === 'special') return 'Special Provisions (LEO/FF/ATC/Cong.)'
+    // FERS tab
+    if (earlyRetirement === 'mra10' && r.rAge < 62) return 'MRA+10 Reduced'
+    if (r.rAge >= 62 && r.yrs >= 20) return 'Age 62 Unreduced · 1.1% multiplier'
+    if (r.rAge >= 62 && r.yrs >= 5) return 'Age 62 Unreduced · 1.0% multiplier'
+    if (r.rAge >= 60 && r.yrs >= 20) return 'Age 60 + 20 Immediate Unreduced'
+    if (r.yrs >= 30 && r.rAge >= 55) return 'MRA + 30 Immediate Unreduced'
+    if (r.yrs >= 5) return 'Deferred Retirement'
+    return 'Insufficient Service'
+  }
+
   return (
     <main id="main-content" style={s.page}>
       <Seo
@@ -771,95 +787,118 @@ export default function Calculator() {
 
             <button onClick={calculate} style={s.button}>Calculate My Retirement</button>
 
-            {/* Results Section */}
-            {results && (
+            {/* Results Section — T2.2 rebuild: structured "What You'll Actually See" panel */}
+            {results && (() => {
+              // Pre-compute row values so the JSX stays readable
+              const pensionGrossMonthly = (results.pensionResult?.gross || 0) / 12
+              const survivorDeductMonthly = (results.pensionResult?.survivorDeduct || 0) / 12
+              const earlyReductionMonthly = (results.pensionResult?.earlyReductionAmt || 0) / 12
+              const fehbMonthly = results.fehbDeduct || 0
+              const medicareMonthly = results.medicareDeduct || 0
+              // Net pension = monthly pensionAnnual / 12 minus the deductions (fehb + medicare deducted at display time)
+              const netFersMonthly = (results.pensionAnnual / 12) - fehbMonthly - medicareMonthly
+              // Supplement — compute with spec's rounding if eligible but no SS estimate entered
+              const eligibility = classifyEligibility(results)
+              const ssMonthly = results.ssMonthly || 0
+              const tspMonthly = results.tspMonthly4pct || 0
+              const supplementComputed = results.supplementMonthly > 0
+                ? Math.round(results.supplementMonthly / 10) * 10
+                : (results.supplementEligible && parseFloat(ssAt62) > 0
+                    ? Math.round(((results.yrs / 40) * parseFloat(ssAt62)) / 10) * 10
+                    : 0)
+              const grandTotal = results.totalMonthly
+
+              return (
               <div id="calc-results" style={{ marginTop: 32 }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 24 }}>Your Retirement Income</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 12 }}>Your Results</div>
 
-                {/* Monthly Income Breakdown */}
+                {/* HEADLINE PANEL */}
                 <div style={s.card(isMobile)}>
-                  <div style={s.cardTitle}>Monthly Income at Retirement</div>
-                  <div style={{ fontSize: '2.8rem', fontWeight: 900, color: '#7b1c2e', marginBottom: 24 }}>{fmt(results.totalMonthly)}</div>
-
-                  <div style={s.grid2(isMobile)}>
-                    <div style={s.resultBox}>
-                      <div style={s.resultLabel}>Pension</div>
-                      <div style={s.resultValue}>{fmt(results.pensionMonthly)}</div>
-                    </div>
-                    {results.supplementEligible && (
-                      <div style={s.resultBox}>
-                        <div style={s.resultLabel}>FERS Supplement</div>
-                        {results.supplementMonthly > 0 ? (
-                          <>
-                            <div style={s.resultValue}>{fmt(results.supplementMonthly)}</div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>
-                              Until age 62{results.tab === 'special' ? ' — paid from retirement' : ''}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div style={{ ...s.resultValue, color: '#64748b' }}>—</div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6, lineHeight: 1.5 }}>
-                              You qualify for the FERS Supplement{results.tab === 'special' ? ' (Special Provisions retirees receive it immediately on retirement before 62)' : ''}. Enter your estimated Social Security benefit at age 62 above to calculate the amount.
-                            </div>
-                          </>
-                        )}
-                      </div>
+                  <div style={{ fontSize: isMobile ? '1.05rem' : '1.2rem', color: '#475569', fontWeight: 500, lineHeight: 1.4, marginBottom: 10 }}>
+                    Based on your inputs, your estimated monthly retirement income is
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+                    <div style={{ fontSize: isMobile ? '2.4rem' : '3rem', fontWeight: 900, color: '#7b1c2e', lineHeight: 1, letterSpacing: '-0.02em' }}>{fmt(grandTotal)}</div>
+                    {eligibility && (
+                      <span style={{ display: 'inline-block', padding: '5px 12px', background: 'rgba(30,58,95,0.08)', border: '1px solid rgba(30,58,95,0.2)', color: '#1e3a5f', borderRadius: 100, fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.02em' }}>{eligibility}</span>
                     )}
                   </div>
-                  {results.supplementMonthly > 0 && (
-                    <div style={{ ...s.resultBox, borderLeft: '4px solid #d97706', background: '#fffbeb', marginTop: 16 }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Earnings Test Warning</div>
-                      <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6 }}>
-                        The FERS Supplement is subject to the Social Security earnings test. In 2026, if you earn more than $24,480/year from wages or self-employment before age 62, your supplement is reduced by $1 for every $2 earned above the limit.
+
+                  {/* WHAT YOU'LL ACTUALLY SEE */}
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b', marginBottom: 8, marginTop: 8 }}>What You'll Actually See Each Month</div>
+                  <div style={{ border: '1px solid #cbd5e1', borderRadius: 10, overflow: 'hidden', background: '#fff' }}>
+                    <ActualRow label={(results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS') + ' Pension (gross)'} value={fmt(pensionGrossMonthly)} type="income" />
+                    {earlyReductionMonthly > 0 && (
+                      <ActualRow label="MRA+10 Early Reduction" value={'−' + fmt(earlyReductionMonthly)} type="deduct" />
+                    )}
+                    {survivorDeductMonthly > 0 && (
+                      <ActualRow label="Survivor Benefit Reduction" value={'−' + fmt(survivorDeductMonthly)} type="deduct" />
+                    )}
+                    {fehbMonthly > 0 && (
+                      <ActualRow label={'FEHB Health Premium' + (results.fehbPlanLabel ? ` · ${results.fehbPlanLabel}` : '')} value={'−' + fmt(fehbMonthly)} type="deduct" />
+                    )}
+                    {medicareMonthly > 0 && (
+                      <ActualRow label="Medicare Part B" value={'−' + fmt(medicareMonthly)} type="deduct" />
+                    )}
+                    <ActualRow label="Subtotal — Net FERS Pension" value={fmt(netFersMonthly)} type="subtotal" />
+                    {supplementComputed > 0 && (
+                      <ActualRow label="FERS Supplement (until age 62)" value={fmt(supplementComputed)} type="income" />
+                    )}
+                    {tspMonthly > 0 && (
+                      <ActualRow label="TSP Drawdown (4% rule)" value={fmt(tspMonthly)} type="income" />
+                    )}
+                    {ssMonthly > 0 && (
+                      <ActualRow label={`Social Security (claimed at ${results.claimAge || 67})`} value={fmt(ssMonthly)} type="income" />
+                    )}
+                    <ActualRow label="Grand Total Monthly Net Income" value={fmt(grandTotal)} type="total" />
+                  </div>
+
+                  {/* FERS Supplement explainer */}
+                  {results.supplementEligible && supplementComputed > 0 && (
+                    <div style={{ marginTop: 16, padding: '12px 14px', borderLeft: '3px solid #1e3a5f', background: '#f8fafc', borderRadius: 6 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>FERS Supplement</div>
+                      <div style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.55 }}>
+                        You'll also receive the FERS Supplement until age 62 — roughly <strong>{fmt(supplementComputed)}/mo</strong>, bridging until you can claim Social Security. The estimate is based on {(Math.round(results.yrs * 10) / 10)} FERS years divided by 40, multiplied by your entered SS at age 62.
+                      </div>
+                    </div>
+                  )}
+                  {results.supplementEligible && supplementComputed === 0 && (
+                    <div style={{ marginTop: 16, padding: '12px 14px', borderLeft: '3px solid #d97706', background: '#fffbeb', borderRadius: 6 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>FERS Supplement</div>
+                      <div style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.55 }}>
+                        You qualify for the FERS Supplement{results.tab === 'special' ? ' (Special Provisions retirees receive it immediately)' : ''}. Enter your estimated <em>Social Security at Age 62</em> above to compute the dollar amount.
+                      </div>
+                    </div>
+                  )}
+                  {supplementComputed > 0 && (
+                    <div style={{ marginTop: 10, padding: '10px 14px', borderLeft: '3px solid #d97706', background: '#fffbeb', borderRadius: 6 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>Earnings Test</div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
+                        The FERS Supplement is subject to the Social Security earnings test. In 2026, wages or self-employment above $24,480 reduce the supplement by $1 per $2 earned.
+                      </div>
+                    </div>
+                  )}
+                  {ssMonthly > 0 && (
+                    <div style={{ marginTop: 10, padding: '10px 14px', borderLeft: '3px solid #16a34a', background: '#f0fdf4', borderRadius: 6 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>WEP/GPO Repealed</div>
+                      <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.55 }}>
+                        WEP and GPO were repealed by the Social Security Fairness Act (January 2025). Social Security is no longer reduced for federal retirees with pensions from non-SS-covered work.
                       </div>
                     </div>
                   )}
                 </div>
-
-                {/* Income Details */}
-                <div style={s.card(isMobile)}>
-                  <div style={s.cardTitle}>Other Income Sources</div>
-                  <div style={s.grid2(isMobile)}>
-                    {results.ssMonthly > 0 && (
-                      <div style={s.resultBox}>
-                        <div style={s.resultLabel}>Social Security</div>
-                        <div style={s.resultValue}>{fmt(results.ssMonthly)}</div>
-                      </div>
-                    )}
-                    {results.tspMonthly4pct > 0 && (
-                      <div style={s.resultBox}>
-                        <div style={s.resultLabel}>TSP Withdrawal (4%)</div>
-                        <div style={s.resultValue}>{fmt(results.tspMonthly4pct)}</div>
-                      </div>
-                    )}
-                    {results.medicareDeduct > 0 && (
-                      <div style={{ ...s.resultBox, background: '#fff5f5' }}>
-                        <div style={s.resultLabel}>Medicare Part B</div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.medicareDeduct)}</div>
-                      </div>
-                    )}
-                    {results.fehbDeduct > 0 && (
-                      <div style={{ ...s.resultBox, background: '#fff5f5' }}>
-                        <div style={s.resultLabel}>FEHB Premium</div>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#dc2626' }}>−{fmt(results.fehbDeduct)}</div>
-                      </div>
-                    )}
-                  </div>
-                  {results.ssMonthly > 0 && (
-                    <div style={{ ...s.resultBox, borderLeft: '4px solid #16a34a', background: '#f0fdf4', marginTop: 16 }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>WEP/GPO Repealed</div>
-                      <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.6 }}>
-                        The Windfall Elimination Provision (WEP) and Government Pension Offset (GPO) were repealed by the Social Security Fairness Act (January 2025). Social Security benefits are no longer reduced for those with pensions from non-SS-covered work. If you were previously affected, contact SSA about retroactive adjustments.
-                      </div>
-                    </div>
-                  )}
-                </div>
+              </div>
+              )
+            })()}
+            {results && (
+              <div style={{ marginTop: 28 }}>
+                {/* T2.2: section marker — these are now secondary details below the main results panel */}
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#64748b', marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid #e2e8f0' }}>Detail & Assumptions</div>
 
                 {/* Pension Breakdown */}
                 {results.pensionResult && (
                   <div style={s.card(isMobile)}>
-                    <div style={s.cardTitle}>{results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS'} Pension Calculation</div>
+                    <h3 style={s.secondaryTitle}>{results.tab === 'csrs' ? 'CSRS' : results.tab === 'special' ? 'Special Provision' : 'FERS'} Pension Calculation</h3>
                     <div style={s.grid2(isMobile)}>
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>High-3 Salary</div>
@@ -910,7 +949,7 @@ export default function Calculator() {
                 {/* TSP Projection */}
                 {results.tspAtRetirement > 0 && (
                   <div style={s.card(isMobile)}>
-                    <div style={s.cardTitle}>TSP at Retirement</div>
+                    <h3 style={s.secondaryTitle}>TSP at Retirement</h3>
                     <div style={s.grid2(isMobile)}>
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>Projected TSP Balance</div>
@@ -930,7 +969,7 @@ export default function Calculator() {
                 {/* COLA Projection (FERS only) */}
                 {results.tab === 'fers' && results.colaProjection && (
                   <div style={s.card(isMobile)}>
-                    <div style={s.cardTitle}>FERS Pension Growth with COLA Adjustments</div>
+                    <h3 style={s.secondaryTitle}>FERS Pension Growth with COLA Adjustments</h3>
                     <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 12 }}>
                       Cost-of-living adjustments (COLA) begin at age 62. Projected at historical 2% average annual increase.
                     </p>
@@ -1072,6 +1111,24 @@ export default function Calculator() {
 }
 
 
+// T2.2: one row of the "What You'll Actually See" results table
+function ActualRow({ label, value, type }) {
+  const isDeduct = type === 'deduct'
+  const isTotal = type === 'total'
+  const isSubtotal = type === 'subtotal'
+  const bg = isTotal ? '#0f172a' : isSubtotal ? '#f8fafc' : isDeduct ? '#fff5f5' : '#fff'
+  const color = isTotal ? '#fff' : isDeduct ? '#dc2626' : '#0f172a'
+  const borderBottom = isTotal ? 'none' : '1px solid #e2e8f0'
+  const weight = isTotal ? 900 : isSubtotal ? 700 : 600
+  const fontSize = isTotal ? '1.1rem' : '0.95rem'
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '10px 14px', background: bg, borderBottom, fontSize, color, fontWeight: isDeduct ? 500 : weight }}>
+      <span style={{ color: isTotal ? '#fff' : isDeduct ? '#475569' : '#334155', fontWeight: isTotal ? 700 : 500 }}>{label}</span>
+      <span style={{ fontWeight: weight, color, fontFeatureSettings: "'tnum' 1" }}>{value}</span>
+    </div>
+  )
+}
+
 function Toggle({ checked, onChange, label, sublabel }) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', padding: '8px 0' }}>
@@ -1142,6 +1199,8 @@ const styles = {
 
   card: (isMobile) => ({ background: '#fff', borderRadius: 12, padding: isMobile ? 20 : 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)' }),
   cardTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 20 },
+  // T2.2: smaller header for secondary detail sections below the main results panel
+  secondaryTitle: { fontSize: '1rem', fontWeight: 700, color: '#1e3a5f', marginBottom: 14, marginTop: 0, fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif" },
 
   grid2: (isMobile) => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 16 }),
 

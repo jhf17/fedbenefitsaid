@@ -24,7 +24,7 @@
 - [~] T2.15 Verify Resend domain configuration (probe script shipped, user must run)
 - [x] T2.13 Auth layer on chat.js + send-results-email.js
 - [x] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
-- [ ] T2.2 Rebuild FERS Calculator results layout
+- [x] T2.2 Rebuild FERS Calculator results layout
 - [ ] T2.3 Harden Chat system prompt
 - [ ] T2.4 Add lead capture to both calculators
 - [ ] T2.5 Rename nav items
@@ -121,3 +121,11 @@
     10. Important Notes bullet list at bottom
   - Palette: navy #0f172a, maroon #7b1c2e, gold #b8860b (+ goldLight #d4af37 for hero number), muted-red #9b3a4d for Option C. Zero blue, teal, or pink. Inline styles throughout, matches site pattern.
   - Build: 1.36s, FEGLICalculator chunk 399KB / 118KB gzipped (recharts bundle cost — lazy-loaded so only /calculators/fegli visitors pay). No build warnings. T2.11 Lighthouse pass will decide whether to tree-shake recharts or defer to a lighter chart lib.
+- 2026-04-17 T2.2 complete — FERS Calculator results layout rebuilt:
+  - New structured headline panel replaces the old 2-card breakdown. Top line reads "Based on your inputs, your estimated monthly retirement income is $X,XXX" with the big number in maroon.
+  - Eligibility chip appears next to the number via new classifyEligibility() helper — returns one of: "Age 62 Unreduced · 1.1% multiplier", "Age 62 Unreduced · 1.0% multiplier", "Age 60 + 20 Immediate Unreduced", "MRA + 30 Immediate Unreduced", "MRA+10 Reduced", "Deferred Retirement", "CSRS Immediate Retirement", "Special Provisions (LEO/FF/ATC/Cong.)".
+  - "What You'll Actually See Each Month" table via new ActualRow subcomponent. Rows: FERS/CSRS/Special Pension (gross), optional MRA+10 reduction (negative), optional Survivor Benefit reduction (negative), optional FEHB (negative with plan label), optional Medicare Part B (negative), Subtotal — Net FERS Pension (highlighted), FERS Supplement if eligible, TSP Drawdown, Social Security, Grand Total (navy background, white bold).
+  - FERS Supplement inline explainer: when user qualifies AND ssAt62 is entered, shows "You'll also receive the FERS Supplement until age 62 — roughly $X/mo, bridging until you can claim Social Security" with the exact formula shown (years/40 × SS-at-62, rounded to nearest $10 per spec). When eligible but SS not entered, shows a prompt to enter SS estimate. Earnings Test warning shown below when a dollar figure is present.
+  - WEP/GPO Repealed info callout preserved from old layout.
+  - Existing detail cards (FERS Pension Calculation, TSP at Retirement, COLA Projection) are preserved but demoted: now sit under a new "Detail & Assumptions" section label below the headline panel, with smaller serif `<h3 style={s.secondaryTitle}>` headings instead of the previous maroon uppercase `s.cardTitle`.
+  - Build: 1.34s, Calculator chunk 34KB / 10KB gzipped (+3KB vs before).
