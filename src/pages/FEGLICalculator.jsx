@@ -247,7 +247,7 @@ export default function FEGLICalculator() {
             <line x1="12" y1="16" x2="12" y2="12" />
             <line x1="12" y1="8" x2="12.01" y2="8" />
           </svg>
-          This calculator provides estimates for educational purposes only. FEGLI rates and coverage are based on OPM data effective 10/1/2021. Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
+          This calculator provides estimates for educational purposes only. Current OPM FEGLI rates (set effective 10/1/2021). Actual benefits may differ. This is not financial advice — consult a qualified federal benefits advisor for personalized guidance. FedBenefitsAid is not affiliated with OPM or the U.S. government.
         </div>
 
         {/* Back to Calculators link */}
