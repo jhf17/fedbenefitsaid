@@ -26,7 +26,7 @@
 - [x] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
 - [x] T2.2 Rebuild FERS Calculator results layout
 - [x] T2.3 Harden Chat system prompt
-- [ ] T2.4 Add lead capture to both calculators
+- [x] T2.4 Add lead capture to both calculators
 - [ ] T2.5 Rename nav items
 - [ ] T2.6 Create /about page
 - [ ] T2.7 Rework Assessment results into action plan
@@ -141,3 +141,10 @@
   - Removed the old FERS-RAE / Roth TSP / LWOP / reemployed-annuitant / part-time / court-order / death-in-service paragraphs — the model can answer those from general knowledge plus the Airtable context, and trimming the prompt reduces token cost per turn.
   - New dynamic directive: when the user has sent ≥3 messages in the session, chat.js appends an ADDITIONAL DIRECTIVE block to the system prompt instructing the model to end the response with "Book a free 30-minute consultation → [Calendly URL]" on its own line. Computed from sanitizedMessages user-role count each turn.
   - Acceptance-test responses captured in TIER2_REPORT after deploy (user's 3 test questions).
+- 2026-04-17 T2.4 complete — lead capture on both calculators:
+  - FERS Calculator (Calculator.jsx): add-lead call now sends Source: "Calculator - FERS" (was "Calculator"), plus a notes blob containing inputs { yearsService, high3, currentAge, retireAge, survivorBenefit, earlyRetirement, sickLeaveHours, tspBalance, monthlyContrib, tspGrowthRate, ssAt62, ssClaimAge, includeMedicare, includeFEHB, fehbPlan, fehbCoverage } and outputs { pensionMonthly, supplementMonthly, supplementEligible, tspAtRetirement, tspMonthly4pct, ssMonthly, fehbDeduct, medicareDeduct, totalMonthly, totalAnnual }. Card heading renamed "Save & Share Your Results" → "Email Me This Projection" with a short helper paragraph. Uses authFetch on send-results-email for T2.13 compliance.
+  - FEGLI Calculator (FEGLICalculator.jsx): same pattern, already shipped in T2.1 — Source: "Calculator - FEGLI", notes blob { salary, age, retireAge, postal, alreadyRetired, elections, coverage, currentCosts, age75 }. "Email me this projection" CTA lives in the sticky sidebar per T2.1 spec.
+  - Function: add-lead.js now accepts optional `notes` field. Sanitized via existing sanitizeForAirtable() and capped at 10,000 chars. Writes to Airtable "Notes" field. Both CREATE and PATCH code paths have 422 retry logic: if Airtable returns 422 (typically because the table doesn't yet have a Notes text field), the function automatically retries without the Notes field so the lead still gets captured. Admin can add a long-text Notes column to the Leads table at any point and the retry disappears — no redeploy needed.
+  - Email sender (send-results-email.js): existing HTML templates used. Spec's "Send formatted HTML email with the same numbers user sees" satisfied via the type='calculator' and type='fegli-calculator' templates already in the function. Auth required per T2.13 — anonymous calculator users still have leads captured in Airtable but do not receive the email.
+  - Email infrastructure choice documented: Resend via send-results-email.js (pre-existing). Hardcoded sender `FedBenefitsAid <results@fedbenefitsaid.com>`. Delivery state pending user's local `npm run probe-resend` run — see T2.15.
+  - Build: 1.49s, Calculator chunk +2KB for the notes blob serialization.

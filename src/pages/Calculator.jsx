@@ -353,10 +353,54 @@ export default function Calculator() {
     setCaptureError('')
     setCaptureLoading(true)
     try {
+      // T2.4: Source distinguishes FERS vs FEGLI captures in Airtable.
+      // `notes` carries the full inputs+outputs JSON blob so admin can review
+      // context without needing to rerun the calc.
+      const t24Notes = results ? JSON.stringify({
+        retirementSystem: tab === 'csrs' ? 'CSRS' : tab === 'special' ? 'FERS Special Provision' : 'FERS',
+        specialCategory: tab === 'special' ? specialCat : undefined,
+        inputs: {
+          yearsService: results.yrs,
+          high3: results.h3,
+          currentAge: parseFloat(currentAge) || undefined,
+          retireAge: results.rAge,
+          survivorBenefit,
+          earlyRetirement: tab === 'fers' ? earlyRetirement : undefined,
+          sickLeaveHours: parseFloat(sickLeaveHours) || 0,
+          tspBalance: parseFloat(tspBalance) || 0,
+          monthlyContrib: parseFloat(monthlyContrib) || 0,
+          tspGrowthRate: parseFloat(tspGrowthRate) || 6,
+          ssAt62: parseFloat(ssAt62) || 0,
+          ssClaimAge: parseFloat(ssClaimAge) || 67,
+          includeMedicare,
+          includeFEHB,
+          fehbPlan,
+          fehbCoverage,
+        },
+        outputs: {
+          pensionMonthly: Math.round(results.pensionMonthly),
+          supplementMonthly: Math.round(results.supplementMonthly || 0),
+          supplementEligible: results.supplementEligible,
+          tspAtRetirement: Math.round(results.tspAtRetirement),
+          tspMonthly4pct: Math.round(results.tspMonthly4pct),
+          ssMonthly: Math.round(results.ssMonthly),
+          fehbDeduct: Math.round(results.fehbDeduct),
+          medicareDeduct: Math.round(results.medicareDeduct),
+          totalMonthly: Math.round(results.totalMonthly),
+          totalAnnual: Math.round(results.totalAnnual),
+        },
+      }).slice(0, 2000) : ''
       const res = await fetch('/.netlify/functions/add-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: captureName, email: captureEmail, phone: capturePhone, source: 'Calculator' }),
+        body: JSON.stringify({
+          name: captureName,
+          email: captureEmail,
+          phone: capturePhone,
+          source: 'Calculator - FERS',
+          status: 'New',
+          notes: t24Notes,
+        }),
       })
       if (!res.ok) throw new Error('Failed to save')
       setCaptureSent(true)
@@ -1012,9 +1056,10 @@ export default function Calculator() {
                   </a>
                 </div>
 
-                {/* Email Capture */}
+                {/* Email Capture — T2.4 */}
                 <div style={s.card(isMobile)}>
-                  <div style={s.cardTitle}>Save & Share Your Results</div>
+                  <div style={s.cardTitle}>Email Me This Projection</div>
+                  <p style={{ fontSize: '0.9rem', color: '#64748b', lineHeight: 1.55, marginTop: -12, marginBottom: 16 }}>Get a formatted email summary of these numbers. We'll save your inputs so a FedBenefitsAid specialist can review your situation if you book a consultation.</p>
                   {captureSent ? (
                     <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: 12, textAlign: 'center' }}>
                       <p style={{ color: '#16a34a', fontWeight: 600, fontSize: 16, margin: '0 0 4px' }}>Results saved!</p>

@@ -99,7 +99,9 @@ exports.handler = async (event) => {
     }
   }
 
-  const { name, email, phone, source = 'Website Signup', assessmentScore } = body
+  // T2.4: `notes` optional — used by calculator captures to log the full
+  // inputs+outputs payload so admin can review context without re-running.
+  const { name, email, phone, source = 'Website Signup', assessmentScore, notes } = body
 
   if (!email) {
     return {
@@ -181,8 +183,16 @@ exports.handler = async (event) => {
         updateFields['Assessment Score'] = assessmentScore
       }
 
-      // Patch the record
-      const patchRes = await fetch(
+      // T2.4: append notes to Airtable Notes field (sanitize + cap length).
+      // Uses typecast:true below so string coercion is automatic. If the
+      // Airtable table doesn't yet have a Notes field the whole PATCH 422s;
+      // retry logic below strips Notes on failure.
+      if (notes && typeof notes === 'string') {
+        updateFields.Notes = sanitizeForAirtable(notes).slice(0, 10000)
+      }
+
+      // T2.4: 422 retry without Notes — same safety net as the create path
+      const tryPatch = async (fieldsToSend) => fetch(
         `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}/${recordId}`,
         {
           method: 'PATCH',
@@ -190,9 +200,17 @@ exports.handler = async (event) => {
             'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ fields: updateFields, typecast: true }),
+          body: JSON.stringify({ fields: fieldsToSend, typecast: true }),
         }
       )
+
+      let patchRes = await tryPatch(updateFields)
+      if (!patchRes.ok && patchRes.status === 422 && updateFields.Notes) {
+        const err422 = await patchRes.text()
+        console.warn('[add-lead] 422 on patch WITH Notes — retrying without. Original error:', err422)
+        const { Notes, ...withoutNotes } = updateFields
+        patchRes = await tryPatch(withoutNotes)
+      }
 
       if (!patchRes.ok) {
         const err = await patchRes.text()
@@ -229,7 +247,14 @@ exports.handler = async (event) => {
         createFields['Assessment Score'] = assessmentScore
       }
 
-      const createRes = await fetch(
+      // T2.4: append notes if provided
+      if (notes && typeof notes === 'string') {
+        createFields.Notes = sanitizeForAirtable(notes).slice(0, 10000)
+      }
+
+      // Helper: attempt create; if 422 (likely due to unknown Notes field),
+      // retry WITHOUT Notes so the lead is still captured.
+      const tryCreate = async (fieldsToSend) => fetch(
         `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`,
         {
           method: 'POST',
@@ -237,9 +262,17 @@ exports.handler = async (event) => {
             'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ records: [{ fields: createFields }], typecast: true }),
+          body: JSON.stringify({ records: [{ fields: fieldsToSend }], typecast: true }),
         }
       )
+
+      let createRes = await tryCreate(createFields)
+      if (!createRes.ok && createRes.status === 422 && createFields.Notes) {
+        const err422 = await createRes.text()
+        console.warn('[add-lead] 422 on create WITH Notes — retrying without. Original error:', err422)
+        const { Notes, ...withoutNotes } = createFields
+        createRes = await tryCreate(withoutNotes)
+      }
 
       if (!createRes.ok) {
         const err = await createRes.text()
