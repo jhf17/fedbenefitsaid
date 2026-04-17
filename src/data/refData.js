@@ -130,6 +130,13 @@ export const REF_DATA = [
      ]},
     {id:'fers-rae-frae',title:'FERS-RAE & FERS-FRAE Employee Contributions',summary:'Higher contribution rates for employees hired after 2012 and 2013',
      overview:'Federal employees hired after December 31, 2012 are classified as FERS-Revised Annuity Employees (FERS-RAE), and those hired after December 31, 2013 are FERS-Further Revised Annuity Employees (FERS-FRAE). These employees pay significantly higher contributions toward their pension but receive the same retirement benefits as original FERS employees.',
+     rules:[
+       'Your hire date determines your contribution category — this cannot be changed',
+       'The pension formula (1% × years × High-3, or 1.1% at age 62+ with 20+ years) is identical for all FERS categories',
+       'FERS-RAE and FERS-FRAE employees receive the same retirement benefits — only the paycheck deduction differs',
+       'Congressional employees and congressional employee security officers have separate higher rates',
+       'Military deposit (buyback) and refund rules are the same across all three FERS categories'
+     ],
      numbers:[
        {label:'Original FERS contribution rate',value:'0.8% of basic pay'},
        {label:'FERS-RAE contribution rate (hired after 12/31/2012)',value:'3.1% of basic pay'},
@@ -137,14 +144,10 @@ export const REF_DATA = [
        {label:'Law enforcement/firefighter FERS-RAE',value:'3.6% of basic pay'},
        {label:'Law enforcement/firefighter FERS-FRAE',value:'4.9% of basic pay'}
      ],
-     details:[
-       'Your hire date determines your contribution category — this cannot be changed',
-       'The pension formula (1% x years x high-3, or 1.1% at age 62+ with 20+ years) is identical for all FERS categories',
-       'FERS-RAE and FERS-FRAE employees receive the same retirement benefits — only the paycheck deduction differs',
-       'Congressional employees and congressional employee security officers have separate higher rates',
-       'If you left federal service and returned after the applicable date, you are generally classified under the newer rate',
-       'Military deposit (buyback) and refund rules are the same across all three FERS categories',
-       'The higher contribution rate does NOT result in a higher pension — it simply costs the employee more during their career'
+     watch:[
+       'If you left federal service and returned after the applicable date, you are generally classified under the newer (higher) rate',
+       'The higher contribution rate does NOT result in a higher pension — it simply costs the employee more during their career',
+       'A refund of contributions on separation forfeits ALL service credit tied to those contributions unless you later redeposit (with interest)'
      ]}
   ]},
   {cat:'TSP',icon:'💰',color:'#7b1c2e',topics:[

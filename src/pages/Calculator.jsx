@@ -363,13 +363,14 @@ export default function Calculator() {
       // Send results email (fire-and-forget)
       if (results) {
         const fmt = (n) => '$' + Math.round(n).toLocaleString()
+        const pensionLabel = tab === 'csrs' ? 'CSRS Pension' : tab === 'special' ? 'Special Provision Pension' : 'FERS Pension'
         const breakdown = [
-          { label: 'FERS Pension', value: fmt(results.pension), type: 'income' },
-          results.supplement > 0 ? { label: 'FERS Supplement', subtitle: 'Until age 62', value: fmt(results.supplement), type: 'income' } : null,
-          results.ss > 0 ? { label: 'Social Security', subtitle: `Claiming at age ${retireAge || 62}`, value: fmt(results.ss), type: 'income' } : null,
-          results.tspDraw > 0 ? { label: 'TSP Drawdown', subtitle: `Based on ${fmt(+tspBalance)} balance`, value: fmt(results.tspDraw), type: 'income' } : null,
-          results.fehb > 0 ? { label: 'FEHB Health Premium', subtitle: fehbPlan || 'Self Only', value: fmt(results.fehb), type: 'deduction' } : null,
-          results.medicare > 0 ? { label: 'Medicare Part B', value: fmt(results.medicare), type: 'deduction' } : null,
+          { label: pensionLabel, value: fmt(results.pensionMonthly), type: 'income' },
+          results.supplementMonthly > 0 ? { label: 'FERS Supplement', subtitle: 'Until age 62', value: fmt(results.supplementMonthly), type: 'income' } : null,
+          results.ssMonthly > 0 ? { label: 'Social Security', subtitle: `Claiming at age ${results.claimAge || 67}`, value: fmt(results.ssMonthly), type: 'income' } : null,
+          results.tspMonthly4pct > 0 ? { label: 'TSP Drawdown', subtitle: `4% rule on ${fmt(results.tspAtRetirement)} projected balance`, value: fmt(results.tspMonthly4pct), type: 'income' } : null,
+          results.fehbDeduct > 0 ? { label: 'FEHB Health Premium', subtitle: results.fehbPlanLabel || 'Self Only', value: fmt(results.fehbDeduct), type: 'deduction' } : null,
+          results.medicareDeduct > 0 ? { label: 'Medicare Part B', value: fmt(results.medicareDeduct), type: 'deduction' } : null,
         ].filter(Boolean)
 
         fetch('/.netlify/functions/send-results-email', {
@@ -380,8 +381,8 @@ export default function Calculator() {
             email: captureEmail,
             data: {
               name: captureName,
-              totalMonthly: fmt(results.total),
-              totalAnnual: fmt(results.total * 12),
+              totalMonthly: fmt(results.totalMonthly),
+              totalAnnual: fmt(results.totalAnnual),
               retirementSystem: tab === 'csrs' ? 'CSRS' : tab === 'special' ? 'FERS Special Provision' : 'FERS',
               breakdown,
             },
@@ -421,20 +422,24 @@ export default function Calculator() {
       const ssEstimate = parseFloat(ssAt62) || 0
       const claimAge = parseFloat(ssClaimAge) || 67
 
-      let pensionResult, supplementMonthly = 0
+      let pensionResult, supplementMonthly = 0, supplementEligible = false
 
       if (tab === 'fers') {
         pensionResult = calcFERSPension(yrs, h3, rAge, survivorBenefit, earlyRetirement, sickLeaveHours)
-        // FERS Supplement: auto-included when eligible (immediate retirement before 62)
-        if (rAge < 62 && earlyRetirement !== 'mra10' && ssEstimate > 0) {
-          supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
+        // FERS Supplement: eligible on immediate retirement before 62 (not MRA+10)
+        if (rAge < 62 && earlyRetirement !== 'mra10') {
+          supplementEligible = true
+          if (ssEstimate > 0) supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
         }
       } else if (tab === 'csrs') {
         pensionResult = calcCSRSPension(yrs, h3, survivorBenefit)
       } else {
         pensionResult = calcSpecialPension(yrs, h3, survivorBenefit, specialCat)
-        if (rAge < 62 && ssEstimate > 0) {
-          supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
+        // Special Provisions (LEO/FF/ATC/Congressional) retirees qualify for the
+        // FERS Supplement immediately on retirement before 62 — no MRA wait.
+        if (rAge < 62) {
+          supplementEligible = true
+          if (ssEstimate > 0) supplementMonthly = calcFERSSupplement(yrs, ssEstimate)
         }
       }
 
@@ -475,6 +480,7 @@ export default function Calculator() {
         pensionMonthly,
         pensionAnnual: pensionResult.netAnnual,
         supplementMonthly,
+        supplementEligible,
         tspAtRetirement,
         tspMonthly4pct,
         ssMonthly,
@@ -771,11 +777,24 @@ export default function Calculator() {
                       <div style={s.resultLabel}>Pension</div>
                       <div style={s.resultValue}>{fmt(results.pensionMonthly)}</div>
                     </div>
-                    {results.supplementMonthly > 0 && (
+                    {results.supplementEligible && (
                       <div style={s.resultBox}>
                         <div style={s.resultLabel}>FERS Supplement</div>
-                        <div style={s.resultValue}>{fmt(results.supplementMonthly)}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>Until age 62</div>
+                        {results.supplementMonthly > 0 ? (
+                          <>
+                            <div style={s.resultValue}>{fmt(results.supplementMonthly)}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6 }}>
+                              Until age 62{results.tab === 'special' ? ' — paid from retirement' : ''}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ ...s.resultValue, color: '#64748b' }}>—</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 6, lineHeight: 1.5 }}>
+                              You qualify for the FERS Supplement{results.tab === 'special' ? ' (Special Provisions retirees receive it immediately on retirement before 62)' : ''}. Enter your estimated Social Security benefit at age 62 above to calculate the amount.
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
