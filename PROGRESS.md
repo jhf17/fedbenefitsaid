@@ -27,7 +27,7 @@
 - [x] T2.2 Rebuild FERS Calculator results layout
 - [x] T2.3 Harden Chat system prompt
 - [x] T2.4 Add lead capture to both calculators
-- [ ] T2.5 Rename nav items
+- [x] T2.5 Rename nav items
 - [ ] T2.6 Create /about page
 - [ ] T2.7 Rework Assessment results into action plan
 - [ ] T2.8 Add "When can I retire?" inline tool to landing
@@ -148,3 +148,10 @@
   - Email sender (send-results-email.js): existing HTML templates used. Spec's "Send formatted HTML email with the same numbers user sees" satisfied via the type='calculator' and type='fegli-calculator' templates already in the function. Auth required per T2.13 — anonymous calculator users still have leads captured in Airtable but do not receive the email.
   - Email infrastructure choice documented: Resend via send-results-email.js (pre-existing). Hardcoded sender `FedBenefitsAid <results@fedbenefitsaid.com>`. Delivery state pending user's local `npm run probe-resend` run — see T2.15.
   - Build: 1.49s, Calculator chunk +2KB for the notes blob serialization.
+- 2026-04-17 T2.5 complete — nav renames shipped:
+  - Desktop nav (Navbar.jsx): "Reference" → "Benefits Library"; "Resources" → "Forms & Links"; "Meeting" → "Book a Call" restyled as filled maroon primary button via new `styles.navCta`.
+  - Mobile nav: same three renames; "Book a Call" gets maroon background + centered text.
+  - Footer: "Reference Guide" → "Benefits Library"; "Resources and Forms" → "Forms & Links".
+  - VERA/VSIP preserved in main nav as specified.
+  - No other site-wide in-body references to "Reference" as nav label need updating (page H1s still say "Federal Benefits Reference Guide" which reads correctly as content, not nav).
+  - Build: 1.30s, no warnings.

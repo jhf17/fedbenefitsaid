@@ -50,10 +50,10 @@ export default function Navbar() {
             Calculators
           </Link>
           <Link to="/reference" style={{ ...styles.link, ...(isActive('/reference') ? styles.linkActive : {}) }} aria-current={isActive('/reference') ? 'page' : undefined}>
-            Reference
+            Benefits Library
           </Link>
           <Link to="/resources" style={{ ...styles.link, ...(isActive('/resources') ? styles.linkActive : {}) }} aria-current={isActive('/resources') ? 'page' : undefined}>
-            Resources
+            Forms & Links
           </Link>
           <Link to="/vera-vsip" style={{ ...styles.link, ...(isActive('/vera-vsip') ? styles.linkActive : {}) }} aria-current={isActive('/vera-vsip') ? 'page' : undefined}>
             VERA/VSIP
@@ -61,8 +61,9 @@ export default function Navbar() {
           <Link to="/chat" style={{ ...styles.link, ...(isActive('/chat') ? styles.linkActive : {}) }} aria-current={isActive('/chat') ? 'page' : undefined}>
             Chat
           </Link>
-          <Link to="/consultation" style={{ ...styles.link, ...(isActive('/consultation') ? styles.linkActive : {}) }} aria-current={isActive('/consultation') ? 'page' : undefined}>
-            Meeting
+          {/* T2.5: "Meeting" → "Book a Call", filled maroon primary button */}
+          <Link to="/consultation" style={styles.navCta} aria-current={isActive('/consultation') ? 'page' : undefined}>
+            Book a Call
           </Link>
           {user && user.email === ADMIN_EMAIL && (
             <Link to="/admin" style={{ ...styles.link, ...(isActive('/admin') ? styles.linkActive : {}), color: isActive('/admin') ? '#7b1c2e' : '#7b1c2e', fontWeight: 600 }} aria-current={isActive('/admin') ? 'page' : undefined}>
@@ -113,10 +114,10 @@ export default function Navbar() {
             Calculators
           </Link>
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Reference
+            Benefits Library
           </Link>
           <Link to="/resources" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Forms &amp; Resources
+            Forms &amp; Links
           </Link>
           <Link to="/vera-vsip" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             VERA/VSIP
@@ -124,8 +125,9 @@ export default function Navbar() {
           <Link to="/chat" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
             Chat
           </Link>
-          <Link to="/consultation" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>
-            Meeting
+          {/* T2.5: "Meeting" → "Book a Call", filled maroon on mobile too */}
+          <Link to="/consultation" style={{ ...styles.mobileLink, background: '#7b1c2e', color: '#fff', fontWeight: 700, justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>
+            Book a Call
           </Link>
           {user && user.email === ADMIN_EMAIL && (
             <Link to="/admin" style={{ ...styles.mobileLink, color: '#7b1c2e', fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
@@ -223,6 +225,22 @@ const styles = {
     color: '#7b1c2e',
     background: '#fef2f2',
     fontWeight: 600,
+  },
+  // T2.5: filled maroon primary CTA — "Book a Call" nav item
+  navCta: {
+    minHeight: 44,
+    display: 'flex',
+    alignItems: 'center',
+    padding: '8px 16px',
+    borderRadius: 8,
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    background: '#7b1c2e',
+    color: '#ffffff',
+    textDecoration: 'none',
+    transition: 'all 0.15s ease',
+    marginLeft: 6,
   },
   authArea: {
     display: 'flex',

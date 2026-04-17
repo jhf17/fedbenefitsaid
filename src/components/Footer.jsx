@@ -37,8 +37,8 @@ export default function Footer() {
               <Link to="/calculators" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Retirement Calculator</Link>
               <Link to="/assessment" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Readiness Assessment</Link>
               <Link to="/chat" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>AI Benefits Chat</Link>
-              <Link to="/reference" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Reference Guide</Link>
-              <Link to="/resources" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Resources and Forms</Link>
+              <Link to="/reference" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Benefits Library</Link>
+              <Link to="/resources" style={linkStyle} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Forms &amp; Links</Link>
             </div>
           </div>
           <div>
