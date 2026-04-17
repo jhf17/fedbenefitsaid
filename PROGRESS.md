@@ -18,7 +18,7 @@
 - [x] T1.12 Fix console errors
 
 ## Tier 2 Tasks (execution order per PLAN_AMENDMENTS.md)
-- [ ] T2.14 Harden calendly-webhook.js fail-closed
+- [x] T2.14 Harden calendly-webhook.js fail-closed
 - [ ] T2.14b Provision Calendly webhook end-to-end
 - [ ] T2.16 Generate placeholder og-image.png
 - [ ] T2.15 Verify Resend domain configuration
@@ -86,3 +86,4 @@
 ## Tier 2 Log
 
 - 2026-04-17 Tier 1 complete (commit 34d38c5) — TIER1_REPORT.md shipped. Starting Tier 2 with 5 scope amendments logged in PLAN_AMENDMENTS.md: T2.13 (auth on functions), T2.14 (calendly fail-closed), T2.14b (calendly webhook provisioning), T2.15 (Resend probe), T2.16 (og-image placeholder). New execution order: T2.14 → T2.14b → T2.16 → T2.15 → T2.13 → T2.1 → ... → T2.12.
+- 2026-04-17 T2.14 complete — netlify/functions/calendly-webhook.js now fails closed. Both branches (missing env var + failed signature) return HTTP 500 with body {error:"Webhook signature verification unavailable"} and never touch Airtable. Added module-scope startup log so every cold start makes the env-var state visible in Netlify function logs: warns "CALENDLY_WEBHOOK_SIGNING_KEY is NOT set" when missing, logs "Signing key loaded — signature verification is active" when present. Header docs updated to mark signing key as REQUIRED (was "optional but recommended"). node -c syntax check passes.

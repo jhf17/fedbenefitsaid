@@ -8,7 +8,12 @@ const crypto = require('crypto');
  * Calendly webhook setup:
  *   URL: https://fedbenefitsaid.com/.netlify/functions/calendly-webhook
  *   Events: invitee.created, invitee.canceled
- *   Signing key: stored in CALENDLY_WEBHOOK_SIGNING_KEY env var (optional but recommended)
+ *   Signing key: REQUIRED in CALENDLY_WEBHOOK_SIGNING_KEY env var.
+ *
+ * T2.14 — fail-closed: if the signing key env var is missing, or the signature
+ * header is missing/invalid, the function rejects the request and does NOT
+ * touch Airtable. Previously it logged a warning and accepted unsigned POSTs,
+ * which was a security hole (anyone who found the URL could create leads).
  */
 
 const CORS_HEADERS = {
@@ -16,6 +21,13 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type, Calendly-Webhook-Signature',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
+}
+
+// T2.14: startup log — runs once per cold start. Makes missing env var visible in Netlify logs.
+if (!process.env.CALENDLY_WEBHOOK_SIGNING_KEY) {
+  console.warn('[calendly-webhook] CALENDLY_WEBHOOK_SIGNING_KEY is NOT set. Webhook will fail-closed on every POST until the env var is configured in Netlify.')
+} else {
+  console.log('[calendly-webhook] Signing key loaded — signature verification is active.')
 }
 
 
@@ -64,17 +76,27 @@ exports.handler = async (event) => {
     return { statusCode: 429, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Too many requests' }) };
   }
   
-  // Verify Calendly webhook signature (enforced when signing key is configured)
+  // T2.14: fail-closed signature verification. Both branches return the same
+  // 500 response so external observers can't distinguish "missing key" from
+  // "bad signature" (no info leak). Airtable is never touched on failure.
   const signingKey = process.env.CALENDLY_WEBHOOK_SIGNING_KEY;
   if (event.httpMethod === 'POST') {
-    if (signingKey) {
-      const signature = event.headers['calendly-webhook-signature'];
-      if (!verifyCalendlySignature(event.body, signature, signingKey)) {
-        console.error('Invalid Calendly webhook signature — rejecting request');
-        return { statusCode: 401, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Invalid signature' }) };
-      }
-    } else {
-      console.warn('CALENDLY_WEBHOOK_SIGNING_KEY not set — accepting request without signature verification');
+    if (!signingKey) {
+      console.error('[calendly-webhook] Rejecting POST — CALENDLY_WEBHOOK_SIGNING_KEY env var is not set');
+      return {
+        statusCode: 500,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Webhook signature verification unavailable' }),
+      };
+    }
+    const signature = event.headers['calendly-webhook-signature'];
+    if (!verifyCalendlySignature(event.body, signature, signingKey)) {
+      console.error('[calendly-webhook] Rejecting POST — signature header missing or invalid');
+      return {
+        statusCode: 500,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Webhook signature verification unavailable' }),
+      };
     }
   }
 
