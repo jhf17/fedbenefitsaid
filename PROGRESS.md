@@ -28,7 +28,7 @@
 - [x] T2.3 Harden Chat system prompt
 - [x] T2.4 Add lead capture to both calculators
 - [x] T2.5 Rename nav items
-- [ ] T2.6 Create /about page
+- [x] T2.6 Create /about page (stubs — {{REPLACE}} markers pending user copy)
 - [ ] T2.7 Rework Assessment results into action plan
 - [ ] T2.8 Add "When can I retire?" inline tool to landing
 - [ ] T2.9 Recolor Reference "Ask AI" button
@@ -155,3 +155,10 @@
   - VERA/VSIP preserved in main nav as specified.
   - No other site-wide in-body references to "Reference" as nav label need updating (page H1s still say "Federal Benefits Reference Guide" which reads correctly as content, not nav).
   - Build: 1.30s, no warnings.
+- 2026-04-17 T2.6 complete — /about page shipped with stubs:
+  - New src/pages/About.jsx — hero + founder card + "Why FedBenefitsAid exists" + "How FBA and Federal Market Associates work together" + OPM disaffiliation disclaimer + ConsultantCTA.
+  - {{REPLACE}} stubs rendered inline as visible dashed-border orange `<mark>` tags so nothing gets shipped as real content by accident. Markers: FOUNDER_NAME (×3: header, headshot alt, footer CTA), CREDENTIALS, ONE-SENTENCE BIO, MISSION PARAGRAPH, FEDERAL_MARKET_ASSOCIATES relationship paragraph.
+  - Founder headshot references `/public/founder.jpg` with an onError fallback to an "FBA" monogram in gold on navy. User drops a 400×400 JPG into /public/ before Tier 2 ships.
+  - Calendly URL confirmed at `https://calendly.com/jhf17/30min`.
+  - Route added to App.jsx (/about, lazy-loaded). Footer "Company" column gets an About link. Added to public/sitemap.xml with priority 0.8. Seo injected via the existing helper.
+  - Build: 1.30s.
