@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 export default function Privacy() {
-  useEffect(() => {
-    document.title = 'Privacy Policy — FedBenefitsAid'
-    window.scrollTo(0, 0)
-  }, [])
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
     <main style={styles.main}>
+      <Seo
+        title="Privacy Policy"
+        description="How FedBenefitsAid collects, uses, and protects your data. Learn about assessment responses, lead capture, cookies, and your privacy choices."
+        path="/privacy"
+      />
       <div style={styles.container}>
         <h1 style={styles.h1}>Privacy Policy</h1>
         <p style={styles.updated}>Last updated: April 7, 2026</p>

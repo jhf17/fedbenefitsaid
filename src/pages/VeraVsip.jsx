@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 // =============================================================================
 // VERA / VSIP Guidance Page
@@ -21,12 +21,13 @@ const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif"
 const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif"
 
 export default function VeraVsip() {
-  useEffect(() => {
-    document.title = 'VERA & VSIP Guide | FedBenefitsAid'
-  }, [])
-
   return (
     <div style={{ minHeight: 'calc(100vh - 64px)', background: cream, fontFamily: fontSans }}>
+      <Seo
+        title="VERA & VSIP Guide for Federal Employees"
+        description="Early retirement (VERA) and Voluntary Separation Incentive (VSIP) eligibility, rules, and tradeoffs. 2026 figures, OPM-sourced, with decision frameworks."
+        path="/vera-vsip"
+      />
       {/* Hero */}
       <section style={{ background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', color: 'white', padding: '72px 20px 60px' }}>
         <div style={{ maxWidth: 820, margin: '0 auto' }}>

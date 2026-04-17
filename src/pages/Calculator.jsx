@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -346,10 +347,6 @@ export default function Calculator() {
   const [captureSent, setCaptureSent] = useState(false)
   const [captureError, setCaptureError] = useState('')
 
-  useEffect(() => {
-    document.title = 'Federal Retirement Income Calculator | FedBenefitsAid'
-  }, [tab])
-
   const handleEmailCapture = async (e) => {
     e.preventDefault()
     setCaptureError('')
@@ -513,6 +510,11 @@ export default function Calculator() {
 
   return (
     <main id="main-content" style={s.page}>
+      <Seo
+        title="FERS & CSRS Retirement Calculator"
+        description="Estimate your FERS or CSRS pension, FERS Supplement, TSP drawdown, Social Security, and net retirement income — with 2026 FEHB and Medicare Part B deductions modeled."
+        path="/calculator"
+      />
       <div style={s.container}>
 
         {/* Header */}

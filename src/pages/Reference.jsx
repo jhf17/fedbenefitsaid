@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom'
 import { REF_DATA } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
 import { useAuth } from '../App'
+import Seo from '../components/Seo'
 
 export default function Reference() {
   const { user } = useAuth()
   const [selectedCat, setSelectedCat] = useState(null)
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [search, setSearch] = useState('')
-  useEffect(() => { document.title = 'Federal Benefits Reference Guide | FedBenefitsAid' }, [])
 
   const allTopics = useMemo(() =>
     REF_DATA.flatMap(cat => cat.topics.map(t => ({ ...t, cat: cat.cat, color: cat.color, icon: cat.icon }))),
@@ -46,8 +46,26 @@ export default function Reference() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Dynamic Seo metadata per detail view
+  const seoTitle = showDetail
+    ? `${selectedTopic.title} — ${selectedCat}`
+    : showTopics
+    ? `${selectedCat} — Federal Benefits Guide`
+    : 'Federal Benefits Reference Guide'
+  const seoDesc = showDetail
+    ? selectedTopic.summary
+    : showTopics
+    ? `${currentCat.topics.length} ${selectedCat} topics covered — rules, 2026 figures, and pitfalls for federal employees.`
+    : 'Comprehensive reference covering FERS, CSRS, TSP, FEHB, FEGLI, Medicare, Social Security, and survivor benefits — 2026 figures, OPM-sourced rules, and pitfalls.'
+  const seoPath = showDetail
+    ? `/reference#${selectedTopic.id}`
+    : showTopics
+    ? `/reference#${encodeURIComponent(selectedCat)}`
+    : '/reference'
+
   return (
     <main style={{ minHeight: '100vh', background: '#faf9f6', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      <Seo title={seoTitle} description={seoDesc} path={seoPath} />
       <style>{`
         .ref-cat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1) !important; border-left-width: 5px !important; }
         .ref-topic-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.07) !important; }

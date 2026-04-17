@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import Seo from '../components/Seo';
 
 const colors = {
   navy: '#0f172a',
@@ -62,6 +63,12 @@ export default function Landing() {
 
   return (
     <div id="main-content" style={{ fontFamily: fontSans, color: colors.navy, background: colors.cream, overflowX: 'hidden' }}>
+      <Seo
+        title="FedBenefitsAid — Federal Retirement Benefits, Simplified"
+        description="Free reference guide, retirement calculator, AI benefits chat, and expert consultations for U.S. federal employees navigating FERS, TSP, FEHB, FEGLI, and Medicare."
+        path="/"
+        rawTitle
+      />
       <style>{`
         a:focus-visible, button:focus-visible {
           outline: 2px solid #7b1c2e;

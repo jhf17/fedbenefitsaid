@@ -1,9 +1,12 @@
-import { useEffect } from 'react'
+import Seo from '../components/Seo'
 export default function Resources() {
-  useEffect(() => { document.title = 'Retirement Resources | FedBenefitsAid' }, [])
-
   return (
     <main style={s.page}>
+      <Seo
+        title="Federal Benefits Forms & Resources"
+        description="Curated OPM, TSP, SSA, and Medicare forms, publications, and official calculators. Everything federal employees need in one place, with direct download links."
+        path="/resources"
+      />
       <div style={s.container}>
 
         <header style={s.header}>

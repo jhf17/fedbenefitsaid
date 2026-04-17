@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 export default function Terms() {
-  useEffect(() => {
-    document.title = 'Terms of Service — FedBenefitsAid'
-    window.scrollTo(0, 0)
-  }, [])
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
     <main style={styles.main}>
+      <Seo
+        title="Terms of Service"
+        description="Terms governing your use of FedBenefitsAid tools, content, and consultation referrals. Educational-use disclaimer and limitation of liability."
+        path="/terms"
+      />
       <div style={styles.container}>
         <h1 style={styles.h1}>Terms of Service</h1>
         <p style={styles.updated}>Last updated: April 7, 2026</p>

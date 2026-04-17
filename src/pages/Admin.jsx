@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 import { supabase } from '../lib/supabase';
 import Footer from '../components/Footer';
+import Seo from '../components/Seo';
 
 const ADMIN_EMAIL = 'jhf17@icloud.com';
 
@@ -339,6 +340,7 @@ const Admin = () => {
 
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+      <Seo title="Admin" description="Admin dashboard — not for public access." path="/admin" noindex />
       {/* Header */}
       <div
         style={{

@@ -1,14 +1,17 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 export default function Disclaimer() {
-  useEffect(() => {
-    document.title = 'Disclaimer — FedBenefitsAid'
-    window.scrollTo(0, 0)
-  }, [])
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
     <main style={styles.main}>
+      <Seo
+        title="Disclaimer"
+        description="FedBenefitsAid is an independent educational platform. We are not affiliated with OPM or the U.S. government. Review our full disclaimer here."
+        path="/disclaimer"
+      />
       <div style={styles.container}>
         <h1 style={styles.h1}>Disclaimer &amp; Privacy</h1>
         <p style={styles.updated}>Last updated: April 6, 2026</p>

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../App'
 import ConsultantCTA from '../components/ConsultantCTA'
+import Seo from '../components/Seo'
 
 const WELCOME_MESSAGE = {
   role: 'assistant',
@@ -30,7 +31,6 @@ export default function Chat() {
   const [freeCount, setFreeCount] = useState(readFreeCount)
   const isGuest = !user
   const freeLimitReached = isGuest && freeCount >= FREE_MESSAGE_LIMIT
-  useEffect(() => { document.title = 'AI Retirement Assistant | FedBenefitsAid' }, [])
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
   const calcSentRef = useRef(false)
@@ -142,6 +142,11 @@ export default function Chat() {
 
   return (
     <>
+    <Seo
+      title="AI Federal Benefits Chat"
+      description="Ask plain-English questions about FERS, TSP, FEHB, FEGLI, Medicare, or Social Security. Get answers that cite OPM regulations and adapt to your federal service."
+      path="/chat"
+    />
     <div style={styles.page}>
       {/* Sidebar */}
       <div style={styles.sidebar}>

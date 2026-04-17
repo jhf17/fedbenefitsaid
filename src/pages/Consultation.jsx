@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Seo from '../components/Seo';
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min';
 
@@ -14,10 +15,6 @@ const colors = {
 };
 
 export default function Consultation() {
-  useEffect(() => {
-    document.title = 'Meet With a Consultant | FedBenefitsAid';
-  }, []);
-
   // Topic cards for "What We'll Cover"
   const topics = [
     {
@@ -96,6 +93,11 @@ export default function Consultation() {
 
   return (
     <div style={{ fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+      <Seo
+        title="Book a Free Federal Retirement Consultation"
+        description="Book a free 30-minute call with a federal retirement specialist. No sales pitch — get straight answers about your FERS, TSP, and benefits decisions."
+        path="/consultation"
+      />
       {/* Hero Section */}
       <section
         style={{

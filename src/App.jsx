@@ -3,6 +3,7 @@ import { useState, useEffect, createContext, useContext, Suspense, lazy } from '
 import { supabase } from './lib/supabase'
 import Navbar from './components/Navbar'
 import ErrorBoundary from './components/ErrorBoundary'
+import Seo from './components/Seo'
 import Landing from './pages/Landing'
 const Reference = lazy(() => import('./pages/Reference'))
 const Chat = lazy(() => import('./pages/Chat'))
@@ -30,6 +31,7 @@ export const useAuth = () => useContext(AuthContext)
 function NotFound() {
   return (
     <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+      <Seo title="Page Not Found" description="The page you're looking for doesn't exist on FedBenefitsAid." path="/404" noindex />
       <div style={{ textAlign: 'center', maxWidth: 480, padding: '0 24px' }}>
         <div style={{ fontSize: '4rem', fontWeight: 800, color: '#e2e8f0', letterSpacing: '-0.04em', marginBottom: 12 }}>404</div>
         <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Page not found</h1>

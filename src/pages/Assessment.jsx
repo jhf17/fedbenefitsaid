@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../App'
+import Seo from '../components/Seo'
 
 const navy = '#0f172a'
 const secondaryNavy = '#1e3a5f'
@@ -995,8 +996,6 @@ export default function Assessment() {
     }
   }
 
-  useEffect(() => { document.title = 'Retirement Readiness Assessment | FedBenefitsAid' }, [])
-
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', handleResize)
@@ -1333,6 +1332,11 @@ export default function Assessment() {
   // ============================================================
   return (
     <main id="main-content" aria-live="polite" aria-atomic="false" style={{ minHeight: '100vh', background: cream, fontFamily: fontSans }} aria-label="Retirement readiness assessment quiz">
+      <Seo
+        title="Retirement Readiness Assessment"
+        description="Answer 14 questions about your federal benefits in under 5 minutes. Get a weighted readiness score and a prioritized action plan tailored to your situation."
+        path="/assessment"
+      />
       <div style={{ background: `linear-gradient(160deg, ${navy} 0%, ${secondaryNavy} 60%)`, padding: '40px 24px 32px', textAlign: 'center' }}>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12, fontFamily: fontSans }}>Free Tool</div>
         <h1 style={{ color: '#fff', fontSize: 'clamp(1.3rem, 4vw, 1.6rem)', fontWeight: 700, margin: '0 0 8px', fontFamily: fontSerif }}>Retirement Readiness Assessment</h1>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -137,8 +138,6 @@ function calcFEGLI(salary, currentAge, retireAge, optA, optBMult, optCMult, basi
 }
 
 export default function FEGLICalculator() {
-  useEffect(() => { document.title = 'FEGLI Life Insurance Calculator | FedBenefitsAid' }, [])
-
   const [fegliSalary, setFegliSalary] = useState('')
   const [fegliAge, setFegliAge] = useState('')
   const [fegliRetireAge, setFegliRetireAge] = useState('')
@@ -229,6 +228,11 @@ export default function FEGLICalculator() {
 
   return (
     <main id="main-content" style={s.page}>
+      <Seo
+        title="FEGLI Calculator — Federal Life Insurance"
+        description="Calculate your FEGLI coverage, monthly premiums by age bracket, and post-65 reduction options. Current OPM rates modeled for Basic plus Options A, B, and C."
+        path="/calculators/fegli"
+      />
       <div style={s.container}>
 
         {/* Header */}

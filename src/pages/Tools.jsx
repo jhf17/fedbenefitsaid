@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Seo from '../components/Seo'
 
 const Calculators = () => {
   const calculators = [
@@ -74,6 +75,11 @@ const Calculators = () => {
 
   return (
     <div style={{ backgroundColor: '#faf9f6', minHeight: '100vh' }}>
+      <Seo
+        title="Federal Retirement Calculators"
+        description="Retirement income calculator and FEGLI life-insurance projection tool for federal employees. Model your pension, TSP, benefits, and coverage in minutes."
+        path="/calculators"
+      />
       <style>{`
         * {
           box-sizing: border-box;

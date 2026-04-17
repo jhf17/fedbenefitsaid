@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../App'
+import Seo from '../components/Seo'
 
 export default function Auth({ mode = 'login' }) {
   const { user } = useAuth()
@@ -15,7 +16,6 @@ export default function Auth({ mode = 'login' }) {
   const [success, setSuccess] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  useEffect(() => { document.title = 'Sign In | FedBenefitsAid' }, [])
 
   const from = location.state?.from?.pathname || '/chat'
   const flashMessage = location.state?.message || ''
@@ -139,6 +139,12 @@ export default function Auth({ mode = 'login' }) {
 
   return (
     <div data-auth-page="" style={styles.page}>
+      <Seo
+        title={isLogin ? 'Sign In' : 'Create Account'}
+        description="Sign in or create an account at FedBenefitsAid to access the AI benefits chat and save your retirement plan."
+        path={isLogin ? '/login' : '/signup'}
+        noindex
+      />
       <div style={styles.card}>
         {/* Logo */}
         <div style={styles.logoWrap}>
