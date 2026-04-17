@@ -4,7 +4,7 @@
 ## Last updated: 2026-04-17
 
 ## Tier 1 Tasks
-- [ ] T1.1 Delete orphan Quiz and Course pages
+- [x] T1.1 Delete orphan Quiz and Course pages
 - [ ] T1.2 Fix FERS Calculator default Survivor Benefit
 - [ ] T1.3 Fix landing page stale category counts
 - [ ] T1.4 Fix duplicate icon on benefits cards
@@ -47,4 +47,5 @@
 
 ## Log
 
-- 2026-04-17 Initial PLAN.md + PROGRESS.md committed (Step 0)
+- 2026-04-17 Initial PLAN.md + PROGRESS.md committed (Step 0, commit fbeffbc)
+- 2026-04-17 T1.1 complete — deleted Quiz.jsx, Course.jsx, quizData.js; removed lazy imports + 2 routes from App.jsx; removed training/quiz branch from ProtectedRoute.jsx. Post-delete grep: zero references remain. Build: 633ms, passes.

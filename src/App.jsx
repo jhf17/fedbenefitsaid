@@ -7,8 +7,6 @@ import Landing from './pages/Landing'
 const Reference = lazy(() => import('./pages/Reference'))
 const Chat = lazy(() => import('./pages/Chat'))
 import Auth from './pages/Auth'
-const Course = lazy(() => import('./pages/Course'))
-const Quiz = lazy(() => import('./pages/Quiz'))
 const Calculator = lazy(() => import('./pages/Calculator'))
 const Resources = lazy(() => import('./pages/Resources'))
 const Admin = lazy(() => import('./pages/Admin'))
@@ -86,22 +84,6 @@ export default function App() {
         <Route path="/login" element={<Auth mode="login" />} />
         <Route path="/signup" element={<Auth mode="signup" />} />
         <Route path="/chat" element={<Chat />} />
-        <Route
-          path="/training"
-          element={
-            <ProtectedRoute>
-              <Course />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/training/quiz/:topicId"
-          element={
-            <ProtectedRoute>
-              <Quiz />
-            </ProtectedRoute>
-          }
-        />
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/calculators" element={<Calculators />} />
         <Route path="/calculators/fegli" element={<FEGLICalculator />} />
