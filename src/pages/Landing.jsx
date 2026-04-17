@@ -235,10 +235,11 @@ export default function Landing() {
             ].map((card, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: isMobile ? '28px 22px' : '40px 32px' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', background: 'rgba(123, 28, 46, 0.1)' }}>
+                  {/* T1.4: icons match lucide glyphs (User / CircleCheck / Award). Inline SVG — no lucide-react dep. */}
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7b1c2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    {card.id === 'personalized' && <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
+                    {card.id === 'personalized' && <><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>}
                     {card.id === 'accurate' && <><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" /><path d="M9 12l2 2 4-4" /></>}
-                    {card.id === 'expert' && <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>}
+                    {card.id === 'expert' && <><circle cx="12" cy="8" r="6" /><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" /></>}
                   </svg>
                 </div>
                 <h3 style={{ fontFamily: fontSerif, fontSize: '1.05rem', fontWeight: '700', color: 'white', marginBottom: '10px' }}>
