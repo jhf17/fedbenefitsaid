@@ -1,9 +1,57 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { REF_DATA } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
 import { useAuth } from '../App'
 import Seo from '../components/Seo'
+
+// T2.10 — FAQPage schema for a single Reference topic. Generates 2–4 Q/A
+// entries so Google is willing to render a rich FAQ block.
+function TopicFAQJsonLd({ topic }) {
+  if (!topic) return null
+  const mainEntity = []
+  if (topic.overview) {
+    mainEntity.push({
+      '@type': 'Question',
+      name: `What is ${topic.title}?`,
+      acceptedAnswer: { '@type': 'Answer', text: topic.overview },
+    })
+  }
+  if (Array.isArray(topic.rules) && topic.rules.length > 0) {
+    mainEntity.push({
+      '@type': 'Question',
+      name: `What are the rules and requirements for ${topic.title}?`,
+      acceptedAnswer: { '@type': 'Answer', text: topic.rules.join(' ') },
+    })
+  }
+  if (Array.isArray(topic.numbers) && topic.numbers.length > 0) {
+    const figures = topic.numbers.map(n => `${n.label}: ${n.value}`).join('. ')
+    mainEntity.push({
+      '@type': 'Question',
+      name: `What are the key figures for ${topic.title}?`,
+      acceptedAnswer: { '@type': 'Answer', text: figures },
+    })
+  }
+  if (Array.isArray(topic.watch) && topic.watch.length > 0) {
+    mainEntity.push({
+      '@type': 'Question',
+      name: `What should I watch out for with ${topic.title}?`,
+      acceptedAnswer: { '@type': 'Answer', text: topic.watch.join(' ') },
+    })
+  }
+  if (mainEntity.length < 2) return null
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity,
+  }
+  return (
+    <Helmet>
+      <script type="application/ld+json">{JSON.stringify(schema)}</script>
+    </Helmet>
+  )
+}
 
 export default function Reference() {
   const { user } = useAuth()
@@ -66,6 +114,7 @@ export default function Reference() {
   return (
     <main style={{ minHeight: '100vh', background: '#faf9f6', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Seo title={seoTitle} description={seoDesc} path={seoPath} />
+      {showDetail && selectedTopic && <TopicFAQJsonLd topic={selectedTopic} />}
       <style>{`
         .ref-cat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1) !important; border-left-width: 5px !important; }
         .ref-topic-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.07) !important; }
@@ -318,7 +367,8 @@ export default function Reference() {
 
                   <div style={styles.detailActionSub}>Ask the AI &mdash; it will tailor the answer to your specific years of service, salary, and retirement goals.</div>
                 </div>
-                <Link to={user ? '/chat' : '/signup'} className="btn btn-primary" style={{ flexShrink: 0 }}>
+                {/* T2.9: outlined maroon, not the legacy blue .btn-primary */}
+                <Link to={user ? '/chat' : '/signup'} style={{ flexShrink: 0, padding: '10px 20px', border: '2px solid #7b1c2e', color: '#7b1c2e', background: '#ffffff', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#7b1c2e'; e.currentTarget.style.color = '#ffffff'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#7b1c2e'; }}>
                   Ask AI
                 </Link>
               </div>

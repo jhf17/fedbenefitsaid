@@ -1,7 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Seo from '../components/Seo';
 import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget';
+
+// T2.10 — Organization schema. Placed here (not in index.html) so per-page
+// JSON-LD lives alongside per-page metadata.
+function OrganizationJsonLd() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'FedBenefitsAid',
+    url: 'https://fedbenefitsaid.com',
+    logo: 'https://fedbenefitsaid.com/fma-logo.png',
+    description: 'Independent educational platform helping U.S. federal employees navigate FERS, TSP, FEHB, FEGLI, Medicare, and Social Security.',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      url: 'https://calendly.com/jhf17/30min',
+      availableLanguage: 'English',
+    },
+    // founder and sameAs intentionally omitted — populated in a follow-up
+    // commit once the user provides real values (see PLAN_AMENDMENTS.md).
+  }
+  return (
+    <Helmet>
+      <script type="application/ld+json">{JSON.stringify(schema)}</script>
+    </Helmet>
+  )
+}
 
 const colors = {
   navy: '#0f172a',
@@ -70,6 +97,9 @@ export default function Landing() {
         path="/"
         rawTitle
       />
+      {/* T2.10: Organization schema for SEO rich results. sameAs + founder
+          omitted until user provides real values (per PLAN_AMENDMENTS). */}
+      <OrganizationJsonLd />
       <style>{`
         a:focus-visible, button:focus-visible {
           outline: 2px solid #7b1c2e;

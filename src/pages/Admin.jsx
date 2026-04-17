@@ -175,12 +175,21 @@ const Admin = () => {
   };
 
   // Get stat values
+  // T2.12 filter rules documented:
+  //  - consultationBooked counts leads whose Status column is literally
+  //    "Consultation Booked" (previous code read a nonexistent boolean
+  //    field of the same name, which silently returned 0 for every lead).
+  //    This covers inbound capture (calendly-webhook sets Status on upsert)
+  //    and manual moves through the admin pipeline dropdown.
+  //  - calculatorLeads counts both the legacy Source "Calculator" AND the
+  //    current T2.4 values "Calculator - FERS" / "Calculator - FEGLI" via a
+  //    prefix match. Do not revert to equality — you'll drop every new lead.
   const getStats = () => {
     const total = leads.length;
     const accountSignups = leads.filter(l => l.fields?.['Source'] === 'Website Signup').length;
     const assessmentLeads = leads.filter(l => ['Retirement Checklist', 'Assessment'].includes(l.fields?.['Source'])).length;
-    const calculatorLeads = leads.filter(l => l.fields?.['Source'] === 'Calculator').length;
-    const consultationBooked = leads.filter(l => l.fields?.['Consultation Booked']).length;
+    const calculatorLeads = leads.filter(l => (l.fields?.['Source'] || '').startsWith('Calculator')).length;
+    const consultationBooked = leads.filter(l => l.fields?.['Status'] === 'Consultation Booked').length;
     const apolloLeads = leads.filter(l => l.fields?.['Source'] === 'Apollo Outbound').length;
     return { total, accountSignups, assessmentLeads, calculatorLeads, consultationBooked, apolloLeads };
   };

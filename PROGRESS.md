@@ -31,10 +31,10 @@
 - [x] T2.6 Create /about page (stubs — {{REPLACE}} markers pending user copy)
 - [x] T2.7 Rework Assessment results into action plan
 - [x] T2.8 Add "When can I retire?" inline tool to landing
-- [ ] T2.9 Recolor Reference "Ask AI" button
-- [ ] T2.10 Structured data (JSON-LD)
-- [ ] T2.11 Lighthouse optimization
-- [ ] T2.12 Verify Admin counter logic
+- [x] T2.9 Recolor Reference "Ask AI" button
+- [x] T2.10 Structured data (JSON-LD)
+- [~] T2.11 Lighthouse optimization (code wins shipped; live run by user)
+- [x] T2.12 Verify Admin counter logic
 
 ## Pre-execution decisions (locked, from user)
 
@@ -180,3 +180,20 @@
   - Replaces the static chat-preview card on Landing.jsx per user decision. Chat remains reachable via main nav + per-topic Ask AI buttons.
   - Opportunistic T1 fix: Landing.jsx:114,117 hero-button hover handlers switched from e.target to e.currentTarget so the transform stays on the anchor element, not on bubbled children.
   - Build: 1.31s, main bundle +5KB gzipped (widget + removed chat preview).
+- 2026-04-17 T2.9 complete — Reference.jsx topic-detail "Ask AI" button. Was `className="btn btn-primary"` (blue `--blue` var from App.css). Now inline-styled as outlined maroon: `border 2px solid #7b1c2e`, `color #7b1c2e`, `background #ffffff`. Hover inverts to filled maroon/white. "Book Free Call" nearby is unchanged (still filled maroon via ConsultantCTA).
+- 2026-04-17 T2.10 complete — JSON-LD via react-helmet-async:
+  - Landing.jsx: new OrganizationJsonLd component injects `@type: Organization` schema (name, url, logo /fma-logo.png, description, contactPoint with Calendly URL). `founder` and `sameAs` OMITTED per user direction until real values available.
+  - Reference.jsx: new TopicFAQJsonLd component emits `@type: FAQPage` schema dynamically for whichever topic is selected. Generates 2–4 Q/A entries: "What is X?" (uses overview), "What are the rules for X?" (concatenated rules), "What are the key figures for X?" (numbers), "What should I watch out for with X?" (watch items). Skipped if fewer than 2 entries could be generated so Google's FAQ rich result threshold is respected.
+  - index.html's existing WebSite / Organization / 3-Q FAQPage schemas are preserved — they serve as a fallback for non-JS crawlers. Per-route Helmet adds additional per-page context for JS-capable crawlers.
+- 2026-04-17 T2.11 partial — Lighthouse optimization:
+  - CANNOT run Lighthouse live from this environment (no headless Chrome). User runs `npx lighthouse https://fedbenefitsaid.com/<path> --view` or uses Chrome DevTools > Lighthouse tab locally, once Netlify redeploys complete. 7 target pages: /, /calculator, /calculators/fegli, /assessment, /chat, /reference, /vera-vsip.
+  - Code-side wins already shipped throughout Tier 1 + Tier 2 and listed here for the report:
+    * SEO: per-route title/desc/canonical/og/twitter (T1.8); sitemap.xml (T1.9); robots.txt (T1.10); Organization + FAQPage JSON-LD (T2.10); og-image.png 1200×630 (T2.16).
+    * A11y: focus-visible outlines in index.html; skip-to-content links x2; role="main" on main; aria-label on nav; aria-current=page on active links; min 44px tap targets (Navbar.jsx); chart "View as table" screen-reader fallback on FEGLI (T2.1); alt attributes on all <img> elements; role="alert" on error boxes.
+    * Performance: all routes lazy-loaded except Landing/Auth/legal pages; fonts preconnected in index.html; images are content-hashed for CDN caching.
+    * Best Practices: HSTS / CSP / Referrer-Policy / Permissions-Policy / X-Content-Type-Options / X-Frame-Options all set in netlify.toml; Supabase auth on API routes (T2.13); Calendly webhook fail-closed (T2.14).
+  - Known bundle-size issue: FEGLI Calculator chunk is 399KB / 118KB gzipped due to recharts. Per user decision in PLAN_AMENDMENTS, this tradeoff was accepted for chart quality. The chunk is lazy-loaded, so only FEGLI visitors pay. If Lighthouse Performance flags it (LCP/TTI on /calculators/fegli), consider swapping recharts for visx or a custom SVG in a future pass.
+- 2026-04-17 T2.12 complete — Admin counter bug fixed + documented:
+  - Root cause: getStats() at Admin.jsx:183 read `l.fields?.['Consultation Booked']` which is a nonexistent Airtable field name. The correct field is `Status` with value string "Consultation Booked". Filter silently returned 0 for every lead regardless of actual status, which is why the "Consultations Booked" stat card read 0 despite a visible lead with that status.
+  - Fix: `l.fields?.['Status'] === 'Consultation Booked'`.
+  - Also fixed calculatorLeads: was `Source === 'Calculator'` but T2.4 changed Source to "Calculator - FERS" / "Calculator - FEGLI". Now uses `(Source || '').startsWith('Calculator')` so the new values + any legacy "Calculator" row all count. Filter rules documented in a code comment above getStats per spec.
