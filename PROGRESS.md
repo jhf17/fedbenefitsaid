@@ -30,7 +30,7 @@
 - [x] T2.5 Rename nav items
 - [x] T2.6 Create /about page (stubs — {{REPLACE}} markers pending user copy)
 - [x] T2.7 Rework Assessment results into action plan
-- [ ] T2.8 Add "When can I retire?" inline tool to landing
+- [x] T2.8 Add "When can I retire?" inline tool to landing
 - [ ] T2.9 Recolor Reference "Ask AI" button
 - [ ] T2.10 Structured data (JSON-LD)
 - [ ] T2.11 Lighthouse optimization
@@ -169,3 +169,14 @@
   - Inserted ABOVE "Your Retirement Snapshot" category bars, per spec.
   - Existing email capture (Source: "Retirement Checklist") and score ring unchanged.
   - Build: 1.32s.
+- 2026-04-17 T2.8 complete — "When can I retire?" inline widget:
+  - New src/components/RetirementEligibilityWidget.jsx — takes birth year, federal hire year, and retirement system; computes the dated timeline of every FERS/CSRS milestone.
+  - MRA table follows OPM tiered rules: <=1947 → 55; 1948–1952 → 55+2mo/yr; 1953–1964 → 56; 1965–1969 → 56+2mo/yr; 1970+ → 57. Encoded as mraForBirthYear(year).
+  - FERS milestones emitted: MRA+10 Reduced, MRA+30 Immediate Unreduced, Age 60+20, Age 62+5, Age 62+20 (1.1% multiplier). Each shows the calendar year it lands, the age at that year, and whether the FERS Supplement applies.
+  - CSRS milestones emitted: 55+30, 60+20, 62+5. No FERS Supplement on any CSRS path.
+  - Already-reached milestones render strikethrough in muted gray so users see which boxes they've already checked.
+  - Gold supplement chip highlights paths that come with the bridge payment until 62.
+  - Two CTA links below the timeline: /assessment (full readiness check) and /calculator (dollar-amount estimate).
+  - Replaces the static chat-preview card on Landing.jsx per user decision. Chat remains reachable via main nav + per-topic Ask AI buttons.
+  - Opportunistic T1 fix: Landing.jsx:114,117 hero-button hover handlers switched from e.target to e.currentTarget so the transform stays on the anchor element, not on bubbled children.
+  - Build: 1.31s, main bundle +5KB gzipped (widget + removed chat preview).

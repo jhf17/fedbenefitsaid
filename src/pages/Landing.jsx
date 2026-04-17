@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget';
 
 const colors = {
   navy: '#0f172a',
@@ -119,10 +120,11 @@ export default function Landing() {
             FERS. TSP. FEHB. Social Security. One wrong decision costs thousands. We give you the tools and expert guidance to make confident retirement decisions.
           </p>
           <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-            <Link to="/signup" style={{ background: colors.maroon, color: 'white', fontSize: '0.95rem', fontWeight: '600', padding: '15px 32px', borderRadius: '10px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}>
+            {/* T1 opportunistic fix (hero hover): e.target → e.currentTarget so the transform applies to the anchor itself, not to a bubbled-up child node. */}
+            <Link to="/signup" style={{ background: colors.maroon, color: 'white', fontSize: '0.95rem', fontWeight: '600', padding: '15px 32px', borderRadius: '10px', textDecoration: 'none', transition: 'all 0.25s', border: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
               Get Started Free
             </Link>
-            <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ background: 'transparent', color: colors.navy, fontSize: '0.95rem', fontWeight: '600', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', border: `2px solid rgba(15,23,42,0.15)`, transition: 'all 0.25s', display: 'inline-block', cursor: 'pointer' }} onMouseEnter={(e) => { e.target.style.borderColor = colors.navy; e.target.style.background = colors.navy; e.target.style.color = 'white'; }} onMouseLeave={(e) => { e.target.style.borderColor = 'rgba(15,23,42,0.15)'; e.target.style.background = 'transparent'; e.target.style.color = colors.navy; }}>
+            <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ background: 'transparent', color: colors.navy, fontSize: '0.95rem', fontWeight: '600', padding: '14px 32px', borderRadius: '10px', textDecoration: 'none', border: `2px solid rgba(15,23,42,0.15)`, transition: 'all 0.25s', display: 'inline-block', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = colors.navy; e.currentTarget.style.background = colors.navy; e.currentTarget.style.color = 'white'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(15,23,42,0.15)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = colors.navy; }}>
               Book a Consultation
             </a>
           </div>
@@ -458,38 +460,10 @@ export default function Landing() {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', height: '1px', background: 'rgba(0,0,0,0.06)' }}></div>
 
-      {/* AI CHAT */}
+      {/* T2.8: replaced the old static chat preview with the interactive "When can I retire?" widget */}
       <section style={{ padding: isMobile ? '60px 20px' : '140px 48px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div ref={addRevealRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '32px' : '80px', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px', display: 'inline-block', padding: '6px 14px', borderRadius: '6px', color: '#8a6d1b', background: 'rgba(201,168,76,0.1)' }}>
-              AI Benefits Chat
-            </div>
-            <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: '700', lineHeight: '1.18', letterSpacing: '-0.01em', marginBottom: '20px', color: colors.navy }}>
-              Ask anything.<br />
-              Get real answers.
-            </h2>
-            <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: colors.gray600, marginBottom: '32px', maxWidth: '480px' }}>
-              Ask in plain English about FERS, TSP, FEHB, Social Security, or any benefit topic. Get personalized answers that cite actual OPM regulations and adapt to your situation.
-            </p>
-            <Link to="/chat" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', color: '#8a6d1b', transition: 'gap 0.2s', cursor: 'pointer' }}>
-              Start chatting →
-            </Link>
-          </div>
-          <div style={{ borderRadius: '24px', padding: isMobile ? '28px 22px' : '40px', minHeight: isMobile ? 'auto' : '380px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: colors.navy }}>
-            <div>
-              {[
-                { user: true, text: "I'm 60 with 25 years of service. Can I retire with a full pension?" },
-                { user: false, text: 'Yes — you\'re eligible for an immediate, unreduced FERS retirement under the Age 60 + 20 years rule. Your pension would be 25% of your high-3 salary (1.0% × 25 years). Want me to calculate the exact amount?' },
-                { user: true, text: 'Yes, my high-3 is $125,000' },
-                { user: false, text: 'Your estimated FERS pension: $31,250/year ($2,604/month). You\'d also qualify for the FERS Supplement until age 62.' },
-              ].map((bubble, i) => (
-                <div key={i} style={{ padding: '14px 18px', borderRadius: '14px', fontSize: '0.88rem', lineHeight: '1.5', marginBottom: '10px', maxWidth: '88%', background: bubble.user ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)', color: bubble.user ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.75)', border: bubble.user ? 'none' : '1px solid rgba(255,255,255,0.08)', borderBottomRightRadius: bubble.user ? '4px' : '14px', borderBottomLeftRadius: bubble.user ? '14px' : '4px', marginLeft: bubble.user ? 'auto' : '0' }}>
-                  {bubble.text}
-                </div>
-              ))}
-            </div>
-          </div>
+        <div ref={addRevealRef} className="reveal">
+          <RetirementEligibilityWidget isMobile={isMobile} fontSerifOverride={fontSerif} fontSansOverride={fontSans} />
         </div>
       </section>
 
