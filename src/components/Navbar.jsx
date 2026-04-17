@@ -268,7 +268,8 @@ const styles = {
     background: '#faf9f6',
   },
   mobileLink: {
-    display: 'block',
+    // T1.12: was duplicate display ('block' then 'flex') — flex wins, block was dead
+    display: 'flex',
     padding: '12px 16px',
     minHeight: 44,
     borderRadius: 8,
@@ -277,7 +278,6 @@ const styles = {
     fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
     color: '#475569',
     textDecoration: 'none',
-    display: 'flex',
     alignItems: 'center',
   },
   mobileDivider: {

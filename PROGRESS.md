@@ -15,7 +15,7 @@
 - [x] T1.9 Create sitemap.xml
 - [x] T1.10 Create robots.txt
 - [x] T1.11 Fix mobile 375px breakage
-- [ ] T1.12 Fix console errors
+- [x] T1.12 Fix console errors
 
 ## Tier 2 Tasks (do NOT start until user says proceed)
 - [ ] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
@@ -72,3 +72,8 @@
   - Auth: 340px card + body padding — fits. No breakage.
   - Admin: minHeight 44 on nav links ✓, hamburger minWidth/minHeight 44 ✓ (already handled).
   - Legal pages: body flow, no fixed widths. No breakage.
+- 2026-04-17 T1.12 sweep results:
+  - Build-time: Navbar.jsx:270-282 had duplicate `display` key (block → flex) in mobileLink. esbuild warned on every build. Fixed — `display: 'flex'` is the actual behavior, removed the dead `'block'`.
+  - Runtime: previous session already fixed the Reference/FERS Pension crash (fers-rae-frae missing rules/watch arrays — commit a47116b). No other runtime red errors found in static sweep of `.map` keys, destructuring, or async handlers. Environment-var console.errors (supabase.js:7, Admin.jsx, Auth.jsx) are guarded and only fire on actual failure.
+  - Warnings deferred per spec: none found beyond the duplicate-key (now fixed).
+- 2026-04-17 T1.11+T1.12 committed (b4aa0a3 for sidebar fix; Navbar duplicate-key fix pending).
