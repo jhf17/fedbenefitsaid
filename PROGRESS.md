@@ -12,8 +12,8 @@
 - [x] T1.6 Fix hero top whitespace
 - [x] T1.7 Update FEGLI disclaimer wording
 - [x] T1.8 Add SEO metadata to all public routes
-- [ ] T1.9 Create sitemap.xml
-- [ ] T1.10 Create robots.txt
+- [x] T1.9 Create sitemap.xml
+- [x] T1.10 Create robots.txt
 - [ ] T1.11 Fix mobile 375px breakage
 - [ ] T1.12 Fix console errors
 
@@ -55,4 +55,6 @@
 - 2026-04-17 T1.5 complete (commit d95ba19) — Landing.jsx:590 mid-page Book Free Consultation CTA restyled. Before: padding 18px/48px, borderRadius 12px, fontSize 1.1rem. After: padding 15px/32px, borderRadius 8px (per spec), fontSize 0.95rem — matches hero "Get Started Free" button scale. Also fixed hover handler bug (`e.target` → `e.currentTarget`) that could fire on child nodes. Color was already #7b1c2e — no change needed.
 - 2026-04-17 T1.6 complete (commit 47705ab) — Landing.jsx:101 hero section. Root cause: minHeight 100vh + alignItems:'center' vertically centered content in a full-viewport container, pushing H1 ~230px below nav on 1440/1920. Fix: minHeight → calc(100vh - 64px), alignItems → 'start', top padding 64px → 24px (desktop). Tagline chip (~40px + 32px margin) puts H1 ~96px below nav — inside 80–100px target. Mobile padding unchanged (40px top).
 - 2026-04-17 T1.7 complete (commit e5e2398) — FEGLICalculator.jsx:250 disclaimer reworded from "FEGLI rates and coverage are based on OPM data effective 10/1/2021" to "Current OPM FEGLI rates (set effective 10/1/2021)". Reads as current, not stale.
-- 2026-04-17 T1.8 complete — Installed react-helmet-async, wrapped app in HelmetProvider (main.jsx), created src/components/Seo.jsx for per-route title/desc/canonical/og/twitter. Added <Seo> to 14 routes: Landing, Assessment, Calculator, Tools, FEGLICalculator, Chat, Reference (dynamic: list/category/detail), Resources, VeraVsip, Consultation, Disclaimer, Privacy, Terms, Auth (noindex), Admin (noindex), NotFound (noindex). Removed 11 duplicate `document.title` useEffect blocks. Strengthened index.html defaults with og:image width/height/alt, og:locale, twitter:image:alt so non-JS scrapers get full metadata. Build 643ms passes.
+- 2026-04-17 T1.8 complete (commit 64197ac) — Installed react-helmet-async, wrapped app in HelmetProvider (main.jsx), created src/components/Seo.jsx for per-route title/desc/canonical/og/twitter. Added <Seo> to 14 routes: Landing, Assessment, Calculator, Tools, FEGLICalculator, Chat, Reference (dynamic: list/category/detail), Resources, VeraVsip, Consultation, Disclaimer, Privacy, Terms, Auth (noindex), Admin (noindex), NotFound (noindex). Removed 11 duplicate `document.title` useEffect blocks. Strengthened index.html defaults with og:image width/height/alt, og:locale, twitter:image:alt so non-JS scrapers get full metadata. Build 643ms passes.
+- 2026-04-17 T1.9 complete — public/sitemap.xml now includes all 13 public routes (was 10, missing /calculators, /calculators/fegli, /vera-vsip). lastmod refreshed to 2026-04-17 on every entry. Priority scheme: landing 1.0, tools/calc/assessment 0.9, vera-vsip/consultation 0.8, reference/resources/chat 0.7, legal 0.3.
+- 2026-04-17 T1.10 complete — public/robots.txt updated to disallow /admin, /auth, /login, /signup, /.netlify/ and point at sitemap. Previous had /admin /login /signup but missed /.netlify/ and /auth.
