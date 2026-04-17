@@ -23,7 +23,7 @@
 - [x] T2.16 Generate placeholder og-image.png
 - [~] T2.15 Verify Resend domain configuration (probe script shipped, user must run)
 - [x] T2.13 Auth layer on chat.js + send-results-email.js
-- [ ] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
+- [x] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
 - [ ] T2.2 Rebuild FERS Calculator results layout
 - [ ] T2.3 Harden Chat system prompt
 - [ ] T2.4 Add lead capture to both calculators
@@ -105,3 +105,19 @@
   - Guest-mode 3-free-messages counter in Chat.jsx remains as client code but is effectively dead — server rejects unauthenticated chat POSTs. Will clean up in T2.3 when the system prompt is touched.
   - Pattern documented in verifyUser.js header comment for future functions.
   - Server env vars required in Netlify: SUPABASE_URL (or VITE_SUPABASE_URL) and SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY). VITE_* names are already set for the client build — functions can reuse them, no new Netlify config needed. node -c syntax checks pass; `npm run build` 684ms.
+- 2026-04-17 T2.1 complete (single rebuild commit + data commit 2cccb7a):
+  - Installed recharts 3.8.1.
+  - New src/data/fegliRates.js — single source of truth for OPM FEGLI rates (effective 10/1/2021). Exports rate table + getRateBracket + basicCoverageForSalary + coverageBreakdown + monthlyPremium + applyReductionFactors + buildCostProjection. Rate math verified against PLAN.md acceptance scenarios (see commit message for deltas).
+  - Rewrote src/pages/FEGLICalculator.jsx top-to-bottom (900+ lines). 10 sections:
+    1. Inputs (salary, current age, retirement age, postal toggle, already-retired toggle)
+    2. Coverage Elections — 4 cards (Basic, Option A, Option B multiples, Option C multiples), toggle+live coverage+live current-age cost+explainer, Basic disable requires window.confirm per spec
+    3. Post-retirement Reduction Elections (only shows dropdowns for elected options; Option A is read-only Full Reduction)
+    4. HERO CHART: recharts ComposedChart with 4 stacked Area components (Basic navy / A maroon / B gold / C muted-red), stepAfter interpolation so age-bracket step-changes read clearly. Vertical dashed ReferenceLines at current age (maroon), retirement age (navy), age 65 (gold). Custom ChartTooltip shows per-option breakdown + total. 3 headline pill cards (cost today / at retirement / at 75). Plain-English summary sentence generated from elections (3 variants per spec). "View as table" accessibility toggle renders the same data as a tabular fallback for screen readers.
+    5. What Happens When You Retire: 5-year rule paragraph + 3-col reduction-choices table + pre-65/post-65 note
+    6. Should I Keep FEGLI? decision helper — 3 scenarios (mortgage-paid, young-dependents, savings-rich) ending with Calendly CTA
+    7. Full OPM Rate Table (collapsed by default) — highlights current-age row (maroon 10% tint + "← Today") and retirement-age row (navy 10% tint + "← Retirement"); links to OPM source URL
+    8. How These Costs Are Calculated (collapsed) — 4 formulas with worked examples
+    9. Sidebar (right column desktop sticky at top:84; stacks below on mobile): navy background, gold Total Coverage big-number, monthly/annual/biweekly cost rows, per-option coverage breakdown, email-me-my-projection form that POSTs to add-lead (lead captured regardless of auth) and authFetch to send-results-email (silently skipped for anon users per T2.13)
+    10. Important Notes bullet list at bottom
+  - Palette: navy #0f172a, maroon #7b1c2e, gold #b8860b (+ goldLight #d4af37 for hero number), muted-red #9b3a4d for Option C. Zero blue, teal, or pink. Inline styles throughout, matches site pattern.
+  - Build: 1.36s, FEGLICalculator chunk 399KB / 118KB gzipped (recharts bundle cost — lazy-loaded so only /calculators/fegli visitors pay). No build warnings. T2.11 Lighthouse pass will decide whether to tree-shake recharts or defer to a lighter chart lib.
