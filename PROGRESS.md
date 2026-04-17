@@ -25,7 +25,7 @@
 - [x] T2.13 Auth layer on chat.js + send-results-email.js
 - [x] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
 - [x] T2.2 Rebuild FERS Calculator results layout
-- [ ] T2.3 Harden Chat system prompt
+- [x] T2.3 Harden Chat system prompt
 - [ ] T2.4 Add lead capture to both calculators
 - [ ] T2.5 Rename nav items
 - [ ] T2.6 Create /about page
@@ -129,3 +129,15 @@
   - WEP/GPO Repealed info callout preserved from old layout.
   - Existing detail cards (FERS Pension Calculation, TSP at Retirement, COLA Projection) are preserved but demoted: now sit under a new "Detail & Assumptions" section label below the headline panel, with smaller serif `<h3 style={s.secondaryTitle}>` headings instead of the previous maroon uppercase `s.cardTitle`.
   - Build: 1.34s, Calculator chunk 34KB / 10KB gzipped (+3KB vs before).
+- 2026-04-17 T2.3 complete — chat.js BASE_SYSTEM_PROMPT rewritten:
+  - Replaced the "four paths to immediate retirement" framing with the full OPM-terminology enumeration: Immediate Unreduced (62+5, 60+20, MRA+30), MRA+10 Reduced, Postponed MRA+10, Deferred, Disability, VERA. Each path has explicit FERS Supplement eligibility noted.
+  - Added REFUSE SPECIFIC DOLLAR PENSION CALCULATIONS rule that redirects to /calculator — ends dollar-in-chat practice.
+  - Added REFUSE COMPLEX EDGE CASES rule that redirects to Book-a-Call Calendly for LEO/FF/ATC specifics, court-ordered splits, complex military deposits, disability medical, and decisions with tax/estate/long-term-care implications.
+  - Added CITE OPM OR TSP.GOV URL rule with 6 canonical source URLs (eligibility, supplement, TSP limits, FEHB 5-year, FEGLI, WEP/GPO Fairness Act).
+  - Preserved 2026 figures section (verified factual data).
+  - Added SURVIVOR ANNUITY TRADEOFFS section covering lifetime-dollar math.
+  - Added FEHB + MEDICARE COORDINATION section covering IRMAA and late-enrollment penalty.
+  - Added FERS COLA diet-COLA rules.
+  - Removed the old FERS-RAE / Roth TSP / LWOP / reemployed-annuitant / part-time / court-order / death-in-service paragraphs — the model can answer those from general knowledge plus the Airtable context, and trimming the prompt reduces token cost per turn.
+  - New dynamic directive: when the user has sent ≥3 messages in the session, chat.js appends an ADDITIONAL DIRECTIVE block to the system prompt instructing the model to end the response with "Book a free 30-minute consultation → [Calendly URL]" on its own line. Computed from sanitizedMessages user-role count each turn.
+  - Acceptance-test responses captured in TIER2_REPORT after deploy (user's 3 test questions).
