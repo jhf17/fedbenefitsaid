@@ -98,7 +98,8 @@ export default function Landing() {
       `}</style>
 
       {/* HERO SECTION */}
-      <section role="banner" style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', alignItems: 'center', padding: isMobile ? '40px 20px 0' : '64px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: isMobile ? '24px' : '40px' }}>
+      {/* T1.6: alignItems start + reduced top padding so H1 sits ~90px below the sticky 64px nav at 1440/1920. Previously centered content pushed H1 ~230px below nav on large screens. */}
+      <section role="banner" style={{ minHeight: 'calc(100vh - 64px)', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', alignItems: 'start', padding: isMobile ? '40px 20px 0' : '24px 48px 0', maxWidth: '1400px', margin: '0 auto', gap: isMobile ? '24px' : '40px' }}>
         <div style={{ paddingRight: '20px', animation: 'fadeUp 0.8s ease forwards' }}>
           <div style={{ display: 'inline-block', background: colors.navy, fontSize: '0.7rem', fontWeight: '700', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '8px 20px', borderRadius: '100px', marginBottom: '32px', backgroundImage: goldGradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
             For U.S. Federal Employees
