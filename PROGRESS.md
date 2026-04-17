@@ -8,7 +8,7 @@
 - [x] T1.2 Fix FERS Calculator default Survivor Benefit
 - [x] T1.3 Fix landing page stale category counts
 - [x] T1.4 Fix duplicate icon on benefits cards
-- [ ] T1.5 Fix muted mid-page Book Free Consultation CTA
+- [x] T1.5 Fix muted mid-page Book Free Consultation CTA
 - [ ] T1.6 Fix hero top whitespace
 - [ ] T1.7 Update FEGLI disclaimer wording
 - [ ] T1.8 Add SEO metadata to all public routes
@@ -51,4 +51,5 @@
 - 2026-04-17 T1.1 complete (commit 139a55c) — deleted Quiz.jsx, Course.jsx, quizData.js; removed lazy imports + 2 routes from App.jsx; removed training/quiz branch from ProtectedRoute.jsx. Post-delete grep: zero references remain. Build: 633ms, passes.
 - 2026-04-17 T1.2 complete (commit 7209839) — Calculator.jsx:295 default survivor benefit 'full' → 'none'. Local verification: calcFERSPension(25 yrs, $125k, age 60, 'none') = $31,250/yr gross = $2,604/mo net, matches landing chat example.
 - 2026-04-17 T1.3 complete (commit aefd20f) — Landing.jsx:401 "five categories" → "six" (listed Pension/TSP/Healthcare/Income Optimization/Survivor Benefits/Financial Readiness); Landing.jsx:499 "Six comprehensive" → "Eight" (listed FERS Pension/TSP/FEHB/FEGLI/Medicare/Social Security/CSRS/Survivor Benefits). TODO(T2) comments added at both locations.
-- 2026-04-17 T1.4 complete — Landing.jsx:237-242 benefits card icons. 'personalized' was a lucide "users" (multi-person); 'expert' was also a lucide "users" variant — identical glyph. Swapped 'personalized' to lucide User (single person, circle+body) and 'expert' to lucide Award (circle with ribbon tail). Inline SVG, no lucide-react dep.
+- 2026-04-17 T1.4 complete (commit e02efc7) — Landing.jsx:237-242 benefits card icons. 'personalized' was a lucide "users" (multi-person); 'expert' was also a lucide "users" variant — identical glyph. Swapped 'personalized' to lucide User (single person, circle+body) and 'expert' to lucide Award (circle with ribbon tail). Inline SVG, no lucide-react dep.
+- 2026-04-17 T1.5 complete — Landing.jsx:590 mid-page Book Free Consultation CTA restyled. Before: padding 18px/48px, borderRadius 12px, fontSize 1.1rem. After: padding 15px/32px, borderRadius 8px (per spec), fontSize 0.95rem — matches hero "Get Started Free" button scale. Also fixed hover handler bug (`e.target` → `e.currentTarget`) that could fire on child nodes. Color was already #7b1c2e — no change needed.
