@@ -1,6 +1,6 @@
 # FedBenefitsAid Overhaul — Progress
 
-## Current Tier: Tier 1
+## Current Tier: Tier 2
 ## Last updated: 2026-04-17
 
 ## Tier 1 Tasks
@@ -17,7 +17,12 @@
 - [x] T1.11 Fix mobile 375px breakage
 - [x] T1.12 Fix console errors
 
-## Tier 2 Tasks (do NOT start until user says proceed)
+## Tier 2 Tasks (execution order per PLAN_AMENDMENTS.md)
+- [ ] T2.14 Harden calendly-webhook.js fail-closed
+- [ ] T2.14b Provision Calendly webhook end-to-end
+- [ ] T2.16 Generate placeholder og-image.png
+- [ ] T2.15 Verify Resend domain configuration
+- [ ] T2.13 Auth layer on chat.js + send-results-email.js
 - [ ] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
 - [ ] T2.2 Rebuild FERS Calculator results layout
 - [ ] T2.3 Harden Chat system prompt
@@ -77,3 +82,7 @@
   - Runtime: previous session already fixed the Reference/FERS Pension crash (fers-rae-frae missing rules/watch arrays — commit a47116b). No other runtime red errors found in static sweep of `.map` keys, destructuring, or async handlers. Environment-var console.errors (supabase.js:7, Admin.jsx, Auth.jsx) are guarded and only fire on actual failure.
   - Warnings deferred per spec: none found beyond the duplicate-key (now fixed).
 - 2026-04-17 T1.11+T1.12 committed (b4aa0a3 for sidebar fix; Navbar duplicate-key fix pending).
+
+## Tier 2 Log
+
+- 2026-04-17 Tier 1 complete (commit 34d38c5) — TIER1_REPORT.md shipped. Starting Tier 2 with 5 scope amendments logged in PLAN_AMENDMENTS.md: T2.13 (auth on functions), T2.14 (calendly fail-closed), T2.14b (calendly webhook provisioning), T2.15 (Resend probe), T2.16 (og-image placeholder). New execution order: T2.14 → T2.14b → T2.16 → T2.15 → T2.13 → T2.1 → ... → T2.12.
