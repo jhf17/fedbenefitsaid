@@ -397,8 +397,9 @@ export default function Landing() {
             <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: '700', lineHeight: '1.18', letterSpacing: '-0.01em', marginBottom: '20px', color: colors.navy }}>
               Know exactly where you stand.
             </h2>
+            {/* TODO (T2): pull these dynamically from reference/assessment config. */}
             <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: colors.gray600, marginBottom: '32px', maxWidth: '480px' }}>
-              Answer 14 questions across five categories — income, pension, TSP, healthcare, and life insurance. Get a weighted readiness score and a clear checklist of what to focus on next.
+              Answer 14 questions across six categories — Pension, TSP, Healthcare, Income Optimization, Survivor Benefits, and Financial Readiness. Get a weighted readiness score and a clear checklist of what to focus on next.
             </p>
             <Link to="/assessment" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', color: colors.navyMid, transition: 'gap 0.2s', cursor: 'pointer' }}>
               Take the assessment →
@@ -495,8 +496,9 @@ export default function Landing() {
             <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: '700', lineHeight: '1.18', letterSpacing: '-0.01em', marginBottom: '20px', color: colors.navy }}>
               Every rule, number, and pitfall — organized.
             </h2>
+            {/* TODO (T2): pull these dynamically from reference/assessment config. */}
             <p style={{ fontSize: '1.05rem', lineHeight: '1.7', color: colors.gray600, marginBottom: '32px', maxWidth: '480px' }}>
-              Six comprehensive categories covering FERS, CSRS, TSP, FEHB, FEGLI, Social Security, and Medicare. Each topic includes key figures, rules, and common mistakes to watch for.
+              Eight comprehensive categories covering FERS Pension, TSP, FEHB, FEGLI, Medicare, Social Security, CSRS, and Survivor Benefits. Each topic includes key figures, rules, and common mistakes to watch for.
             </p>
             <Link to="/reference" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', color: colors.navyMid, transition: 'gap 0.2s', cursor: 'pointer' }}>
               Explore the guide →
