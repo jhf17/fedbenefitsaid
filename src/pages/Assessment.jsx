@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../App'
 import Seo from '../components/Seo'
 import { authFetch } from '../lib/authFetch'
@@ -761,6 +761,121 @@ function DetailSection({ catId, answers, catScore }) {
 }
 
 // ============================================================
+// T2.7 — PRIORITIZED ACTION PLAN GENERATOR
+// Produces 3–5 top actions derived from the user's answers. Each item has:
+//   action       — imperative statement the user takes
+//   why          — one-sentence stakes/benefit
+//   refLabel     — Benefits Library topic to read
+//   refPath      — path to that topic (currently all land on /reference; will
+//                  deep-link when Reference supports hash routing)
+// ============================================================
+function buildActionPlan(answers) {
+  const items = []
+
+  if (answers.retirement_system === 'unknown') {
+    items.push({
+      action: 'Confirm your retirement system (FERS, FERS-FRAE, or CSRS) with HR.',
+      why: 'Every pension calculation, contribution rate, and benefit rule depends on which system you\'re under.',
+      refLabel: 'FERS Pension basics',
+      refPath: '/reference',
+    })
+  }
+
+  if (['no', 'unknown'].includes(answers.ran_estimate)) {
+    items.push({
+      action: 'Request an official retirement estimate from HR (Form RI 20-80 or your agency\'s equivalent).',
+      why: 'Your HR estimate is the only document that uses your complete service history — back-of-the-envelope math misses things like sick leave credit and locality pay.',
+      refLabel: 'FERS Retirement Types & Eligibility',
+      refPath: '/reference',
+    })
+  }
+
+  if (answers.sick_leave === 'no') {
+    items.push({
+      action: 'Ask HR for your accumulated sick leave balance — it converts to service credit at retirement (2,087 hours = 1 year).',
+      why: 'For a FERS employee with $100,000 High-3, each 1,044 hours of unused sick leave adds roughly $500/yr to the annuity for life.',
+      refLabel: 'FERS Annuity Calculation & Multipliers',
+      refPath: '/reference',
+    })
+  }
+
+  if (['no', 'unknown'].includes(answers.tsp_planning)) {
+    items.push({
+      action: 'Build a TSP withdrawal plan before the year you turn 59½.',
+      why: 'TSP offers installments, annuities, and partial withdrawals — the choice affects taxes and lifetime income by tens of thousands of dollars.',
+      refLabel: 'TSP withdrawals & strategy',
+      refPath: '/reference',
+    })
+  }
+
+  if (answers.ss_strategy === 'no') {
+    items.push({
+      action: 'Pull your Social Security earnings record and benefit estimate at ssa.gov/myaccount.',
+      why: 'Your claiming age — 62, FRA, or 70 — can swing total lifetime Social Security income by $100,000+ for a typical federal worker.',
+      refLabel: 'Social Security claiming strategies',
+      refPath: '/reference',
+    })
+  }
+
+  if (answers.fehb_knowledge === 'no') {
+    items.push({
+      action: 'Verify you have continuous FEHB enrollment for the 5 years immediately before retirement.',
+      why: 'The 5-year rule is non-waivable — a gap means losing FEHB access in retirement entirely.',
+      refLabel: 'FEHB 5-year rule',
+      refPath: '/reference',
+    })
+  }
+
+  if (answers.medicare_coordination === 'no' && answers.current_age !== 'lt50') {
+    items.push({
+      action: 'Decide whether you\'ll enroll in Medicare Part B at 65 alongside FEHB, or delay.',
+      why: 'Delaying Part B can save $2,400+/yr but creates a permanent late-enrollment penalty. The coordination math depends on your FEHB plan, health status, and income (IRMAA).',
+      refLabel: 'Medicare & FEHB coordination',
+      refPath: '/reference',
+    })
+  }
+
+  if (['no', 'unknown'].includes(answers.fegli_review)) {
+    items.push({
+      action: 'Run your elections through the FEGLI calculator and pick a post-65 reduction strategy.',
+      why: 'FEGLI Option B premiums can triple between 60 and 70 — most retirees are paying for coverage they could drop years earlier.',
+      refLabel: 'FEGLI reductions & post-65 options',
+      refPath: '/calculators/fegli',
+    })
+  }
+
+  if (answers.vera_vsip === 'no' || answers.vera_vsip === 'partial') {
+    items.push({
+      action: 'Ask HR (or your union rep) whether VERA/VSIP is currently offered at your agency.',
+      why: 'Early-out offers come and go quickly — knowing the timing matters if you\'re considering an earlier retirement.',
+      refLabel: 'VERA & VSIP guide',
+      refPath: '/vera-vsip',
+    })
+  }
+
+  if (['none', 'aware'].includes(answers.survivor_benefits)) {
+    items.push({
+      action: 'Review survivor annuity options with your spouse before your retirement application.',
+      why: 'Full, partial, or no survivor election changes your monthly pension for life AND determines whether your spouse keeps FEHB after your death.',
+      refLabel: 'Survivor Annuity Elections',
+      refPath: '/reference',
+    })
+  }
+
+  if (['none', 'some'].includes(answers.financial_readiness)) {
+    items.push({
+      action: 'Build a retirement budget that combines pension + TSP drawdown + Social Security + FEHB premium.',
+      why: 'Most federal retirees underestimate healthcare costs and Medicare IRMAA adjustments in their first five years of retirement.',
+      refLabel: 'Retirement income calculator',
+      refPath: '/calculator',
+    })
+  }
+
+  // Cap at 5 (spec's upper bound). If fewer than 3, still return what we have.
+  return items.slice(0, 5)
+}
+
+// ============================================================
 // SMART CHECKLIST GENERATOR
 // ============================================================
 function getChecklist(answers) {
@@ -1162,6 +1277,39 @@ export default function Assessment() {
         </div>
 
         <div style={{ maxWidth: 800, margin: '0 auto', padding: isMobile ? '20px 16px' : '32px 24px' }}>
+          {/* SECTION: Your Prioritized Action Plan — T2.7 */}
+          {(() => {
+            const plan = buildActionPlan(answers)
+            if (plan.length === 0) return null
+            return (
+              <div style={{ marginBottom: 40 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 6, fontFamily: fontSerif }}>Your Prioritized Action Plan</h2>
+                <p style={{ fontSize: 14, color: '#475569', marginTop: 0, marginBottom: 18, lineHeight: 1.6, fontFamily: fontSans }}>
+                  The next {plan.length} move{plan.length === 1 ? '' : 's'}, ranked. Each takes under an hour and unblocks the rest of your retirement plan.
+                </p>
+                <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {plan.map((item, i) => (
+                    <li key={i} style={{ background: '#fff', border: '1px solid #cbd5e1', borderLeft: `4px solid ${maroon}`, borderRadius: 10, padding: '16px 18px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                      <div style={{ flexShrink: 0, width: 30, height: 30, borderRadius: '50%', background: navy, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, fontFamily: fontSerif }}>{i + 1}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, color: navy, fontSize: '0.98rem', lineHeight: 1.5, marginBottom: 4, fontFamily: fontSans }}>{item.action}</div>
+                        <div style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.55, marginBottom: 10, fontFamily: fontSans }}>{item.why}</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: '0.82rem' }}>
+                          <Link to={item.refPath} style={{ color: maroon, fontWeight: 600, textDecoration: 'none', fontFamily: fontSans }}>
+                            {item.refLabel} →
+                          </Link>
+                          <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={{ color: secondaryNavy, fontWeight: 600, textDecoration: 'none', fontFamily: fontSans }}>
+                            Book a consultation about this →
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )
+          })()}
+
           {/* SECTION 2: Retirement Snapshot */}
           <div style={{ marginBottom: 40 }}>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: navy, marginBottom: 20, fontFamily: fontSerif }}>Your Retirement Snapshot</h2>

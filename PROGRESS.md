@@ -29,7 +29,7 @@
 - [x] T2.4 Add lead capture to both calculators
 - [x] T2.5 Rename nav items
 - [x] T2.6 Create /about page (stubs — {{REPLACE}} markers pending user copy)
-- [ ] T2.7 Rework Assessment results into action plan
+- [x] T2.7 Rework Assessment results into action plan
 - [ ] T2.8 Add "When can I retire?" inline tool to landing
 - [ ] T2.9 Recolor Reference "Ask AI" button
 - [ ] T2.10 Structured data (JSON-LD)
@@ -162,3 +162,10 @@
   - Calendly URL confirmed at `https://calendly.com/jhf17/30min`.
   - Route added to App.jsx (/about, lazy-loaded). Footer "Company" column gets an About link. Added to public/sitemap.xml with priority 0.8. Seo injected via the existing helper.
   - Build: 1.30s.
+- 2026-04-17 T2.7 complete — Assessment "Your Prioritized Action Plan" section shipped:
+  - New buildActionPlan(answers) helper — 11 rules that derive prioritized items from specific answer patterns. Examples: retirement_system=unknown → "Confirm your retirement system with HR"; ran_estimate=no → "Request official retirement estimate (Form RI 20-80)"; sick_leave=no → "Ask HR for accumulated sick leave balance — 2,087 hours = 1 year of credit"; tsp_planning=no → "Build a TSP withdrawal plan before age 59½"; fehb_knowledge=no → "Verify continuous 5-year FEHB enrollment"; medicare_coordination=no (and age≠<50) → "Decide Part B at 65 or delay"; fegli_review=no → "Run FEGLI calculator + pick reduction strategy"; vera_vsip=no/partial → "Ask HR about VERA/VSIP"; survivor_benefits=none/aware → "Review survivor annuity"; financial_readiness=none/some → "Build retirement budget".
+  - Cap: 5 items (spec max). Minimum: plan can be 0 if user aced every actionable area — section hidden in that case.
+  - Each item renders with: numbered navy pill, bold action statement, one-sentence why-it-matters, two sub-CTAs (reference link in maroon, "Book a consultation about this" in navy).
+  - Inserted ABOVE "Your Retirement Snapshot" category bars, per spec.
+  - Existing email capture (Source: "Retirement Checklist") and score ring unchanged.
+  - Build: 1.32s.
