@@ -292,7 +292,10 @@ export default function Calculator() {
   const [retireAge, setRetireAge] = useState('')
   const [yearsService, setYearsService] = useState('')
   const [high3, setHigh3] = useState('')
-  const [survivorBenefit, setSurvivorBenefit] = useState('full')
+  // T1.2: default to 'none' so headline result matches landing-page chat example
+  // (age 60 / 25 YOS / $125k → $2,604/mo). Silent 10% survivor deduction previously
+  // shaved the result to $2,344/mo, contradicting marketing copy.
+  const [survivorBenefit, setSurvivorBenefit] = useState('none')
   const [sickLeaveHours, setSickLeaveHours] = useState('')
   const [tspBalance, setTspBalance] = useState('')
   const [monthlyContrib, setMonthlyContrib] = useState('')

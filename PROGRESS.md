@@ -5,7 +5,7 @@
 
 ## Tier 1 Tasks
 - [x] T1.1 Delete orphan Quiz and Course pages
-- [ ] T1.2 Fix FERS Calculator default Survivor Benefit
+- [x] T1.2 Fix FERS Calculator default Survivor Benefit
 - [ ] T1.3 Fix landing page stale category counts
 - [ ] T1.4 Fix duplicate icon on benefits cards
 - [ ] T1.5 Fix muted mid-page Book Free Consultation CTA
@@ -48,4 +48,5 @@
 ## Log
 
 - 2026-04-17 Initial PLAN.md + PROGRESS.md committed (Step 0, commit fbeffbc)
-- 2026-04-17 T1.1 complete — deleted Quiz.jsx, Course.jsx, quizData.js; removed lazy imports + 2 routes from App.jsx; removed training/quiz branch from ProtectedRoute.jsx. Post-delete grep: zero references remain. Build: 633ms, passes.
+- 2026-04-17 T1.1 complete (commit 139a55c) — deleted Quiz.jsx, Course.jsx, quizData.js; removed lazy imports + 2 routes from App.jsx; removed training/quiz branch from ProtectedRoute.jsx. Post-delete grep: zero references remain. Build: 633ms, passes.
+- 2026-04-17 T1.2 complete — Calculator.jsx:295 default survivor benefit 'full' → 'none'. Local verification: calcFERSPension(25 yrs, $125k, age 60, 'none') = $31,250/yr gross = $2,604/mo net, matches landing chat example.
