@@ -19,7 +19,7 @@
 
 ## Tier 2 Tasks (execution order per PLAN_AMENDMENTS.md)
 - [x] T2.14 Harden calendly-webhook.js fail-closed
-- [ ] T2.14b Provision Calendly webhook end-to-end
+- [~] T2.14b Provision Calendly webhook end-to-end (BLOCKED — see log)
 - [ ] T2.16 Generate placeholder og-image.png
 - [ ] T2.15 Verify Resend domain configuration
 - [ ] T2.13 Auth layer on chat.js + send-results-email.js
@@ -86,4 +86,11 @@
 ## Tier 2 Log
 
 - 2026-04-17 Tier 1 complete (commit 34d38c5) — TIER1_REPORT.md shipped. Starting Tier 2 with 5 scope amendments logged in PLAN_AMENDMENTS.md: T2.13 (auth on functions), T2.14 (calendly fail-closed), T2.14b (calendly webhook provisioning), T2.15 (Resend probe), T2.16 (og-image placeholder). New execution order: T2.14 → T2.14b → T2.16 → T2.15 → T2.13 → T2.1 → ... → T2.12.
-- 2026-04-17 T2.14 complete — netlify/functions/calendly-webhook.js now fails closed. Both branches (missing env var + failed signature) return HTTP 500 with body {error:"Webhook signature verification unavailable"} and never touch Airtable. Added module-scope startup log so every cold start makes the env-var state visible in Netlify function logs: warns "CALENDLY_WEBHOOK_SIGNING_KEY is NOT set" when missing, logs "Signing key loaded — signature verification is active" when present. Header docs updated to mark signing key as REQUIRED (was "optional but recommended"). node -c syntax check passes.
+- 2026-04-17 T2.14 complete (commit f42c1b5) — netlify/functions/calendly-webhook.js now fails closed. Both branches (missing env var + failed signature) return HTTP 500 with body {error:"Webhook signature verification unavailable"} and never touch Airtable. Added module-scope startup log so every cold start makes the env-var state visible in Netlify function logs: warns "CALENDLY_WEBHOOK_SIGNING_KEY is NOT set" when missing, logs "Signing key loaded — signature verification is active" when present. Header docs updated to mark signing key as REQUIRED (was "optional but recommended"). node -c syntax check passes.
+- 2026-04-17 T2.14b BLOCKED — cannot provision Calendly webhook programmatically:
+  - `CALENDLY_API_TOKEN` env var: NOT present in local env
+  - `NETLIFY_AUTH_TOKEN` env var: NOT present in local env
+  - Netlify CLI: NOT installed (`which netlify` → not found)
+  - `.env` / `.env.local`: neither exists (only `.env.example` present)
+  - **Consequence**: until the user either (a) creates a Calendly Personal Access Token and exposes it via `CALENDLY_API_TOKEN`, or (b) logs into Netlify CLI or provides `NETLIFY_AUTH_TOKEN`, Code cannot create the webhook subscription or set the signing-key env var. After T2.14's fail-closed hardening, the existing Calendly webhook at Netlify is NOW broken (500s every real event) until the user adds a valid `CALENDLY_WEBHOOK_SIGNING_KEY` to Netlify and configures Calendly to sign with it.
+  - Surfacing as BLOCKING note at top of TIER2_REPORT. Continuing with T2.16.
