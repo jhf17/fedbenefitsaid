@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../App'
 import ConsultantCTA from '../components/ConsultantCTA'
 import Seo from '../components/Seo'
+import { authFetch } from '../lib/authFetch'
 
 const WELCOME_MESSAGE = {
   role: 'assistant',
@@ -83,7 +84,7 @@ export default function Chat() {
     }
 
     try {
-      const res = await fetch('/.netlify/functions/chat', {
+      const res = await authFetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -91,6 +92,10 @@ export default function Chat() {
         }),
       })
 
+      if (res.status === 401) {
+        // T2.13: server rejected due to missing/invalid session
+        throw new Error('Please sign in (or create a free account) to use the AI chat.')
+      }
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}))
         throw new Error(errData.error || `Server error: ${res.status}`)

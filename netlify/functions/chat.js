@@ -17,9 +17,12 @@ const AIRTABLE_BASE_ID = 'appnihKPbDBxVQK4c'
 const AIRTABLE_TABLE_ID = 'tblDRfHTvUeWAAyR5'
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://fedbenefitsaid.com'
 
+const { verifyUser } = require('./_lib/verifyUser')
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'Content-Type',
+  // T2.13: allow Authorization header through CORS preflight for bearer tokens
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
@@ -168,6 +171,12 @@ exports.handler = async function (event) {
       body: JSON.stringify({ error: 'Method not allowed' }),
     }
   }
+
+  // T2.13: require a valid Supabase session. Prevents unauthenticated abuse
+  // of the Anthropic API. Rate limit above catches brute-force; auth catches
+  // the scraped-URL case.
+  const { user, errorResponse } = await verifyUser(event, CORS_HEADERS)
+  if (errorResponse) return errorResponse
 
   if (!ANTHROPIC_API_KEY) {
     console.error('ANTHROPIC_API_KEY is not set')

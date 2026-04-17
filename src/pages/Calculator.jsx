@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Seo from '../components/Seo'
+import { authFetch } from '../lib/authFetch'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -373,7 +374,10 @@ export default function Calculator() {
           results.medicareDeduct > 0 ? { label: 'Medicare Part B', value: fmt(results.medicareDeduct), type: 'deduction' } : null,
         ].filter(Boolean)
 
-        fetch('/.netlify/functions/send-results-email', {
+        // T2.13: authFetch attaches Supabase bearer token; silently skips the
+        // email send if the user isn't signed in (function will 401) — add-lead
+        // still fires above, so the capture itself doesn't depend on auth.
+        authFetch('/.netlify/functions/send-results-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

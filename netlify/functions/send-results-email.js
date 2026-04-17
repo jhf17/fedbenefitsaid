@@ -1,6 +1,9 @@
+const { verifyUser } = require('./_lib/verifyUser')
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': 'https://fedbenefitsaid.com',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  // T2.13: allow Authorization header through CORS preflight for bearer tokens
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
 }
@@ -215,6 +218,11 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) }
   }
+
+  // T2.13: require a valid Supabase session. Prevents unauthenticated abuse
+  // of the Resend API (bill-pump risk).
+  const { user, errorResponse } = await verifyUser(event, CORS_HEADERS)
+  if (errorResponse) return errorResponse
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY
   if (!RESEND_API_KEY) {

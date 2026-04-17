@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
+import { authFetch } from '../lib/authFetch'
 
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
@@ -202,7 +203,9 @@ export default function FEGLICalculator() {
           { label: 'Current Annual Cost', value: fmt(fegliResults.currentCostAnnual), type: 'cost' },
         ].filter(Boolean)
 
-        fetch('/.netlify/functions/send-results-email', {
+        // T2.13: authFetch attaches Supabase bearer token; silently skips the
+        // email send if the user isn't signed in (function will 401).
+        authFetch('/.netlify/functions/send-results-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

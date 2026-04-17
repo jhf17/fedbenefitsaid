@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../App'
 import Seo from '../components/Seo'
+import { authFetch } from '../lib/authFetch'
 
 const navy = '#0f172a'
 const secondaryNavy = '#1e3a5f'
@@ -1054,7 +1055,9 @@ export default function Assessment() {
       description: item.explanation || item.desc || '',
     }))
 
-    fetch('/.netlify/functions/send-results-email', {
+    // T2.13: authFetch attaches Supabase bearer token; silently skips the
+    // email send if the user isn't signed in (function will 401).
+    authFetch('/.netlify/functions/send-results-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
