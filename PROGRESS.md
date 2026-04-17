@@ -20,7 +20,7 @@
 ## Tier 2 Tasks (execution order per PLAN_AMENDMENTS.md)
 - [x] T2.14 Harden calendly-webhook.js fail-closed
 - [~] T2.14b Provision Calendly webhook end-to-end (BLOCKED — see log)
-- [ ] T2.16 Generate placeholder og-image.png
+- [x] T2.16 Generate placeholder og-image.png
 - [ ] T2.15 Verify Resend domain configuration
 - [ ] T2.13 Auth layer on chat.js + send-results-email.js
 - [ ] T2.1 Rebuild FEGLI Calculator with personal cost projection chart
@@ -94,3 +94,4 @@
   - `.env` / `.env.local`: neither exists (only `.env.example` present)
   - **Consequence**: until the user either (a) creates a Calendly Personal Access Token and exposes it via `CALENDLY_API_TOKEN`, or (b) logs into Netlify CLI or provides `NETLIFY_AUTH_TOKEN`, Code cannot create the webhook subscription or set the signing-key env var. After T2.14's fail-closed hardening, the existing Calendly webhook at Netlify is NOW broken (500s every real event) until the user adds a valid `CALENDLY_WEBHOOK_SIGNING_KEY` to Netlify and configures Calendly to sign with it.
   - Surfacing as BLOCKING note at top of TIER2_REPORT. Continuing with T2.16.
+- 2026-04-17 T2.16 complete — public/og-image.png generated at 1200×630, 95 KB. Implementation: installed `sharp` as devDependency, wrote scripts/generate-og-image.mjs that builds an SVG with site palette (#0f172a navy gradient, #d4af37 gold tagline, Merriweather serif wordmark "FedBenefitsAid", italic gold tagline "Retirement benefits, finally clear.", tech-stack kicker "FERS · TSP · FEHB · FEGLI · Medicare · Social Security", stylized Capitol-dome silhouette at 18% opacity gold, URL in lower-right corner). Rasterizes SVG via sharp and writes PNG. Also writes public/og-image.svg so the source is human-editable. `npm run og-image` regenerates. Both SVG and PNG committed — production build does not need sharp. Visually verified render.
