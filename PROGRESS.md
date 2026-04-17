@@ -14,7 +14,7 @@
 - [x] T1.8 Add SEO metadata to all public routes
 - [x] T1.9 Create sitemap.xml
 - [x] T1.10 Create robots.txt
-- [ ] T1.11 Fix mobile 375px breakage
+- [x] T1.11 Fix mobile 375px breakage
 - [ ] T1.12 Fix console errors
 
 ## Tier 2 Tasks (do NOT start until user says proceed)
@@ -57,4 +57,18 @@
 - 2026-04-17 T1.7 complete (commit e5e2398) — FEGLICalculator.jsx:250 disclaimer reworded from "FEGLI rates and coverage are based on OPM data effective 10/1/2021" to "Current OPM FEGLI rates (set effective 10/1/2021)". Reads as current, not stale.
 - 2026-04-17 T1.8 complete (commit 64197ac) — Installed react-helmet-async, wrapped app in HelmetProvider (main.jsx), created src/components/Seo.jsx for per-route title/desc/canonical/og/twitter. Added <Seo> to 14 routes: Landing, Assessment, Calculator, Tools, FEGLICalculator, Chat, Reference (dynamic: list/category/detail), Resources, VeraVsip, Consultation, Disclaimer, Privacy, Terms, Auth (noindex), Admin (noindex), NotFound (noindex). Removed 11 duplicate `document.title` useEffect blocks. Strengthened index.html defaults with og:image width/height/alt, og:locale, twitter:image:alt so non-JS scrapers get full metadata. Build 643ms passes.
 - 2026-04-17 T1.9 complete — public/sitemap.xml now includes all 13 public routes (was 10, missing /calculators, /calculators/fegli, /vera-vsip). lastmod refreshed to 2026-04-17 on every entry. Priority scheme: landing 1.0, tools/calc/assessment 0.9, vera-vsip/consultation 0.8, reference/resources/chat 0.7, legal 0.3.
-- 2026-04-17 T1.10 complete — public/robots.txt updated to disallow /admin, /auth, /login, /signup, /.netlify/ and point at sitemap. Previous had /admin /login /signup but missed /.netlify/ and /auth.
+- 2026-04-17 T1.10 complete (commit b0141ed) — public/robots.txt updated to disallow /admin, /auth, /login, /signup, /.netlify/ and point at sitemap. Previous had /admin /login /signup but missed /.netlify/ and /auth.
+- 2026-04-17 T1.11 per-page sweep @ 375w:
+  - Landing: grid 1fr at mobile, hero padding 40/20 — fits. Hero SVG max 560px auto-scales. No breakage.
+  - Assessment: progress bars and milestone timeline wrap correctly (overflowX auto on timeline). No breakage.
+  - Calculator: all forms grid 1fr at mobile. COLA table wrapped in overflowX auto. No breakage.
+  - Tools/Calculators landing: grid-template-columns 1fr at mobile via @media. Hero padding steps down at 480. No breakage.
+  - FEGLICalculator: rate table + cost projection tables both wrapped in overflowX auto. No breakage.
+  - **Chat: BREAKAGE — 280px sidebar + flex row meant 95px main area at 375w.** Fix: added @media (max-width: 767px) CSS hiding [data-chat-sidebar] via data-attribute selector.
+  - Reference: catGrid uses repeat(auto-fill, minmax(300px, 1fr)) — one column at 375w (content ~343px). Fits. No breakage.
+  - Resources: minmax(260px, 1fr) — fits. No breakage.
+  - VeraVsip: flex wrap rows. No breakage.
+  - Consultation: minmax(320px, 1fr) cards with 20px section padding — 335px content fits. No breakage.
+  - Auth: 340px card + body padding — fits. No breakage.
+  - Admin: minHeight 44 on nav links ✓, hamburger minWidth/minHeight 44 ✓ (already handled).
+  - Legal pages: body flow, no fixed widths. No breakage.

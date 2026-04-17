@@ -147,9 +147,15 @@ export default function Chat() {
       description="Ask plain-English questions about FERS, TSP, FEHB, FEGLI, Medicare, or Social Security. Get answers that cite OPM regulations and adapt to your federal service."
       path="/chat"
     />
+    {/* T1.11: hide the 280px sidebar below 768px — on 375px it crushed the chat thread to ~95px wide. */}
+    <style>{`
+      @media (max-width: 767px) {
+        [data-chat-sidebar] { display: none !important; }
+      }
+    `}</style>
     <div style={styles.page}>
       {/* Sidebar */}
-      <div style={styles.sidebar}>
+      <div data-chat-sidebar="" style={styles.sidebar}>
         <div style={styles.sidebarTop}>
           <div style={styles.sidebarTitle}>Federal Benefits AI</div>
           {isGuest ? (
