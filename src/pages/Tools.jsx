@@ -1,355 +1,204 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
+import { colors, fonts } from '../constants/theme'
+import { DATA_LAST_UPDATED } from '../config/site'
 
-const Calculators = () => {
-  const calculators = [
-    {
-      id: 'calculator',
-      title: 'Retirement Income Calculator',
-      description: 'Estimate your FERS or CSRS pension, FERS supplement, TSP income, and total retirement income. Includes COLA projections, FEHB deductions, and Medicare costs.',
-      link: '/calculator',
-      icon: 'calculator'
-    },
-    {
-      id: 'fegli',
-      title: 'FEGLI Life Insurance Calculator',
-      description: 'Understand your federal life insurance coverage, current costs, and how premiums change in retirement. Compare FEGLI options and reduction elections.',
-      link: '/calculators/fegli',
-      icon: 'fegli'
-    }
-  ]
+const FONT_SERIF = fonts.serif
+const FONT_SANS = fonts.sans
 
-  const renderIcon = (iconType) => {
-    const iconProps = {
-      width: '48',
-      height: '48',
-      viewBox: '0 0 48 48',
-      fill: 'none',
-      stroke: 'url(#goldGradient)',
-      strokeWidth: '2',
-      strokeLinecap: 'round',
-      strokeLinejoin: 'round'
-    }
+const CALCULATORS = [
+  {
+    title: 'FERS Pension',
+    blurb:
+      'For employees hired into the standard FERS system. Customizable retirement-date scenarios, side-by-side comparison, the 1.0%/1.1% multiplier, and the FERS Supplement.',
+    href: '/calculators/fers',
+    eyebrow: 'Standard FERS',
+  },
+  {
+    title: 'CSRS Pension',
+    blurb:
+      'The tiered formula (1.5% / 1.75% / 2.0%), 80% cap, and CSRS-specific eligibility (55+30, 60+20, 62+5). No FERS Supplement, no 1.1% kicker.',
+    href: '/calculators/csrs',
+    eyebrow: 'CSRS',
+  },
+  {
+    title: 'Special Provisions Pension',
+    blurb:
+      'For LEO, firefighters, ATC, Capitol Police, Secret Service Uniformed Division, and nuclear materials couriers. The 1.7%/1.0% formula with the 50+20 / any-age+25 paths.',
+    href: '/calculators/special',
+    eyebrow: 'LEO · FF · ATC · CP · SS-UD · NMC',
+  },
+  {
+    title: 'FEGLI Cost Over Time',
+    blurb:
+      'See exactly how your federal life-insurance premiums change after age 50, 60, 65 — through age 80. Most federal employees are surprised by what happens at 65.',
+    href: '/calculators/fegli',
+    eyebrow: 'Life insurance',
+  },
+]
 
-    const defs = (
-      <defs>
-        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#b8860b" />
-          <stop offset="25%" stopColor="#daa520" />
-          <stop offset="50%" stopColor="#f5d77a" />
-          <stop offset="75%" stopColor="#daa520" />
-          <stop offset="100%" stopColor="#b8860b" />
-        </linearGradient>
-      </defs>
-    )
-
-    switch (iconType) {
-      case 'calculator':
-        return (
-          <svg {...iconProps} aria-hidden="true">
-            {defs}
-            <rect x="8" y="6" width="32" height="36" rx="2" />
-            <line x1="8" y1="18" x2="40" y2="18" />
-            <circle cx="14" cy="28" r="2" />
-            <circle cx="24" cy="28" r="2" />
-            <circle cx="34" cy="28" r="2" />
-            <circle cx="14" cy="38" r="2" />
-            <circle cx="24" cy="38" r="2" />
-            <circle cx="34" cy="38" r="2" />
-          </svg>
-        )
-      case 'fegli':
-        return (
-          <svg {...iconProps} aria-hidden="true">
-            {defs}
-            <path d="M24 8 C18 8, 10 14, 10 22 C10 32, 24 40, 24 40 C24 40, 38 32, 38 22 C38 14, 30 8, 24 8Z" />
-            <line x1="24" y1="18" x2="24" y2="30" />
-            <line x1="18" y1="24" x2="30" y2="24" />
-          </svg>
-        )
-      default:
-        return null
-    }
-  }
-
+export default function Tools() {
   return (
-    <div style={{ backgroundColor: '#faf6ef', minHeight: '100vh' }}>
+    <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
-        title="Federal Retirement Calculators"
-        description="Retirement income calculator and FEGLI life-insurance projection tool for federal employees. Model your pension, TSP, benefits, and coverage in minutes."
+        title="Calculators — federal retirement, by the numbers"
+        description="Free calculators for federal employees: FERS pension, CSRS pension, Special Provisions pension, and FEGLI cost-over-time. Updated for the current benefit year."
         path="/calculators"
       />
-      <style>{`
-        * {
-          box-sizing: border-box;
-        }
 
-        @media (max-width: 768px) {
-          .calc-grid {
-            grid-template-columns: 1fr !important;
-          }
-
-          .hero-content h1 {
-            font-size: 32px !important;
-            line-height: 1.2 !important;
-          }
-
-          .hero-content p {
-            font-size: 16px !important;
-            line-height: 1.6 !important;
-          }
-
-          .calc-container {
-            padding: 48px 16px !important;
-          }
-
-          .cta-section {
-            padding: 48px 16px !important;
-          }
-
-          .cta-section h2 {
-            font-size: 24px !important;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .hero-section {
-            padding: 48px 16px !important;
-          }
-
-          .hero-content h1 {
-            font-size: 28px !important;
-          }
-
-          .hero-content p {
-            font-size: 14px !important;
-          }
-        }
-      `}</style>
-
-      {/* Hero Section */}
-      <div
-        className="hero-section"
-        role="banner"
+      <header
         style={{
-          background: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
-          padding: '80px 48px',
-          textAlign: 'center',
-          color: '#fff'
+          background: `linear-gradient(165deg, ${colors.pineDeep} 0%, ${colors.pine} 55%, ${colors.pineLight} 100%)`,
+          color: '#ffffff',
+          padding: '72px 24px 80px',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         <div
-          className="hero-content"
+          aria-hidden
           style={{
-            maxWidth: '800px',
-            margin: '0 auto'
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)',
+            pointerEvents: 'none',
           }}
-        >
+        />
+        <div style={{ maxWidth: 920, margin: '0 auto', position: 'relative' }}>
+          <div
+            style={{
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: colors.brassLight,
+              marginBottom: 14,
+            }}
+          >
+            Calculators · Updated {DATA_LAST_UPDATED} · OPM, IRS, SSA
+          </div>
           <h1
             style={{
-              fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif",
-              fontSize: '48px',
-              fontWeight: '400',
-              lineHeight: '1.2',
-              marginBottom: '20px',
-              margin: '0 0 20px 0'
+              fontFamily: FONT_SERIF,
+              fontSize: 'clamp(2rem, 4.6vw, 3.4rem)',
+              fontWeight: 600,
+              lineHeight: 1.08,
+              letterSpacing: '-0.02em',
+              fontVariationSettings: '"opsz" 144, "SOFT" 50',
+              marginBottom: 18,
             }}
           >
-            Retirement Calculators
+            Pick the right tool for your <br />
+            <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
+              federal retirement system.
+            </span>
           </h1>
-          <p
-            style={{
-              fontFamily: "'Inter', -apple-system, sans-serif",
-              fontSize: '18px',
-              lineHeight: '1.6',
-              opacity: '0.8',
-              marginBottom: '0'
-            }}
-          >
-            Free, accurate calculators built on official OPM, SSA, and IRS data — designed to help you make confident retirement decisions.
+          <p style={{ fontSize: '1.12rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 640 }}>
+            FERS, CSRS, and Special Provisions follow different rules. Mixing them in one calculator buries the
+            distinctions that actually matter at retirement. Each tool below is built for its system specifically.
           </p>
         </div>
-      </div>
+      </header>
 
-      {/* Calculators Grid */}
-      <div
-        className="calc-container"
-        style={{
-          padding: '80px 48px',
-          maxWidth: '900px',
-          margin: '0 auto'
-        }}
-      >
+      <section style={{ maxWidth: 1140, margin: '0 auto', padding: '64px 24px 96px' }}>
         <div
-          className="calc-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '32px',
-            marginBottom: '80px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 20,
           }}
         >
-          {/* Estimates disclaimer */}
-          <div style={{ gridColumn: '1 / -1', background: '#fffbeb', border: '1px solid #f59e0b', borderRadius: 8, padding: '12px 16px', fontSize: '0.82rem', color: '#92400e', fontFamily: "'Inter', -apple-system, sans-serif" }}>
-            All calculators provide estimates only based on current federal rules and publicly available data. Results are for educational purposes and should not be used as the sole basis for retirement decisions. Consult a qualified advisor for personalized guidance.
-          </div>
-
-          {calculators.map((calc) => (
-            <div
-              key={calc.id}
+          {CALCULATORS.map((c) => (
+            <Link
+              key={c.title}
+              to={c.href}
               style={{
-                backgroundColor: '#fff',
-                borderRadius: '12px',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
-                padding: '32px 28px',
+                textDecoration: 'none',
+                color: 'inherit',
+                background: '#ffffff',
+                borderRadius: 18,
+                padding: 32,
+                border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+                boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
                 display: 'flex',
                 flexDirection: 'column',
-                transition: 'transform 0.2s, box-shadow 0.2s'
+                transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.08)'
+                e.currentTarget.style.borderColor = colors.brass
+                e.currentTarget.style.boxShadow = '0 8px 28px rgba(20,42,29,0.08)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
               }}
               onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(31,61,44,0.08)'
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(20,42,29,0.04)'
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 24px rgba(0,0,0,0.04)'
               }}
             >
-              {/* Icon */}
               <div
                 style={{
-                  marginBottom: '24px',
-                  display: 'flex',
-                  justifyContent: 'center'
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: colors.brassDeep,
+                  marginBottom: 12,
                 }}
               >
-                {renderIcon(calc.icon)}
+                {c.eyebrow}
               </div>
-
-              {/* Title */}
               <h2
                 style={{
-                  fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif",
-                  fontSize: '22px',
-                  fontWeight: '400',
-                  color: '#1e293b',
-                  marginBottom: '14px',
-                  margin: '0 0 14px 0'
+                  fontFamily: FONT_SERIF,
+                  fontSize: '1.5rem',
+                  fontWeight: 600,
+                  color: colors.pine,
+                  marginBottom: 12,
+                  letterSpacing: '-0.01em',
+                  fontVariationSettings: '"opsz" 144, "SOFT" 50',
                 }}
               >
-                {calc.title}
+                {c.title}
               </h2>
-
-              {/* Description */}
-              <p
-                style={{
-                  fontFamily: "'Inter', -apple-system, sans-serif",
-                  fontSize: '15px',
-                  lineHeight: '1.7',
-                  color: '#475569',
-                  marginBottom: '28px',
-                  margin: '0 0 28px 0',
-                  flex: '1'
-                }}
-              >
-                {calc.description}
+              <p style={{ fontSize: '0.98rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 20, flex: 1 }}>
+                {c.blurb}
               </p>
-
-              {/* Link */}
-              <Link
-                to={calc.link}
+              <span
                 style={{
-                  fontFamily: "'Inter', -apple-system, sans-serif",
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  color: '#b08d5a',
-                  textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  transition: 'gap 0.2s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.gap = '10px'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.gap = '6px'
+                  gap: 6,
+                  fontSize: '0.92rem',
+                  fontWeight: 600,
+                  color: colors.brassDeep,
                 }}
               >
-                Open Calculator <span aria-hidden="true" style={{ fontSize: '16px' }}>→</span>
-              </Link>
-            </div>
+                Open calculator <span aria-hidden>→</span>
+              </span>
+            </Link>
           ))}
         </div>
-      </div>
 
-      {/* CTA Section */}
-      <div
-        className="cta-section"
-        style={{
-          padding: '64px 48px',
-          backgroundColor: '#f1f5f9',
-          textAlign: 'center'
-        }}
-      >
-        <h2
+        <div
           style={{
-            fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif",
-            fontSize: '32px',
-            fontWeight: '400',
-            color: '#1e293b',
-            marginBottom: '24px',
-            margin: '0 0 24px 0'
+            marginTop: 36,
+            padding: '20px 24px',
+            background: colors.brassPale,
+            border: `1px solid ${colors.brass}`,
+            borderRadius: 12,
+            fontSize: '0.92rem',
+            color: colors.slate700,
+            lineHeight: 1.6,
           }}
         >
-          Need personalized guidance?
-        </h2>
-        <p
-          style={{
-            fontFamily: "'Inter', -apple-system, sans-serif",
-            fontSize: '16px',
-            lineHeight: '1.6',
-            color: '#475569',
-            marginBottom: '32px',
-            margin: '0 0 32px 0',
-            maxWidth: '600px',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}
-        >
-          Our retirement specialists can walk you through your specific situation.
-        </p>
-        <a
-          href="https://calendly.com/jhf17/30min"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-block',
-            backgroundColor: '#b08d5a',
-            color: '#fff',
-            padding: '14px 28px',
-            borderRadius: '10px',
-            textDecoration: 'none',
-            fontFamily: "'Inter', -apple-system, sans-serif",
-            fontSize: '15px',
-            fontWeight: '500',
-            transition: 'background-color 0.2s, transform 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#8d6f44'
-            e.currentTarget.style.transform = 'scale(1.02)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#b08d5a'
-            e.currentTarget.style.transform = 'scale(1)'
-          }}
-        >
-          Book a Free Consultation
-        </a>
-      </div>
-    </div>
+          <strong style={{ color: colors.brassDeep, fontFamily: FONT_SERIF, letterSpacing: '-0.005em' }}>
+            Estimates only.
+          </strong>{' '}
+          All calculators provide estimates based on current federal rules and publicly-available figures. Use them to
+          orient — not as the sole basis for a retirement election. For an official figure, request a retirement
+          estimate from your HR Specialist (FERS / CSRS / Special) or talk to us on a call.
+        </div>
+      </section>
+    </main>
   )
 }
-
-export default Calculators

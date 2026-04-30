@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect, createContext, useContext, Suspense, lazy } from 'react'
 import { supabase } from './lib/supabase'
 import Navbar from './components/Navbar'
@@ -7,12 +7,14 @@ import Seo from './components/Seo'
 import Landing from './pages/Landing'
 const Reference = lazy(() => import('./pages/Reference'))
 import Auth from './pages/Auth'
-const Calculator = lazy(() => import('./pages/Calculator'))
 const Resources = lazy(() => import('./pages/Resources'))
 const Admin = lazy(() => import('./pages/Admin'))
 const Assessment = lazy(() => import('./pages/Assessment'))
 const Calculators = lazy(() => import('./pages/Tools'))
 const FEGLICalculator = lazy(() => import('./pages/FEGLICalculator'))
+const FersPension = lazy(() => import('./pages/calculators/FersPension'))
+const CsrsPension = lazy(() => import('./pages/calculators/CsrsPension'))
+const SpecialProvisionsPension = lazy(() => import('./pages/calculators/SpecialProvisionsPension'))
 const About = lazy(() => import('./pages/About'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
@@ -80,13 +82,16 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/reference" element={<Reference />} />
-        <Route path="/calculator" element={<Calculator />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/login" element={<Auth mode="login" />} />
         <Route path="/signup" element={<Auth mode="signup" />} />
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/calculators" element={<Calculators />} />
+        <Route path="/calculators/fers" element={<FersPension />} />
+        <Route path="/calculators/csrs" element={<CsrsPension />} />
+        <Route path="/calculators/special" element={<SpecialProvisionsPension />} />
         <Route path="/calculators/fegli" element={<FEGLICalculator />} />
+        <Route path="/calculator" element={<Navigate to="/calculators/fers" replace />} />
         <Route path="/about" element={<About />} />
         <Route path="/consultation" element={<Consultation />} />
         <Route path="/disclaimer" element={<Disclaimer />} />

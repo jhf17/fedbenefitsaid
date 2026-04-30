@@ -90,7 +90,7 @@ function buildPlan(answers) {
       title: 'Run the FERS Pension Calculator',
       body: 'It takes five minutes. Use your High-3, your years of service, and the age you think you\'ll retire. The output gives you a baseline pension number you can compare scenarios against.',
       cta: 'Open the calculator',
-      href: '/calculator',
+      href: '/calculators/fers',
     },
     fegli: {
       title: 'Open the FEGLI Cost-Over-Time Tool',
@@ -102,7 +102,7 @@ function buildPlan(answers) {
       title: 'Start with the FERS Pension Calculator',
       body: 'You can\'t answer the income-gap question without a pension number first. Run that, then we\'ll layer Social Security and TSP estimates on top in a follow-up tool (coming soon).',
       cta: 'Run the calculator',
-      href: '/calculator',
+      href: '/calculators/fers',
     },
     survivor: {
       title: 'Read the Survivor Benefits section in the Library',
@@ -138,7 +138,7 @@ function buildPlan(answers) {
       title: 'Re-run your numbers with current figures',
       body: 'Service years and High-3 change. Multipliers and earnings-test thresholds update annually. A two-year-old estimate is a two-year-old estimate.',
       cta: 'Re-run the calculator',
-      href: '/calculator',
+      href: '/calculators/fers',
     })
   }
 

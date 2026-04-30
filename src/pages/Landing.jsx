@@ -34,8 +34,22 @@ function OrganizationJsonLd() {
 const TOOLS = [
   {
     title: 'FERS Pension',
-    blurb: 'Estimate your basic annuity, factor in sick leave, and compare retiring at 57 vs 60 vs 62.',
-    href: '/calculator',
+    blurb: 'Build unlimited retirement-date scenarios. Side-by-side pension, supplement, and lifetime totals — for the standard FERS system.',
+    href: '/calculators/fers',
+    cta: 'Run the calculator',
+    status: 'live',
+  },
+  {
+    title: 'CSRS Pension',
+    blurb: 'The tiered 1.5/1.75/2.0% formula and 80% cap — built for CSRS retirees, separate from FERS rules.',
+    href: '/calculators/csrs',
+    cta: 'Run the calculator',
+    status: 'live',
+  },
+  {
+    title: 'Special Provisions Pension',
+    blurb: 'For LEO, firefighters, ATC, Capitol Police, SS-UD, NMC — the 1.7%/1.0% formula with the 50+20 and any-age+25 paths.',
+    href: '/calculators/special',
     cta: 'Run the calculator',
     status: 'live',
   },

@@ -90,7 +90,9 @@ export default function Footer() {
           <div style={colTitle}>Tools</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <Link to="/calculators" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>All Calculators</Link>
-            <Link to="/calculator" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>FERS Pension</Link>
+            <Link to="/calculators/fers" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>FERS Pension</Link>
+            <Link to="/calculators/csrs" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>CSRS Pension</Link>
+            <Link to="/calculators/special" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Special Provisions</Link>
             <Link to="/calculators/fegli" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>FEGLI Cost</Link>
             <Link to="/assessment" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Readiness Check</Link>
           </div>
