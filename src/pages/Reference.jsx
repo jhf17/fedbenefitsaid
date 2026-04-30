@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { REF_DATA } from '../data/refData'
+import { REF_DATA, REF_DATA_META } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
 import { useAuth } from '../App'
 import Seo from '../components/Seo'
@@ -155,6 +155,28 @@ export default function Reference() {
              showTopics ? `${currentCat.topics.length} topics covered` :
              'Free, comprehensive reference for all U.S. federal employee benefits - updated for 2026.'}
           </p>
+
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '6px 14px',
+              borderRadius: 999,
+              background: 'rgba(176,141,90,0.18)',
+              border: '1px solid rgba(176,141,90,0.4)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: '#d4b88a',
+              marginTop: 12,
+            }}
+            title={`Sourced from: ${REF_DATA_META.sources.map(s => s.name).join(', ')}`}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4b88a', display: 'inline-block' }} />
+            Updated {REF_DATA_META.lastUpdated} · Sourced from OPM, IRS, SSA, CMS, TSP
+          </div>
 
           {/* Search (only on category grid view) */}
           {!selectedCat && (
