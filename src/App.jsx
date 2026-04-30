@@ -15,6 +15,7 @@ const FEGLICalculator = lazy(() => import('./pages/FEGLICalculator'))
 const FersPension = lazy(() => import('./pages/calculators/FersPension'))
 const CsrsPension = lazy(() => import('./pages/calculators/CsrsPension'))
 const SpecialProvisionsPension = lazy(() => import('./pages/calculators/SpecialProvisionsPension'))
+const IncomeGap = lazy(() => import('./pages/calculators/IncomeGap'))
 const About = lazy(() => import('./pages/About'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
@@ -90,6 +91,7 @@ export default function App() {
         <Route path="/calculators/fers" element={<FersPension />} />
         <Route path="/calculators/csrs" element={<CsrsPension />} />
         <Route path="/calculators/special" element={<SpecialProvisionsPension />} />
+        <Route path="/calculators/income-gap" element={<IncomeGap />} />
         <Route path="/calculators/fegli" element={<FEGLICalculator />} />
         <Route path="/calculator" element={<Navigate to="/calculators/fers" replace />} />
         <Route path="/about" element={<About />} />

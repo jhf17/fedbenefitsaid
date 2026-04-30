@@ -62,10 +62,10 @@ const TOOLS = [
   },
   {
     title: 'Retirement Income Gap',
-    blurb: 'Pension + Social Security + TSP withdrawals vs your current take-home — see the gap honestly.',
-    href: '/calculators',
-    cta: 'Coming soon',
-    status: 'soon',
+    blurb: 'Pension + Social Security + TSP withdrawals vs your current take-home — net of federal/state tax and FEHB/Medicare. Honest gap math.',
+    href: '/calculators/income-gap',
+    cta: 'Run the calculator',
+    status: 'live',
   },
   {
     title: '"What if…" Coverage',

@@ -35,6 +35,13 @@ const CALCULATORS = [
     href: '/calculators/fegli',
     eyebrow: 'Life insurance',
   },
+  {
+    title: 'Retirement Income Gap',
+    blurb:
+      'Combine your pension + Social Security + TSP withdrawals — net of federal/state tax and FEHB/Medicare — and compare to your current take-home. Honest, not optimistic.',
+    href: '/calculators/income-gap',
+    eyebrow: 'Whole-picture income',
+  },
 ]
 
 export default function Tools() {
