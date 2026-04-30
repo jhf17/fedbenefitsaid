@@ -1,91 +1,116 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
+import { colors, fonts } from '../constants/theme'
+import { UNAVAILABLE_STATE_NAMES, DATA_LAST_UPDATED } from '../config/site'
+
+const FONT_SERIF = fonts.serif
+const FONT_SANS = fonts.sans
 
 export default function Disclaimer() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
+  const unavailableList = Object.values(UNAVAILABLE_STATE_NAMES).join(', ')
+
   return (
     <main style={styles.main}>
       <Seo
-        title="Disclaimer"
-        description="FedBenefitsAid is an independent educational platform. We are not affiliated with OPM or the U.S. government. Review our full disclaimer here."
+        title="Disclaimer & Privacy"
+        description="FedBenefitsAid is operated by Federal Market Associates. We are not affiliated with OPM or the U.S. government. Read our full disclaimer, sourcing methodology, and state availability."
         path="/disclaimer"
       />
       <div style={styles.container}>
         <h1 style={styles.h1}>Disclaimer &amp; Privacy</h1>
-        <p style={styles.updated}>Last updated: April 6, 2026</p>
+        <p style={styles.updated}>Last updated: April 2026</p>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Educational Purposes Only</h2>
+          <h2 style={styles.h2}>Educational purposes only</h2>
           <p style={styles.p}>
-            FedBenefitsAid provides educational information about federal employee retirement benefits including FERS, TSP, FEHB, FEGLI, Medicare, and Social Security. The content on this website is for general informational purposes only and does not constitute financial, legal, tax, or investment advice.
+            FedBenefitsAid provides educational information about federal employee retirement benefits including FERS,
+            CSRS, TSP, FEHB, FEGLI, Medicare, and Social Security. Content on this site is for general informational
+            purposes and does <strong>not</strong> constitute personalized financial, legal, tax, or investment advice.
           </p>
           <p style={styles.p}>
-            Every individual's situation is unique. Before making any decisions about your federal benefits, consult with a qualified federal benefits advisor, financial planner, or legal professional. You can also verify information directly with the Office of Personnel Management (OPM) or the relevant federal agency.
+            Every federal employee's situation is different. Before making decisions about your benefits, talk with a
+            qualified benefits advisor, financial planner, or your agency HR office. You can also verify any rule or
+            figure directly with the Office of Personnel Management or the relevant federal agency.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Accuracy of Information</h2>
+          <h2 style={styles.h2}>Accuracy &amp; sourcing</h2>
           <p style={styles.p}>
-            We make every effort to ensure the accuracy of the information on this site, including benefit rates, contribution limits, and eligibility rules. All figures are updated for the current benefit year (2026) based on official government sources including OPM, IRS, SSA, CMS, and the Federal Retirement Thrift Investment Board.
+            We update benefit rates, contribution limits, and eligibility rules each year for the current benefit year.
+            Figures on this site are sourced from official government publications including OPM, IRS, SSA, CMS, and the
+            Federal Retirement Thrift Investment Board (TSP). Where a number is referenced on the site, the underlying
+            source is linked in the page footer or inline.
           </p>
           <p style={styles.p}>
-            However, benefit rules and figures can change. FedBenefitsAid is not responsible for any errors, omissions, or outdated information. Always verify critical benefit decisions with official government sources.
+            Federal benefit rules change. FedBenefitsAid is not responsible for outdated information or for decisions made
+            based on a figure that has since been updated. Verify critical benefit decisions with the official source.
           </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>AI Chat Assistant</h2>
           <p style={styles.p}>
-            Our AI chat assistant provides helpful guidance based on federal benefits regulations and official data. While the AI is designed to be accurate and up-to-date, AI-generated responses may occasionally contain errors. AI responses should not be treated as official advice. Always verify important information independently before making benefit decisions.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>Free Consultations</h2>
-          <p style={styles.p}>
-            Free consultations are provided by Federal Market Associates, a separate federal benefits education company. FedBenefitsAid connects you with these educators but does not employ them directly. Any guidance given during a consultation is the responsibility of the education company and educator providing it.
+            <strong>Most recent figure update:</strong> {DATA_LAST_UPDATED}.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Privacy &amp; Data Collection</h2>
+          <h2 style={styles.h2}>About Federal Market Associates &amp; consultations</h2>
           <p style={styles.p}>
-            When you create an account, we collect your name, email address, and phone number to provide you with our services and to follow up on your interest in federal retirement benefits. We use Google Analytics to understand how visitors use our website.
+            FedBenefitsAid is the public education arm of Federal Market Associates. When you book a consultation through
+            this site, you're scheduling time with Jack Fitzgerald at Federal Market Associates — not with FedBenefitsAid
+            directly. The first 15 minutes are free; longer sessions are scheduled by mutual agreement after the call.
           </p>
           <p style={styles.p}>
-            We do not sell, rent, or share your personal information with third parties for marketing purposes. Your data is used solely to deliver our services, communicate about your account, and improve the FedBenefitsAid experience.
-          </p>
-          <p style={styles.p}>
-            Assessment results and calculator inputs are not stored permanently and are only used to personalize your experience during your session.
+            Federal Market Associates is independent. We are <strong>not affiliated with, endorsed by, or authorized to
+            speak on behalf of</strong> the U.S. government, the Office of Personnel Management, or any federal agency.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Not Affiliated with the U.S. Government</h2>
+          <h2 style={styles.h2}>State availability</h2>
           <p style={styles.p}>
-            FedBenefitsAid is not affiliated with, endorsed by, or connected to the Office of Personnel Management (OPM), the U.S. federal government, or any federal agency. References to government programs, forms, and regulations are for educational purposes only.
+            Insurance and annuity products discussed during consultations are not available to residents of{' '}
+            <strong>{unavailableList}</strong>. The free educational tools on this site (calculators, library, articles)
+            remain fully available regardless of where you live.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>Privacy &amp; data collection</h2>
+          <p style={styles.p}>
+            When you create an account or book a consultation, we collect your name, email, and (optionally) phone number
+            to provide the service and follow up on your interest. We use Google Analytics to understand how visitors
+            navigate the site; you can decline analytics from the cookie banner at the bottom of any page.
+          </p>
+          <p style={styles.p}>
+            Calculator inputs are processed in your browser and are <strong>not</strong> stored on our servers unless you
+            explicitly choose to email yourself the results. We do not sell, rent, or share your personal information
+            with third parties for marketing purposes.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>Compensation disclosure</h2>
+          <p style={styles.p}>
+            Federal Market Associates may be compensated when clients elect to purchase insurance, annuity, or related
+            financial products through us. This site is provided as free education; choosing to purchase a product
+            through us is always optional and is never a prerequisite for accessing the site, the calculators, or the
+            consultation call.
           </p>
         </section>
 
         <section style={styles.section}>
           <h2 style={styles.h2}>Contact</h2>
           <p style={styles.p}>
-            If you have questions about this disclaimer or our privacy practices, you can reach us by booking a call at{' '}
-            <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={styles.link}>
-              calendly.com/jhf17/30min
-            </a>{' '}
-            or visiting{' '}
-            <a href="https://federalmarketassociates.com" target="_blank" rel="noopener noreferrer" style={styles.link}>
-              Federal Market Associates
-            </a>.
+            Questions about this disclaimer or our privacy practices? Reach us by{' '}
+            <Link to="/consultation" style={styles.link}>booking a 15-minute call</Link> or by visiting the{' '}
+            <Link to="/about" style={styles.link}>About</Link> page.
           </p>
         </section>
 
         <nav style={styles.backWrap}>
-          <Link to="/" style={styles.backLink}>Back to Home</Link>
+          <Link to="/" style={styles.backLink}>← Back to home</Link>
         </nav>
       </div>
     </main>
@@ -95,55 +120,59 @@ export default function Disclaimer() {
 const styles = {
   main: {
     minHeight: 'calc(100vh - 64px)',
-    background: '#faf9f6',
-    padding: '48px 0 80px',
+    background: colors.cream,
+    padding: '64px 0 96px',
+    fontFamily: FONT_SANS,
+    color: colors.charcoal,
   },
   container: {
-    maxWidth: 720,
+    maxWidth: 760,
     margin: '0 auto',
     padding: '0 24px',
   },
   h1: {
-    fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-    fontWeight: 800,
-    color: '#0f172a',
+    fontSize: 'clamp(2rem, 4vw, 2.6rem)',
+    fontWeight: 600,
+    color: colors.pine,
     letterSpacing: '-0.02em',
-    marginBottom: 4,
-    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    marginBottom: 6,
+    fontFamily: FONT_SERIF,
+    fontVariationSettings: '"opsz" 144, "SOFT" 50',
   },
   updated: {
-    fontSize: '0.85rem',
-    color: '#94a3b8',
-    marginBottom: 40,
+    fontSize: '0.88rem',
+    color: colors.slate500,
+    marginBottom: 48,
   },
   section: {
-    marginBottom: 36,
+    marginBottom: 40,
   },
   h2: {
-    fontSize: '1.15rem',
-    fontWeight: 700,
-    color: '#0f172a',
-    marginBottom: 10,
-    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    fontSize: '1.25rem',
+    fontWeight: 600,
+    color: colors.pine,
+    marginBottom: 12,
+    fontFamily: FONT_SERIF,
+    letterSpacing: '-0.01em',
   },
   p: {
-    fontSize: '0.95rem',
-    color: '#475569',
-    lineHeight: 1.7,
-    marginBottom: 12,
+    fontSize: '1rem',
+    color: colors.slate700,
+    lineHeight: 1.75,
+    marginBottom: 14,
   },
   link: {
-    color: '#7b1c2e',
-    textDecoration: 'none',
+    color: colors.brassDeep,
+    textDecoration: 'underline',
     fontWeight: 500,
   },
   backWrap: {
-    marginTop: 48,
-    paddingTop: 24,
-    borderTop: '1px solid #cbd5e1',
+    marginTop: 56,
+    paddingTop: 28,
+    borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.10)'}`,
   },
   backLink: {
-    color: '#7b1c2e',
+    color: colors.brassDeep,
     fontWeight: 600,
     fontSize: '0.95rem',
     textDecoration: 'none',

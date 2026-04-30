@@ -854,7 +854,7 @@ export default function Calculator() {
 
               return (
               <div id="calc-results" style={{ marginTop: 32 }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 12 }}>Your Results</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b08d5a', marginBottom: 12 }}>Your Results</div>
 
                 {/* HEADLINE PANEL */}
                 <div style={s.card(isMobile)}>
@@ -862,9 +862,9 @@ export default function Calculator() {
                     Based on your inputs, your estimated monthly retirement income is
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
-                    <div style={{ fontSize: isMobile ? '2.4rem' : '3rem', fontWeight: 900, color: '#7b1c2e', lineHeight: 1, letterSpacing: '-0.02em' }}>{fmt(grandTotal)}</div>
+                    <div style={{ fontSize: isMobile ? '2.4rem' : '3rem', fontWeight: 900, color: '#b08d5a', lineHeight: 1, letterSpacing: '-0.02em' }}>{fmt(grandTotal)}</div>
                     {eligibility && (
-                      <span style={{ display: 'inline-block', padding: '5px 12px', background: 'rgba(30,58,95,0.08)', border: '1px solid rgba(30,58,95,0.2)', color: '#1e3a5f', borderRadius: 100, fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.02em' }}>{eligibility}</span>
+                      <span style={{ display: 'inline-block', padding: '5px 12px', background: 'rgba(31,61,44,0.08)', border: '1px solid rgba(31,61,44,0.2)', color: '#1f3d2c', borderRadius: 100, fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.02em' }}>{eligibility}</span>
                     )}
                   </div>
 
@@ -899,8 +899,8 @@ export default function Calculator() {
 
                   {/* FERS Supplement explainer */}
                   {results.supplementEligible && supplementComputed > 0 && (
-                    <div style={{ marginTop: 16, padding: '12px 14px', borderLeft: '3px solid #1e3a5f', background: '#f8fafc', borderRadius: 6 }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>FERS Supplement</div>
+                    <div style={{ marginTop: 16, padding: '12px 14px', borderLeft: '3px solid #1f3d2c', background: '#f8fafc', borderRadius: 6 }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1f3d2c', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>FERS Supplement</div>
                       <div style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.55 }}>
                         You'll also receive the FERS Supplement until age 62 — roughly <strong>{fmt(supplementComputed)}/mo</strong>, bridging until you can claim Social Security. The estimate is based on {(Math.round(results.yrs * 10) / 10)} FERS years divided by 40, multiplied by your entered SS at age 62.
                       </div>
@@ -1021,9 +1021,9 @@ export default function Calculator() {
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                         <thead>
                           <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
-                            <th scope="col" style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Years After Retirement</th>
-                            <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Your Age</th>
-                            <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#0f172a' }}>Projected Monthly Pension</th>
+                            <th scope="col" style={{ textAlign: 'left', padding: '10px 8px', fontWeight: 700, color: '#142a1d' }}>Years After Retirement</th>
+                            <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#142a1d' }}>Your Age</th>
+                            <th scope="col" style={{ textAlign: 'right', padding: '10px 8px', fontWeight: 700, color: '#142a1d' }}>Projected Monthly Pension</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1031,7 +1031,7 @@ export default function Calculator() {
                             <tr key={proj.yearsAfter} style={{ borderBottom: '1px solid #e2e8f0' }}>
                               <td style={{ padding: '8px', color: '#475569' }}>{proj.yearsAfter} years</td>
                               <td style={{ textAlign: 'right', padding: '8px', color: '#475569' }}>Age {proj.ageAtYear}</td>
-                              <td style={{ textAlign: 'right', padding: '8px', fontWeight: 600, color: '#0f172a' }}>{fmt(proj.projectedMonthly)}</td>
+                              <td style={{ textAlign: 'right', padding: '8px', fontWeight: 600, color: '#142a1d' }}>{fmt(proj.projectedMonthly)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1050,7 +1050,7 @@ export default function Calculator() {
                     href={CALENDLY_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ display: 'inline-block', background: '#7b1c2e', color: '#fff', padding: '12px 24px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
+                    style={{ display: 'inline-block', background: '#b08d5a', color: '#fff', padding: '12px 24px', borderRadius: 8, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
                   >
                     Book Free Consultation
                   </a>
@@ -1102,7 +1102,7 @@ export default function Calculator() {
                       <button
                         type="submit"
                         disabled={captureLoading}
-                        style={{ background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap', marginTop: 16 }}
+                        style={{ background: '#b08d5a', color: '#fff', border: 'none', borderRadius: 8, padding: '11px 24px', fontSize: 14, fontWeight: 700, cursor: captureLoading ? 'wait' : 'pointer', whiteSpace: 'nowrap', marginTop: 16 }}
                       >
                         {captureLoading ? 'Sending...' : 'Email My Results'}
                       </button>
@@ -1161,8 +1161,8 @@ function ActualRow({ label, value, type }) {
   const isDeduct = type === 'deduct'
   const isTotal = type === 'total'
   const isSubtotal = type === 'subtotal'
-  const bg = isTotal ? '#0f172a' : isSubtotal ? '#f8fafc' : isDeduct ? '#fff5f5' : '#fff'
-  const color = isTotal ? '#fff' : isDeduct ? '#dc2626' : '#0f172a'
+  const bg = isTotal ? '#142a1d' : isSubtotal ? '#f8fafc' : isDeduct ? '#fff5f5' : '#fff'
+  const color = isTotal ? '#fff' : isDeduct ? '#dc2626' : '#142a1d'
   const borderBottom = isTotal ? 'none' : '1px solid #e2e8f0'
   const weight = isTotal ? 900 : isSubtotal ? 700 : 600
   const fontSize = isTotal ? '1.1rem' : '0.95rem'
@@ -1186,7 +1186,7 @@ function Toggle({ checked, onChange, label, sublabel }) {
       />
       <div style={{
         width: 44, height: 24, borderRadius: 12,
-        background: checked ? '#7b1c2e' : '#cbd5e1',
+        background: checked ? '#b08d5a' : '#cbd5e1',
         position: 'relative', transition: 'background 0.2s', flexShrink: 0
       }}>
         <div style={{
@@ -1196,7 +1196,7 @@ function Toggle({ checked, onChange, label, sublabel }) {
         }} />
       </div>
       <div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{label}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#142a1d' }}>{label}</div>
         {sublabel && <div style={{ fontSize: 12, color: '#64748b' }}>{sublabel}</div>}
       </div>
     </label>
@@ -1223,45 +1223,45 @@ function yrsServiceLabel(n) {
 // ============================================================
 
 const fieldStyles = {
-  label: { fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#475569', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
+  label: { fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#475569', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
   hint:  { fontSize: '0.73rem', color: '#64748b', lineHeight: 1.4 },
 }
 
 const styles = {
-  page: { minHeight: '100vh', background: '#faf9f6', paddingBottom: 80 },
+  page: { minHeight: '100vh', background: '#faf6ef', paddingBottom: 80 },
   container: { maxWidth: 900, margin: '0 auto', padding: '40px 20px' },
 
-  header: (isMobile) => ({ textAlign: 'center', marginBottom: 36, background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)', color: '#fff', padding: isMobile ? '32px 16px' : '48px 32px', borderRadius: 12, marginLeft: -20, marginRight: -20, paddingLeft: isMobile ? 'calc(20px + 16px)' : 'calc(20px + 32px)', paddingRight: isMobile ? 'calc(20px + 16px)' : 'calc(20px + 32px)' }),
+  header: (isMobile) => ({ textAlign: 'center', marginBottom: 36, background: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)', color: '#fff', padding: isMobile ? '32px 16px' : '48px 32px', borderRadius: 12, marginLeft: -20, marginRight: -20, paddingLeft: isMobile ? 'calc(20px + 16px)' : 'calc(20px + 32px)', paddingRight: isMobile ? 'calc(20px + 16px)' : 'calc(20px + 32px)' }),
   badge: { display: 'inline-block', background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '4px 14px', borderRadius: 20, marginBottom: 14 },
-  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#fff', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif", letterSpacing: '-0.02em', marginBottom: 12 },
+  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#fff', fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif", letterSpacing: '-0.02em', marginBottom: 12 },
   subtitle: { fontSize: '1rem', color: 'rgba(255,255,255,0.85)', maxWidth: 580, margin: '0 auto', lineHeight: 1.6 },
 
   disclaimerBanner: { background: '#f8f7f4', borderLeft: '3px solid #cbd5e1', padding: '12px 16px', fontSize: '12px', color: '#475569', borderRadius: 6, marginBottom: 24 },
 
   tabRow: { display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' },
   tabBtn: { padding: '8px 16px', borderRadius: 6, border: '1px solid #cbd5e1', background: '#fff', color: '#475569', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' },
-  tabBtnActive: { background: '#0f172a', color: '#fff', borderColor: '#0f172a' },
+  tabBtnActive: { background: '#142a1d', color: '#fff', borderColor: '#142a1d' },
 
-  card: (isMobile) => ({ background: '#fff', borderRadius: 12, padding: isMobile ? 20 : 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(15,23,42,0.08)' }),
-  cardTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#7b1c2e', marginBottom: 20 },
+  card: (isMobile) => ({ background: '#fff', borderRadius: 12, padding: isMobile ? 20 : 32, marginBottom: 24, boxShadow: '0 1px 3px rgba(20,42,29,0.08)' }),
+  cardTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#b08d5a', marginBottom: 20 },
   // T2.2: smaller header for secondary detail sections below the main results panel
-  secondaryTitle: { fontSize: '1rem', fontWeight: 700, color: '#1e3a5f', marginBottom: 14, marginTop: 0, fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif" },
+  secondaryTitle: { fontSize: '1rem', fontWeight: 700, color: '#1f3d2c', marginBottom: 14, marginTop: 0, fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif" },
 
   grid2: (isMobile) => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginBottom: 16 }),
 
-  input: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" },
-  select: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif", background: '#fff' },
+  input: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
+  select: { border: '1px solid #cbd5e1', borderRadius: 6, padding: '10px 12px', fontSize: '0.95rem', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", background: '#fff' },
 
-  button: { background: '#7b1c2e', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' },
+  button: { background: '#b08d5a', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 20px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' },
 
   resultBox: { background: '#f8f7f4', borderRadius: 8, padding: 16, borderLeft: '3px solid #cbd5e1' },
   resultLabel: { fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#64748b', marginBottom: 8 },
-  resultValue: { fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' },
+  resultValue: { fontSize: '1.3rem', fontWeight: 800, color: '#142a1d' },
 
-  errorBox: { background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: 12, color: '#991b1b', fontSize: '0.9rem', marginTop: 16, marginBottom: 16 },
+  errorBox: { background: '#f4eee0', border: '1px solid #fecaca', borderRadius: 8, padding: 12, color: '#991b1b', fontSize: '0.9rem', marginTop: 16, marginBottom: 16 },
 
   assumptionsBox: (isMobile) => ({ background: '#f0f9ff', borderRadius: 12, padding: isMobile ? 16 : 24, marginTop: 24 }),
-  assumptionsTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#0f172a', marginBottom: 16 },
+  assumptionsTitle: { fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#142a1d', marginBottom: 16 },
   assumptionsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 },
   assumptionItem: { fontSize: '0.85rem', color: '#475569', lineHeight: 1.5 },
 }

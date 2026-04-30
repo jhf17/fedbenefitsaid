@@ -156,7 +156,7 @@ export default function Auth({ mode = 'login' }) {
         {flashMessage && (
           <div style={styles.flashMsg} role="status">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" style={{ display: 'inline-block', marginRight: 6, verticalAlign: 'text-bottom' }}>
-              <path d="M8 1.5c1.65 0 3 1.35 3 3v2.5h.5c.83 0 1.5.67 1.5 1.5v5.5c0 .83-.67 1.5-1.5 1.5H4.5c-.83 0-1.5-.67-1.5-1.5V8.5c0-.83.67-1.5 1.5-1.5H5V4.5c0-1.65 1.35-3 3-3zm0 1c-1.1 0-2 .9-2 2v2.5h4V4.5c0-1.1-.9-2-2-2z" fill="#0f172a"/>
+              <path d="M8 1.5c1.65 0 3 1.35 3 3v2.5h.5c.83 0 1.5.67 1.5 1.5v5.5c0 .83-.67 1.5-1.5 1.5H4.5c-.83 0-1.5-.67-1.5-1.5V8.5c0-.83.67-1.5 1.5-1.5H5V4.5c0-1.65 1.35-3 3-3zm0 1c-1.1 0-2 .9-2 2v2.5h4V4.5c0-1.1-.9-2-2-2z" fill="#142a1d"/>
             </svg>
             {flashMessage}
           </div>
@@ -315,7 +315,7 @@ export default function Auth({ mode = 'login' }) {
 
         {/* Reference Mode link */}
         <div style={styles.guestNote}>
-          <Link to="/reference" style={{ color: '#7b1c2e', fontWeight: 500, fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+          <Link to="/reference" style={{ color: '#b08d5a', fontWeight: 500, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
             Browse the free reference guide
           </Link>
           {' '}without an account
@@ -349,7 +349,7 @@ export default function Auth({ mode = 'login' }) {
 const styles = {
   page: {
     minHeight: 'calc(100vh - 64px)',
-    background: '#faf9f6',
+    background: '#faf6ef',
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -374,26 +374,26 @@ const styles = {
     marginBottom: 24,
   },
   logoMark: {
-    background: '#7b1c2e',
+    background: '#b08d5a',
     color: 'white',
     fontWeight: 800,
     fontSize: '0.68rem',
     letterSpacing: '0.06em',
     padding: '4px 7px',
     borderRadius: 6,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
-  logoText: { fontWeight: 800, fontSize: '1.1rem', color: '#0f172a', fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif" },
+  logoText: { fontWeight: 800, fontSize: '1.1rem', color: '#142a1d', fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif" },
   flashMsg: {
     background: '#eff6ff',
     border: '1px solid #c7d7fc',
     borderRadius: 10,
     padding: '10px 14px',
     fontSize: '0.88rem',
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 20,
     textAlign: 'center',
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   tabs: {
     display: 'flex',
@@ -408,7 +408,7 @@ const styles = {
     border: 'none',
     background: 'transparent',
     borderRadius: 8,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: '0.9rem',
     fontWeight: 500,
     color: '#475569',
@@ -417,7 +417,7 @@ const styles = {
   },
   tabActive: {
     background: 'white',
-    color: '#0f172a',
+    color: '#142a1d',
     fontWeight: 700,
     boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
   },
@@ -428,16 +428,16 @@ const styles = {
   h1: {
     fontSize: '1.4rem',
     fontWeight: 800,
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 6,
     letterSpacing: '-0.02em',
-    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif",
   },
   sub: {
     fontSize: '0.88rem',
     color: '#475569',
     lineHeight: 1.5,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   successBox: {
     background: '#ecfdf5',
@@ -448,17 +448,17 @@ const styles = {
     color: '#065f46',
     marginBottom: 20,
     lineHeight: 1.5,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   errorBox: {
-    background: '#fef2f2',
+    background: '#f4eee0',
     border: '1.5px solid #fecaca',
     borderRadius: 10,
     padding: '12px 16px',
     fontSize: '0.88rem',
     color: '#dc2626',
     marginBottom: 16,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   form: {
     display: 'flex',
@@ -470,15 +470,15 @@ const styles = {
     marginTop: 20,
     fontSize: '0.88rem',
     color: '#475569',
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   switchLink: {
     background: 'none',
     border: 'none',
-    color: '#7b1c2e',
+    color: '#b08d5a',
     fontWeight: 600,
     cursor: 'pointer',
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     fontSize: '0.88rem',
   },
   guestNote: {
@@ -488,7 +488,7 @@ const styles = {
     color: '#94a3b8',
     paddingTop: 16,
     borderTop: '1px solid #f1f5f9',
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   aside: {
     width: 340,
@@ -504,10 +504,10 @@ const styles = {
   asideTitle: {
     fontWeight: 800,
     fontSize: '1rem',
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 24,
     letterSpacing: '-0.01em',
-    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif",
   },
   asideBenefit: {
     display: 'flex',
@@ -518,7 +518,7 @@ const styles = {
   asideAccent: {
     width: 4,
     height: 36,
-    background: '#7b1c2e',
+    background: '#b08d5a',
     borderRadius: 2,
     flexShrink: 0,
     marginTop: 2,
@@ -526,15 +526,15 @@ const styles = {
   asideBenTitle: {
     fontWeight: 700,
     fontSize: '0.9rem',
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 3,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   asideBenDesc: {
     fontSize: '0.82rem',
     color: '#475569',
     lineHeight: 1.5,
-    fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
 }
 

@@ -204,7 +204,7 @@ export default function Terms() {
 const styles = {
   main: {
     minHeight: 'calc(100vh - 64px)',
-    background: '#faf9f6',
+    background: '#faf6ef',
     padding: '48px 0 80px',
   },
   container: {
@@ -215,10 +215,10 @@ const styles = {
   h1: {
     fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
     fontWeight: 800,
-    color: '#0f172a',
+    color: '#142a1d',
     letterSpacing: '-0.02em',
     marginBottom: 4,
-    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif",
   },
   updated: {
     fontSize: '0.85rem',
@@ -231,9 +231,9 @@ const styles = {
   h2: {
     fontSize: '1.15rem',
     fontWeight: 700,
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 10,
-    fontFamily: "'Merriweather', Georgia, 'Times New Roman', serif",
+    fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif",
   },
   p: {
     fontSize: '0.95rem',
@@ -250,16 +250,16 @@ const styles = {
     listStyleType: 'disc',
   },
   link: {
-    color: '#7b1c2e',
+    color: '#b08d5a',
     textDecoration: 'none',
     fontWeight: 500,
   },
   disclaimer: {
     marginTop: 48,
     padding: 24,
-    background: '#faf9f6',
+    background: '#faf6ef',
     borderRadius: 8,
-    borderLeft: '4px solid #7b1c2e',
+    borderLeft: '4px solid #b08d5a',
     marginBottom: 36,
   },
   disclaimerText: {
@@ -275,7 +275,7 @@ const styles = {
     borderTop: '1px solid #cbd5e1',
   },
   backLink: {
-    color: '#7b1c2e',
+    color: '#b08d5a',
     fontWeight: 600,
     fontSize: '0.95rem',
     textDecoration: 'none',

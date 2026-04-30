@@ -1,33 +1,47 @@
-// Shared design tokens for FedBenefitsAid
-// Import these instead of hardcoding hex values in inline styles.
-// CSS class equivalents are in App.css (:root variables + .btn, .card, etc.)
+// Shared design tokens for FedBenefitsAid (Heritage Pine + Brass)
+// Mirrors :root CSS variables in src/App.css.
 
 export const colors = {
-  // Primary palette
-  navy: '#0f172a',
-  navyMid: '#1e3a5f',
-  navyLight: '#2d5f8a',
-  maroon: '#7b1c2e',
-  cream: '#faf9f6',
-  gold: '#c9a84c',
+  // Brand palette (Heritage Pine + Brass)
+  pine: '#1f3d2c',
+  pineDeep: '#142a1d',
+  pineLight: '#2c5544',
+  sage: '#4a6b5a',
+  sageLight: '#7d9b8d',
+  sagePale: '#e6ede8',
+  brass: '#b08d5a',
+  brassDeep: '#8d6f44',
+  brassLight: '#d4b88a',
+  brassPale: '#f4eee0',
+  cream: '#faf6ef',
+  ivory: '#fefcf7',
+  bone: '#f1ead9',
+  charcoal: '#1f2937',
+
+  // Legacy aliases (existing code uses these names — leave intact)
+  navy: '#1f3d2c',
+  navyMid: '#2c5544',
+  navyLight: '#4a6b5a',
+  maroon: '#b08d5a',
+  gold: '#b08d5a',
   white: '#ffffff',
 
-  // Hero gradient (standard across all pages)
-  heroGradient: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
+  // Hero gradient (Pine → Pine-light)
+  heroGradient: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
 
   // Text colors
-  textDark: '#0f172a',
+  textDark: '#1f2937',
   textBody: '#334155',
   textMuted: '#64748b',
   textLight: '#94a3b8',
 
   // Borders and backgrounds
   borderLight: '#cbd5e1',
-  borderSubtle: 'rgba(0,0,0,0.06)',
+  borderSubtle: 'rgba(31,61,44,0.10)',
   bgCard: '#ffffff',
-  bgPage: '#faf9f6',
+  bgPage: '#faf6ef',
 
-  // Status colors
+  // Status
   success: '#16a34a',
   successBg: '#f0fdf4',
   warning: '#d97706',
@@ -40,29 +54,23 @@ export const colors = {
   infoBg: '#eff6ff',
 }
 
-// Typography
 export const fonts = {
-  sans: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
-  serif: "'Merriweather', Georgia, 'Times New Roman', serif",
+  sans: "'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
+  serif: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif",
 }
 
-// Design tokens
 export const tokens = {
-  // Border radius scale
   radiusCard: 12,
   radiusButton: 10,
   radiusInput: 8,
   radiusTag: 6,
 
-  // Box shadow scale
-  shadowCard: '0 4px 24px rgba(0,0,0,0.04)',
-  shadowSmall: '0 2px 8px rgba(0,0,0,0.04)',
-  shadowSubtle: '0 1px 3px rgba(0,0,0,0.05)',
+  shadowCard: '0 4px 24px rgba(20,42,29,0.06)',
+  shadowSmall: '0 2px 8px rgba(20,42,29,0.05)',
+  shadowSubtle: '0 1px 3px rgba(20,42,29,0.06)',
 
-  // Container
   maxWidth: 1200,
 
-  // Spacing
   pagePadding: 48,
   pagePaddingMobile: 20,
   cardPadding: 24,

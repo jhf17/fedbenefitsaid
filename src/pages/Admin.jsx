@@ -353,7 +353,7 @@ const Admin = () => {
       {/* Header */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%)',
+          background: 'linear-gradient(135deg, #142a1d 0%, #1f3d2c 100%)',
           padding: isMobile ? '16px' : '24px 32px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -371,7 +371,7 @@ const Admin = () => {
             fetchData();
           }}
           style={{
-            backgroundColor: '#7b1c2e',
+            backgroundColor: '#b08d5a',
             color: '#ffffff',
             border: 'none',
             padding: '10px 16px',
@@ -382,7 +382,7 @@ const Admin = () => {
             transition: 'background-color 0.2s'
           }}
           onMouseEnter={(e) => (e.target.style.backgroundColor = '#5f1622')}
-          onMouseLeave={(e) => (e.target.style.backgroundColor = '#7b1c2e')}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = '#b08d5a')}
         >
           Refresh
         </button>
@@ -403,12 +403,12 @@ const Admin = () => {
               }}
             >
               {[
-                { label: 'Total Leads', value: stats.total, color: '#0f172a' },
-                { label: 'Account Signups', value: stats.accountSignups, color: '#1e3a5f' },
-                { label: 'Assessment Leads', value: stats.assessmentLeads, color: '#1e3a5f' },
-                { label: 'Calculator Leads', value: stats.calculatorLeads, color: '#7b1c2e' },
-                { label: 'Consultations Booked', value: stats.consultationBooked, color: '#1e3a5f' },
-                { label: 'Apollo Outbound', value: stats.apolloLeads, color: '#1e3a5f' }
+                { label: 'Total Leads', value: stats.total, color: '#142a1d' },
+                { label: 'Account Signups', value: stats.accountSignups, color: '#1f3d2c' },
+                { label: 'Assessment Leads', value: stats.assessmentLeads, color: '#1f3d2c' },
+                { label: 'Calculator Leads', value: stats.calculatorLeads, color: '#b08d5a' },
+                { label: 'Consultations Booked', value: stats.consultationBooked, color: '#1f3d2c' },
+                { label: 'Apollo Outbound', value: stats.apolloLeads, color: '#1f3d2c' }
               ].map((stat, idx) => (
                 <div
                   key={idx}
@@ -452,8 +452,8 @@ const Admin = () => {
                     cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: '500',
-                    color: sourceFilter === tab.value ? '#7b1c2e' : '#6b7280',
-                    borderBottom: sourceFilter === tab.value ? '2px solid #7b1c2e' : '2px solid transparent',
+                    color: sourceFilter === tab.value ? '#b08d5a' : '#6b7280',
+                    borderBottom: sourceFilter === tab.value ? '2px solid #b08d5a' : '2px solid transparent',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
@@ -479,17 +479,17 @@ const Admin = () => {
                     style={{
                       padding: '8px 14px',
                       borderRadius: '20px',
-                      border: statusFilter === value ? `2px solid #7b1c2e` : '2px solid #d1d5db',
-                      backgroundColor: statusFilter === value ? '#fef2f2' : '#ffffff',
+                      border: statusFilter === value ? `2px solid #b08d5a` : '2px solid #d1d5db',
+                      backgroundColor: statusFilter === value ? '#f4eee0' : '#ffffff',
                       cursor: 'pointer',
                       fontSize: '13px',
                       fontWeight: '500',
-                      color: statusFilter === value ? '#7b1c2e' : '#6b7280',
+                      color: statusFilter === value ? '#b08d5a' : '#6b7280',
                       transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.borderColor = '#7b1c2e';
-                      e.target.style.backgroundColor = '#fef2f2';
+                      e.target.style.borderColor = '#b08d5a';
+                      e.target.style.backgroundColor = '#f4eee0';
                     }}
                     onMouseLeave={(e) => {
                       if (statusFilter !== value) {
@@ -933,7 +933,7 @@ const Admin = () => {
                       style={{
                         width: `${selectedLead.fields['Assessment Score']}%`,
                         height: '100%',
-                        backgroundColor: '#7b1c2e',
+                        backgroundColor: '#b08d5a',
                         transition: 'width 0.3s'
                       }}
                     />
@@ -1084,7 +1084,7 @@ const Admin = () => {
                   disabled={isSaving || !addingNote.trim()}
                   style={{
                     padding: '8px 12px',
-                    backgroundColor: '#7b1c2e',
+                    backgroundColor: '#b08d5a',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '6px',

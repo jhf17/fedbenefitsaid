@@ -74,7 +74,7 @@ const Calculators = () => {
   }
 
   return (
-    <div style={{ backgroundColor: '#faf9f6', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#faf6ef', minHeight: '100vh' }}>
       <Seo
         title="Federal Retirement Calculators"
         description="Retirement income calculator and FEGLI life-insurance projection tool for federal employees. Model your pension, TSP, benefits, and coverage in minutes."
@@ -133,7 +133,7 @@ const Calculators = () => {
         className="hero-section"
         role="banner"
         style={{
-          background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
+          background: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
           padding: '80px 48px',
           textAlign: 'center',
           color: '#fff'
@@ -148,7 +148,7 @@ const Calculators = () => {
         >
           <h1
             style={{
-              fontFamily: "'Merriweather', Georgia, serif",
+              fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif",
               fontSize: '48px',
               fontWeight: '400',
               lineHeight: '1.2',
@@ -160,7 +160,7 @@ const Calculators = () => {
           </h1>
           <p
             style={{
-              fontFamily: "'Source Sans 3', -apple-system, sans-serif",
+              fontFamily: "'Inter', -apple-system, sans-serif",
               fontSize: '18px',
               lineHeight: '1.6',
               opacity: '0.8',
@@ -191,7 +191,7 @@ const Calculators = () => {
           }}
         >
           {/* Estimates disclaimer */}
-          <div style={{ gridColumn: '1 / -1', background: '#fffbeb', border: '1px solid #f59e0b', borderRadius: 8, padding: '12px 16px', fontSize: '0.82rem', color: '#92400e', fontFamily: "'Source Sans 3', -apple-system, sans-serif" }}>
+          <div style={{ gridColumn: '1 / -1', background: '#fffbeb', border: '1px solid #f59e0b', borderRadius: 8, padding: '12px 16px', fontSize: '0.82rem', color: '#92400e', fontFamily: "'Inter', -apple-system, sans-serif" }}>
             All calculators provide estimates only based on current federal rules and publicly available data. Results are for educational purposes and should not be used as the sole basis for retirement decisions. Consult a qualified advisor for personalized guidance.
           </div>
 
@@ -230,7 +230,7 @@ const Calculators = () => {
               {/* Title */}
               <h2
                 style={{
-                  fontFamily: "'Merriweather', Georgia, serif",
+                  fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif",
                   fontSize: '22px',
                   fontWeight: '400',
                   color: '#1e293b',
@@ -244,7 +244,7 @@ const Calculators = () => {
               {/* Description */}
               <p
                 style={{
-                  fontFamily: "'Source Sans 3', -apple-system, sans-serif",
+                  fontFamily: "'Inter', -apple-system, sans-serif",
                   fontSize: '15px',
                   lineHeight: '1.7',
                   color: '#475569',
@@ -260,10 +260,10 @@ const Calculators = () => {
               <Link
                 to={calc.link}
                 style={{
-                  fontFamily: "'Source Sans 3', -apple-system, sans-serif",
+                  fontFamily: "'Inter', -apple-system, sans-serif",
                   fontSize: '15px',
                   fontWeight: '600',
-                  color: '#7b1c2e',
+                  color: '#b08d5a',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -295,7 +295,7 @@ const Calculators = () => {
       >
         <h2
           style={{
-            fontFamily: "'Merriweather', Georgia, serif",
+            fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif",
             fontSize: '32px',
             fontWeight: '400',
             color: '#1e293b',
@@ -307,7 +307,7 @@ const Calculators = () => {
         </h2>
         <p
           style={{
-            fontFamily: "'Source Sans 3', -apple-system, sans-serif",
+            fontFamily: "'Inter', -apple-system, sans-serif",
             fontSize: '16px',
             lineHeight: '1.6',
             color: '#475569',
@@ -326,22 +326,22 @@ const Calculators = () => {
           rel="noopener noreferrer"
           style={{
             display: 'inline-block',
-            backgroundColor: '#7b1c2e',
+            backgroundColor: '#b08d5a',
             color: '#fff',
             padding: '14px 28px',
             borderRadius: '10px',
             textDecoration: 'none',
-            fontFamily: "'Source Sans 3', -apple-system, sans-serif",
+            fontFamily: "'Inter', -apple-system, sans-serif",
             fontSize: '15px',
             fontWeight: '500',
             transition: 'background-color 0.2s, transform 0.2s'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#5f1624'
+            e.currentTarget.style.backgroundColor = '#8d6f44'
             e.currentTarget.style.transform = 'scale(1.02)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#7b1c2e'
+            e.currentTarget.style.backgroundColor = '#b08d5a'
             e.currentTarget.style.transform = 'scale(1)'
           }}
         >

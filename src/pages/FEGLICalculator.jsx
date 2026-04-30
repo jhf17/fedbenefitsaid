@@ -28,13 +28,13 @@ import {
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
 const COLORS = {
-  navy: '#0f172a',
-  navyMid: '#1e3a5f',
-  maroon: '#7b1c2e',
+  navy: '#142a1d',
+  navyMid: '#1f3d2c',
+  maroon: '#b08d5a',
   gold: '#b8860b',
   goldLight: '#d4af37',
   mutedRed: '#9b3a4d',
-  bgCream: '#faf9f6',
+  bgCream: '#faf6ef',
   cardBg: '#ffffff',
   border: '#cbd5e1',
   text: '#1e293b',
@@ -44,8 +44,8 @@ const COLORS = {
   warnBorder: '#f59e0b',
 }
 
-const FONT_SERIF = "'Merriweather', Georgia, 'Times New Roman', serif"
-const FONT_SANS = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif"
+const FONT_SERIF = "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif"
+const FONT_SANS = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
 
 const fmt$ = (n) => '$' + Math.round(Number(n) || 0).toLocaleString()
 const fmt$2 = (n) => '$' + (Number(n) || 0).toFixed(2)
@@ -586,7 +586,7 @@ export default function FEGLICalculator() {
 function Field({ label, hint, children }) {
   return (
     <label style={{ display: 'block', marginBottom: 12 }}>
-      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a', marginBottom: 4, fontFamily: FONT_SANS }}>{label}</div>
+      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#142a1d', marginBottom: 4, fontFamily: FONT_SANS }}>{label}</div>
       {children}
       {hint && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4, fontFamily: FONT_SANS }}>{hint}</div>}
     </label>
@@ -792,7 +792,7 @@ function RateTable({ currentAge, retireAge }) {
           {FEGLI_RATES.map((b) => {
             const isToday = currentAge && currentBracket.label === b.label
             const isRetire = retireAge && retireBracket.label === b.label && !isToday
-            const bg = isToday ? 'rgba(123,28,46,0.08)' : isRetire ? 'rgba(30,58,95,0.08)' : 'transparent'
+            const bg = isToday ? 'rgba(176,141,90,0.08)' : isRetire ? 'rgba(31,61,44,0.08)' : 'transparent'
             return (
               <tr key={b.label} style={{ background: bg }}>
                 <td style={{ ...styles.td, fontWeight: 700 }}>{b.label}</td>
@@ -878,7 +878,7 @@ const styles = {
     textTransform: 'uppercase',
     padding: '6px 14px',
     borderRadius: 100,
-    background: 'rgba(123,28,46,0.08)',
+    background: 'rgba(176,141,90,0.08)',
     color: COLORS.maroon,
     marginBottom: 14,
   },
@@ -929,7 +929,7 @@ const styles = {
     color: '#fff',
     borderRadius: 16,
     padding: '22px 22px 24px',
-    boxShadow: '0 8px 24px rgba(15,23,42,0.15)',
+    boxShadow: '0 8px 24px rgba(20,42,29,0.15)',
   },
   sidebarLabel: {
     fontSize: '0.72rem',
@@ -1084,7 +1084,7 @@ const styles = {
     color: COLORS.text,
     lineHeight: 1.6,
     padding: '12px 14px',
-    background: 'rgba(15,23,42,0.04)',
+    background: 'rgba(20,42,29,0.04)',
     borderLeft: `3px solid ${COLORS.navyMid}`,
     borderRadius: 6,
   },

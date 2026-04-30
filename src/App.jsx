@@ -6,7 +6,6 @@ import ErrorBoundary from './components/ErrorBoundary'
 import Seo from './components/Seo'
 import Landing from './pages/Landing'
 const Reference = lazy(() => import('./pages/Reference'))
-const Chat = lazy(() => import('./pages/Chat'))
 import Auth from './pages/Auth'
 const Calculator = lazy(() => import('./pages/Calculator'))
 const Resources = lazy(() => import('./pages/Resources'))
@@ -14,7 +13,6 @@ const Admin = lazy(() => import('./pages/Admin'))
 const Assessment = lazy(() => import('./pages/Assessment'))
 const Calculators = lazy(() => import('./pages/Tools'))
 const FEGLICalculator = lazy(() => import('./pages/FEGLICalculator'))
-const VeraVsip = lazy(() => import('./pages/VeraVsip'))
 const About = lazy(() => import('./pages/About'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
@@ -31,17 +29,17 @@ export const useAuth = () => useContext(AuthContext)
 
 function NotFound() {
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+    <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf6ef', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Seo title="Page Not Found" description="The page you're looking for doesn't exist on FedBenefitsAid." path="/404" noindex />
       <div style={{ textAlign: 'center', maxWidth: 480, padding: '0 24px' }}>
-        <div style={{ fontSize: '4rem', fontWeight: 800, color: '#e2e8f0', letterSpacing: '-0.04em', marginBottom: 12 }}>404</div>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Page not found</h1>
-        <p style={{ color: '#64748b', marginBottom: 28, lineHeight: 1.6 }}>
-          The page you're looking for doesn't exist. Head back to the reference guide or the home page.
+        <div style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '4.5rem', fontWeight: 600, color: '#d4b88a', letterSpacing: '-0.04em', marginBottom: 12, fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>404</div>
+        <h1 style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '1.6rem', fontWeight: 600, color: '#1f3d2c', marginBottom: 12, letterSpacing: '-0.01em' }}>Page not found</h1>
+        <p style={{ color: '#475569', marginBottom: 28, lineHeight: 1.65 }}>
+          The page you're looking for doesn't exist. Head back to the home page or jump into a calculator.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <a href="/" className="btn btn-navy">Back to Home</a>
-          <a href="/reference" className="btn btn-outline">Reference Guide</a>
+          <a href="/calculators" className="btn btn-outline">Open Calculators</a>
         </div>
       </div>
     </div>
@@ -78,7 +76,7 @@ export default function App() {
       <ErrorBoundary>
       <ScrollToTop />
       <Navbar />
-      <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:'60vh'}}><div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTop:'4px solid #7b1c2e',borderRadius:'50%',animation:'spin 1s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>
+      <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:'60vh'}}><div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTop:'4px solid #b08d5a',borderRadius:'50%',animation:'spin 1s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/reference" element={<Reference />} />
@@ -86,11 +84,9 @@ export default function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/login" element={<Auth mode="login" />} />
         <Route path="/signup" element={<Auth mode="signup" />} />
-        <Route path="/chat" element={<Chat />} />
         <Route path="/assessment" element={<Assessment />} />
         <Route path="/calculators" element={<Calculators />} />
         <Route path="/calculators/fegli" element={<FEGLICalculator />} />
-        <Route path="/vera-vsip" element={<VeraVsip />} />
         <Route path="/about" element={<About />} />
         <Route path="/consultation" element={<Consultation />} />
         <Route path="/disclaimer" element={<Disclaimer />} />

@@ -112,7 +112,7 @@ export default function Reference() {
     : '/reference'
 
   return (
-    <main style={{ minHeight: '100vh', background: '#faf9f6', fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <main style={{ minHeight: '100vh', background: '#faf6ef', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Seo title={seoTitle} description={seoDesc} path={seoPath} />
       {showDetail && selectedTopic && <TopicFAQJsonLd topic={selectedTopic} />}
       <style>{`
@@ -368,7 +368,7 @@ export default function Reference() {
                   <div style={styles.detailActionSub}>Ask the AI &mdash; it will tailor the answer to your specific years of service, salary, and retirement goals.</div>
                 </div>
                 {/* T2.9: outlined maroon, not the legacy blue .btn-primary */}
-                <Link to={user ? '/chat' : '/signup'} style={{ flexShrink: 0, padding: '10px 20px', border: '2px solid #7b1c2e', color: '#7b1c2e', background: '#ffffff', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#7b1c2e'; e.currentTarget.style.color = '#ffffff'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#7b1c2e'; }}>
+                <Link to={user ? '/chat' : '/signup'} style={{ flexShrink: 0, padding: '10px 20px', border: '2px solid #b08d5a', color: '#b08d5a', background: '#ffffff', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#b08d5a'; e.currentTarget.style.color = '#ffffff'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#b08d5a'; }}>
                   Ask AI
                 </Link>
               </div>
@@ -389,12 +389,12 @@ export default function Reference() {
   )
 }
 
-const fontSerif = "'Merriweather', Georgia, 'Times New Roman', serif"
-const fontSans = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif"
+const fontSerif = "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif"
+const fontSans = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
 
 const styles = {
   header: {
-    background: 'linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%)',
+    background: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
     color: 'white',
     padding: '56px 0 44px',
     fontFamily: fontSans,
@@ -456,7 +456,7 @@ const styles = {
     padding: '14px 44px 14px 18px',
     borderRadius: 10,
     fontFamily: fontSans,
-    color: '#0f172a',
+    color: '#142a1d',
     boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
   },
   searchClear: {
@@ -514,7 +514,7 @@ const styles = {
   },
   searchCardTitle: {
     fontWeight: 700,
-    color: '#0f172a',
+    color: '#142a1d',
     fontSize: '0.95rem',
     marginBottom: 4,
     fontFamily: fontSerif,
@@ -545,7 +545,7 @@ const styles = {
     fontFamily: fontSans,
     minHeight: 170,
   },
-  catName: { fontWeight: 700, fontSize: '1.05rem', color: '#0f172a', lineHeight: 1.2, fontFamily: fontSerif },
+  catName: { fontWeight: 700, fontSize: '1.05rem', color: '#142a1d', lineHeight: 1.2, fontFamily: fontSerif },
   catCount: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, marginTop: 2, fontFamily: fontSans },
   catDesc: { fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontFamily: fontSans },
   topicList: {
@@ -570,7 +570,7 @@ const styles = {
     fontFamily: fontSans,
   },
   topicCardLeft: { flex: 1 },
-  topicTitle: { fontWeight: 700, fontSize: '1.05rem', color: '#0f172a', marginBottom: 6, fontFamily: fontSerif },
+  topicTitle: { fontWeight: 700, fontSize: '1.05rem', color: '#142a1d', marginBottom: 6, fontFamily: fontSerif },
   topicSummary: { fontSize: '0.9rem', color: '#64748b', marginBottom: 8, lineHeight: 1.5, fontFamily: fontSans },
   topicMeta: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, letterSpacing: '0.02em', fontFamily: fontSans },
   topicArrow: { fontSize: '1.2rem', flexShrink: 0, transition: 'transform 0.2s' },
@@ -596,7 +596,7 @@ const styles = {
   detailSection: {
     fontSize: '1.1rem',
     fontWeight: 700,
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 18,
     fontFamily: fontSerif,
   },
@@ -612,7 +612,7 @@ const styles = {
     gap: 14,
   },
   numberCard: {
-    background: '#faf9f6',
+    background: '#faf6ef',
     borderTop: '3px solid',
     borderRadius: 10,
     padding: '16px 18px',
@@ -621,7 +621,7 @@ const styles = {
   numberValue: {
     fontWeight: 800,
     fontSize: '1.15rem',
-    color: '#0f172a',
+    color: '#142a1d',
     marginBottom: 4,
     letterSpacing: '-0.01em',
     fontFamily: fontSerif,
@@ -691,7 +691,7 @@ const styles = {
   },
   detailActionCard: {
     background: 'linear-gradient(135deg, #f0f4ff 0%, #eff6ff 100%)',
-    border: '1px solid rgba(30,58,95,0.08)',
+    border: '1px solid rgba(31,61,44,0.08)',
     borderRadius: 12,
     padding: '24px 28px',
     display: 'flex',
@@ -702,6 +702,6 @@ const styles = {
     fontFamily: fontSans,
   },
   detailActionIcon: { fontSize: '2rem', flexShrink: 0 },
-  detailActionTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#1e3a5f', marginBottom: 4, fontFamily: fontSerif },
+  detailActionTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#1f3d2c', marginBottom: 4, fontFamily: fontSerif },
   detailActionSub: { fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontFamily: fontSans },
 }

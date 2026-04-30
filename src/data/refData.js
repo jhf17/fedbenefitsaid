@@ -1,3 +1,19 @@
+// Accuracy metadata — surfaced in the UI to signal freshness and let visitors verify.
+// Update `lastUpdated` and `benefitYear` when figures are refreshed for a new year.
+export const REF_DATA_META = {
+  lastUpdated: '2026-04-30',
+  benefitYear: 2026,
+  reviewedBy: 'Federal Market Associates',
+  sources: [
+    { name: 'OPM Retirement Center', url: 'https://www.opm.gov/retirement-center/' },
+    { name: 'OPM FERS Information', url: 'https://www.opm.gov/retirement-center/fers-information/' },
+    { name: 'IRS Retirement Topics', url: 'https://www.irs.gov/retirement-plans' },
+    { name: 'SSA Cost-of-Living Adjustments', url: 'https://www.ssa.gov/cola/' },
+    { name: 'CMS — Medicare Costs', url: 'https://www.medicare.gov/your-medicare-costs' },
+    { name: 'TSP — Federal Retirement Thrift Investment Board', url: 'https://www.tsp.gov/' },
+  ],
+}
+
 export const REF_DATA = [
   {cat:'FERS Pension',icon:'🏛️',color:'#1e3a5f',topics:[
     {id:'fers-eligibility',title:'Retirement Types & Eligibility',summary:'Immediate, deferred, disability, and MRA+10 paths',

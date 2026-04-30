@@ -1,29 +1,15 @@
-/**
- * ConsultantCTA — "Talk to a Human Expert" banner
- * Used on Reference page and Chat page
- * Replace CALENDLY_URL with Jack's actual Calendly link
- */
-
-const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
+import { Link } from 'react-router-dom'
+import { colors, fonts } from '../constants/theme'
 
 export default function ConsultantCTA({ compact = false }) {
   if (compact) {
     return (
       <div style={styles.compact}>
-        <div style={styles.compactText}>
-          <div>
-            <div style={styles.compactTitle}>Prefer a human expert?</div>
-            <div style={styles.compactSub}>Book a free 30-min consultation</div>
-          </div>
+        <div>
+          <div style={styles.compactTitle}>Want to talk it through?</div>
+          <div style={styles.compactSub}>Book a free 15-minute call with Jack at Federal Market Associates.</div>
         </div>
-        <a
-          href={CALENDLY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-navy btn-sm"
-        >
-          Book Free Call
-        </a>
+        <Link to="/consultation" style={styles.compactBtn}>Book a call</Link>
       </div>
     )
   }
@@ -31,25 +17,16 @@ export default function ConsultantCTA({ compact = false }) {
   return (
     <div style={styles.banner}>
       <div style={styles.bannerLeft}>
-        <div>
-          <div style={styles.bannerTitle}>Want personalized guidance from a real expert?</div>
-          <div style={styles.bannerSub}>
-            Book a free 30-minute consultation with a federal retirement specialist at Federal Market Associates.
-            No sales pitch — just expert answers to your specific questions.
-          </div>
+        <div style={styles.bannerOverline}>Talk to a person</div>
+        <div style={styles.bannerTitle}>Have a question that needs more than a calculator?</div>
+        <div style={styles.bannerSub}>
+          Book a free 15-minute call with Jack at Federal Market Associates. No pitch — just straight answers about your
+          specific situation.
         </div>
       </div>
       <div style={styles.bannerRight}>
-        <a
-          href={CALENDLY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-navy btn-lg"
-          style={{ flexShrink: 0 }}
-        >
-          Book Free Consultation
-        </a>
-        <div style={styles.bannerNote}>No cost. No obligation. 30 minutes.</div>
+        <Link to="/consultation" style={styles.bannerBtn}>Book a 15-min call</Link>
+        <div style={styles.bannerNote}>Free. No obligation.</div>
       </div>
     </div>
   )
@@ -57,74 +34,97 @@ export default function ConsultantCTA({ compact = false }) {
 
 const styles = {
   banner: {
-    background: 'linear-gradient(135deg, #1e3a5f 0%, #2d4f7c 100%)',
-    borderRadius: 12,
-    padding: '32px 36px',
+    background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 60%, ${colors.pineLight} 100%)`,
+    borderRadius: 18,
+    padding: '36px 40px',
     display: 'flex',
     alignItems: 'center',
     gap: 32,
-    color: 'white',
+    color: '#ffffff',
     flexWrap: 'wrap',
+    fontFamily: fonts.sans,
   },
   bannerLeft: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 16,
     flex: 1,
     minWidth: 280,
   },
-  bannerIcon: {
-    fontSize: '2.5rem',
-    flexShrink: 0,
-    lineHeight: 1,
+  bannerOverline: {
+    fontSize: '0.74rem',
+    fontWeight: 700,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+    color: colors.brassLight,
+    marginBottom: 8,
   },
   bannerTitle: {
-    fontSize: '1.1rem',
-    fontWeight: 700,
-    marginBottom: 6,
+    fontFamily: fonts.serif,
+    fontSize: '1.4rem',
+    fontWeight: 600,
+    marginBottom: 8,
+    letterSpacing: '-0.01em',
+    fontVariationSettings: '"opsz" 144, "SOFT" 50',
   },
   bannerSub: {
-    fontSize: '0.9rem',
-    opacity: 0.85,
-    lineHeight: 1.5,
+    fontSize: '0.96rem',
+    lineHeight: 1.55,
+    color: 'rgba(255,255,255,0.78)',
   },
   bannerRight: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8,
     flexShrink: 0,
   },
+  bannerBtn: {
+    padding: '13px 26px',
+    background: colors.brass,
+    color: '#ffffff',
+    borderRadius: 10,
+    fontSize: '0.98rem',
+    fontWeight: 600,
+    textDecoration: 'none',
+    letterSpacing: '0.01em',
+    boxShadow: '0 6px 20px rgba(176,141,90,0.35)',
+    fontFamily: fonts.sans,
+  },
   bannerNote: {
-    fontSize: '0.8rem',
-    opacity: 0.7,
+    fontSize: '0.82rem',
+    color: 'rgba(255,255,255,0.58)',
   },
   compact: {
-    background: '#f0f4ff',
-    border: '1.5px solid #c7d7fc',
+    background: colors.cream,
+    border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.10)'}`,
     borderRadius: 12,
-    padding: '14px 18px',
+    padding: '16px 20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 16,
     flexWrap: 'wrap',
-  },
-  compactText: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-  },
-  compactIcon: {
-    fontSize: '1.4rem',
+    fontFamily: fonts.sans,
   },
   compactTitle: {
     fontWeight: 600,
-    fontSize: '0.9rem',
-    color: '#1e3a5f',
+    fontSize: '0.95rem',
+    color: colors.pine,
+    fontFamily: fonts.serif,
+    letterSpacing: '-0.005em',
   },
   compactSub: {
-    fontSize: '0.8rem',
-    color: '#475569',
+    fontSize: '0.85rem',
+    color: colors.slate700,
+    marginTop: 2,
+  },
+  compactBtn: {
+    padding: '8px 16px',
+    background: colors.brass,
+    color: '#ffffff',
+    borderRadius: 8,
+    fontSize: '0.86rem',
+    fontWeight: 600,
+    textDecoration: 'none',
+    fontFamily: fonts.sans,
+    flexShrink: 0,
   },
 }

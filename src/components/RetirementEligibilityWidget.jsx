@@ -19,17 +19,17 @@ import { Link } from 'react-router-dom'
  * hire month, which we don't collect). MRA follows OPM's tiered table.
  */
 
-const NAVY = '#0f172a'
-const NAVY_MID = '#1e3a5f'
-const MAROON = '#7b1c2e'
+const NAVY = '#142a1d'
+const NAVY_MID = '#1f3d2c'
+const MAROON = '#b08d5a'
 const GOLD = '#b8860b'
-const CREAM = '#faf9f6'
+const CREAM = '#faf6ef'
 const BORDER = '#cbd5e1'
 const SUBTLE = '#475569'
 const MUTED = '#64748b'
 
-const FONT_SERIF = "'Merriweather', Georgia, 'Times New Roman', serif"
-const FONT_SANS = "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif"
+const FONT_SERIF = "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif"
+const FONT_SANS = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
 
 // OPM MRA table — born 1947 or earlier: 55; 1948–1952: 55 + 2mo per year;
 // 1953–1964: 56; 1965–1969: 56 + 2mo per year; 1970+: 57.

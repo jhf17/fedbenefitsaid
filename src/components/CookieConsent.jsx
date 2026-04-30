@@ -36,7 +36,7 @@ export default function CookieConsent() {
         left: 0,
         right: 0,
         zIndex: 9999,
-        background: '#0f172a',
+        background: '#142a1d',
         color: '#e2e8f0',
         padding: '16px 24px',
         display: 'flex',
@@ -44,7 +44,7 @@ export default function CookieConsent() {
         justifyContent: 'center',
         gap: 16,
         flexWrap: 'wrap',
-        fontFamily: "'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
         fontSize: '0.9rem',
         lineHeight: 1.5,
         boxShadow: '0 -2px 12px rgba(0,0,0,0.15)',
@@ -52,13 +52,13 @@ export default function CookieConsent() {
     >
       <p style={{ margin: 0, maxWidth: 600 }}>
         We use cookies and Google Analytics to improve your experience. See our{' '}
-        <a href="/privacy" style={{ color: '#c9a84c', textDecoration: 'underline' }}>Privacy Policy</a>.
+        <a href="/privacy" style={{ color: '#b08d5a', textDecoration: 'underline' }}>Privacy Policy</a>.
       </p>
       <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
         <button
           onClick={accept}
           style={{
-            background: '#7b1c2e',
+            background: '#b08d5a',
             color: '#fff',
             border: 'none',
             borderRadius: 8,
