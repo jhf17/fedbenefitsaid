@@ -69,10 +69,10 @@ const TOOLS = [
   },
   {
     title: '"What if…" Coverage',
-    blurb: 'What your federal benefits actually pay if you die, become disabled, or need long-term care.',
-    href: '/calculators',
-    cta: 'Coming soon',
-    status: 'soon',
+    blurb: 'What your federal benefits actually pay if you die, become disabled, or need long-term care. FEGLI, FERS Survivor, Disability, FLTCIP — honest math.',
+    href: '/calculators/what-if',
+    cta: 'Run the calculator',
+    status: 'live',
   },
 ]
 

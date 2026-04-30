@@ -42,6 +42,13 @@ const CALCULATORS = [
     href: '/calculators/income-gap',
     eyebrow: 'Whole-picture income',
   },
+  {
+    title: '"What if..." Coverage',
+    blurb:
+      'What your federal benefits actually pay if you die, become disabled, or need long-term care. FEGLI, FERS Survivor, FERS Disability, and FLTCIP modeled honestly.',
+    href: '/calculators/what-if',
+    eyebrow: 'Death · Disability · LTC',
+  },
 ]
 
 export default function Tools() {
