@@ -38,28 +38,29 @@ const helpText = {
   lineHeight: 1.45,
 }
 
-// Federal effective tax brackets (2026, MFJ — single shown alongside).
+// Federal effective tax brackets — tax year 2026.
+// Source: IRS Rev. Proc. 2025-32 (https://www.irs.gov/pub/irs-drop/rp-25-32.pdf).
 // Used as a rough "blended effective rate" estimator for retirement income.
 function estimateFederalEffectiveRate(annualIncome, filingStatus = 'mfj') {
   const brackets = filingStatus === 'mfj' ? [
-    { upTo: 24850, rate: 0.10 },
-    { upTo: 101100, rate: 0.12 },
-    { upTo: 215050, rate: 0.22 },
-    { upTo: 411400, rate: 0.24 },
-    { upTo: 522800, rate: 0.32 },
-    { upTo: 768050, rate: 0.35 },
+    { upTo: 24800,  rate: 0.10 },
+    { upTo: 100800, rate: 0.12 },
+    { upTo: 211400, rate: 0.22 },
+    { upTo: 403550, rate: 0.24 },
+    { upTo: 512450, rate: 0.32 },
+    { upTo: 768700, rate: 0.35 },
     { upTo: Infinity, rate: 0.37 },
   ] : [
-    { upTo: 12425, rate: 0.10 },
-    { upTo: 50550, rate: 0.12 },
-    { upTo: 107525, rate: 0.22 },
-    { upTo: 205700, rate: 0.24 },
-    { upTo: 261400, rate: 0.32 },
-    { upTo: 656875, rate: 0.35 },
+    { upTo: 12400,  rate: 0.10 },
+    { upTo: 50400,  rate: 0.12 },
+    { upTo: 105700, rate: 0.22 },
+    { upTo: 201775, rate: 0.24 },
+    { upTo: 256225, rate: 0.32 },
+    { upTo: 640600, rate: 0.35 },
     { upTo: Infinity, rate: 0.37 },
   ]
 
-  // Standard deduction (2026 estimated)
+  // 2026 standard deduction (IRS Rev. Proc. 2025-32).
   const stdDeduction = filingStatus === 'mfj' ? 32200 : 16100
   const taxable = Math.max(0, annualIncome - stdDeduction)
 
