@@ -10,10 +10,6 @@ const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 // Source: OPM, SSA, IRS
 // ============================================================
 
-// Social Security 2026 bend points (monthly AIME)
-const SS_BEND1 = 1286   // 90% below this (2026 per SSA.gov)
-const SS_BEND2 = 7749   // 32% between bend1 and bend2, 15% above
-
 // FERS multipliers
 const FERS_STANDARD = 0.010   // 1.0% — all cases except age 62+ with 20+ years
 const FERS_ENHANCED = 0.011   // 1.1% — age 62 or older WITH 20+ years of service
@@ -256,7 +252,9 @@ function calcSSBenefit(sstAt62, claimAge) {
 
 function calcTSPFutureValue(balance, monthlyContrib, yearsToRetire, annualGrowthRate) {
   const months = Math.round(yearsToRetire * 12)
+  if (months <= 0) return balance
   const monthlyRate = (annualGrowthRate / 100) / 12
+  if (monthlyRate === 0) return balance + monthlyContrib * months
   const months_fv = balance * Math.pow(1 + monthlyRate, months)
   const contrib_fv = monthlyContrib * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate
   return months_fv + contrib_fv
