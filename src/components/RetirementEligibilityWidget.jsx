@@ -2,25 +2,20 @@ import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 /**
- * T2.8 — "When can I retire?" inline eligibility widget.
+ * "When can I retire?" inline eligibility widget.
  *
- * Replaces the static chat preview card on the landing page. User enters:
- *   - birth year (or current age — birth year is more precise)
- *   - FERS/CSRS hire year (or years of service)
- *   - retirement system (FERS / FERS-RAE/FRAE / CSRS)
+ * User enters birth year and federal hire year. We derive the retirement
+ * system from the hire year (CSRS pre-1987, FERS otherwise — RAE/FRAE
+ * variants share FERS eligibility rules), and emit a dated milestone
+ * timeline. FERS Supplement eligibility is computed per-milestone based on
+ * the user's age at that milestone (paid only if retirement age < 62).
  *
- * Output: a dated milestone timeline showing every eligibility milestone
- * they'll hit — MRA, MRA+10 (reduced), MRA+30 (immediate unreduced),
- * age 60 + 20 YOS, age 62 + 5 YOS, age 62 + 20 YOS (1.1% multiplier) — with
- * the calendar year, age, and a note on FERS Supplement applicability.
- *
- * Math: ages use integer birth year, so dates are year-level precision (the
- * widget is illustrative — the exact calendar date depends on birth month /
- * hire month, which we don't collect). MRA follows OPM's tiered table.
+ * Year precision: ages use integer birth year, so dates are year-level
+ * (exact calendar date depends on birth month / hire month, which we
+ * don't collect). MRA follows OPM's tiered table.
  */
 
 const NAVY = '#142a1d'
-const NAVY_MID = '#1f3d2c'
 const MAROON = '#b08d5a'
 const GOLD = '#b8860b'
 const CREAM = '#faf6ef'
@@ -30,6 +25,17 @@ const MUTED = '#64748b'
 
 const FONT_SERIF = "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif"
 const FONT_SANS = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+
+// Retirement system inferred from federal hire year. RAE (2013) and
+// FRAE (2014+) differ from FERS in contribution rates only — eligibility
+// rules are identical, so we collapse them under "FERS" for this widget.
+function systemForHireYear(hy) {
+  if (hy <= 1983) return { code: 'csrs', label: 'CSRS' }
+  if (hy <= 1986) return { code: 'csrs', label: 'CSRS-Offset' }
+  if (hy <= 2012) return { code: 'fers', label: 'FERS' }
+  if (hy === 2013) return { code: 'fers', label: 'FERS-RAE' }
+  return { code: 'fers', label: 'FERS-FRAE' }
+}
 
 // OPM MRA table — born 1947 or earlier: 55; 1948–1952: 55 + 2mo per year;
 // 1953–1964: 56; 1965–1969: 56 + 2mo per year; 1970+: 57.
@@ -57,47 +63,38 @@ function formatAge(a) {
   return `${years} yr ${months} mo`
 }
 
-// Given birth year + hire year + current year, compute each milestone date
+// FERS Supplement is paid only if the retiree is under age 62 at separation.
+// (Once age 62, they're SS-eligible and the Supplement stops.)
+function supplementApplies(ageAtMilestone) {
+  return ageAtMilestone < 62
+}
+
+// Given birth year + hire year, compute each milestone date.
+// `system` is the code ('fers' | 'csrs') derived from hire year.
 function buildMilestones({ birthYear, hireYear, system }) {
-  const now = new Date().getFullYear()
-  const mra = mraForBirthYear(birthYear)
-
-  // Helper: the year/age at which the user hits a given age requirement.
-  const atAge = (age) => {
-    const yearHit = Math.ceil(birthYear + age)
-    return { age, year: yearHit, reached: now >= yearHit }
-  }
-
-  // Helper: the year at which the user hits a years-of-service threshold.
-  const atYos = (yos) => {
-    const yearHit = hireYear + yos
-    return { yos, year: yearHit, reached: now >= yearHit }
-  }
-
   const stones = []
 
   if (system === 'csrs') {
-    // CSRS: age 55 with 30 yrs, age 60 with 20 yrs, age 62 with 5 yrs
-    const a55 = atAge(55)
-    const y30 = atYos(30)
-    const ageAt30 = Math.max(55, birthYear ? 30 + hireYear - birthYear : 55)
+    // CSRS: age 55 + 30 YOS, age 60 + 20 YOS, age 62 + 5 YOS — all unreduced.
+    // No FERS Supplement for CSRS at any age.
+    const ageAt30Yos = 30 + hireYear - birthYear
     stones.push({
       title: 'CSRS Immediate Unreduced (age 55 + 30 yrs)',
-      year: Math.max(a55.year, y30.year),
-      age: Math.max(55, ageAt30),
-      eligibilityNote: 'Full unreduced annuity. No FERS Supplement for CSRS retirees.',
+      year: Math.max(birthYear + 55, hireYear + 30),
+      age: Math.max(55, ageAt30Yos),
+      eligibilityNote: 'Full unreduced annuity. CSRS retirees are not eligible for the FERS Supplement.',
       supplementEligible: false,
     })
     stones.push({
       title: 'CSRS Immediate Unreduced (age 60 + 20 yrs)',
-      year: Math.max(atAge(60).year, atYos(20).year),
+      year: Math.max(birthYear + 60, hireYear + 20),
       age: Math.max(60, 20 + hireYear - birthYear),
       eligibilityNote: 'Full unreduced annuity.',
       supplementEligible: false,
     })
     stones.push({
       title: 'CSRS Immediate Unreduced (age 62 + 5 yrs)',
-      year: Math.max(atAge(62).year, atYos(5).year),
+      year: Math.max(birthYear + 62, hireYear + 5),
       age: Math.max(62, 5 + hireYear - birthYear),
       eligibilityNote: 'Full unreduced annuity.',
       supplementEligible: false,
@@ -105,60 +102,59 @@ function buildMilestones({ birthYear, hireYear, system }) {
     return stones.sort((a, b) => a.year - b.year)
   }
 
-  // FERS / FERS-RAE / FERS-FRAE share the same eligibility rules
+  // FERS (and RAE / FRAE — same eligibility rules)
+  const mra = mraForBirthYear(birthYear)
   const mraYear = Math.ceil(birthYear + mra)
-  const mraAge = mra
 
-  // MRA+10 Reduced — available when the employee hits BOTH MRA and 10 YOS
-  const mra10Year = Math.max(mraYear, hireYear + 10)
-  const mra10Age = Math.max(mraAge, 10 + hireYear - birthYear)
+  // MRA+10 Reduced — available when both MRA and 10 YOS are met.
+  const mra10Age = Math.max(mra, 10 + hireYear - birthYear)
   stones.push({
     title: 'MRA + 10 Reduced',
-    year: mra10Year,
+    year: Math.max(mraYear, hireYear + 10),
     age: mra10Age,
     eligibilityNote: 'Annuity reduced 5% per year under 62 (or under 60 if you have 20+ YOS). No FERS Supplement. Can be avoided by postponing.',
     supplementEligible: false,
   })
 
   // MRA+30 Immediate Unreduced
-  const mra30Year = Math.max(mraYear, hireYear + 30)
-  const mra30Age = Math.max(mraAge, 30 + hireYear - birthYear)
+  const mra30Age = Math.max(mra, 30 + hireYear - birthYear)
   stones.push({
     title: 'MRA + 30 Immediate Unreduced',
-    year: mra30Year,
+    year: Math.max(mraYear, hireYear + 30),
     age: mra30Age,
-    eligibilityNote: 'Full unreduced annuity. FERS Supplement paid until age 62.',
-    supplementEligible: true,
+    eligibilityNote: supplementApplies(mra30Age)
+      ? 'Full unreduced annuity. FERS Supplement paid until age 62.'
+      : 'Full unreduced annuity. By the time you hit 30 YOS you\'re past 62, so no FERS Supplement applies.',
+    supplementEligible: supplementApplies(mra30Age),
   })
 
   // Age 60 + 20 YOS Immediate Unreduced
-  const a60_20Year = Math.max(birthYear + 60, hireYear + 20)
   const a60_20Age = Math.max(60, 20 + hireYear - birthYear)
   stones.push({
     title: 'Age 60 + 20 Immediate Unreduced',
-    year: a60_20Year,
+    year: Math.max(birthYear + 60, hireYear + 20),
     age: a60_20Age,
-    eligibilityNote: 'Full unreduced annuity. FERS Supplement paid until age 62.',
-    supplementEligible: true,
+    eligibilityNote: supplementApplies(a60_20Age)
+      ? 'Full unreduced annuity. FERS Supplement paid until age 62.'
+      : 'Full unreduced annuity. You\'re already 62+, so no FERS Supplement.',
+    supplementEligible: supplementApplies(a60_20Age),
   })
 
   // Age 62 + 5 YOS Immediate Unreduced (1.0% multiplier)
-  const a62_5Year = Math.max(birthYear + 62, hireYear + 5)
   const a62_5Age = Math.max(62, 5 + hireYear - birthYear)
   stones.push({
     title: 'Age 62 + 5 Immediate Unreduced',
-    year: a62_5Year,
+    year: Math.max(birthYear + 62, hireYear + 5),
     age: a62_5Age,
     eligibilityNote: 'Full unreduced annuity. No FERS Supplement — you\'re already SS-eligible.',
     supplementEligible: false,
   })
 
-  // Age 62 + 20 YOS — 1.1% multiplier kicker
-  const a62_20Year = Math.max(birthYear + 62, hireYear + 20)
+  // Age 62 + 20 YOS — 1.1% multiplier kicker (10% higher pension for life)
   const a62_20Age = Math.max(62, 20 + hireYear - birthYear)
   stones.push({
     title: 'Age 62 + 20 · 1.1% multiplier',
-    year: a62_20Year,
+    year: Math.max(birthYear + 62, hireYear + 20),
     age: a62_20Age,
     eligibilityNote: '10% higher annuity for life vs the 1.0% formula. Often worth working an extra year for.',
     supplementEligible: false,
@@ -173,7 +169,6 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
 
   const [birthYear, setBirthYear] = useState('')
   const [hireYear, setHireYear] = useState('')
-  const [system, setSystem] = useState('fers')
 
   const nowYear = new Date().getFullYear()
   const birthNum = Number(birthYear)
@@ -181,7 +176,12 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
 
   const valid = birthNum >= 1935 && birthNum <= nowYear - 18 && hireNum >= 1960 && hireNum <= nowYear && hireNum >= birthNum + 18
 
-  const milestones = useMemo(() => valid ? buildMilestones({ birthYear: birthNum, hireYear: hireNum, system }) : [], [valid, birthNum, hireNum, system])
+  const detectedSystem = valid ? systemForHireYear(hireNum) : null
+
+  const milestones = useMemo(
+    () => valid ? buildMilestones({ birthYear: birthNum, hireYear: hireNum, system: detectedSystem.code }) : [],
+    [valid, birthNum, hireNum, detectedSystem]
+  )
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 28 : 56, alignItems: 'center' }}>
@@ -193,7 +193,7 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
           Your eligibility,<br />by the year.
         </h2>
         <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: SUBTLE, marginBottom: 28, maxWidth: 480 }}>
-          Three inputs, a dated timeline of every retirement milestone you'll hit, and whether each one comes with the FERS Supplement. Change the numbers — the timeline updates instantly.
+          Two inputs, a dated timeline of every retirement milestone you'll hit, and whether each one comes with the FERS Supplement. Change the numbers — the timeline updates instantly.
         </p>
         <Link to="/assessment" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', color: MAROON }}>
           Run the full assessment →
@@ -211,14 +211,13 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
             <input type="number" inputMode="numeric" min="1960" max={nowYear} value={hireYear} onChange={e => setHireYear(e.target.value)} placeholder="e.g. 2008" style={inputStyle} />
           </label>
         </div>
-        <label style={{ fontSize: '0.78rem', fontWeight: 600, color: NAVY, fontFamily: fontSans, display: 'block', marginBottom: 16 }}>
-          Retirement system
-          <select value={system} onChange={e => setSystem(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
-            <option value="fers">FERS (hired 1987–2012)</option>
-            <option value="frae">FERS-RAE / FERS-FRAE (hired 2013+)</option>
-            <option value="csrs">CSRS (hired before 1987)</option>
-          </select>
-        </label>
+
+        {detectedSystem && (
+          <div style={{ fontSize: '0.78rem', color: MUTED, marginBottom: 16, padding: '8px 12px', background: CREAM, borderRadius: 8, fontFamily: fontSans }}>
+            Retirement system: <strong style={{ color: NAVY }}>{detectedSystem.label}</strong>
+            <span style={{ marginLeft: 6, color: MUTED }}>· derived from your hire year</span>
+          </div>
+        )}
 
         {!valid ? (
           <div style={{ padding: 16, background: CREAM, borderRadius: 10, color: MUTED, fontSize: '0.88rem', textAlign: 'center' }}>
