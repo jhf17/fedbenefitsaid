@@ -76,102 +76,246 @@ const US_STATES = [
   ['WY', 'Wyoming'],
 ]
 
-function buildPlan(answers) {
-  const plan = []
-  const concern = answers.concern
-  const horizon = answers.horizon
-  const numbers = answers.numbers
-  const state = answers.state
-  const preference = answers.preference
-
-  // First action: based on top concern
-  const concernRouting = {
-    pension: {
+// Concern → primary calculator and primary library section.
+// Used to pick *which* calculator/section to recommend, after preference
+// decides whether the plan is calculator-first, reading-first, or call-first.
+const CONCERN_ROUTING = {
+  pension: {
+    calc: {
       title: 'Run the FERS Pension Calculator',
-      body: 'It takes five minutes. Use your High-3, your years of service, and the age you think you\'ll retire. The output gives you a baseline pension number you can compare scenarios against.',
+      body: 'Use your High-3, your years of service, and the age you think you\'ll retire. The output gives you a baseline pension number you can compare scenarios against.',
       cta: 'Open the calculator',
       href: '/calculators/fers',
     },
-    fegli: {
+    library: {
+      title: 'Read the FERS Pension section in the Library',
+      body: 'High-3, multipliers, the FERS Supplement, and the 1.1% kicker at age 62 — broken down in plain language with the 2026 figures.',
+      cta: 'Open the library',
+      href: '/reference',
+    },
+    topic: 'your FERS pension',
+  },
+  fegli: {
+    calc: {
       title: 'Open the FEGLI Cost-Over-Time Tool',
       body: 'See exactly how your premiums change after age 50, 60, 65, and beyond — through age 80. Most federal employees are surprised by what happens at 65.',
       cta: 'Open the FEGLI calculator',
       href: '/calculators/fegli',
     },
-    income: {
-      title: 'Start with the FERS Pension Calculator',
-      body: 'You can\'t answer the income-gap question without a pension number first. Run that, then we\'ll layer Social Security and TSP estimates on top in a follow-up tool (coming soon).',
-      cta: 'Run the calculator',
+    library: {
+      title: 'Read the FEGLI section in the Library',
+      body: 'Option A/B/C breakdown, why premiums spike after 50, the 75% reduction at retirement, and when private term life makes more sense.',
+      cta: 'Open the library',
+      href: '/reference',
+    },
+    topic: 'FEGLI premiums and alternatives',
+  },
+  income: {
+    calc: {
+      title: 'Run the Retirement Income Gap calculator',
+      body: 'Layer your FERS pension, Social Security estimate, and TSP withdrawals against the income you\'ll actually need in retirement. The output shows the gap, in dollars.',
+      cta: 'Open the calculator',
+      href: '/calculators/income-gap',
+    },
+    library: {
+      title: 'Read the FERS Pension + TSP sections in the Library',
+      body: 'The three legs of the FERS stool — pension, Social Security, TSP — each explained with the 2026 figures and the rules that govern withdrawals.',
+      cta: 'Open the library',
+      href: '/reference',
+    },
+    topic: 'your income gap',
+  },
+  survivor: {
+    calc: {
+      title: 'Run the FERS Pension Calculator with a SBP election',
+      body: 'See how the survivor annuity election reduces your pension while alive in exchange for spousal coverage. The trade-off is the whole decision.',
+      cta: 'Open the calculator',
       href: '/calculators/fers',
     },
-    survivor: {
+    library: {
       title: 'Read the Survivor Benefits section in the Library',
       body: 'Before you can decide whether your federal package is enough, you need to know what it actually pays a spouse. The library walks through SBP elections in plain language.',
       cta: 'Open the library',
       href: '/reference',
     },
-    medicare: {
+    topic: 'survivor benefits',
+  },
+  medicare: {
+    calc: {
+      title: 'Run the FERS Pension Calculator first',
+      body: 'There isn\'t a Medicare-specific calculator — the decision is mostly rules-based. But knowing your pension number frames whether Part B\'s cost makes sense for you.',
+      cta: 'Open the calculator',
+      href: '/calculators/fers',
+    },
+    library: {
       title: 'Read the FEHB + Medicare section in the Library',
       body: 'The interaction between FEHB and Medicare Part B is the single most-asked question we get. Read this first; it answers most of it without a call.',
       cta: 'Open the library',
       href: '/reference',
     },
-    options: {
+    topic: 'FEHB and Medicare',
+  },
+  options: {
+    calc: {
       title: 'Use the When-Can-I-Retire widget',
-      body: 'Three inputs (birth year, hire year, retirement system) → a dated timeline of every milestone you\'ll hit. Best 60 seconds of orientation we\'ve found.',
+      body: 'Two inputs (birth year, hire year) → a dated timeline of every retirement milestone you\'ll hit. Best 60 seconds of orientation we\'ve found.',
       cta: 'Use the widget',
       href: '/#eligibility',
     },
-  }
-  if (concern && concernRouting[concern]) plan.push(concernRouting[concern])
-
-  // Second action: based on numbers status
-  if (numbers === 'never' || numbers === 'tried') {
-    plan.push({
-      title: 'Browse the FERS section of the Library',
-      body: 'If the calculator output left you with questions, the library breaks down the High-3, the multipliers, and the FERS Supplement in language that doesn\'t assume you already know the rules.',
-      cta: 'Read the FERS section',
+    library: {
+      title: 'Browse the Reference Library',
+      body: 'Eleven topic areas — FERS, TSP, FEHB, FEGLI, Medicare, Social Security, CSRS, Survivor Benefits, and more — each with the 2026 figures, rules, and pitfalls.',
+      cta: 'Open the library',
       href: '/reference',
+    },
+    topic: 'your options',
+  },
+}
+
+// Secondary calculator suggestion based on concern — used for the
+// "tools" preference path so step 2 isn't a duplicate of step 1.
+const SECOND_CALC = {
+  pension: {
+    title: 'Layer in Social Security and TSP with the Income Gap tool',
+    body: 'Pension alone rarely tells the full story. The Income Gap calculator combines all three legs against your target retirement income.',
+    cta: 'Open the Income Gap calculator',
+    href: '/calculators/income-gap',
+  },
+  fegli: {
+    title: 'Compare retirement dates with the What-If tool',
+    body: 'FEGLI decisions interact with when you retire — premiums change at age milestones. The What-If tool shows you the math across dates.',
+    cta: 'Open the What-If tool',
+    href: '/calculators/what-if',
+  },
+  income: {
+    title: 'Stress-test with the What-If tool',
+    body: 'Once you know the gap, the What-If tool lets you change one variable at a time — retire a year later, save more in TSP, claim SS at 67 vs 70 — and see how it moves.',
+    cta: 'Open the What-If tool',
+    href: '/calculators/what-if',
+  },
+  survivor: {
+    title: 'Run the Income Gap calculator with and without you',
+    body: 'The honest survivor question is: can your spouse live on what they\'d receive? The Income Gap tool will show you, in dollars, whether the federal package alone is enough.',
+    cta: 'Open the Income Gap calculator',
+    href: '/calculators/income-gap',
+  },
+  medicare: {
+    title: 'Compare retirement timing with the What-If tool',
+    body: 'When you retire affects Medicare enrollment windows and FEHB premiums. Use the What-If tool to test retiring at different ages.',
+    cta: 'Open the What-If tool',
+    href: '/calculators/what-if',
+  },
+  options: {
+    title: 'Run the FERS Pension Calculator next',
+    body: 'Once you have a feel for when you can retire, the pension number tells you what you\'ll have to live on. Five minutes to run.',
+    cta: 'Open the calculator',
+    href: '/calculators/fers',
+  },
+}
+
+function buildPlan(answers) {
+  const concern = answers.concern || 'options'
+  const horizon = answers.horizon
+  const numbers = answers.numbers
+  const state = answers.state
+  const preference = answers.preference || 'tools'
+  const stateBlocked = state && UNAVAILABLE_STATES.includes(state)
+
+  const route = CONCERN_ROUTING[concern] || CONCERN_ROUTING.options
+  const callStep = {
+    title: 'Book a 15-minute call',
+    body:
+      horizon === 'lt2'
+        ? "If you're inside two years, the cost of one wrong election can outweigh decades of careful saving. The 15-minute call is free."
+        : `You said a conversation would save you hours. We'll cover ${route.topic} specifically — first 15 minutes are free, and there's no second-meeting expectation if it isn't useful.`,
+    cta: 'Book a call',
+    href: '/consultation',
+  }
+  const blockedStep = {
+    title: 'Use the free tools while we expand',
+    body: `We're not currently booking consultations for ${UNAVAILABLE_STATE_NAMES[state] || 'your state'} residents. The calculators and library remain fully open — that's where most decisions get made anyway.`,
+    cta: 'Open the library',
+    href: '/reference',
+  }
+
+  // PREFERENCE-DRIVEN PLAN
+  // The user told us how they want to learn. That drives the order.
+  if (preference === 'reading') {
+    const plan = [route.library]
+    plan.push({
+      title: `Run the calculator after you've read up`,
+      body: 'Reading first, math second is the right order. Once the concepts click, the calculator numbers stop feeling arbitrary.',
+      cta: route.calc.cta,
+      href: route.calc.href,
+    })
+    if (horizon === 'lt2' || horizon === '2to5') {
+      plan.push(stateBlocked ? blockedStep : callStep)
+    } else {
+      plan.push({
+        title: 'Bookmark the Reference Library',
+        body: 'Eleven topic areas, 2026 figures, OPM-sourced rules. Updated annually. The single page worth bookmarking.',
+        cta: 'Open the library',
+        href: '/reference',
+      })
+    }
+    return plan
+  }
+
+  if (preference === 'talk') {
+    if (stateBlocked) {
+      return [
+        blockedStep,
+        route.calc,
+        route.library,
+      ]
+    }
+    return [
+      callStep,
+      {
+        title: 'Run the calculator before the call (optional)',
+        body: 'You don\'t have to prep — but if you bring a pension or income-gap number to the call, we spend less time computing and more time interpreting.',
+        cta: route.calc.cta,
+        href: route.calc.href,
+      },
+      {
+        title: 'Glance at the library section so you walk in with vocabulary',
+        body: 'Five minutes of reading on the right topic makes the call 10x more productive. Optional, not required.',
+        cta: route.library.cta,
+        href: route.library.href,
+      },
+    ]
+  }
+
+  // preference === 'tools' (default)
+  const plan = [route.calc]
+  const second = SECOND_CALC[concern]
+  if (second && second.href !== route.calc.href) {
+    plan.push(second)
+  } else if (numbers === 'never' || numbers === 'tried') {
+    plan.push({
+      title: 'Browse the library for the concept behind the numbers',
+      body: 'If the calculator output left you with questions, the library breaks down the rules in language that doesn\'t assume you already know them.',
+      cta: route.library.cta,
+      href: route.library.href,
     })
   } else if (numbers === 'old') {
     plan.push({
       title: 'Re-run your numbers with current figures',
       body: 'Service years and High-3 change. Multipliers and earnings-test thresholds update annually. A two-year-old estimate is a two-year-old estimate.',
       cta: 'Re-run the calculator',
-      href: '/calculators/fers',
+      href: route.calc.href,
     })
   }
-
-  // Third action: based on horizon + preference
-  const wantsCall = preference === 'talk' || horizon === 'lt2' || horizon === '2to5'
-  const stateBlocked = state && UNAVAILABLE_STATES.includes(state)
-
-  if (wantsCall && !stateBlocked) {
+  // For tools preference, only push a call step if urgency is high — otherwise
+  // respect that they wanted to figure it out themselves.
+  if (horizon === 'lt2' && !stateBlocked) {
     plan.push({
-      title: 'Book a 15-minute call',
-      body:
-        horizon === 'lt2'
-          ? "If you're inside two years, the cost of one wrong election can outweigh decades of careful saving. The 15-minute call is free."
-          : "You said a conversation would save you hours. The first 15 minutes are free, and there's no second-meeting expectation if it isn't useful.",
-      cta: 'Book a call',
-      href: '/consultation',
+      ...callStep,
+      body: "You said you'll figure it out yourself, and inside two years you usually can. But if you hit something that won't resolve, the 15-minute call is free.",
     })
-  } else if (wantsCall && stateBlocked) {
-    plan.push({
-      title: 'Use the calculators and library while we expand',
-      body: `We\'re not currently booking consultations for ${UNAVAILABLE_STATE_NAMES[state]} residents. The free education tools on the site will remain fully available.`,
-      cta: 'Open the library',
-      href: '/reference',
-    })
-  } else if (preference === 'reading') {
-    plan.push({
-      title: 'Subscribe for new articles (coming soon)',
-      body: 'We\'re publishing one rigorously-cited article per benefit topic, updated each year. Library now; subscriptions soon.',
-      cta: 'Open the library',
-      href: '/reference',
-    })
+  } else if (horizon === 'lt2' && stateBlocked) {
+    plan.push(blockedStep)
   }
-
   return plan
 }
 

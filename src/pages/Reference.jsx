@@ -1,9 +1,7 @@
-import { useState, useMemo, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { REF_DATA, REF_DATA_META } from '../data/refData'
 import ConsultantCTA from '../components/ConsultantCTA'
-import { useAuth } from '../App'
 import Seo from '../components/Seo'
 
 // T2.10 — FAQPage schema for a single Reference topic. Generates 2–4 Q/A
@@ -54,7 +52,6 @@ function TopicFAQJsonLd({ topic }) {
 }
 
 export default function Reference() {
-  const { user } = useAuth()
   const [selectedCat, setSelectedCat] = useState(null)
   const [selectedTopic, setSelectedTopic] = useState(null)
   const [search, setSearch] = useState('')
@@ -380,22 +377,6 @@ export default function Reference() {
               </div>
             )}
 
-            {/* CTAs */}
-            <div style={styles.detailActions}>
-              <div style={styles.detailActionCard}>
-                <div style={styles.detailActionIcon}>AI</div>
-                <div>
-                  <div style={styles.detailActionTitle}>Have a specific question about {selectedTopic.title}?</div>
-
-                  <div style={styles.detailActionSub}>Ask the AI &mdash; it will tailor the answer to your specific years of service, salary, and retirement goals.</div>
-                </div>
-                {/* T2.9: outlined maroon, not the legacy blue .btn-primary */}
-                <Link to={user ? '/chat' : '/signup'} style={{ flexShrink: 0, padding: '10px 20px', border: '2px solid #b08d5a', color: '#b08d5a', background: '#ffffff', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', transition: 'all 0.15s' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#b08d5a'; e.currentTarget.style.color = '#ffffff'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#b08d5a'; }}>
-                  Ask AI
-                </Link>
-              </div>
-            </div>
-
             <ConsultantCTA compact />
           </div>
         )}
@@ -706,24 +687,4 @@ const styles = {
     flexShrink: 0,
     marginTop: 1,
   },
-  detailActions: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 14,
-  },
-  detailActionCard: {
-    background: 'linear-gradient(135deg, #f0f4ff 0%, #eff6ff 100%)',
-    border: '1px solid rgba(31,61,44,0.08)',
-    borderRadius: 12,
-    padding: '24px 28px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 18,
-    flexWrap: 'wrap',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-    fontFamily: fontSans,
-  },
-  detailActionIcon: { fontSize: '2rem', flexShrink: 0 },
-  detailActionTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#1f3d2c', marginBottom: 4, fontFamily: fontSerif },
-  detailActionSub: { fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontFamily: fontSans },
 }
