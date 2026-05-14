@@ -7,9 +7,9 @@ export default function ConsultantCTA({ compact = false }) {
       <div style={styles.compact}>
         <div>
           <div style={styles.compactTitle}>Want to talk it through?</div>
-          <div style={styles.compactSub}>Book a free 15-minute call with Jack at Federal Market Associates.</div>
+          <div style={styles.compactSub}>Book a free meeting with a Federal Retirement Consultant at Federal Market Associates. No time limit.</div>
         </div>
-        <Link to="/consultation" style={styles.compactBtn}>Book a call</Link>
+        <Link to="/consultation" style={styles.compactBtn}>Book a meeting</Link>
       </div>
     )
   }
@@ -20,13 +20,12 @@ export default function ConsultantCTA({ compact = false }) {
         <div style={styles.bannerOverline}>Talk to a person</div>
         <div style={styles.bannerTitle}>Have a question that needs more than a calculator?</div>
         <div style={styles.bannerSub}>
-          Book a free 15-minute call with Jack at Federal Market Associates. No pitch — just straight answers about your
-          specific situation.
+          Book a free meeting with a Federal Retirement Consultant at Federal Market Associates. No pitch — just straight answers about your specific situation.
         </div>
       </div>
       <div style={styles.bannerRight}>
-        <Link to="/consultation" style={styles.bannerBtn}>Book a 15-min call</Link>
-        <div style={styles.bannerNote}>Free. No obligation.</div>
+        <Link to="/consultation" style={styles.bannerBtn}>Book a meeting</Link>
+        <div style={styles.bannerNote}>Free. No time limit. No obligation.</div>
       </div>
     </div>
   )

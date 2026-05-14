@@ -90,7 +90,7 @@ const PILLARS = [
   {
     label: 'Talk when you\'re ready',
     body:
-      'If something a calculator surfaces is worth a real conversation, you can book 15 minutes with Jack Fitzgerald at Federal Market Associates. No pressure. No upsell.',
+      'If something a calculator surfaces is worth a real conversation, you can book a free meeting with a Federal Retirement Consultant at Federal Market Associates — phone or video, no set time limit. No pressure. No upsell.',
   },
 ]
 
@@ -563,7 +563,7 @@ export default function Landing() {
               margin: '0 auto 32px',
             }}
           >
-            Book a free 15-minute call. We'll figure out what you actually need to know — and what's safe to ignore.
+            Book a free meeting — phone or video, no set time limit. We'll figure out what you actually need to know — and what's safe to ignore.
           </p>
           <Link
             to="/consultation"
@@ -591,7 +591,7 @@ export default function Landing() {
               e.currentTarget.style.transform = 'translateY(0)'
             }}
           >
-            Book a 15-minute call
+            Book a meeting
             <span aria-hidden>→</span>
           </Link>
           <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', marginTop: 18 }}>

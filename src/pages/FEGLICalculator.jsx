@@ -4,7 +4,6 @@ import {
   ComposedChart, Area, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts'
 import Seo from '../components/Seo'
-import { authFetch } from '../lib/authFetch'
 import ConsultantCTA from '../components/ConsultantCTA'
 import {
   FEGLI_RATES,
@@ -73,14 +72,6 @@ export default function FEGLICalculator() {
   const [rateTableOpen, setRateTableOpen] = useState(false)
   const [formulasOpen, setFormulasOpen] = useState(false)
   const [viewAsTable, setViewAsTable] = useState(false)
-
-  // Lead capture
-  const [captureName, setCaptureName] = useState('')
-  const [captureEmail, setCaptureEmail] = useState('')
-  const [capturePhone, setCapturePhone] = useState('')
-  const [captureSent, setCaptureSent] = useState(false)
-  const [captureLoading, setCaptureLoading] = useState(false)
-  const [captureError, setCaptureError] = useState('')
 
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 900)
   useEffect(() => {
@@ -175,55 +166,6 @@ export default function FEGLICalculator() {
     }
     return `At retirement your monthly FEGLI cost is projected at ${fmt$(retirementPoint?.total || 0)}. By age 75 it is ${fmt$(at75)}.`
   }, [inputsValid, coverage.basic, basicReduction, optionBReduction, optionCReduction, optB, optC, age75Point, projection, retirementPoint])
-
-  // Email capture handler
-  const handleCapture = async (e) => {
-    e.preventDefault()
-    setCaptureError('')
-    setCaptureLoading(true)
-    try {
-      const res = await fetch('/.netlify/functions/add-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: captureName,
-          email: captureEmail,
-          phone: capturePhone,
-          source: 'Calculator - FEGLI',
-          notes: JSON.stringify({
-            salary: salaryNum, age: ageNum, retireAge: retireNum, postal, alreadyRetired,
-            elections, basicOn, optionAOn, optionBMult: optB, optionCMult: optC,
-            coverage, currentCosts, age75: age75Point?.total,
-          }).slice(0, 2000),
-        }),
-      })
-      if (!res.ok) throw new Error('failed')
-      setCaptureSent(true)
-      // T2.13: send projection email via send-results-email (requires auth — silently skipped for anonymous visitors)
-      authFetch('/.netlify/functions/send-results-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'fegli-calculator',
-          email: captureEmail,
-          data: {
-            name: captureName,
-            totalCoverage: fmt$(coverage.total),
-            monthlyCost: fmt$(currentCosts.total),
-            breakdown: [
-              { label: 'Total Coverage', value: fmt$(coverage.total), type: 'total' },
-              { label: 'Current Monthly Cost', value: fmt$(currentCosts.total), type: 'cost' },
-              { label: 'Projected Cost at Age 75', value: fmt$(age75Point?.total || 0), type: 'cost' },
-            ],
-          },
-        }),
-      }).catch(() => {})
-    } catch {
-      setCaptureError('Something went wrong. Please try again.')
-    } finally {
-      setCaptureLoading(false)
-    }
-  }
 
   // Styles — inline to match site pattern
   const s = styles
@@ -524,25 +466,6 @@ export default function FEGLICalculator() {
               <div style={s.sidebarRow}><span>Option B</span><span>{fmt$(coverage.optionB)}</span></div>
               <div style={s.sidebarRow}><span>Option C (spouse)</span><span>{fmt$(coverage.optionC.spouse)}</span></div>
 
-              <div style={s.sidebarDivider} />
-
-              {/* Email capture */}
-              {!captureSent ? (
-                <form onSubmit={handleCapture} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div style={{ fontFamily: FONT_SERIF, fontWeight: 700, color: COLORS.navy, fontSize: '0.95rem' }}>Email me this projection</div>
-                  <input type="text" placeholder="Your name" value={captureName} onChange={e => setCaptureName(e.target.value)} style={s.input} required />
-                  <input type="email" placeholder="you@example.com" value={captureEmail} onChange={e => setCaptureEmail(e.target.value)} style={s.input} required />
-                  <input type="tel" placeholder="Phone (optional)" value={capturePhone} onChange={e => setCapturePhone(e.target.value)} style={s.input} />
-                  {captureError && <div role="alert" style={{ color: COLORS.maroon, fontSize: '0.85rem' }}>{captureError}</div>}
-                  <button type="submit" disabled={captureLoading} style={s.primaryBtn}>
-                    {captureLoading ? 'Sending…' : 'Email me my projection'}
-                  </button>
-                </form>
-              ) : (
-                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: 14, fontSize: '0.9rem', color: '#14532d' }}>
-                  Sent. Check <strong>{captureEmail}</strong> (and spam) for your projection. If you signed in, you'll also get a copy by email.
-                </div>
-              )}
             </div>
           </aside>
         </div>

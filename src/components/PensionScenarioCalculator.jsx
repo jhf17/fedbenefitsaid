@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { colors, fonts } from '../constants/theme'
-import { formatCurrency, formatYearsMonths, formatMonth, lifetimeExpected, computeAge } from '../lib/pensionCalc'
+import { formatCurrency, formatYearsMonths, formatMonth } from '../lib/pensionCalc'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -78,7 +78,7 @@ export default function PensionScenarioCalculator({
   const [currentBasicPay, setCurrentBasicPay] = useState(95000)
   const [sickLeaveHours, setSickLeaveHours] = useState(0)
   const [growthRate, setGrowthRate] = useState(2)
-  const [lifeExpectancy, setLifeExpectancy] = useState(85)
+  const [advancedOpen, setAdvancedOpen] = useState(false)
 
   // System-specific extra inputs
   const [extraValues, setExtraValues] = useState(() =>
@@ -142,11 +142,9 @@ export default function PensionScenarioCalculator({
       })
       if (r && r.annualAnnuity != null) {
         const monthly = r.monthlyAnnuity || 0
-        const supplementMonthly = r.supplementMonthly || 0
         data.push({
           age,
           monthlyPension: Math.round(monthly),
-          monthlyTotal: Math.round(monthly + supplementMonthly),
           eligible: r.category && r.category !== 'ineligible' && r.category !== 'deferred',
         })
       }
@@ -239,35 +237,7 @@ export default function PensionScenarioCalculator({
               step="1"
               style={inputBox}
             />
-            <span style={helpText}>2,087 hours = 1 year of credit. Adds to your service total.</span>
-          </label>
-
-          <label style={labelText}>
-            Annual pay growth assumption
-            <input
-              type="number"
-              value={growthRate}
-              onChange={(e) => setGrowthRate(e.target.value)}
-              min="0"
-              max="10"
-              step="0.1"
-              style={inputBox}
-            />
-            <span style={helpText}>% per year. 2.0% is a conservative recent average for federal pay.</span>
-          </label>
-
-          <label style={labelText}>
-            Life expectancy (for lifetime totals)
-            <input
-              type="number"
-              value={lifeExpectancy}
-              onChange={(e) => setLifeExpectancy(e.target.value)}
-              min="65"
-              max="105"
-              step="1"
-              style={inputBox}
-            />
-            <span style={helpText}>Default 85, based on SSA period life tables. Adjust as you see fit.</span>
+            <span style={helpText}>2,087 hours = 1 year of credit. Added to the annuity computation (does not affect eligibility thresholds).</span>
           </label>
 
           {extraInputs.map((inp) => (
@@ -284,6 +254,47 @@ export default function PensionScenarioCalculator({
               {inp.help && <span style={helpText}>{inp.help}</span>}
             </label>
           ))}
+        </div>
+
+        {/* Advanced toggle — pay-growth assumption */}
+        <div style={{ marginTop: 18 }}>
+          <button
+            type="button"
+            onClick={() => setAdvancedOpen((o) => !o)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              fontSize: '0.86rem',
+              fontWeight: 600,
+              color: colors.brassDeep,
+              fontFamily: FONT_SANS,
+              letterSpacing: '0.01em',
+            }}
+            aria-expanded={advancedOpen}
+          >
+            {advancedOpen ? '− Hide' : '+ Show'} advanced settings
+          </button>
+          {advancedOpen && (
+            <div style={{ marginTop: 12, padding: 16, background: colors.cream, borderRadius: 10, border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
+              <label style={labelText}>
+                Expected annual GS pay raise (%)
+                <input
+                  type="number"
+                  value={growthRate}
+                  onChange={(e) => setGrowthRate(e.target.value)}
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  style={inputBox}
+                />
+                <span style={helpText}>
+                  Used to project your salary forward to retirement, since the High-3 averages your last three years of pay. 2.0% is a conservative recent average. <strong>This is not COLA</strong> — COLA only affects the annuity after you retire.
+                </span>
+              </label>
+            </div>
+          )}
         </div>
       </section>
 
@@ -428,7 +439,6 @@ export default function PensionScenarioCalculator({
               key={scenario.id}
               scenario={scenario}
               result={result}
-              lifeExpectancy={Number(lifeExpectancy)}
               renderExtra={renderScenarioDetails}
             />
           ))}
@@ -460,8 +470,7 @@ export default function PensionScenarioCalculator({
             Monthly pension by retirement age
           </h2>
           <p style={{ fontSize: '0.92rem', color: colors.slate500, marginBottom: 18 }}>
-            Holding service growth and pay-growth assumptions constant. Shaded line is pension only;
-            top line includes the FERS Supplement where eligible.
+            Monthly pension by retirement age, holding your pay growth and service constant. Vertical dashes mark the scenarios you've set up above.
           </p>
 
           <div style={{ width: '100%', height: 320 }}>
@@ -475,8 +484,7 @@ export default function PensionScenarioCalculator({
                   labelFormatter={(l) => `Age ${l}`}
                   contentStyle={{ background: '#ffffff', border: `1px solid ${colors.brass}`, borderRadius: 10, fontFamily: FONT_SANS, fontSize: '0.88rem' }}
                 />
-                <Line type="monotone" dataKey="monthlyPension" stroke={colors.pine} strokeWidth={3} dot={false} name="Pension only" />
-                <Line type="monotone" dataKey="monthlyTotal" stroke={colors.brass} strokeWidth={2} strokeDasharray="6 4" dot={false} name="Pension + Supplement" />
+                <Line type="monotone" dataKey="monthlyPension" stroke={colors.pine} strokeWidth={3} dot={false} name="Monthly pension" />
                 {eligibleScenarios.map(({ scenario, result }) => (
                   <ReferenceLine
                     key={scenario.id}
@@ -488,10 +496,6 @@ export default function PensionScenarioCalculator({
                 ))}
               </LineChart>
             </ResponsiveContainer>
-          </div>
-          <div style={{ display: 'flex', gap: 18, fontSize: '0.82rem', color: colors.slate500, marginTop: 8, flexWrap: 'wrap' }}>
-            <span><span style={{ display: 'inline-block', width: 18, height: 3, background: colors.pine, marginRight: 6, verticalAlign: 'middle' }} /> Pension only</span>
-            <span><span style={{ display: 'inline-block', width: 18, height: 3, background: colors.brass, marginRight: 6, verticalAlign: 'middle' }} /> Pension + Supplement (where eligible)</span>
           </div>
         </section>
       )}
@@ -602,9 +606,7 @@ export default function PensionScenarioCalculator({
             Walk through your scenarios with us — free.
           </h3>
           <p style={{ fontSize: '0.98rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.78)' }}>
-            15 minutes is usually enough to surface what the calculator can't show — sick-leave nuances, pay-band
-            quirks, what to ask your HR office, and whether your scenarios actually pencil out for the rest of your
-            financial picture.
+            A short conversation usually surfaces what the calculator can't show — sick-leave nuances, pay-band quirks, what to ask your HR office, and whether your scenarios actually pencil out for the rest of your financial picture.
           </p>
         </div>
         <Link
@@ -623,14 +625,14 @@ export default function PensionScenarioCalculator({
             boxShadow: '0 6px 20px rgba(176,141,90,0.32)',
           }}
         >
-          Book a 15-min call →
+          Book a meeting →
         </Link>
       </section>
     </div>
   )
 }
 
-function ScenarioCard({ scenario, result, lifeExpectancy, renderExtra }) {
+function ScenarioCard({ scenario, result, renderExtra }) {
   if (!result) {
     return (
       <div style={cardStyle}>
@@ -642,13 +644,8 @@ function ScenarioCard({ scenario, result, lifeExpectancy, renderExtra }) {
     )
   }
 
-  const { categoryLabel, ageAtRetirement, yos, high3, monthlyAnnuity, annualAnnuity, supplementMonthly, supplementEligible, reductionDetail, multiplier } = result
+  const { categoryLabel, ageAtRetirement, yos, high3, monthlyAnnuity, annualAnnuity, supplementEligible, reductionDetail, multiplier } = result
   const ineligible = result.category === 'ineligible'
-  const lifetimeAnn = annualAnnuity > 0 ? lifetimeExpected({ annualAnnuity, ageAtRetirement, lifeExpectancy }) : 0
-  const lifetimeSup =
-    supplementEligible && (result.supplementAnnual || 0) > 0 && ageAtRetirement < 62
-      ? (result.supplementAnnual || 0) * Math.max(0, 62 - ageAtRetirement)
-      : 0
 
   return (
     <div style={cardStyle}>
@@ -695,30 +692,10 @@ function ScenarioCard({ scenario, result, lifeExpectancy, renderExtra }) {
             </div>
           )}
 
-          {supplementEligible && (supplementMonthly || 0) > 0 && (
-            <>
-              <div style={dividerStyle} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.brassDeep, marginBottom: 8 }}>
-                FERS Supplement
-              </div>
-              <Stat label="Monthly" value={formatCurrency(supplementMonthly)} />
-              <Stat label="Until age" value={result.supplementEnds || '—'} />
-              {result.earningsTestStartsAt != null && (
-                <Stat label="Earnings test starts at MRA" value={`Age ${formatYearsMonths(result.earningsTestStartsAt)}`} />
-              )}
-            </>
-          )}
-
-          {lifetimeAnn > 0 && (
-            <>
-              <div style={dividerStyle} />
-              <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.slate500, marginBottom: 8 }}>
-                To age {lifeExpectancy} (no COLA)
-              </div>
-              <Stat label="Lifetime pension" value={formatCurrency(lifetimeAnn)} />
-              {lifetimeSup > 0 && <Stat label="Lifetime supplement" value={formatCurrency(lifetimeSup)} />}
-              <Stat label="Total" value={formatCurrency(lifetimeAnn + lifetimeSup)} bold />
-            </>
+          {supplementEligible && (
+            <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(184,134,11,0.08)', borderRadius: 8, fontSize: '0.78rem', color: colors.brassDeep, lineHeight: 1.5 }}>
+              <strong>FERS Supplement eligible</strong> — bridges your pension to age 62. To see the dollar estimate, run the <Link to="/calculators/income-picture" style={{ color: colors.brassDeep, textDecoration: 'underline' }}>Full Income Picture</Link> calculator.
+            </div>
           )}
 
           {renderExtra && renderExtra(result)}
@@ -764,8 +741,3 @@ const cardHeader = {
   marginBottom: 6,
 }
 
-const dividerStyle = {
-  height: 1,
-  background: 'rgba(31,61,44,0.08)',
-  margin: '14px 0',
-}

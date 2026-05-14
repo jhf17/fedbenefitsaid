@@ -1,35 +1,28 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useState, useEffect, createContext, useContext, Suspense, lazy } from 'react'
-import { supabase } from './lib/supabase'
+import { Suspense, lazy } from 'react'
 import Navbar from './components/Navbar'
 import ErrorBoundary from './components/ErrorBoundary'
 import Seo from './components/Seo'
 import Landing from './pages/Landing'
 const Reference = lazy(() => import('./pages/Reference'))
-import Auth from './pages/Auth'
 const Resources = lazy(() => import('./pages/Resources'))
-const Admin = lazy(() => import('./pages/Admin'))
 const Assessment = lazy(() => import('./pages/Assessment'))
 const Calculators = lazy(() => import('./pages/Tools'))
 const FEGLICalculator = lazy(() => import('./pages/FEGLICalculator'))
 const FersPension = lazy(() => import('./pages/calculators/FersPension'))
 const CsrsPension = lazy(() => import('./pages/calculators/CsrsPension'))
 const SpecialProvisionsPension = lazy(() => import('./pages/calculators/SpecialProvisionsPension'))
-const IncomeGap = lazy(() => import('./pages/calculators/IncomeGap'))
+const IncomePicture = lazy(() => import('./pages/calculators/IncomePicture'))
+const High3 = lazy(() => import('./pages/calculators/High3'))
 const WhatIf = lazy(() => import('./pages/calculators/WhatIf'))
 const About = lazy(() => import('./pages/About'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import Consultation from './pages/Consultation'
-import ProtectedRoute from './components/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
 import Footer from './components/Footer'
 import CookieConsent from './components/CookieConsent'
-
-// Auth context — available throughout the app
-export const AuthContext = createContext(null)
-export const useAuth = () => useContext(AuthContext)
 
 function NotFound() {
   return (
@@ -51,63 +44,36 @@ function NotFound() {
 }
 
 export default function App() {
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  if (loading) {
-    return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="spinner spinner-dark" />
-      </div>
-    )
-  }
-
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null }}>
-      <ErrorBoundary>
+    <ErrorBoundary>
       <ScrollToTop />
       <Navbar />
       <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:'60vh'}}><div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTop:'4px solid #b08d5a',borderRadius:'50%',animation:'spin 1s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/reference" element={<Reference />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/login" element={<Auth mode="login" />} />
-        <Route path="/signup" element={<Auth mode="signup" />} />
-        <Route path="/assessment" element={<Assessment />} />
-        <Route path="/calculators" element={<Calculators />} />
-        <Route path="/calculators/fers" element={<FersPension />} />
-        <Route path="/calculators/csrs" element={<CsrsPension />} />
-        <Route path="/calculators/special" element={<SpecialProvisionsPension />} />
-        <Route path="/calculators/income-gap" element={<IncomeGap />} />
-        <Route path="/calculators/what-if" element={<WhatIf />} />
-        <Route path="/calculators/fegli" element={<FEGLICalculator />} />
-        <Route path="/calculator" element={<Navigate to="/calculators/fers" replace />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/consultation" element={<Consultation />} />
-        <Route path="/disclaimer" element={<Disclaimer />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/reference" element={<Reference />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/assessment" element={<Assessment />} />
+          <Route path="/calculators" element={<Calculators />} />
+          <Route path="/calculators/fers" element={<FersPension />} />
+          <Route path="/calculators/csrs" element={<CsrsPension />} />
+          <Route path="/calculators/special" element={<SpecialProvisionsPension />} />
+          <Route path="/calculators/income-picture" element={<IncomePicture />} />
+          <Route path="/calculators/income-gap" element={<Navigate to="/calculators/income-picture" replace />} />
+          <Route path="/calculators/high-3" element={<High3 />} />
+          <Route path="/calculators/what-if" element={<WhatIf />} />
+          <Route path="/calculators/fegli" element={<FEGLICalculator />} />
+          <Route path="/calculator" element={<Navigate to="/calculators/fers" replace />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/consultation" element={<Consultation />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Suspense>
       <Footer />
       <CookieConsent />
-      </ErrorBoundary>
-    </AuthContext.Provider>
+    </ErrorBoundary>
   )
 }
