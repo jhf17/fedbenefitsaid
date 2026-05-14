@@ -8,6 +8,7 @@ const FONT_SANS = fonts.sans
 
 export default function About() {
   const [imgFailed, setImgFailed] = useState(false)
+  const [logoFailed, setLogoFailed] = useState(false)
 
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
@@ -71,7 +72,7 @@ export default function About() {
             FedBenefitsAid is a free, education-first website built to help federal employees make sense of their benefits and retirement eligibility — FERS, TSP, FEHB, FEGLI, Medicare, Social Security, and survivor coverage, all in one place.
           </p>
           <p style={{ fontSize: '1.02rem', lineHeight: 1.65, color: 'rgba(255,255,255,0.7)', maxWidth: 680 }}>
-            The calculators are free. The reference library is free. The 15-minute call is free. We made the site so anyone in federal service could answer most of their own questions without picking up the phone.
+            The calculators are free. The reference library is free. The meeting is free. We made the site so anyone in federal service could answer most of their own questions without picking up the phone.
           </p>
         </div>
       </header>
@@ -88,7 +89,7 @@ export default function About() {
           <OfferCard
             label="Calculators"
             title="Run the numbers"
-            body="FERS pension, FEGLI cost-over-time, income gap, retirement what-ifs. The same tools we use on consultations, free for everyone."
+            body="FERS pension, FEGLI cost-over-time, full income picture, retirement what-ifs. The same tools we use on consultations, free for everyone."
             href="/calculators"
             cta="Open calculators"
           />
@@ -101,8 +102,8 @@ export default function About() {
           />
           <OfferCard
             label="Assessment"
-            title="Get a starting plan"
-            body="Five questions, sixty seconds, a tailored three-step plan. No email required."
+            title="Find what fits your question"
+            body="Tell us what you're trying to figure out and we'll point you to the right calculator, the right library section, or a free meeting."
             href="/assessment"
             cta="Start the assessment"
           />
@@ -111,7 +112,7 @@ export default function About() {
 
       {/* SECTION: Who you'll meet with (FMA + FRC) */}
       <section style={{ maxWidth: 880, margin: '0 auto', padding: '64px 24px 24px' }}>
-        <SectionHeader eyebrow="If you book a call" title="Who you'll be meeting with." />
+        <SectionHeader eyebrow="If you book a meeting" title="Who you'll be meeting with." />
         <div
           style={{
             background: '#ffffff',
@@ -120,23 +121,61 @@ export default function About() {
             padding: '32px 36px',
             boxShadow: '0 4px 20px rgba(20,42,29,0.05)',
             marginBottom: 20,
+            display: 'grid',
+            gridTemplateColumns: '180px 1fr',
+            gap: 32,
+            alignItems: 'center',
           }}
+          className="fma-card"
         >
-          <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 16 }}>
-            When you book through this site, you'll be meeting with a <strong>Federal Retirement Consultant (FRC) with Federal Market Associates</strong>. That's the practice behind FedBenefitsAid.
-          </p>
-          <p style={{ fontSize: '1.02rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 16 }}>
-            <strong>Federal Market Associates (FMA)</strong> is an education-focused company that works exclusively with federal employees. The work is built around teaching — walking through your FERS pension, your TSP, your insurance, and your timeline so the decisions you face at retirement feel less like a black box.
-          </p>
-          <p style={{ fontSize: '0.98rem', lineHeight: 1.7, color: colors.slate500, marginBottom: 0 }}>
-            Every FRC at FMA specializes in the federal benefits system — the same rules, the same OPM forms, the same Medicare and FEHB interactions you'll find on this site.
-          </p>
+          <div
+            style={{
+              width: 180,
+              height: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            {!logoFailed ? (
+              <img
+                src="/fma-logo.png"
+                alt="Federal Market Associates"
+                onError={() => setLogoFailed(true)}
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontFamily: FONT_SERIF,
+                  fontWeight: 700,
+                  fontSize: '2rem',
+                  color: colors.pine,
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                FMA
+              </div>
+            )}
+          </div>
+          <div>
+            <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 14 }}>
+              When you book a meeting through this site, you'll be meeting with a <strong>Federal Retirement Consultant (FRC) with Federal Market Associates</strong>. That's the practice behind FedBenefitsAid.
+            </p>
+            <p style={{ fontSize: '1.02rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 14 }}>
+              <strong>Federal Market Associates (FMA)</strong> is an education-focused company that works exclusively with federal employees — walking through FERS pensions, TSP, FEHB, FEGLI, Medicare timing, and the rest of the federal retirement picture so the decisions you face feel less like a black box.
+            </p>
+            <p style={{ fontSize: '0.98rem', lineHeight: 1.7, color: colors.slate500, marginBottom: 0 }}>
+              Every FRC at FMA specializes in the federal benefits system — the same rules, the same OPM forms, the same Medicare and FEHB interactions you'll find on this site.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* SECTION: Why the meeting is free */}
       <section style={{ maxWidth: 880, margin: '0 auto', padding: '16px 24px 24px' }}>
-        <SectionHeader eyebrow="No-cost, no-pressure" title="Why the 15-minute call is free." />
+        <SectionHeader eyebrow="No cost, no time limit, no pressure" title="Why the meeting is free." />
         <div
           style={{
             background: '#ffffff',
@@ -147,16 +186,19 @@ export default function About() {
           }}
         >
           <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 18 }}>
-            The honest answer: every FRC at Federal Market Associates is also <strong>licensed in life and health insurance</strong>. That's the business model. A sale doesn't have to happen for the conversation to be worthwhile to us — we treat the meeting as education first.
+            Every Federal Retirement Consultant at Federal Market Associates is also <strong>licensed in life and health insurance</strong>. That's how the practice gets paid — when a product is placed, FMA is compensated by the insurance carrier, not by you.
           </p>
           <p style={{ fontSize: '1.02rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 18 }}>
-            What we find in practice: many federal employees have <em>gaps</em> — in income replacement, survivor coverage, long-term care, or the way FEGLI premiums behave after age 65. If a product fits the gap, we're equipped to help with that piece. If it doesn't, the meeting was still useful and there's no second-meeting expectation.
+            So why is the meeting free? Because we'd rather earn your trust through honest education than through a sales pitch. Most federal employees come in with a question (or three) about their pension, FEGLI, FEHB-and-Medicare timing, or TSP withdrawals — and most of those questions have answers that don't involve buying anything. We walk through them anyway.
+          </p>
+          <p style={{ fontSize: '1.02rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 18 }}>
+            Where a product <em>does</em> fit — typically when there's a real gap in income replacement, survivor coverage, long-term care, or what FEGLI premiums will do at 65 — we're equipped to show you how that product interacts with your federal benefits, and we'd be glad to be the one to place it. If it doesn't fit, we say so on the call.
           </p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 12 }}>
-            <Bullet>The first 15 minutes are free, every time.</Bullet>
-            <Bullet>If we can't add value, we'll say so on the call — and point you back to the calculators or library.</Bullet>
-            <Bullet>If a product does fit and you want to look at it, we'll show you how it interacts with your federal benefits. If it doesn't, nothing follows.</Bullet>
-            <Bullet>Insurance and annuity products are not available in California, New York, or Arkansas — the education side of the site is open to everyone.</Bullet>
+            <Bullet>The meeting is always free. There's no set time limit and no per-session billing.</Bullet>
+            <Bullet>If we can't add value, we'll say so on the call and point you back to the calculators or library.</Bullet>
+            <Bullet>If a product fits and you want to look at it, we'll show you how it interacts with your federal benefits. If it doesn't, nothing follows.</Bullet>
+            <Bullet>Insurance and annuity products are not available in California, New York, or Arkansas. The education side of the site is open to everyone.</Bullet>
           </ul>
         </div>
       </section>
@@ -172,7 +214,7 @@ export default function About() {
             padding: '40px',
             boxShadow: '0 8px 32px rgba(20,42,29,0.06)',
             display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
+            gridTemplateColumns: '180px 1fr',
             gap: 36,
             alignItems: 'flex-start',
           }}
@@ -180,8 +222,8 @@ export default function About() {
         >
           <div
             style={{
-              width: 140,
-              height: 140,
+              width: 180,
+              height: 180,
               borderRadius: '50%',
               overflow: 'hidden',
               flexShrink: 0,
@@ -237,13 +279,13 @@ export default function About() {
               Founder · Federal Retirement Consultant · Federal Market Associates
             </div>
             <p style={{ fontSize: '1rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 14 }}>
-              I built FedBenefitsAid because I kept seeing the same misconceptions over and over again — about how the FERS Supplement actually works, what happens to FEGLI premiums at 65, whether to enroll in Medicare Part B, when MRA matters and when it doesn't. The official sources are accurate but scattered. The unofficial ones are clean-looking and usually wrong.
+              I built FedBenefitsAid because I kept seeing the same misconceptions over and over — about how the FERS Supplement actually works, what happens to FEGLI premiums at 65, whether to enroll in Medicare Part B, when MRA matters and when it doesn't. The official sources are accurate but scattered. The unofficial ones are clean-looking and usually wrong.
             </p>
             <p style={{ fontSize: '1rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 14 }}>
               The site started as something I made for myself — a place where the 2026 figures were correct, the rules cited their primary sources, and the calculators showed their work. Once it existed, I realized it doubled as the cleanest possible reference to send my own clients between meetings. So I made it public.
             </p>
             <p style={{ fontSize: '0.98rem', lineHeight: 1.65, color: colors.slate500 }}>
-              When you book a call, you'll talk to me directly — not an intake coordinator. The first 15 minutes are free; if you decide you want a longer conversation, we'll schedule one. If you don't, the calculators are still here, and they'll still be here next year.
+              If you book a meeting, you'll talk to me or another FRC at FMA — your choice of phone or video, your choice of how long the conversation runs. Free, with no second-meeting expectation if it isn't useful.
             </p>
           </div>
         </div>
@@ -304,7 +346,7 @@ export default function About() {
             Ready when you are.
           </h2>
           <p style={{ fontSize: '1.05rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 28 }}>
-            Have a question that needs more than a calculator? Book a free 15-minute call — no agenda you didn't bring.
+            Have a question that needs more than a calculator? Book a free meeting — phone or video, no agenda you didn't bring.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
@@ -333,7 +375,7 @@ export default function About() {
                 e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
-              Book a 15-minute call
+              Book a meeting
               <span aria-hidden>→</span>
             </Link>
             <Link
@@ -361,12 +403,12 @@ export default function About() {
 
       <style>{`
         @media (max-width: 768px) {
-          .founder-card {
+          .founder-card, .fma-card {
             grid-template-columns: 1fr !important;
             text-align: center;
             padding: 28px !important;
           }
-          .founder-card > div:first-child {
+          .founder-card > div:first-child, .fma-card > div:first-child {
             margin: 0 auto;
           }
         }

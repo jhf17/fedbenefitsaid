@@ -57,9 +57,7 @@ export default function Disclaimer() {
         <section style={styles.section}>
           <h2 style={styles.h2}>About Federal Market Associates &amp; consultations</h2>
           <p style={styles.p}>
-            FedBenefitsAid is the public education arm of Federal Market Associates. When you book a consultation through
-            this site, you're scheduling time with Jack Fitzgerald at Federal Market Associates — not with FedBenefitsAid
-            directly. The first 15 minutes are free; longer sessions are scheduled by mutual agreement after the call.
+            FedBenefitsAid is the public education arm of Federal Market Associates. When you book a consultation through this site, you're scheduling time with a Federal Retirement Consultant at Federal Market Associates — not with FedBenefitsAid directly. Consultations are always free; there is no set time limit and no second-meeting expectation.
           </p>
           <p style={styles.p}>
             Federal Market Associates is independent. We are <strong>not affiliated with, endorsed by, or authorized to
@@ -79,14 +77,10 @@ export default function Disclaimer() {
         <section style={styles.section}>
           <h2 style={styles.h2}>Privacy &amp; data collection</h2>
           <p style={styles.p}>
-            When you create an account or book a consultation, we collect your name, email, and (optionally) phone number
-            to provide the service and follow up on your interest. We use Google Analytics to understand how visitors
-            navigate the site; you can decline analytics from the cookie banner at the bottom of any page.
+            When you book a consultation, we collect your name, email, and (optionally) phone number to provide the service and follow up on your interest. We use Google Analytics to understand how visitors navigate the site; you can decline analytics from the cookie banner at the bottom of any page.
           </p>
           <p style={styles.p}>
-            Calculator inputs are processed in your browser and are <strong>not</strong> stored on our servers unless you
-            explicitly choose to email yourself the results. We do not sell, rent, or share your personal information
-            with third parties for marketing purposes.
+            Calculator inputs are processed in your browser and are <strong>not</strong> stored on our servers. We do not sell, rent, or share your personal information with third parties for marketing purposes.
           </p>
         </section>
 
@@ -104,7 +98,7 @@ export default function Disclaimer() {
           <h2 style={styles.h2}>Contact</h2>
           <p style={styles.p}>
             Questions about this disclaimer or our privacy practices? Reach us by{' '}
-            <Link to="/consultation" style={styles.link}>booking a 15-minute call</Link> or by visiting the{' '}
+            <Link to="/consultation" style={styles.link}>booking a free meeting</Link> or by visiting the{' '}
             <Link to="/about" style={styles.link}>About</Link> page.
           </p>
         </section>

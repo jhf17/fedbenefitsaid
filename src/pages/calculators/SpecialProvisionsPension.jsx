@@ -114,30 +114,22 @@ export default function SpecialProvisionsPension() {
               help:
                 'If you transferred from a regular FERS position before becoming Special Provisions (or vice versa), enter those non-SP years here. They get the standard 1.0% (or 1.1% at age 62 with 20+ total) multiplier.',
             },
-            {
-              name: 'ssEstimateAt62',
-              label: 'Estimated monthly Social Security at age 62 (optional)',
-              type: 'number',
-              defaultValue: 0,
-              step: '50',
-              help:
-                'From your SSA.gov "my Social Security" statement. Used to estimate the FERS Supplement.',
-            },
           ]}
           formula="(1.7% × first 20 SP yrs + 1.0% × additional SP yrs + standard rate × regular-FERS yrs) × High-3"
           eligibility={[
             'Age 50 + 20 years of Special Provisions service — Immediate Unreduced (Supplement until 62)',
             'Any age + 25 years of Special Provisions service — Immediate Unreduced (Supplement until 62)',
-            'Mandatory retirement age 57 for LEO/Firefighters; varies for ATC.',
+            'Mandatory retirement age 57 for LEO/Firefighters; 56 for Air Traffic Controllers.',
             'Below 50/20 or 25-year thresholds: standard FERS rules apply (no special provisions benefit).',
           ]}
           notes={[
             'The FERS Supplement for Special Provisions retirees is NOT subject to the SS earnings test until you reach your MRA. After MRA, it is.',
             'Special Provisions employees pay a higher contribution rate to FERS than regular employees — the higher pension formula is the corresponding benefit.',
-            'Sick leave is added to creditable service (2,087 hours = 1 year) and counts toward the 20-year SP threshold for the 1.7% multiplier.',
+            'Sick leave (2,087 hr = 1 yr) is added to creditable service in the annuity computation, but does NOT count toward the 20- or 25-year eligibility thresholds for Special Provisions retirement. Those thresholds must be met by actual Special Provisions service (per 5 USC 8415).',
             'If you retire under Special Provisions but do not have 20 years of SP service (e.g., 15 SP + 10 regular), the 1.7% multiplier applies only to your SP years; regular years use the standard FERS rate.',
             'COLA on Special Provisions FERS pension begins immediately at retirement (unlike standard FERS, which waits until age 62). This is a meaningful long-term advantage.',
             'For position-specific eligibility quirks (ATC mandatory age, secondary positions, primary/secondary creditable service), get an official estimate from HR or talk to us.',
+            'For the FERS Supplement dollar amount and full retirement income picture, use the Full Income Picture calculator.',
           ]}
           renderScenarioDetails={SpecialTierBreakdown}
         />

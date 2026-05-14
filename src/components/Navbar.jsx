@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import { useAuth } from '../App'
+import { Link, useLocation } from 'react-router-dom'
 import { colors, fonts } from '../constants/theme'
 
-const ADMIN_EMAIL = 'jhf17@icloud.com'
-
 export default function Navbar() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -18,12 +12,6 @@ export default function Navbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/')
-    setMenuOpen(false)
-  }
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/')
 
@@ -97,26 +85,8 @@ export default function Navbar() {
             style={styles.navCta}
             aria-current={isActive('/consultation') ? 'page' : undefined}
           >
-            Book a Call
+            Book a Meeting
           </Link>
-          {user && user.email === ADMIN_EMAIL && (
-            <Link
-              to="/admin"
-              style={{ ...styles.link, color: colors.brass, fontWeight: 600 }}
-              aria-current={isActive('/admin') ? 'page' : undefined}
-            >
-              Admin
-            </Link>
-          )}
-        </div>
-
-        <div data-navbar-auth="" style={styles.authArea}>
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={styles.userEmail}>{user.email?.split('@')[0]}</span>
-              <button onClick={handleLogout} className="btn btn-outline btn-sm">Sign Out</button>
-            </div>
-          ) : null}
         </div>
 
         <button
@@ -145,22 +115,8 @@ export default function Navbar() {
             style={{ ...styles.mobileLink, background: colors.brass, color: '#fff', fontWeight: 700, justifyContent: 'center' }}
             onClick={() => setMenuOpen(false)}
           >
-            Book a Call
+            Book a Meeting
           </Link>
-          {user && user.email === ADMIN_EMAIL && (
-            <Link to="/admin" style={{ ...styles.mobileLink, color: colors.brass, fontWeight: 600 }} onClick={() => setMenuOpen(false)}>
-              Admin
-            </Link>
-          )}
-          {user && (
-            <>
-              <div style={styles.mobileDivider} />
-              <span style={styles.mobileUserEmail}>{user.email}</span>
-              <button onClick={handleLogout} className="btn btn-outline btn-sm btn-full" style={{ marginTop: 8 }}>
-                Sign Out
-              </button>
-            </>
-          )}
         </div>
       )}
     </nav>

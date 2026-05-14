@@ -112,7 +112,7 @@ function buildMilestones({ birthYear, hireYear, system }) {
     title: 'MRA + 10 Reduced',
     year: Math.max(mraYear, hireYear + 10),
     age: mra10Age,
-    eligibilityNote: 'Annuity reduced 5% per year under 62 (or under 60 if you have 20+ YOS). No FERS Supplement. Can be avoided by postponing.',
+    eligibilityNote: 'Immediate annuity reduced 5% per year under age 62. No FERS Supplement. Postponing the annuity start avoids the penalty.',
     supplementEligible: false,
   })
 
@@ -230,20 +230,23 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
         ) : (
           <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' }}>
             {milestones.map((m, i) => {
-              const reached = nowYear >= m.year
+              const eligibleNow = nowYear >= m.year
               return (
                 <li key={i} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: i === milestones.length - 1 ? 'none' : `1px dashed ${BORDER}` }}>
-                  <div style={{ flexShrink: 0, width: 60, textAlign: 'right', fontFamily: fontSerif, fontWeight: 900, fontSize: '1rem', color: reached ? MUTED : NAVY }}>
+                  <div style={{ flexShrink: 0, width: 60, textAlign: 'right', fontFamily: fontSerif, fontWeight: 900, fontSize: '1rem', color: NAVY }}>
                     {m.year}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: reached ? MUTED : NAVY, textDecoration: reached ? 'line-through' : 'none', fontFamily: fontSans }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: NAVY, fontFamily: fontSans }}>
                       {m.title}
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: reached ? MUTED : SUBTLE, marginTop: 2 }}>
-                      Age {formatAge(m.age)}
+                    <div style={{ fontSize: '0.78rem', color: SUBTLE, marginTop: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+                      <span>Age {formatAge(m.age)}</span>
+                      {eligibleNow && (
+                        <span style={{ padding: '1px 7px', background: 'rgba(74,107,90,0.15)', color: '#1f3d2c', borderRadius: 4, fontWeight: 700, fontSize: '0.72rem', letterSpacing: '0.02em' }}>Eligible now</span>
+                      )}
                       {m.supplementEligible && (
-                        <span style={{ marginLeft: 8, padding: '1px 6px', background: 'rgba(184,134,11,0.15)', color: GOLD, borderRadius: 4, fontWeight: 700, fontSize: '0.72rem' }}>+ FERS Supplement</span>
+                        <span style={{ padding: '1px 6px', background: 'rgba(184,134,11,0.15)', color: GOLD, borderRadius: 4, fontWeight: 700, fontSize: '0.72rem' }}>+ FERS Supplement</span>
                       )}
                     </div>
                     <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 3, lineHeight: 1.5 }}>{m.eligibilityNote}</div>

@@ -22,7 +22,7 @@ const US_STATES = [
 ]
 
 const TOPICS = [
-  { title: 'FERS pension', body: 'High-3, sick-leave credit, scenario comparisons across retirement dates.' },
+  { title: 'FERS / CSRS pension', body: 'High-3, sick-leave credit, scenario comparisons across retirement dates.' },
   { title: 'TSP withdrawals', body: 'Sequence-of-returns risk, Roth vs traditional split, RMDs.' },
   { title: 'Social Security timing', body: 'Claim age, the FERS Supplement earnings test, and what 70 actually buys you.' },
   { title: 'FEHB + Medicare', body: 'When to enroll in Part B, how the two programs coordinate, what to drop.' },
@@ -31,42 +31,25 @@ const TOPICS = [
 ]
 
 export default function Consultation() {
-  const [state, setState] = useState('')
-  const [showWidget, setShowWidget] = useState(false)
+  const [method, setMethod] = useState(null) // 'phone' | 'video'
   const widgetRef = useRef(null)
 
-  const isUnavailable = state && UNAVAILABLE_STATES.includes(state)
-  const stateName = state ? (US_STATES.find((s) => s[0] === state)?.[1] || state) : ''
-
-  // Load Calendly widget script when widget is shown
-  useEffect(() => {
-    if (!showWidget) return
-    const existing = document.querySelector('script[src*="assets.calendly.com/assets/external/widget.js"]')
-    if (existing) return
-    const script = document.createElement('script')
-    script.src = 'https://assets.calendly.com/assets/external/widget.js'
-    script.async = true
-    document.body.appendChild(script)
-    return () => {
-      // Don't remove on unmount — leaving it cached is faster on re-mount
-    }
-  }, [showWidget])
-
-  const handleStateSubmit = (e) => {
-    e.preventDefault()
-    if (!state) return
-    setShowWidget(true)
-    // Scroll widget into view after render
+  const scrollToWidget = () => {
     setTimeout(() => {
       widgetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 100)
+    }, 80)
+  }
+
+  const pickMethod = (m) => {
+    setMethod(m)
+    scrollToWidget()
   }
 
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
-        title="Book a free 15-minute call"
-        description="Free 15-minute call with Jack Fitzgerald at Federal Market Associates. No sales pitch — straight answers about FERS, TSP, FEHB, FEGLI, and Medicare decisions."
+        title="Book a free meeting"
+        description="Free meeting with a Federal Retirement Consultant at Federal Market Associates — phone or video, no set time limit. No sales pitch — straight answers about FERS, TSP, FEHB, FEGLI, and Medicare decisions."
         path="/consultation"
       />
 
@@ -75,7 +58,7 @@ export default function Consultation() {
         style={{
           background: `linear-gradient(165deg, ${colors.pineDeep} 0%, ${colors.pine} 55%, ${colors.pineLight} 100%)`,
           color: '#ffffff',
-          padding: '88px 24px 96px',
+          padding: '72px 24px 80px',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -100,7 +83,7 @@ export default function Consultation() {
               marginBottom: 16,
             }}
           >
-            Book a call
+            Book a meeting
           </div>
           <h1
             style={{
@@ -114,14 +97,13 @@ export default function Consultation() {
               maxWidth: 720,
             }}
           >
-            15 minutes. <br />
+            Free meeting, your way.<br />
             <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
               No agenda you didn't bring.
             </span>
           </h1>
           <p style={{ fontSize: '1.15rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 600 }}>
-            Pick a time that works. We'll talk about whatever's on your mind — your pension, TSP, healthcare, what to do
-            with FEGLI, or any decision the calculators raised. No prep required.
+            Phone or video, your pick. The meeting is free, there's no set time limit, and there's no second-meeting expectation if it isn't useful. After the meeting, your FRC can send a personalized summary of the conversation and any calculations you walked through.
           </p>
         </div>
       </header>
@@ -191,110 +173,61 @@ export default function Consultation() {
         </div>
       </section>
 
-      {/* STATE INTAKE / CALENDLY */}
-      <section style={{ maxWidth: 880, margin: '0 auto', padding: '32px 24px 96px' }} ref={widgetRef}>
-        {!showWidget ? (
-          <div
-            style={{
-              background: '#ffffff',
-              borderRadius: 18,
-              padding: '40px 36px',
-              border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
-              boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
-            }}
-          >
-            <div style={{ marginBottom: 28 }}>
+      {/* METHOD PICKER */}
+      <section style={{ maxWidth: 880, margin: '0 auto', padding: '40px 24px 24px' }} ref={widgetRef}>
+        {!method ? (
+          <div>
+            <div style={{ marginBottom: 28, textAlign: 'center' }}>
+              <div
+                style={{
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: colors.brassDeep,
+                  marginBottom: 10,
+                }}
+              >
+                Pick a format
+              </div>
               <h2
                 style={{
                   fontFamily: FONT_SERIF,
-                  fontSize: '1.7rem',
+                  fontSize: 'clamp(1.7rem, 3.5vw, 2.2rem)',
                   fontWeight: 600,
                   color: colors.pine,
-                  marginBottom: 10,
+                  lineHeight: 1.15,
                   letterSpacing: '-0.015em',
                   fontVariationSettings: '"opsz" 144, "SOFT" 50',
                 }}
               >
-                Find a time
+                Phone or video?
               </h2>
-              <p style={{ fontSize: '1rem', lineHeight: 1.6, color: colors.slate700 }}>
-                One quick question first — we want to make sure we're set up to actually help you, given where you live.
-              </p>
             </div>
-            <form onSubmit={handleStateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <label
-                style={{
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  color: colors.pine,
-                  letterSpacing: '0.01em',
-                }}
-              >
-                What state do you live in?
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  required
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    marginTop: 8,
-                    padding: '12px 14px',
-                    fontSize: '1rem',
-                    border: `1px solid ${colors.borderLight || '#cbd5e1'}`,
-                    borderRadius: 10,
-                    fontFamily: FONT_SANS,
-                    color: colors.charcoal,
-                    background: '#ffffff',
-                    appearance: 'auto',
-                  }}
-                >
-                  <option value="" disabled>Select a state…</option>
-                  {US_STATES.map(([code, name]) => (
-                    <option key={code} value={code}>{name}</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="submit"
-                disabled={!state}
-                style={{
-                  marginTop: 8,
-                  padding: '14px 28px',
-                  background: state ? colors.brass : 'rgba(176,141,90,0.4)',
-                  color: '#ffffff',
-                  borderRadius: 10,
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  border: 'none',
-                  cursor: state ? 'pointer' : 'not-allowed',
-                  letterSpacing: '0.01em',
-                  transition: 'all 0.2s ease',
-                  alignSelf: 'flex-start',
-                  boxShadow: state ? '0 6px 18px rgba(176,141,90,0.28)' : 'none',
-                }}
-                onMouseEnter={(e) => {
-                  if (!state) return
-                  e.currentTarget.style.background = colors.brassDeep
-                }}
-                onMouseLeave={(e) => {
-                  if (!state) return
-                  e.currentTarget.style.background = colors.brass
-                }}
-              >
-                Continue →
-              </button>
-            </form>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
+              <MethodCard
+                title="Phone call"
+                tagline="We call you, on your schedule"
+                body="Pick a date and a time window — morning, afternoon, or evening. An FRC will call you at the number you provide. Works well if you'd rather have the conversation without sharing your screen."
+                onClick={() => pickMethod('phone')}
+              />
+              <MethodCard
+                title="Video call (Zoom)"
+                tagline="Pick a slot from the calendar"
+                body="Choose a time from the live calendar. You'll get a confirmation email with the Zoom link. Easiest if you'd like to walk through calculator outputs together on screen."
+                onClick={() => pickMethod('video')}
+              />
+            </div>
           </div>
-        ) : isUnavailable ? (
-          <UnavailableState stateName={stateName} onChange={() => setShowWidget(false)} />
+        ) : method === 'phone' ? (
+          <PhonePath onBack={() => setMethod(null)} />
         ) : (
-          <CalendlyEmbed stateName={stateName} onChange={() => setShowWidget(false)} />
+          <VideoPath onBack={() => setMethod(null)} />
         )}
       </section>
 
       {/* TRUST FOOTER STRIP */}
-      <section style={{ background: colors.bone, padding: '48px 24px', borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}` }}>
+      <section style={{ background: colors.bone, padding: '48px 24px', borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, marginTop: 48 }}>
         <div
           style={{
             maxWidth: 880,
@@ -305,12 +238,493 @@ export default function Consultation() {
             textAlign: 'center',
           }}
         >
-          <TrustItem label="No cost" body="The first 15 minutes are free." />
-          <TrustItem label="No prep" body="Just bring your questions." />
+          <TrustItem label="No cost" body="The meeting is free, with no set time limit." />
+          <TrustItem label="No prep" body="Bring your questions; we'll bring the rest." />
           <TrustItem label="No pressure" body="If we're not the right fit, we'll tell you." />
         </div>
       </section>
     </main>
+  )
+}
+
+function MethodCard({ title, tagline, body, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        textAlign: 'left',
+        padding: '28px 28px 24px',
+        background: '#ffffff',
+        border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+        borderRadius: 16,
+        cursor: 'pointer',
+        fontFamily: FONT_SANS,
+        boxShadow: '0 2px 12px rgba(20,42,29,0.04)',
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = colors.brass
+        e.currentTarget.style.transform = 'translateY(-2px)'
+        e.currentTarget.style.boxShadow = '0 8px 28px rgba(20,42,29,0.10)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = colors.borderSubtle || 'rgba(31,61,44,0.08)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = '0 2px 12px rgba(20,42,29,0.04)'
+      }}
+    >
+      <div
+        style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: colors.brassDeep,
+          marginBottom: 8,
+        }}
+      >
+        {tagline}
+      </div>
+      <h3
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.4rem',
+          fontWeight: 600,
+          color: colors.pine,
+          marginBottom: 12,
+          letterSpacing: '-0.01em',
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+        }}
+      >
+        {title}
+      </h3>
+      <p style={{ fontSize: '0.96rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 16, flex: 1 }}>{body}</p>
+      <span style={{ fontSize: '0.92rem', fontWeight: 600, color: colors.brassDeep, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        Choose this <span aria-hidden>→</span>
+      </span>
+    </button>
+  )
+}
+
+// ─── Phone path: form ───────────────────────────────────────────────
+
+function PhonePath({ onBack }) {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    state: '',
+    employer: '',
+    preferredDate: '',
+    preferredTimeWindow: 'afternoon',
+    message: '',
+  })
+  const [status, setStatus] = useState('idle') // 'idle' | 'submitting' | 'success' | 'error' | 'blocked'
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const update = (patch) => setForm((f) => ({ ...f, ...patch }))
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('submitting')
+    setErrorMsg('')
+    try {
+      const res = await fetch('/.netlify/functions/request-phone-call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.status === 403) {
+        setStatus('blocked')
+        setErrorMsg(data.error || 'Consultations are not available in your state.')
+        return
+      }
+      if (!res.ok) {
+        setStatus('error')
+        setErrorMsg(data.error || 'Something went wrong. Please try again, or use the video-call option.')
+        return
+      }
+      setStatus('success')
+    } catch (err) {
+      setStatus('error')
+      setErrorMsg('Network error. Please try again.')
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <SuccessPanel
+        title="Request received."
+        body={`Thanks, ${form.name.split(' ')[0] || 'there'}. We'll be in touch by phone at ${form.phone} during your preferred window (${form.preferredTimeWindow}, ${form.preferredDate || 'soon'}). If anything changes before then, just reply to the confirmation email we just sent to ${form.email}.`}
+        onBack={onBack}
+      />
+    )
+  }
+
+  if (status === 'blocked') {
+    return (
+      <BlockedPanel stateCode={form.state} message={errorMsg} onBack={onBack} />
+    )
+  }
+
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        borderRadius: 18,
+        padding: '40px 36px',
+        border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+        boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
+      }}
+    >
+      <BackLink onClick={onBack} label="← Pick a different format" />
+      <h2
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.7rem',
+          fontWeight: 600,
+          color: colors.pine,
+          marginBottom: 8,
+          marginTop: 14,
+          letterSpacing: '-0.015em',
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+        }}
+      >
+        Phone call — when's a good time?
+      </h2>
+      <p style={{ fontSize: '1rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 24 }}>
+        Pick a date and a time window. An FRC will call you at the number below within that window. We'll only use this info for the meeting — no email lists, no third-party sharing.
+      </p>
+
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }}>
+        <Row two>
+          <Field label="Name" required>
+            <input type="text" required value={form.name} onChange={(e) => update({ name: e.target.value })} style={inputBox} placeholder="Your name" />
+          </Field>
+          <Field label="Email" required>
+            <input type="email" required value={form.email} onChange={(e) => update({ email: e.target.value })} style={inputBox} placeholder="you@example.com" />
+          </Field>
+        </Row>
+        <Row two>
+          <Field label="Phone" required hint="We'll call this number at your preferred time.">
+            <input type="tel" required value={form.phone} onChange={(e) => update({ phone: e.target.value })} style={inputBox} placeholder="(555) 123-4567" />
+          </Field>
+          <Field label="State of residence" required>
+            <select required value={form.state} onChange={(e) => update({ state: e.target.value })} style={{ ...inputBox, appearance: 'auto' }}>
+              <option value="">Select a state…</option>
+              {US_STATES.map(([code, name]) => (
+                <option key={code} value={code}>{name}</option>
+              ))}
+            </select>
+          </Field>
+        </Row>
+        <Field label="Employer / agency / department" hint="VA, DoD, USPS, OPM, agency name — whatever fits. Helps us prep.">
+          <input type="text" value={form.employer} onChange={(e) => update({ employer: e.target.value })} style={inputBox} placeholder="e.g. Department of Veterans Affairs" />
+        </Field>
+        <Row two>
+          <Field label="Preferred date" required>
+            <input type="date" required value={form.preferredDate} onChange={(e) => update({ preferredDate: e.target.value })} style={inputBox} min={new Date().toISOString().slice(0, 10)} />
+          </Field>
+          <Field label="Time window" required>
+            <select required value={form.preferredTimeWindow} onChange={(e) => update({ preferredTimeWindow: e.target.value })} style={{ ...inputBox, appearance: 'auto' }}>
+              <option value="morning">Morning (8am – 12pm ET)</option>
+              <option value="afternoon">Afternoon (12pm – 5pm ET)</option>
+              <option value="evening">Evening (5pm – 8pm ET)</option>
+            </select>
+          </Field>
+        </Row>
+        <Field label="Anything else? (optional)" hint="Specific question, deadline, document you'd like us to look at — anything that helps us prep.">
+          <textarea
+            value={form.message}
+            onChange={(e) => update({ message: e.target.value })}
+            rows={3}
+            style={{ ...inputBox, resize: 'vertical', minHeight: 90 }}
+            placeholder="e.g. Trying to decide whether to retire this December or next June."
+          />
+        </Field>
+
+        {errorMsg && (
+          <div role="alert" style={{ padding: '12px 16px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, color: '#991b1b', fontSize: '0.92rem' }}>
+            {errorMsg}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={status === 'submitting'}
+          style={{
+            marginTop: 8,
+            padding: '14px 28px',
+            background: status === 'submitting' ? 'rgba(176,141,90,0.6)' : colors.brass,
+            color: '#ffffff',
+            borderRadius: 10,
+            fontSize: '1rem',
+            fontWeight: 600,
+            border: 'none',
+            cursor: status === 'submitting' ? 'not-allowed' : 'pointer',
+            letterSpacing: '0.01em',
+            boxShadow: '0 6px 18px rgba(176,141,90,0.28)',
+            fontFamily: FONT_SANS,
+            alignSelf: 'flex-start',
+          }}
+        >
+          {status === 'submitting' ? 'Sending…' : 'Request the call →'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+// ─── Video path: Calendly ───────────────────────────────────────────
+
+function VideoPath({ onBack }) {
+  const [state, setState] = useState('')
+  const [showCalendly, setShowCalendly] = useState(false)
+
+  const stateBlocked = state && UNAVAILABLE_STATES.includes(state)
+
+  useEffect(() => {
+    if (!showCalendly) return
+    const existing = document.querySelector('script[src*="assets.calendly.com/assets/external/widget.js"]')
+    if (existing) return
+    const script = document.createElement('script')
+    script.src = 'https://assets.calendly.com/assets/external/widget.js'
+    script.async = true
+    document.body.appendChild(script)
+  }, [showCalendly])
+
+  if (showCalendly && !stateBlocked) {
+    return (
+      <div>
+        <BackLink onClick={() => setShowCalendly(false)} label="← Change state" />
+        <div
+          style={{
+            marginTop: 18,
+            marginBottom: 18,
+            padding: '14px 18px',
+            background: colors.sagePale,
+            borderRadius: 12,
+            fontSize: '0.92rem',
+            color: colors.pine,
+          }}
+        >
+          Booking video call for <strong>{US_STATES.find((s) => s[0] === state)?.[1] || state}</strong>. Pick any open slot below — you'll get a confirmation email with the Zoom link.
+        </div>
+        <div
+          className="calendly-inline-widget"
+          data-url={CALENDLY_EMBED_URL}
+          style={{ minWidth: 320, height: 720, borderRadius: 16, overflow: 'hidden', background: colors.cream }}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        borderRadius: 18,
+        padding: '40px 36px',
+        border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+        boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
+      }}
+    >
+      <BackLink onClick={onBack} label="← Pick a different format" />
+      <h2
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.7rem',
+          fontWeight: 600,
+          color: colors.pine,
+          marginBottom: 8,
+          marginTop: 14,
+          letterSpacing: '-0.015em',
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+        }}
+      >
+        Video call — find a time
+      </h2>
+      <p style={{ fontSize: '1rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 24 }}>
+        One quick question first — we want to make sure we're set up to actually help you, given where you live.
+      </p>
+      <form
+        onSubmit={(e) => { e.preventDefault(); if (state) setShowCalendly(true) }}
+        style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+      >
+        <label style={{ fontSize: '0.88rem', fontWeight: 600, color: colors.pine }}>
+          What state do you live in?
+          <select
+            value={state}
+            onChange={(e) => setState(e.target.value)}
+            required
+            style={{ ...inputBox, appearance: 'auto' }}
+          >
+            <option value="">Select a state…</option>
+            {US_STATES.map(([code, name]) => (
+              <option key={code} value={code}>{name}</option>
+            ))}
+          </select>
+        </label>
+        {stateBlocked && (
+          <BlockedInline state={state} />
+        )}
+        <button
+          type="submit"
+          disabled={!state || stateBlocked}
+          style={{
+            marginTop: 8,
+            padding: '14px 28px',
+            background: !state || stateBlocked ? 'rgba(176,141,90,0.4)' : colors.brass,
+            color: '#ffffff',
+            borderRadius: 10,
+            fontSize: '1rem',
+            fontWeight: 600,
+            border: 'none',
+            cursor: !state || stateBlocked ? 'not-allowed' : 'pointer',
+            letterSpacing: '0.01em',
+            boxShadow: !state || stateBlocked ? 'none' : '0 6px 18px rgba(176,141,90,0.28)',
+            fontFamily: FONT_SANS,
+            alignSelf: 'flex-start',
+          }}
+        >
+          Continue →
+        </button>
+      </form>
+    </div>
+  )
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────
+
+function BackLink({ onClick, label }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        background: 'transparent',
+        color: colors.slate500,
+        border: 'none',
+        fontSize: '0.88rem',
+        fontWeight: 500,
+        cursor: 'pointer',
+        textDecoration: 'underline',
+        padding: 0,
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+
+function Row({ two, children }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: two ? 'repeat(auto-fit, minmax(220px, 1fr))' : '1fr', gap: 14 }}>
+      {children}
+    </div>
+  )
+}
+
+function Field({ label, required, hint, children }) {
+  return (
+    <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 600, color: colors.pine }}>
+      {label}{required && <span style={{ color: colors.brassDeep, marginLeft: 4 }}>*</span>}
+      {children}
+      {hint && <span style={{ display: 'block', fontSize: '0.78rem', color: colors.slate500, marginTop: 4, lineHeight: 1.5, fontWeight: 400 }}>{hint}</span>}
+    </label>
+  )
+}
+
+function SuccessPanel({ title, body, onBack }) {
+  return (
+    <div
+      style={{
+        background: '#f0fdf4',
+        border: '1px solid #86efac',
+        borderRadius: 18,
+        padding: '36px 36px',
+      }}
+    >
+      <h2
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.6rem',
+          fontWeight: 600,
+          color: '#14532d',
+          marginBottom: 14,
+          letterSpacing: '-0.015em',
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+        }}
+      >
+        {title}
+      </h2>
+      <p style={{ fontSize: '1.02rem', lineHeight: 1.65, color: '#166534', marginBottom: 20 }}>{body}</p>
+      <Link
+        to="/calculators"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '12px 24px',
+          background: colors.pine,
+          color: '#ffffff',
+          borderRadius: 10,
+          fontSize: '0.95rem',
+          fontWeight: 600,
+          textDecoration: 'none',
+        }}
+      >
+        Browse the calculators while you wait
+      </Link>
+    </div>
+  )
+}
+
+function BlockedPanel({ stateCode, message, onBack }) {
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        borderRadius: 18,
+        padding: '36px 36px',
+        border: `1px solid ${colors.brass}`,
+      }}
+    >
+      <BackLink onClick={onBack} label="← Pick a different format" />
+      <h2
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.5rem',
+          fontWeight: 600,
+          color: colors.pine,
+          marginBottom: 12,
+          marginTop: 14,
+          letterSpacing: '-0.015em',
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+        }}
+      >
+        We can't currently book in {UNAVAILABLE_STATE_NAMES[stateCode] || 'your state'}.
+      </h2>
+      <p style={{ fontSize: '1rem', lineHeight: 1.65, color: colors.slate700, marginBottom: 18 }}>
+        {message}
+      </p>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <Link to="/calculators" style={primaryLinkStyle()}>Open the calculators</Link>
+        <Link to="/reference" style={secondaryLinkStyle()}>Read the library</Link>
+      </div>
+    </div>
+  )
+}
+
+function BlockedInline({ state }) {
+  return (
+    <div style={{ padding: '12px 16px', background: colors.brassPale, border: `1px solid ${colors.brass}`, borderRadius: 10, fontSize: '0.92rem', color: colors.slate700, lineHeight: 1.55 }}>
+      Federal Market Associates can't currently book consultations for <strong>{UNAVAILABLE_STATE_NAMES[state]}</strong> residents. The calculators and library remain fully open to you.
+    </div>
   )
 }
 
@@ -334,137 +748,46 @@ function TrustItem({ label, body }) {
   )
 }
 
-function UnavailableState({ stateName, onChange }) {
-  return (
-    <div
-      style={{
-        background: '#ffffff',
-        borderRadius: 18,
-        padding: '40px 36px',
-        border: `1px solid ${colors.brass}`,
-      }}
-    >
-      <h2
-        style={{
-          fontFamily: FONT_SERIF,
-          fontSize: '1.6rem',
-          fontWeight: 600,
-          color: colors.pine,
-          marginBottom: 12,
-          letterSpacing: '-0.015em',
-          fontVariationSettings: '"opsz" 144, "SOFT" 50',
-        }}
-      >
-        We can't currently book consultations for {stateName} residents.
-      </h2>
-      <p style={{ fontSize: '1.02rem', lineHeight: 1.65, color: colors.slate700, marginBottom: 16 }}>
-        Federal Market Associates can't currently work with residents of {stateName} on insurance or annuity-related
-        planning. The free education tools on this site are still fully available to you — and we update the calculators
-        and library every benefit year.
-      </p>
-      <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: colors.slate500, marginBottom: 24 }}>
-        If your circumstances change (e.g., you relocate or your federal duty station shifts), come back and we'll be
-        happy to talk.
-      </p>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-        <Link
-          to="/calculators"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '12px 22px',
-            background: colors.pine,
-            color: '#ffffff',
-            borderRadius: 10,
-            fontSize: '0.95rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
-        >
-          Open the calculators
-        </Link>
-        <Link
-          to="/reference"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '12px 22px',
-            background: 'transparent',
-            color: colors.pine,
-            border: `1px solid ${colors.pine}`,
-            borderRadius: 10,
-            fontSize: '0.95rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
-        >
-          Read the library
-        </Link>
-        <button
-          type="button"
-          onClick={onChange}
-          style={{
-            padding: '12px 22px',
-            background: 'transparent',
-            color: colors.slate500,
-            border: 'none',
-            fontSize: '0.92rem',
-            fontWeight: 500,
-            cursor: 'pointer',
-            textDecoration: 'underline',
-          }}
-        >
-          Change state
-        </button>
-      </div>
-    </div>
-  )
+function primaryLinkStyle() {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '12px 22px',
+    background: colors.pine,
+    color: '#ffffff',
+    borderRadius: 10,
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    textDecoration: 'none',
+  }
 }
 
-function CalendlyEmbed({ stateName, onChange }) {
-  return (
-    <div>
-      <div
-        style={{
-          marginBottom: 18,
-          padding: '14px 18px',
-          background: colors.sagePale,
-          borderRadius: 12,
-          fontSize: '0.92rem',
-          color: colors.pine,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
-        <span>
-          Booking for <strong>{stateName}</strong>. Pick any open slot below.
-        </span>
-        <button
-          type="button"
-          onClick={onChange}
-          style={{
-            background: 'transparent',
-            color: colors.brassDeep,
-            border: 'none',
-            fontSize: '0.88rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            textDecoration: 'underline',
-          }}
-        >
-          Change state
-        </button>
-      </div>
-      <div
-        className="calendly-inline-widget"
-        data-url={CALENDLY_EMBED_URL}
-        style={{ minWidth: 320, height: 720, borderRadius: 16, overflow: 'hidden', background: colors.cream }}
-      />
-    </div>
-  )
+function secondaryLinkStyle() {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '12px 22px',
+    background: 'transparent',
+    color: colors.pine,
+    border: `1px solid ${colors.pine}`,
+    borderRadius: 10,
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    textDecoration: 'none',
+  }
+}
+
+const inputBox = {
+  display: 'block',
+  width: '100%',
+  padding: '11px 14px',
+  fontSize: '0.95rem',
+  border: `1px solid ${colors.borderLight || '#cbd5e1'}`,
+  borderRadius: 10,
+  fontFamily: FONT_SANS,
+  color: colors.charcoal,
+  background: '#ffffff',
+  marginTop: 6,
 }

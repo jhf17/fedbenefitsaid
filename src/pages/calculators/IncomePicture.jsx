@@ -75,7 +75,25 @@ function estimateFederalEffectiveRate(annualIncome, filingStatus = 'mfj') {
   return annualIncome > 0 ? tax / annualIncome : 0
 }
 
-export default function IncomeGap() {
+// IRS provisional-income test (IRS Pub. 915) — determines what portion of
+// Social Security benefits is included in taxable income. Up to 85% may be
+// taxable for high-income retirees; less for lower-income.
+function taxableSsAmount(annualSsBenefits, otherIncome, filingStatus) {
+  if (annualSsBenefits <= 0) return 0
+  const provisional = otherIncome + 0.5 * annualSsBenefits
+  const t1 = filingStatus === 'mfj' ? 32000 : 25000
+  const t2 = filingStatus === 'mfj' ? 44000 : 34000
+  if (provisional <= t1) return 0
+  if (provisional <= t2) {
+    return Math.min(0.5 * annualSsBenefits, 0.5 * (provisional - t1))
+  }
+  // Provisional > t2
+  const tier1 = Math.min(0.5 * annualSsBenefits, 0.5 * (t2 - t1))
+  const tier2 = 0.85 * (provisional - t2)
+  return Math.min(0.85 * annualSsBenefits, tier1 + tier2)
+}
+
+export default function IncomePicture() {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 900)
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 900)
@@ -136,10 +154,18 @@ export default function IncomeGap() {
     }
 
     const annualIncome = preTaxMonthly * 12
-    const effectiveFedRate = estimateFederalEffectiveRate(annualIncome, filingStatus)
+    // SS tax: apply IRS provisional-income test (Pub. 915). Up to 85% of SS may
+    // be federally taxable; the rest is exempt. State tax usually follows the
+    // federal taxable amount (some states exempt all SS; we approximate by
+    // applying state rate to the same taxable base).
+    const annualSs = (scenario === 'before62' ? 0 : ss) * 12
+    const otherTaxableIncome = annualIncome - annualSs
+    const taxableSs = taxableSsAmount(annualSs, otherTaxableIncome, filingStatus)
+    const annualTaxableIncome = otherTaxableIncome + taxableSs
+    const effectiveFedRate = estimateFederalEffectiveRate(annualTaxableIncome, filingStatus)
     const stateRateDecimal = (Number(stateRate) || 0) / 100
-    const monthlyFedTax = (annualIncome * effectiveFedRate) / 12
-    const monthlyStateTax = (annualIncome * stateRateDecimal) / 12
+    const monthlyFedTax = (annualTaxableIncome * effectiveFedRate) / 12
+    const monthlyStateTax = (annualTaxableIncome * stateRateDecimal) / 12
 
     const monthlyHealthCare = scenario === 'after65' ? medB + fehb : fehb
 
@@ -174,9 +200,9 @@ export default function IncomeGap() {
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
-        title="Retirement Income Gap Calculator"
-        description="See if your federal pension + Social Security + TSP withdrawals will cover your current take-home — or where the gap is."
-        path="/calculators/income-gap"
+        title="Full Income Picture Calculator"
+        description="Layer your federal pension, FERS Supplement, Social Security, and TSP withdrawals against your current take-home. See the full income picture — pre-tax, after federal/state tax, and net of FEHB + Medicare."
+        path="/calculators/income-picture"
       />
 
       <header
@@ -208,7 +234,7 @@ export default function IncomeGap() {
               marginBottom: 14,
             }}
           >
-            Income Gap · Updated {DATA_LAST_UPDATED}
+            Full Income Picture · Updated {DATA_LAST_UPDATED}
           </div>
           <h1
             style={{
@@ -221,14 +247,13 @@ export default function IncomeGap() {
               marginBottom: 18,
             }}
           >
-            Retirement Income Gap <br />
+            Full Income Picture <br />
             <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
-              Pension + SS + TSP vs your current take-home.
+              Pension + Supplement + SS + TSP vs your current take-home.
             </span>
           </h1>
           <p style={{ fontSize: '1.12rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 660 }}>
-            Most federal employees underestimate the gap between their current take-home and their retirement income.
-            Plug in the numbers your other calculators gave you. We'll show you the gap honestly — pre-tax, after federal/state tax, and net of FEHB + Medicare.
+            The three (or four) legs of federal retirement income — pension, FERS Supplement, Social Security, TSP — laid out side-by-side against your current take-home. Pre-tax, after federal/state tax, and net of FEHB + Medicare. Honest math, no spin.
           </p>
         </div>
       </header>
@@ -503,8 +528,7 @@ export default function IncomeGap() {
               Most gaps have three or four real fixes.
             </h3>
             <p style={{ fontSize: '0.98rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.78)' }}>
-              Working a year longer for the 1.1% kicker. Adjusting TSP withdrawal strategy. Timing Social Security
-              differently. We can walk through which ones are realistic for you in 15 minutes.
+              Working a year longer for the 1.1% kicker. Adjusting TSP withdrawal strategy. Timing Social Security differently. We can walk through which ones are realistic for you — meeting is free, no time limit.
             </p>
           </div>
           <Link

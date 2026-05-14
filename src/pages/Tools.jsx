@@ -10,7 +10,7 @@ const CALCULATORS = [
   {
     title: 'FERS Pension',
     blurb:
-      'For employees hired into the standard FERS system. Customizable retirement-date scenarios, side-by-side comparison, the 1.0%/1.1% multiplier, and the FERS Supplement.',
+      'For employees hired into the standard FERS system. Customizable retirement-date scenarios, side-by-side comparison, and the 1.0%/1.1% multiplier.',
     href: '/calculators/fers',
     eyebrow: 'Standard FERS',
   },
@@ -29,6 +29,13 @@ const CALCULATORS = [
     eyebrow: 'LEO · FF · ATC · CP · SS-UD · NMC',
   },
   {
+    title: 'High-3 Salary',
+    blurb:
+      'Average your three highest consecutive years of base pay — the figure every pension formula starts from. Enter your salary history; we find the optimal 36-month window.',
+    href: '/calculators/high-3',
+    eyebrow: 'Pension building block',
+  },
+  {
     title: 'FEGLI Cost Over Time',
     blurb:
       'See exactly how your federal life-insurance premiums change after age 50, 60, 65 — through age 80. Most federal employees are surprised by what happens at 65.',
@@ -36,10 +43,10 @@ const CALCULATORS = [
     eyebrow: 'Life insurance',
   },
   {
-    title: 'Retirement Income Gap',
+    title: 'Full Income Picture',
     blurb:
-      'Combine your pension + Social Security + TSP withdrawals — net of federal/state tax and FEHB/Medicare — and compare to your current take-home. Honest, not optimistic.',
-    href: '/calculators/income-gap',
+      'Combine your pension, FERS Supplement, Social Security, and TSP withdrawals — net of federal/state tax and FEHB/Medicare — and compare to your current take-home. Honest, not optimistic.',
+    href: '/calculators/income-picture',
     eyebrow: 'Whole-picture income',
   },
   {

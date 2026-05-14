@@ -152,11 +152,12 @@ export function fersPension({ birthDate, hireDate, retireDate, currentBasicPay, 
   } else if (yos >= 10 && ageAtRetirement >= mra) {
     category = 'mra-10'
     categoryLabel = 'MRA + 10 (Reduced)'
-    // Reduce 5%/yr under 62 (or under 60 if YOS ≥ 20)
-    const targetUnreducedAge = yos >= 20 ? 60 : 62
-    const yearsUnder = Math.max(0, targetUnreducedAge - ageAtRetirement)
+    // MRA+10 immediate retirement: annuity reduced 5%/year under age 62.
+    // (The "under 60 with 20+ YOS" carve-out belongs to *postponed* MRA+10,
+    //  not immediate MRA+10. See 5 USC 8415(f) and OPM CSRS-FERS Handbook ch. 42.)
+    const yearsUnder = Math.max(0, 62 - ageAtRetirement)
     reduction = yearsUnder * 0.05
-    reductionDetail = `Reduced ${(reduction * 100).toFixed(1)}% (${formatYearsMonths(yearsUnder)} under ${targetUnreducedAge})`
+    reductionDetail = `Reduced ${(reduction * 100).toFixed(1)}% (${formatYearsMonths(yearsUnder)} under age 62). Postponing the annuity start avoids the penalty.`
     supplementEligible = false // MRA+10 is not eligible
   } else if (yos >= 5) {
     category = 'deferred'
@@ -177,13 +178,15 @@ export function fersPension({ birthDate, hireDate, retireDate, currentBasicPay, 
     annualAnnuity = high3 * yos * multiplier * (1 - reduction)
   }
 
-  // FERS Supplement (only if eligible)
+  // FERS Supplement (only if eligible). Per OPM (CSRS-FERS Handbook ch. 51):
+  // formula uses *whole years* of FERS civilian service (rounded DOWN, max 40),
+  // divided by 40 and multiplied by the SS-at-62 estimate.
   let supplementAnnual = 0
   if (supplementEligible && ssEstimateAt62 > 0) {
-    // ssEstimateAt62 is monthly; convert to annual estimate at 62
     const annualSsAt62 = ssEstimateAt62 * 12
-    const civilianFersYears = yos - sickLeaveYears(sickLeaveHours) // sick leave doesn't count toward supplement
-    supplementAnnual = annualSsAt62 * (Math.min(civilianFersYears, 40) / 40)
+    const civilianFersYears = yos - sickLeaveYears(sickLeaveHours) // sick leave doesn't count
+    const wholeYearsForSupplement = Math.min(40, Math.floor(civilianFersYears))
+    supplementAnnual = annualSsAt62 * (wholeYearsForSupplement / 40)
   }
 
   return {
@@ -303,6 +306,10 @@ export function csrsPension({ birthDate, hireDate, retireDate, currentBasicPay, 
 // test until MRA. Same approximation formula.
 export function specialProvisionsPension({ birthDate, hireDate, retireDate, currentBasicPay, sickLeaveHours = 0, growthRate = 0.02, ssEstimateAt62 = 0, additionalRegularYears = 0 }) {
   const ageAtRetirement = computeAge({ birthDate, asOfDate: retireDate })
+  // For eligibility: SP service WITHOUT sick leave (5 USC 8415(g)(2);
+  // OPM Handbook ch. 50). Sick leave counts only in the annuity computation.
+  const specialServiceYears = computeServiceYears({ hireDate, retireDate, sickLeaveHours: 0 })
+  // For annuity computation: include sick leave credit.
   const specialYos = computeServiceYears({ hireDate, retireDate, sickLeaveHours })
   const high3 = projectHigh3({ currentBasicPay, currentDate: new Date().toISOString().slice(0, 7), retireDate, growthRate })
 
@@ -312,23 +319,23 @@ export function specialProvisionsPension({ birthDate, hireDate, retireDate, curr
   const mra = mraForBirthYear(birthYear)
   const totalYos = specialYos + additionalRegularYears
 
-  // Eligibility (special provisions)
+  // Eligibility (special provisions) — uses actual SP service, NOT sick-leave-padded.
   let category = null
   let categoryLabel = null
   let supplementEligible = false
-  if (specialYos >= 25) {
+  if (specialServiceYears >= 25) {
     category = 'sp-any-25'
     categoryLabel = 'Immediate Unreduced (Any age + 25 yrs Special Provisions service)'
     supplementEligible = true
-  } else if (specialYos >= 20 && ageAtRetirement >= 50) {
+  } else if (specialServiceYears >= 20 && ageAtRetirement >= 50) {
     category = 'sp-50-20'
     categoryLabel = 'Immediate Unreduced (Age 50 + 20 yrs Special Provisions service)'
     supplementEligible = true
-  } else if (specialYos >= 5 && ageAtRetirement >= 62) {
+  } else if (specialServiceYears >= 5 && ageAtRetirement >= 62) {
     category = 'fers-62-5'
     categoryLabel = 'Standard FERS Immediate (Age 62 + 5 — falls back to standard FERS rules)'
     supplementEligible = false
-  } else if (specialYos >= 5) {
+  } else if (specialServiceYears >= 5) {
     category = 'deferred'
     categoryLabel = 'Deferred / standard FERS rules apply (no Special Provisions benefit)'
   } else {
@@ -336,10 +343,8 @@ export function specialProvisionsPension({ birthDate, hireDate, retireDate, curr
     categoryLabel = 'Not yet eligible'
   }
 
-  // Annuity formula
-  // First 20 yrs of special-provisions service: 1.7%
-  // Years beyond 20 of SP service: 1.0%
-  // Plus additional regular FERS service (if any) at 1.0% / 1.1% (if 62+ and 20+ total)
+  // Annuity formula (uses sick-leave-padded years):
+  //   First 20 yrs SP × 1.7% + remaining SP yrs × 1.0% + regular FERS yrs × 1.0%/1.1%
   const sp1 = Math.min(specialYos, 20)
   const sp2 = Math.max(specialYos - 20, 0)
   const standardMult = ageAtRetirement >= 62 && totalYos >= 20 ? 0.011 : 0.010
@@ -348,12 +353,13 @@ export function specialProvisionsPension({ birthDate, hireDate, retireDate, curr
       ? high3 * (0.017 * sp1 + 0.010 * sp2 + standardMult * additionalRegularYears)
       : 0
 
-  // FERS Supplement
+  // FERS Supplement — whole years of civilian FERS service (no sick leave), capped at 40, divided by 40.
   let supplementAnnual = 0
   if (supplementEligible && ssEstimateAt62 > 0) {
     const annualSsAt62 = ssEstimateAt62 * 12
     const civilianFersYears = totalYos - sickLeaveYears(sickLeaveHours)
-    supplementAnnual = annualSsAt62 * (Math.min(civilianFersYears, 40) / 40)
+    const wholeYearsForSupplement = Math.min(40, Math.floor(civilianFersYears))
+    supplementAnnual = annualSsAt62 * (wholeYearsForSupplement / 40)
   }
 
   return {
