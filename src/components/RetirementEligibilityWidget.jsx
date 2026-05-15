@@ -69,6 +69,86 @@ function supplementApplies(ageAtMilestone) {
   return ageAtMilestone < 62
 }
 
+// Filter the full list of FERS milestones down to the ones that meaningfully
+// inform a retirement decision for THIS user. Goal: show their current/earliest
+// path + the Age-62 kicker, hiding milestones that are dominated by better
+// options (e.g., MRA+10 reduced when they already qualify for an unreduced
+// path, MRA+30 when 60+20 covers it first, etc.).
+//
+// Rules (FERS only; CSRS keeps the full list):
+//   1. Pick ONE current/earliest path (best unreduced first, MRA+10 last).
+//   2. Always include Age 62+20 (1.1% kicker) if user will hit 20 YOS by 62.
+//   3. Include Age 62+5 ONLY when current path is MRA+10 Reduced — so the
+//      user sees that unreduced retirement is coming at 62.
+function filterFersMilestones(stones, { birthYear, hireYear, nowYear }) {
+  const byType = {}
+  for (const m of stones) {
+    if (m.title.startsWith('MRA + 10')) byType.mra10 = m
+    else if (m.title.startsWith('MRA + 30')) byType.mra30 = m
+    else if (m.title.startsWith('Age 60 + 20')) byType.a60_20 = m
+    else if (m.title.startsWith('Age 62 + 5')) byType.a62_5 = m
+    else if (m.title.startsWith('Age 62 + 20')) byType.a62_20 = m
+  }
+
+  const currentAge = nowYear - birthYear
+  const currentYos = nowYear - hireYear // doesn't include sick leave — close enough for filtering
+  const yosAt62 = birthYear + 62 - hireYear
+  const has30AtMraOrEarlier = byType.mra30 && byType.mra30.age < 60
+
+  const out = []
+  let currentPathKey = null
+
+  // 1. Current/earliest immediate path (single row).
+  if (currentAge >= 62 && currentYos >= 5) {
+    // Past 62 — show the appropriate Age 62 milestone (kicker if eligible, else basic)
+    if (currentYos >= 20 && byType.a62_20) {
+      out.push(byType.a62_20)
+      currentPathKey = 'a62_20'
+    } else if (byType.a62_5) {
+      out.push(byType.a62_5)
+      currentPathKey = 'a62_5'
+    }
+  } else if (has30AtMraOrEarlier && nowYear >= byType.mra30.year) {
+    // Currently eligible for MRA+30 (immediate unreduced + Supplement)
+    out.push(byType.mra30)
+    currentPathKey = 'mra30'
+  } else if (currentAge >= 60 && currentYos >= 20 && byType.a60_20) {
+    // Currently 60+ with 20+ YOS — immediate unreduced + Supplement
+    out.push(byType.a60_20)
+    currentPathKey = 'a60_20'
+  } else if (byType.mra10 && nowYear >= byType.mra10.year && currentYos >= 10) {
+    // At MRA with 10+ YOS but not yet at a better unreduced path
+    out.push(byType.mra10)
+    currentPathKey = 'mra10'
+  } else {
+    // No current eligibility — show the user's earliest FUTURE immediate option
+    // Prefer MRA+30 (with Supplement), then 60+20, then MRA+10.
+    const futureCandidates = []
+    if (has30AtMraOrEarlier) futureCandidates.push(['mra30', byType.mra30])
+    if (byType.a60_20) futureCandidates.push(['a60_20', byType.a60_20])
+    if (byType.mra10) futureCandidates.push(['mra10', byType.mra10])
+    if (futureCandidates.length > 0) {
+      futureCandidates.sort((a, b) => a[1].year - b[1].year)
+      const [key, m] = futureCandidates[0]
+      out.push(m)
+      currentPathKey = key
+    }
+  }
+
+  // 2. Age 62+5 — only if current path is MRA+10 (reduced) to flag the upgrade.
+  if (currentPathKey === 'mra10' && byType.a62_5 && !out.includes(byType.a62_5)) {
+    // Only meaningful if user reaches 62 with 5+ YOS (almost always true here)
+    if (yosAt62 >= 5) out.push(byType.a62_5)
+  }
+
+  // 3. Age 62+20 (1.1% kicker) — always include if eligible AND not redundant.
+  if (byType.a62_20 && !out.includes(byType.a62_20) && yosAt62 >= 20) {
+    out.push(byType.a62_20)
+  }
+
+  return out.sort((a, b) => a.year - b.year || a.age - b.age)
+}
+
 // Given birth year + hire year, compute each milestone date.
 // `system` is the code ('fers' | 'csrs') derived from hire year.
 function buildMilestones({ birthYear, hireYear, system }) {
@@ -160,7 +240,9 @@ function buildMilestones({ birthYear, hireYear, system }) {
     supplementEligible: false,
   })
 
-  return stones.sort((a, b) => a.year - b.year || a.age - b.age)
+  // Filter down to the milestones that meaningfully inform this user's decision.
+  const nowYear = new Date().getFullYear()
+  return filterFersMilestones(stones, { birthYear, hireYear, nowYear })
 }
 
 export default function RetirementEligibilityWidget({ isMobile, fontSerifOverride, fontSansOverride }) {

@@ -439,94 +439,60 @@ export default function Landing() {
           background: `linear-gradient(180deg, ${colors.cream} 0%, ${colors.bone} 100%)`,
         }}
       >
-        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: isMobile ? '1fr' : '180px 1fr',
-              gap: isMobile ? 24 : 48,
-              alignItems: 'center',
+              fontSize: '0.74rem',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: colors.brassDeep,
+              marginBottom: 10,
             }}
           >
-            <div
-              style={{
-                width: isMobile ? 140 : 180,
-                height: isMobile ? 140 : 180,
-                borderRadius: '50%',
-                background: `linear-gradient(135deg, ${colors.sage}, ${colors.pine})`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#ffffff',
-                fontFamily: FONT_SERIF,
-                fontSize: isMobile ? '2.4rem' : '3rem',
-                fontWeight: 600,
-                margin: isMobile ? '0 auto' : 0,
-                boxShadow: '0 12px 32px rgba(31,61,44,0.18)',
-                fontVariationSettings: '"opsz" 144, "SOFT" 50',
-              }}
-              aria-label="Jack Fitzgerald headshot placeholder"
-            >
-              JF
-            </div>
-            <div style={{ textAlign: isMobile ? 'center' : 'left' }}>
-              <div
-                style={{
-                  fontSize: '0.74rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: colors.brassDeep,
-                  marginBottom: 10,
-                }}
-              >
-                The person behind the site
-              </div>
-              <h2
-                style={{
-                  fontFamily: FONT_SERIF,
-                  fontSize: isMobile ? '1.7rem' : '2.1rem',
-                  fontWeight: 600,
-                  color: colors.pine,
-                  lineHeight: 1.18,
-                  letterSpacing: '-0.015em',
-                  marginBottom: 14,
-                  fontVariationSettings: '"opsz" 144, "SOFT" 50',
-                }}
-              >
-                Built &amp; maintained by Jack Fitzgerald.
-              </h2>
-              <p
-                style={{
-                  fontSize: '1.02rem',
-                  lineHeight: 1.65,
-                  color: colors.slate700,
-                  marginBottom: 18,
-                  maxWidth: 540,
-                  marginLeft: isMobile ? 'auto' : undefined,
-                  marginRight: isMobile ? 'auto' : undefined,
-                }}
-              >
-                Federal Market Associates is a federal-benefits education practice. The site is free; the conversation
-                is on-demand. When you book a call, you'll talk to Jack — not a chatbot, not a queue.
-              </p>
-              <Link
-                to="/about"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  fontSize: '0.95rem',
-                  fontWeight: 600,
-                  color: colors.brassDeep,
-                  textDecoration: 'none',
-                }}
-              >
-                Read the full story
-                <span aria-hidden>→</span>
-              </Link>
-            </div>
+            About the site
           </div>
+          <h2
+            style={{
+              fontFamily: FONT_SERIF,
+              fontSize: isMobile ? '1.7rem' : '2.1rem',
+              fontWeight: 600,
+              color: colors.pine,
+              lineHeight: 1.18,
+              letterSpacing: '-0.015em',
+              marginBottom: 14,
+              fontVariationSettings: '"opsz" 144, "SOFT" 50',
+            }}
+          >
+            A free education resource for federal employees.
+          </h2>
+          <p
+            style={{
+              fontSize: '1.02rem',
+              lineHeight: 1.65,
+              color: colors.slate700,
+              marginBottom: 18,
+              maxWidth: 560,
+              margin: '0 auto 18px',
+            }}
+          >
+            FedBenefitsAid is built and maintained by Federal Market Associates — a federal-benefits education practice. The calculators and library are free. The meeting, if you want one, is free too — no time limit, no pressure.
+          </p>
+          <Link
+            to="/about"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: '0.95rem',
+              fontWeight: 600,
+              color: colors.brassDeep,
+              textDecoration: 'none',
+            }}
+          >
+            Read the full story
+            <span aria-hidden>→</span>
+          </Link>
         </div>
       </section>
 
