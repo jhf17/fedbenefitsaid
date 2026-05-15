@@ -131,13 +131,31 @@ export function fersPension({ birthDate, hireDate, retireDate, currentBasicPay, 
   const mra = mraForBirthYear(birthYear)
 
   // Eligibility category
+  // Note: the category labels follow the user's actual retirement age &
+  // service. When someone retires at 62+ with 20+ YOS, we label them under
+  // the Age 62 rule (with the 1.1% kicker), not Age 60+20 — even though
+  // they were technically eligible earlier. The Age 62 framing is more
+  // useful because:
+  //   (a) the multiplier kicker only applies at age 62+,
+  //   (b) the FERS Supplement stops at 62, so attributing them to a
+  //       Supplement-eligible rule when they're past 62 is misleading.
   let category = null
   let categoryLabel = null
   let supplementEligible = false
   let reduction = 0
   let reductionDetail = ''
 
-  if (yos >= 30 && ageAtRetirement >= mra) {
+  if (ageAtRetirement >= 62 && yos >= 5) {
+    // Age 62+ retirement: already SS-eligible, no FERS Supplement.
+    if (yos >= 20) {
+      category = 'immediate-62-20'
+      categoryLabel = 'Immediate Unreduced (Age 62 + 20, 1.1% kicker)'
+    } else {
+      category = 'immediate-62-5'
+      categoryLabel = 'Immediate Unreduced (Age 62 + 5)'
+    }
+    supplementEligible = false
+  } else if (yos >= 30 && ageAtRetirement >= mra) {
     category = 'immediate-mra30'
     categoryLabel = 'Immediate Unreduced (MRA + 30)'
     supplementEligible = true
@@ -145,10 +163,6 @@ export function fersPension({ birthDate, hireDate, retireDate, currentBasicPay, 
     category = 'immediate-60-20'
     categoryLabel = 'Immediate Unreduced (Age 60 + 20)'
     supplementEligible = true
-  } else if (yos >= 5 && ageAtRetirement >= 62) {
-    category = 'immediate-62-5'
-    categoryLabel = 'Immediate Unreduced (Age 62 + 5)'
-    supplementEligible = false // already eligible for SS
   } else if (yos >= 10 && ageAtRetirement >= mra) {
     category = 'mra-10'
     categoryLabel = 'MRA + 10 (Reduced)'
@@ -342,6 +356,11 @@ export function specialProvisionsPension({ birthDate, hireDate, retireDate, curr
     category = 'ineligible'
     categoryLabel = 'Not yet eligible'
   }
+
+  // FERS Supplement is paid only until age 62. SP retirees who retire at 62+
+  // are already SS-eligible, so the Supplement doesn't apply even if they
+  // qualified under sp-any-25 / sp-50-20.
+  if (ageAtRetirement >= 62) supplementEligible = false
 
   // Annuity formula (uses sick-leave-padded years):
   //   First 20 yrs SP × 1.7% + remaining SP yrs × 1.0% + regular FERS yrs × 1.0%/1.1%
