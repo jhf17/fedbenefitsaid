@@ -85,11 +85,9 @@ export default function PensionScenarioCalculator({
     extraInputs.reduce((acc, i) => ({ ...acc, [i.name]: i.defaultValue ?? 0 }), {})
   )
 
-  // Scenarios
+  // Scenarios — start with one. Users can add more via the "Add another scenario" button.
   const [scenarios, setScenarios] = useState(() => [
-    { id: 1, label: 'Earliest', retireDate: yearsFromNow(5) },
-    { id: 2, label: 'Middle path', retireDate: yearsFromNow(10) },
-    { id: 3, label: 'Maximize benefit', retireDate: yearsFromNow(15) },
+    { id: 1, label: 'Scenario 1', retireDate: yearsFromNow(5) },
   ])
 
   const addScenario = () => {
@@ -693,8 +691,40 @@ function ScenarioCard({ scenario, result, renderExtra }) {
           )}
 
           {supplementEligible && (
-            <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(184,134,11,0.08)', borderRadius: 8, fontSize: '0.78rem', color: colors.brassDeep, lineHeight: 1.5 }}>
-              <strong>FERS Supplement eligible</strong> — bridges your pension to age 62. To see the dollar estimate, run the <Link to="/calculators/income-picture" style={{ color: colors.brassDeep, textDecoration: 'underline' }}>Full Income Picture</Link> calculator.
+            <div
+              style={{
+                marginTop: 14,
+                padding: '14px 16px',
+                background: `linear-gradient(135deg, rgba(184,134,11,0.10) 0%, rgba(176,141,90,0.10) 100%)`,
+                border: `1px solid ${colors.brass}`,
+                borderRadius: 10,
+                fontFamily: FONT_SANS,
+              }}
+            >
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.brassDeep, marginBottom: 4 }}>
+                FERS Supplement eligible
+              </div>
+              <div style={{ fontSize: '0.82rem', color: colors.slate700, lineHeight: 1.55, marginBottom: 10 }}>
+                You'll receive an additional bridge payment from retirement until age 62. To see the dollar amount layered into your full retirement income — alongside Social Security, TSP withdrawals, FEHB, and Medicare — open the Full Income Picture calculator.
+              </div>
+              <Link
+                to="/calculators/income-picture"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 16px',
+                  background: colors.brass,
+                  color: '#ffffff',
+                  borderRadius: 8,
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                See your Full Income Picture <span aria-hidden>→</span>
+              </Link>
             </div>
           )}
 
