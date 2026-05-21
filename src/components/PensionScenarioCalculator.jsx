@@ -75,10 +75,8 @@ export default function PensionScenarioCalculator({
   // Common inputs
   const [birthDate, setBirthDate] = useState('1972-06')
   const [hireDate, setHireDate] = useState('2008-09')
-  const [currentBasicPay, setCurrentBasicPay] = useState(95000)
+  const [high3Salary, setHigh3Salary] = useState(95000)
   const [sickLeaveHours, setSickLeaveHours] = useState(0)
-  const [growthRate, setGrowthRate] = useState(2)
-  const [advancedOpen, setAdvancedOpen] = useState(false)
 
   // System-specific extra inputs
   const [extraValues, setExtraValues] = useState(() =>
@@ -111,14 +109,13 @@ export default function PensionScenarioCalculator({
         birthDate,
         hireDate,
         retireDate: s.retireDate,
-        currentBasicPay: Number(currentBasicPay) || 0,
+        high3: Number(high3Salary) || 0,
         sickLeaveHours: Number(sickLeaveHours) || 0,
-        growthRate: Number(growthRate) / 100,
         ...extraValues,
       })
       return { scenario: s, result }
     })
-  }, [scenarios, birthDate, hireDate, currentBasicPay, sickLeaveHours, growthRate, extraValues, calc])
+  }, [scenarios, birthDate, hireDate, high3Salary, sickLeaveHours, extraValues, calc])
 
   // Chart: pension by retirement age, year-by-year from MRA-ish through age 70
   const chartData = useMemo(() => {
@@ -133,9 +130,8 @@ export default function PensionScenarioCalculator({
         birthDate,
         hireDate,
         retireDate,
-        currentBasicPay: Number(currentBasicPay) || 0,
+        high3: Number(high3Salary) || 0,
         sickLeaveHours: Number(sickLeaveHours) || 0,
-        growthRate: Number(growthRate) / 100,
         ...extraValues,
       })
       if (r && r.annualAnnuity != null) {
@@ -148,7 +144,7 @@ export default function PensionScenarioCalculator({
       }
     }
     return data
-  }, [birthDate, hireDate, currentBasicPay, sickLeaveHours, growthRate, extraValues, calc])
+  }, [birthDate, hireDate, high3Salary, sickLeaveHours, extraValues, calc])
 
   const eligibleScenarios = results.filter((r) => r.result && r.result.category && r.result.category !== 'ineligible')
 
@@ -213,17 +209,17 @@ export default function PensionScenarioCalculator({
           </label>
 
           <label style={labelText}>
-            Current basic pay (used to project High-3)
+            High-3 average salary
             <input
               type="number"
-              value={currentBasicPay}
-              onChange={(e) => setCurrentBasicPay(e.target.value)}
+              value={high3Salary}
+              onChange={(e) => setHigh3Salary(e.target.value)}
               min="0"
               step="500"
               style={inputBox}
             />
             <span style={helpText}>
-              Base salary + locality (no overtime/bonuses/awards). The calculator projects this forward using your pay-growth assumption and averages your final 36 months at retirement — that average is your High-3, shown in each scenario card. If your client is already at or near retirement and you know their actual High-3, you can enter it here.
+              Average of the highest 36 consecutive months of basic pay (base salary + locality, no overtime/bonuses/awards). Use the <Link to="/calculators/high-3" style={{ color: colors.brassDeep, fontWeight: 600 }}>High-3 calculator</Link> if you need to project it for a future retirement date.
             </span>
           </label>
 
@@ -256,46 +252,6 @@ export default function PensionScenarioCalculator({
           ))}
         </div>
 
-        {/* Advanced toggle — pay-growth assumption */}
-        <div style={{ marginTop: 18 }}>
-          <button
-            type="button"
-            onClick={() => setAdvancedOpen((o) => !o)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              fontSize: '0.86rem',
-              fontWeight: 600,
-              color: colors.brassDeep,
-              fontFamily: FONT_SANS,
-              letterSpacing: '0.01em',
-            }}
-            aria-expanded={advancedOpen}
-          >
-            {advancedOpen ? '− Hide' : '+ Show'} advanced settings
-          </button>
-          {advancedOpen && (
-            <div style={{ marginTop: 12, padding: 16, background: colors.cream, borderRadius: 10, border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
-              <label style={labelText}>
-                Expected annual GS pay raise (%)
-                <input
-                  type="number"
-                  value={growthRate}
-                  onChange={(e) => setGrowthRate(e.target.value)}
-                  min="0"
-                  max="10"
-                  step="0.1"
-                  style={inputBox}
-                />
-                <span style={helpText}>
-                  Used to project your salary forward to retirement, since the High-3 averages your last three years of pay. 2.0% is a conservative recent average. <strong>This is not COLA</strong> — COLA only affects the annuity after you retire.
-                </span>
-              </label>
-            </div>
-          )}
-        </div>
       </section>
 
       {/* SCENARIOS */}
@@ -470,7 +426,7 @@ export default function PensionScenarioCalculator({
             Monthly pension by retirement age
           </h2>
           <p style={{ fontSize: '0.92rem', color: colors.slate500, marginBottom: 18 }}>
-            Monthly pension by retirement age, holding your pay growth and service constant. Vertical dashes mark the scenarios you've set up above.
+            Monthly pension at each retirement age, using the High-3 you entered. Vertical dashes mark the scenarios you've set up above.
           </p>
 
           <div style={{ width: '100%', height: 320 }}>
@@ -684,7 +640,7 @@ function ScenarioCard({ scenario, result, renderExtra }) {
         <>
           <Stat label="Monthly pension" value={formatCurrency(monthlyAnnuity)} large />
           <Stat label="Annual pension" value={formatCurrency(annualAnnuity)} />
-          {high3 != null && <Stat label="High-3 (projected)" value={formatCurrency(high3)} />}
+          {high3 != null && <Stat label="High-3 used" value={formatCurrency(high3)} />}
           {multiplier != null && <Stat label="Multiplier" value={`${(multiplier * 100).toFixed(1)}%`} />}
           {reductionDetail && (
             <div style={{ fontSize: '0.78rem', color: colors.brassDeep, marginTop: 4, marginBottom: 6 }}>

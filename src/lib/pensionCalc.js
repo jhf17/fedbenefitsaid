@@ -120,12 +120,11 @@ export function computeAge({ birthDate, asOfDate }) {
 //   Paid until age 62. Earnings test: $1 reduced per $2 over annual limit
 //   (2026: $24,480). Not subject to earnings test until MRA for special
 //   retirees.
-export function fersPension({ birthDate, hireDate, retireDate, currentBasicPay, sickLeaveHours = 0, growthRate = 0.02, ssEstimateAt62 = 0 }) {
+export function fersPension({ birthDate, hireDate, retireDate, high3, sickLeaveHours = 0, ssEstimateAt62 = 0 }) {
   const ageAtRetirement = computeAge({ birthDate, asOfDate: retireDate })
   const yos = computeServiceYears({ hireDate, retireDate, sickLeaveHours })
-  const high3 = projectHigh3({ currentBasicPay, currentDate: hireDate ? new Date().toISOString().slice(0, 7) : null, retireDate, growthRate })
 
-  if (ageAtRetirement == null || yos == null || high3 == null) return null
+  if (ageAtRetirement == null || yos == null || high3 == null || high3 <= 0) return null
 
   const birthYear = parseInt(birthDate.split('-')[0], 10)
   const mra = mraForBirthYear(birthYear)
@@ -239,12 +238,11 @@ export function fersPension({ birthDate, hireDate, retireDate, currentBasicPay, 
 //
 // COLA: starts immediately at retirement (unlike FERS, which waits to 62).
 // No FERS Supplement. No 1.1% kicker. No SS earned from federal service.
-export function csrsPension({ birthDate, hireDate, retireDate, currentBasicPay, sickLeaveHours = 0, growthRate = 0.02 }) {
+export function csrsPension({ birthDate, hireDate, retireDate, high3, sickLeaveHours = 0 }) {
   const ageAtRetirement = computeAge({ birthDate, asOfDate: retireDate })
   const yos = computeServiceYears({ hireDate, retireDate, sickLeaveHours })
-  const high3 = projectHigh3({ currentBasicPay, currentDate: new Date().toISOString().slice(0, 7), retireDate, growthRate })
 
-  if (ageAtRetirement == null || yos == null || high3 == null) return null
+  if (ageAtRetirement == null || yos == null || high3 == null || high3 <= 0) return null
 
   // Eligibility
   let category = null
@@ -318,16 +316,15 @@ export function csrsPension({ birthDate, hireDate, retireDate, currentBasicPay, 
 //
 // FERS Supplement: paid from retirement until 62. NOT subject to earnings
 // test until MRA. Same approximation formula.
-export function specialProvisionsPension({ birthDate, hireDate, retireDate, currentBasicPay, sickLeaveHours = 0, growthRate = 0.02, ssEstimateAt62 = 0, additionalRegularYears = 0 }) {
+export function specialProvisionsPension({ birthDate, hireDate, retireDate, high3, sickLeaveHours = 0, ssEstimateAt62 = 0, additionalRegularYears = 0 }) {
   const ageAtRetirement = computeAge({ birthDate, asOfDate: retireDate })
   // For eligibility: SP service WITHOUT sick leave (5 USC 8415(g)(2);
   // OPM Handbook ch. 50). Sick leave counts only in the annuity computation.
   const specialServiceYears = computeServiceYears({ hireDate, retireDate, sickLeaveHours: 0 })
   // For annuity computation: include sick leave credit.
   const specialYos = computeServiceYears({ hireDate, retireDate, sickLeaveHours })
-  const high3 = projectHigh3({ currentBasicPay, currentDate: new Date().toISOString().slice(0, 7), retireDate, growthRate })
 
-  if (ageAtRetirement == null || specialYos == null || high3 == null) return null
+  if (ageAtRetirement == null || specialYos == null || high3 == null || high3 <= 0) return null
 
   const birthYear = parseInt(birthDate.split('-')[0], 10)
   const mra = mraForBirthYear(birthYear)
