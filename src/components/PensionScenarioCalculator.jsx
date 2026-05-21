@@ -213,7 +213,7 @@ export default function PensionScenarioCalculator({
           </label>
 
           <label style={labelText}>
-            Current annual basic pay
+            Current basic pay (used to project High-3)
             <input
               type="number"
               value={currentBasicPay}
@@ -222,7 +222,9 @@ export default function PensionScenarioCalculator({
               step="500"
               style={inputBox}
             />
-            <span style={helpText}>Base salary + locality. Excludes overtime, bonuses, awards.</span>
+            <span style={helpText}>
+              Base salary + locality (no overtime/bonuses/awards). The calculator projects this forward using your pay-growth assumption and averages your final 36 months at retirement — that average is your High-3, shown in each scenario card. If your client is already at or near retirement and you know their actual High-3, you can enter it here.
+            </span>
           </label>
 
           <label style={labelText}>
