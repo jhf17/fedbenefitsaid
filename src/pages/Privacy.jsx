@@ -9,310 +9,201 @@ export default function Privacy() {
     <main style={styles.main}>
       <Seo
         title="Privacy Policy"
-        description="How FedBenefitsAid collects, uses, and protects your data. Learn about assessment responses, lead capture, cookies, and your privacy choices."
+        description="How FedBenefitsAid collects, uses, and protects your data. The only data we collect is what you provide when booking a free meeting."
         path="/privacy"
       />
       <div style={styles.container}>
         <h1 style={styles.h1}>Privacy Policy</h1>
-        <p style={styles.updated}>Last updated: April 7, 2026</p>
+        <p style={styles.updated}>Last updated: May 26, 2026</p>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Overview</h2>
+          <h2 style={styles.h2}>The short version</h2>
           <p style={styles.p}>
-            FedBenefitsAid ("we," "us," "our," or "Company") is committed to protecting your privacy. This Privacy Policy explains what data we collect, how we use it, how we store it, and your rights regarding your personal information.
+            FedBenefitsAid is a free educational website operated by Federal Market Associates. We do not require you to create an account, sign up, or hand over an email address to use any tool on this site. The calculators, library, and assessment all run without collecting your personal information.
           </p>
           <p style={styles.p}>
-            We collect and process minimal personal data necessary to operate our website and services. We do not sell your personal information to third parties.
+            <strong>The only time we collect personal information is when you choose to book a free meeting</strong> (a phone call or a Zoom video call). The information you provide is used solely to schedule and conduct that meeting and to follow up about it. We do not sell, rent, or share your information with advertisers, marketers, or any third party for their own use.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>What Data We Collect</h2>
-
-          <h3 style={styles.h3}>Account Creation</h3>
+          <h2 style={styles.h2}>Who we are</h2>
           <p style={styles.p}>
-            When you create an account on FedBenefitsAid, we collect:
+            "FedBenefitsAid," "we," "us," and "our" refer to <strong>Federal Market Associates</strong>, the operator of fedbenefitsaid.com. Federal Market Associates is an independent firm. We are not affiliated with, endorsed by, or authorized to speak on behalf of the U.S. Office of Personnel Management or any federal agency.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>What we collect</h2>
+
+          <h3 style={styles.h3}>1. Phone-call meeting requests</h3>
+          <p style={styles.p}>
+            If you submit the phone-call request form at <Link to="/consultation" style={styles.link}>/consultation</Link>, we collect:
           </p>
           <ul style={styles.ul}>
-            <li style={styles.li}>Full name</li>
-            <li style={styles.li}>Email address</li>
-            <li style={styles.li}>Phone number</li>
-            <li style={styles.li}>Password (securely hashed and encrypted)</li>
+            <li style={styles.li}>Your name</li>
+            <li style={styles.li}>Your email address</li>
+            <li style={styles.li}>Your phone number</li>
+            <li style={styles.li}>Your state of residence</li>
+            <li style={styles.li}>Your employer / agency / department (if you choose to provide it)</li>
+            <li style={styles.li}>Your preferred date and time for the call</li>
+            <li style={styles.li}>Any optional message you include with the request</li>
           </ul>
           <p style={styles.p}>
-            This information is stored in Supabase, our cloud database provider, and is encrypted at rest.
+            We use this information for one purpose: to call you at the time you requested and to follow up if needed. We do not add you to a marketing email list, send you newsletters, or sell or share this information with third parties for their own purposes.
           </p>
 
-          <h3 style={styles.h3}>Assessment Tool</h3>
+          <h3 style={styles.h3}>2. Video meeting bookings (Calendly)</h3>
           <p style={styles.p}>
-            Our Retirement Readiness Assessment collects your answers to 14 questions about your federal employment status, age, years of service, and retirement readiness. Your assessment responses and final readiness score are processed and displayed to you. If you opt to receive results via email, we may store the email request temporarily.
+            If you book a Zoom video meeting, the scheduling page is provided by <strong>Calendly</strong>. The information you enter (name, email, phone number, and any answers to Calendly's custom questions) is processed by Calendly under their own privacy policy, and a copy is shared with us so we know who is on the call and can prepare for it.
+          </p>
+          <p style={styles.p}>
+            Review Calendly's privacy policy at <a href="https://calendly.com/privacy" target="_blank" rel="noopener noreferrer" style={styles.link}>calendly.com/privacy</a>.
           </p>
 
-          <h3 style={styles.h3}>Retirement Calculator</h3>
+          <h3 style={styles.h3}>3. Calculator and assessment inputs</h3>
           <p style={styles.p}>
-            Our FERS Retirement Calculator processes information you enter, including:
+            All calculators (FERS pension, CSRS, Special Provisions, FEGLI cost, income picture, what-if coverage, High-3) and the readiness assessment <strong>run entirely in your browser</strong>. The numbers you enter — salary, years of service, retirement age, TSP balance, etc. — are not transmitted to our servers and are not stored anywhere outside of your device. We never see them.
+          </p>
+
+          <h3 style={styles.h3}>4. Website analytics (Google Analytics 4)</h3>
+          <p style={styles.p}>
+            We use Google Analytics 4 to understand how visitors find and use the site. This includes anonymous, aggregated data such as:
           </p>
           <ul style={styles.ul}>
-            <li style={styles.li}>Current salary</li>
-            <li style={styles.li}>Years of federal service</li>
-            <li style={styles.li}>Planned retirement age</li>
-            <li style={styles.li}>TSP balance and monthly contribution</li>
+            <li style={styles.li}>Pages you visited and how long you stayed</li>
+            <li style={styles.li}>The general region you are in (city/state, not your street address)</li>
+            <li style={styles.li}>Device type and browser</li>
+            <li style={styles.li}>How you arrived at the site (e.g., search engine, direct, referring link)</li>
           </ul>
           <p style={styles.p}>
-            <strong>Important:</strong> All calculator inputs are processed entirely in your browser and are NOT transmitted to our server or stored unless you choose to email the results to yourself.
+            Google Analytics does not identify you personally. You can opt out by clicking <strong>Decline</strong> on the cookie banner that appears at the bottom of the page, by using a browser-level Do Not Track setting, or by installing Google's official opt-out browser add-on.
           </p>
 
-          <h3 style={styles.h3}>Email Results</h3>
+          <h3 style={styles.h3}>What we do NOT collect</h3>
           <p style={styles.p}>
-            If you request to have your assessment or calculator results emailed to you, we collect your email address for that specific request. The email is delivered via our email service provider (Resend) and the delivery is processed through Amazon SES.
-          </p>
-
-          <h3 style={styles.h3}>AI Chat</h3>
-          <p style={styles.p}>
-            When you use our AI chat assistant (available to logged-in users), your conversation messages are sent to Anthropic's API for processing. These messages are not permanently stored by FedBenefitsAid. Refer to Anthropic's privacy policy for details on how they handle chat data.
-          </p>
-
-          <h3 style={styles.h3}>Consultation Booking</h3>
-          <p style={styles.p}>
-            When you book a free consultation through our Calendly integration, Calendly collects your name, email, and any additional information you provide. This data is subject to Calendly's privacy policy and is used by our consulting partner, Federal Market Associates, to contact you about your consultation.
-          </p>
-
-          <h3 style={styles.h3}>Website Analytics</h3>
-          <p style={styles.p}>
-            We use Google Analytics (GA4) to collect anonymous data about how visitors use our website, including:
+            We never collect any of the following on this site:
           </p>
           <ul style={styles.ul}>
-            <li style={styles.li}>Pages visited and time spent on each page</li>
-            <li style={styles.li}>Device type and browser information</li>
-            <li style={styles.li}>General location data (city/region, not individual address)</li>
-            <li style={styles.li}>Interactions with tools and features</li>
+            <li style={styles.li}>Social Security numbers</li>
+            <li style={styles.li}>Bank account or credit card information (there's nothing to pay for)</li>
+            <li style={styles.li}>Passwords (there are no user accounts)</li>
+            <li style={styles.li}>Health information</li>
           </ul>
-          <p style={styles.p}>
-            This data is collected via cookies and is anonymous—it does not identify you personally. Our GA4 measurement ID is G-6K0NHQ5WSK.
-          </p>
+        </section>
 
-          <h3 style={styles.h3}>Lead Information</h3>
+        <section style={styles.section}>
+          <h2 style={styles.h2}>How we store and protect your information</h2>
           <p style={styles.p}>
-            When you interact with our website (sign up, book a consultation, request results), we create a lead record in our Airtable CRM that includes your name, email, phone number, referral source, and the date of your interaction. This helps us track engagement and follow up on your interest in federal retirement benefits.
+            Information you submit through a meeting request is stored in our internal customer relationship management (CRM) system, hosted by <strong>Airtable</strong>, so the Federal Retirement Consultant assigned to your meeting can reach you. Access to that record is limited to the people inside our firm who need it to schedule, prepare for, or follow up on your meeting.
+          </p>
+          <p style={styles.p}>
+            All data transmitted between your browser and our website is encrypted in transit using HTTPS / TLS. Our third-party providers (Airtable, Calendly, Netlify, Cloudflare, Google) maintain industry-standard security controls and encrypt data at rest.
+          </p>
+          <p style={styles.p}>
+            No system is ever fully immune to breach. We will notify you in accordance with applicable law if a security incident affects your personal information.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>How We Store Your Data</h2>
-
-          <h3 style={styles.h3}>User Accounts</h3>
+          <h2 style={styles.h2}>Third-party service providers</h2>
           <p style={styles.p}>
-            User account information (name, email, phone, hashed password) is stored in Supabase, a cloud database provider that encrypts data at rest using AES-256 encryption. Supabase maintains secure data centers with regular backups and disaster recovery procedures.
-          </p>
-
-          <h3 style={styles.h3}>Lead Data</h3>
-          <p style={styles.p}>
-            Lead information is stored in Airtable, our CRM provider. This data is not shared with third parties except for internal management and consultation scheduling.
-          </p>
-
-          <h3 style={styles.h3}>Calculator Inputs</h3>
-          <p style={styles.p}>
-            Calculator inputs are processed entirely in your browser using JavaScript and are NOT sent to our servers unless you explicitly request to email the results to yourself.
-          </p>
-
-          <h3 style={styles.h3}>Financial Information</h3>
-          <p style={styles.p}>
-            <strong>We never collect, store, or process credit card numbers, bank account information, Social Security numbers, or any sensitive financial account data.</strong> All sensitive financial inputs to our calculator are processed locally on your device.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>Third-Party Service Providers</h2>
-          <p style={styles.p}>
-            We use the following third-party service providers to operate our website and services:
+            We use the following providers to operate the site. Each is bound by its own privacy policy:
           </p>
           <ul style={styles.ul}>
-            <li style={styles.li}><strong>Supabase</strong> — Authentication and database storage (user accounts)</li>
-            <li style={styles.li}><strong>Airtable</strong> — CRM and lead management</li>
-            <li style={styles.li}><strong>Netlify</strong> — Website hosting and serverless functions</li>
-            <li style={styles.li}><strong>Cloudflare</strong> — CDN, DNS, and security services</li>
-            <li style={styles.li}><strong>Google Analytics</strong> — Website analytics and user behavior tracking</li>
-            <li style={styles.li}><strong>Anthropic</strong> — AI chat processing (conversation messages sent to their API)</li>
-            <li style={styles.li}><strong>Resend</strong> — Transactional email delivery (powered by Amazon SES)</li>
-            <li style={styles.li}><strong>Calendly</strong> — Consultation booking and scheduling</li>
+            <li style={styles.li}><strong>Netlify</strong> — Website hosting and the serverless function that receives your phone-call request</li>
+            <li style={styles.li}><strong>Cloudflare</strong> — DNS, content delivery, and basic security protection</li>
+            <li style={styles.li}><strong>Airtable</strong> — Our internal CRM where meeting-request information is stored</li>
+            <li style={styles.li}><strong>Calendly</strong> — Scheduling for Zoom video meetings</li>
+            <li style={styles.li}><strong>Resend</strong> — Sends an internal notification email to the Federal Retirement Consultant so they know you've requested a call</li>
+            <li style={styles.li}><strong>Google Analytics 4</strong> — Anonymous traffic and usage analytics</li>
           </ul>
           <p style={styles.p}>
-            Each of these providers has their own privacy policy. We recommend reviewing their privacy policies to understand how they handle your data.
+            We do not share your information with any third party for marketing, advertising, profiling, or resale. The providers above process information only on our behalf to operate the website and the meeting-booking flow.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>How We Use Your Data</h2>
-
-          <h3 style={styles.h3}>Service Delivery</h3>
+          <h2 style={styles.h2}>Cookies and similar technologies</h2>
           <p style={styles.p}>
-            We use your data to:
+            We use a small number of cookies and similar technologies:
           </p>
           <ul style={styles.ul}>
-            <li style={styles.li}>Create and manage your account</li>
-            <li style={styles.li}>Authenticate you when you log in</li>
-            <li style={styles.li}>Personalize your experience with tools and resources</li>
-            <li style={styles.li}>Send you requested information (assessment results, calculator outputs via email)</li>
-            <li style={styles.li}>Facilitate consultation bookings with our advisory partners</li>
+            <li style={styles.li}><strong>Consent cookie (fba_consent)</strong> — Remembers whether you accepted or declined analytics so we don't show you the banner on every page</li>
+            <li style={styles.li}><strong>Google Analytics cookies</strong> — Only loaded if you accept analytics. Used to anonymously measure site usage</li>
+            <li style={styles.li}><strong>Calendly cookies</strong> — Set by Calendly when you load the video-booking widget; governed by Calendly's privacy policy</li>
           </ul>
-
-          <h3 style={styles.h3}>Communication</h3>
           <p style={styles.p}>
-            We may contact you by email or phone to:
+            You can clear cookies, block them in your browser settings, or click <strong>Decline</strong> in the cookie banner at the bottom of any page. Declining will disable Google Analytics tracking for your visit.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>How long we keep your information</h2>
+          <p style={styles.p}>
+            Meeting-request records are kept in our CRM for as long as needed to schedule, conduct, and follow up on your meeting, and afterwards for ordinary recordkeeping and regulatory purposes. If you ask us to delete your record (see "Your rights" below), we will do so unless we are required by law or by financial-services recordkeeping rules to retain it.
+          </p>
+          <p style={styles.p}>
+            Analytics data collected by Google is retained according to Google's default retention settings.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>Your rights</h2>
+          <p style={styles.p}>
+            Depending on where you live, you may have some or all of the following rights with respect to your personal information:
           </p>
           <ul style={styles.ul}>
-            <li style={styles.li}>Confirm account creation or password resets</li>
-            <li style={styles.li}>Follow up on your interest in federal retirement planning</li>
-            <li style={styles.li}>Notify you of service updates or changes to this Privacy Policy</li>
-            <li style={styles.li}>Respond to your inquiries or requests</li>
+            <li style={styles.li}><strong>Right to know</strong> — Ask what personal information we hold about you</li>
+            <li style={styles.li}><strong>Right to access</strong> — Request a copy of that information</li>
+            <li style={styles.li}><strong>Right to correct</strong> — Ask us to fix inaccurate information</li>
+            <li style={styles.li}><strong>Right to delete</strong> — Ask us to delete your information (subject to legal retention requirements)</li>
+            <li style={styles.li}><strong>Right to opt out</strong> — Decline analytics and choose not to submit any forms</li>
+            <li style={styles.li}><strong>Right to non-discrimination</strong> — We will not deny you service for exercising any of these rights</li>
           </ul>
-
-          <h3 style={styles.h3}>Analytics and Improvement</h3>
           <p style={styles.p}>
-            We use Google Analytics data to understand how users interact with our website, identify popular features, and improve the overall user experience.
+            To exercise any of these rights, email us at <a href="mailto:jhf17@icloud.com" style={styles.link}>jhf17@icloud.com</a> with enough detail to identify your record (the name, email address, or phone number you submitted). We will respond within 30 days.
           </p>
-
-          <h3 style={styles.h3}>Legal Compliance</h3>
           <p style={styles.p}>
-            We may disclose your information if required by law, court order, or government request.
+            We do not "sell" personal information as that term is defined under the California Consumer Privacy Act (CCPA) or analogous state laws, and we do not share personal information for cross-context behavioral advertising.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Data Sharing</h2>
-
-          <h3 style={styles.h3}>We Do NOT Sell Your Data</h3>
+          <h2 style={styles.h2}>Children's privacy</h2>
           <p style={styles.p}>
-            FedBenefitsAid does not sell, rent, or share your personal information with third parties for marketing, advertising, or any other commercial purpose.
-          </p>
-
-          <h3 style={styles.h3}>Limited Sharing with Service Providers</h3>
-          <p style={styles.p}>
-            Your data is shared only with the third-party service providers listed above, and only to the extent necessary to operate our services. These providers are contractually bound to keep your data confidential and secure.
-          </p>
-
-          <h3 style={styles.h3}>Consultation Bookings</h3>
-          <p style={styles.p}>
-            When you book a consultation through Calendly, your name, email, and phone number are shared with Federal Market Associates, our consulting partner, so they can contact you to schedule and conduct your consultation.
+            FedBenefitsAid is intended for U.S. federal employees and is not directed at children under 18. We do not knowingly collect personal information from anyone under 18. If you believe a minor has submitted information to us, contact us and we will delete it.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Your Privacy Rights</h2>
-
-          <h3 style={styles.h3}>Right to Know</h3>
+          <h2 style={styles.h2}>Visitors outside the United States</h2>
           <p style={styles.p}>
-            You have the right to know what personal data we collect about you and how we use it.
-          </p>
-
-          <h3 style={styles.h3}>Right to Access</h3>
-          <p style={styles.p}>
-            You can request a copy of all personal data we hold about you.
-          </p>
-
-          <h3 style={styles.h3}>Right to Deletion</h3>
-          <p style={styles.p}>
-            You have the right to request deletion of your personal data, subject to certain legal obligations. We will delete your account data from our systems upon request.
-          </p>
-
-          <h3 style={styles.h3}>Right to Opt-Out</h3>
-          <p style={styles.p}>
-            You can opt out of data collection by not creating an account. You can also disable Google Analytics cookies in your browser settings.
-          </p>
-
-          <h3 style={styles.h3}>How to Exercise Your Rights</h3>
-          <p style={styles.p}>
-            To exercise any of these rights, please contact us at{' '}
-            <a href="mailto:jhf17@icloud.com" style={styles.link}>jhf17@icloud.com</a> with your request. We will respond within 30 days.
+            The site is hosted in the United States and intended for U.S. federal employees. If you access the site from outside the U.S., you understand that any information you submit will be processed in the United States.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Cookies and Tracking</h2>
-
-          <h3 style={styles.h3}>What Cookies We Use</h3>
+          <h2 style={styles.h2}>Changes to this Privacy Policy</h2>
           <p style={styles.p}>
-            Our website uses the following types of cookies:
-          </p>
-          <ul style={styles.ul}>
-            <li style={styles.li}><strong>Supabase Session Cookies</strong> — Used to keep you logged into your account</li>
-            <li style={styles.li}><strong>Google Analytics Cookies</strong> — Used to anonymously track website usage and behavior</li>
-          </ul>
-
-          <h3 style={styles.h3}>What We Don't Use</h3>
-          <p style={styles.p}>
-            We do not use advertising cookies, tracking cookies from third-party advertisers, or any cookies that identify you personally for marketing purposes.
-          </p>
-
-          <h3 style={styles.h3}>Managing Cookies</h3>
-          <p style={styles.p}>
-            You can control cookies in your browser settings. Disabling Supabase session cookies will log you out of your account. Disabling Google Analytics cookies will opt you out of analytics tracking.
+            We may update this Privacy Policy from time to time. The "Last updated" date at the top of this page indicates the most recent revision. Material changes will be highlighted on the home page or noted within the policy itself for a reasonable period.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>Data Security</h2>
-
-          <h3 style={styles.h3}>Encryption in Transit</h3>
+          <h2 style={styles.h2}>Contact us</h2>
           <p style={styles.p}>
-            All data transmitted between your browser and our servers is encrypted using HTTPS (TLS 1.2+). This prevents third parties from intercepting your information.
-          </p>
-
-          <h3 style={styles.h3}>Encryption at Rest</h3>
-          <p style={styles.p}>
-            All user data stored in Supabase is encrypted at rest using AES-256 encryption.
-          </p>
-
-          <h3 style={styles.h3}>API Security</h3>
-          <p style={styles.p}>
-            Sensitive information like API keys and database credentials are stored as environment variables on our server and are never exposed to the browser.
-          </p>
-
-          <h3 style={styles.h3}>Password Security</h3>
-          <p style={styles.p}>
-            Passwords are hashed using bcrypt and are never stored in plain text.
-          </p>
-
-          <h3 style={styles.h3}>Limitations</h3>
-          <p style={styles.p}>
-            While we implement industry-standard security measures, no system is 100% secure. We cannot guarantee absolute security, but we are committed to protecting your data.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>Children's Privacy</h2>
-          <p style={styles.p}>
-            FedBenefitsAid is not directed at anyone under 18 years old. We do not knowingly collect personal information from children under 18. If we become aware that a child under 18 has provided us with personal information, we will delete such information promptly.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>Changes to This Privacy Policy</h2>
-          <p style={styles.p}>
-            We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. The "Last updated" date at the top of this page indicates when the policy was last revised.
-          </p>
-          <p style={styles.p}>
-            If we make material changes to this Privacy Policy, we will notify you by email (if you have an account) or by posting a notice on our website before the change becomes effective. Your continued use of the website after changes are posted constitutes your acceptance of the updated Privacy Policy.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>Contact Us</h2>
-          <p style={styles.p}>
-            If you have questions about this Privacy Policy, your personal data, or our privacy practices, please contact us:
+            If you have any question about this Privacy Policy or about how we handle your information, contact us:
           </p>
           <ul style={styles.ul}>
             <li style={styles.li}><strong>Email:</strong> <a href="mailto:jhf17@icloud.com" style={styles.link}>jhf17@icloud.com</a></li>
             <li style={styles.li}><strong>Website:</strong> <a href="https://fedbenefitsaid.com" target="_blank" rel="noopener noreferrer" style={styles.link}>fedbenefitsaid.com</a></li>
           </ul>
-          <p style={styles.p}>
-            We will respond to all privacy inquiries within 30 days.
-          </p>
         </section>
 
         <section style={styles.section}>
           <p style={styles.disclaimer}>
-            <strong>Important Note:</strong> This privacy policy is provided for transparency and to explain our data practices. We recommend consulting with a legal professional for specific legal questions about privacy and data protection.
+            <strong>Plain English:</strong> Use the calculators and library freely — we don't track who you are. If you book a meeting, the only thing we use your information for is to call you back about that meeting. Nothing else.
           </p>
         </section>
 
@@ -388,9 +279,9 @@ const styles = {
     fontWeight: 500,
   },
   disclaimer: {
-    fontSize: '0.9rem',
+    fontSize: '0.92rem',
     color: '#475569',
-    lineHeight: 1.6,
+    lineHeight: 1.65,
     padding: '16px',
     backgroundColor: '#faf6ef',
     borderLeft: '4px solid #b08d5a',

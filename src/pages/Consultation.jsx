@@ -311,6 +311,39 @@ function MethodCard({ title, tagline, body, onClick }) {
 
 // ─── Phone path: form ───────────────────────────────────────────────
 
+// Time slots: 8:00 AM – 7:30 PM ET, in 30-minute increments (24 slots).
+const PHONE_TIME_SLOTS = (() => {
+  const slots = []
+  for (let h = 8; h < 20; h++) {
+    for (const m of [0, 30]) {
+      const period = h >= 12 ? 'PM' : 'AM'
+      const displayHour = h > 12 ? h - 12 : h === 0 ? 12 : h
+      const display = `${displayHour}:${String(m).padStart(2, '0')} ${period} ET`
+      const totalMinutes = h * 60 + m
+      slots.push({ value: display, totalMinutes })
+    }
+  }
+  return slots
+})()
+
+function getEtNowMinutes() {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+  const parts = fmt.formatToParts(new Date())
+  const h = parseInt(parts.find((p) => p.type === 'hour').value, 10)
+  const m = parseInt(parts.find((p) => p.type === 'minute').value, 10)
+  return h * 60 + m
+}
+
+function getEtTodayString() {
+  // YYYY-MM-DD in ET
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date())
+}
+
 function PhonePath({ onBack }) {
   const [form, setForm] = useState({
     name: '',
@@ -319,7 +352,7 @@ function PhonePath({ onBack }) {
     state: '',
     employer: '',
     preferredDate: '',
-    preferredTimeWindow: 'afternoon',
+    preferredTime: '',
     message: '',
   })
   const [status, setStatus] = useState('idle') // 'idle' | 'submitting' | 'success' | 'error' | 'blocked'
@@ -356,10 +389,13 @@ function PhonePath({ onBack }) {
   }
 
   if (status === 'success') {
+    const friendlyDate = form.preferredDate
+      ? new Date(form.preferredDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+      : 'soon'
     return (
       <SuccessPanel
         title="Request received."
-        body={`Thanks, ${form.name.split(' ')[0] || 'there'}. We'll be in touch by phone at ${form.phone} during your preferred window (${form.preferredTimeWindow}, ${form.preferredDate || 'soon'}). If anything changes before then, just reply to the confirmation email we just sent to ${form.email}.`}
+        body={`Thanks, ${form.name.split(' ')[0] || 'there'}. We'll call you at ${form.phone} on ${friendlyDate} at ${form.preferredTime || 'your selected time'}. If anything changes before then, reply to the confirmation we'll send to ${form.email}.`}
         onBack={onBack}
       />
     )
@@ -397,7 +433,7 @@ function PhonePath({ onBack }) {
         Phone call — when's a good time?
       </h2>
       <p style={{ fontSize: '1rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 24 }}>
-        Pick a date and a time window. An FRC will call you at the number below within that window. We'll only use this info for the meeting — no email lists, no third-party sharing.
+        Pick a date and a 30-minute time slot (8:00&nbsp;AM – 7:30&nbsp;PM ET). An FRC will call you at the number below at the slot you choose. We'll only use this info for the meeting — no email lists, no third-party sharing.
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }}>
@@ -425,18 +461,32 @@ function PhonePath({ onBack }) {
         <Field label="Employer / agency / department" hint="VA, DoD, USPS, OPM, agency name — whatever fits. Helps us prep.">
           <input type="text" value={form.employer} onChange={(e) => update({ employer: e.target.value })} style={inputBox} placeholder="e.g. Department of Veterans Affairs" />
         </Field>
-        <Row two>
-          <Field label="Preferred date" required>
-            <input type="date" required value={form.preferredDate} onChange={(e) => update({ preferredDate: e.target.value })} style={inputBox} min={new Date().toISOString().slice(0, 10)} />
-          </Field>
-          <Field label="Time window" required>
-            <select required value={form.preferredTimeWindow} onChange={(e) => update({ preferredTimeWindow: e.target.value })} style={{ ...inputBox, appearance: 'auto' }}>
-              <option value="morning">Morning (8am – 12pm ET)</option>
-              <option value="afternoon">Afternoon (12pm – 5pm ET)</option>
-              <option value="evening">Evening (5pm – 8pm ET)</option>
-            </select>
-          </Field>
-        </Row>
+        <Field label="Preferred date" required>
+          <input
+            type="date"
+            required
+            value={form.preferredDate}
+            onChange={(e) => update({ preferredDate: e.target.value, preferredTime: '' })}
+            style={inputBox}
+            min={getEtTodayString()}
+          />
+        </Field>
+
+        <TimeSlotPicker
+          preferredDate={form.preferredDate}
+          selectedTime={form.preferredTime}
+          onSelect={(time) => update({ preferredTime: time })}
+        />
+        {/* Hidden input enforces native required validation for the time slot */}
+        <input
+          type="text"
+          value={form.preferredTime}
+          onChange={() => {}}
+          required
+          aria-hidden="true"
+          tabIndex={-1}
+          style={{ position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }}
+        />
         <Field label="Anything else? (optional)" hint="Specific question, deadline, document you'd like us to look at — anything that helps us prep.">
           <textarea
             value={form.message}
@@ -599,6 +649,93 @@ function VideoPath({ onBack }) {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
+
+function TimeSlotPicker({ preferredDate, selectedTime, onSelect }) {
+  const isToday = preferredDate && preferredDate === getEtTodayString()
+  const etNowMin = isToday ? getEtNowMinutes() : -Infinity
+
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: '0.86rem',
+          fontWeight: 600,
+          color: colors.pine,
+          marginBottom: 8,
+        }}
+      >
+        Preferred time <span style={{ color: colors.brassDeep, marginLeft: 4 }}>*</span>
+      </div>
+      {!preferredDate ? (
+        <div
+          style={{
+            padding: '14px 16px',
+            background: colors.bone,
+            borderRadius: 10,
+            fontSize: '0.9rem',
+            color: colors.slate500,
+            border: `1px dashed ${colors.borderLight || '#cbd5e1'}`,
+          }}
+        >
+          Pick a date above to see available times.
+        </div>
+      ) : (
+        <>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+              gap: 8,
+            }}
+          >
+            {PHONE_TIME_SLOTS.map((slot) => {
+              const isPast = slot.totalMinutes <= etNowMin
+              const isSelected = selectedTime === slot.value
+              return (
+                <button
+                  key={slot.value}
+                  type="button"
+                  disabled={isPast}
+                  onClick={() => onSelect(slot.value)}
+                  aria-pressed={isSelected}
+                  style={{
+                    padding: '10px 8px',
+                    fontSize: '0.86rem',
+                    fontWeight: isSelected ? 600 : 500,
+                    fontFamily: 'inherit',
+                    background: isSelected ? colors.brass : isPast ? '#f3f0e8' : '#ffffff',
+                    color: isSelected ? '#ffffff' : isPast ? colors.slate500 : colors.charcoal,
+                    border: `1px solid ${isSelected ? colors.brass : isPast ? 'rgba(31,61,44,0.08)' : colors.borderLight || '#cbd5e1'}`,
+                    borderRadius: 8,
+                    cursor: isPast ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.12s ease',
+                    opacity: isPast ? 0.55 : 1,
+                    textDecoration: isPast ? 'line-through' : 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isPast || isSelected) return
+                    e.currentTarget.style.borderColor = colors.brass
+                    e.currentTarget.style.background = colors.brassPale
+                  }}
+                  onMouseLeave={(e) => {
+                    if (isPast || isSelected) return
+                    e.currentTarget.style.borderColor = colors.borderLight || '#cbd5e1'
+                    e.currentTarget.style.background = '#ffffff'
+                  }}
+                >
+                  {slot.value.replace(' ET', '')}
+                </button>
+              )
+            })}
+          </div>
+          <p style={{ fontSize: '0.78rem', color: colors.slate500, marginTop: 8, lineHeight: 1.5 }}>
+            Times shown in Eastern Time (ET). Slots run 8:00 AM – 7:30 PM ET in 30-minute increments.
+          </p>
+        </>
+      )}
+    </div>
+  )
+}
 
 function BackLink({ onClick, label }) {
   return (

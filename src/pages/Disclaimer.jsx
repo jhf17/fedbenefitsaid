@@ -15,13 +15,13 @@ export default function Disclaimer() {
   return (
     <main style={styles.main}>
       <Seo
-        title="Disclaimer & Privacy"
+        title="Disclaimer"
         description="FedBenefitsAid is operated by Federal Market Associates. We are not affiliated with OPM or the U.S. government. Read our full disclaimer, sourcing methodology, and state availability."
         path="/disclaimer"
       />
       <div style={styles.container}>
-        <h1 style={styles.h1}>Disclaimer &amp; Privacy</h1>
-        <p style={styles.updated}>Last updated: April 2026</p>
+        <h1 style={styles.h1}>Disclaimer</h1>
+        <p style={styles.updated}>Last updated: May 26, 2026</p>
 
         <section style={styles.section}>
           <h2 style={styles.h2}>Educational purposes only</h2>
@@ -77,10 +77,10 @@ export default function Disclaimer() {
         <section style={styles.section}>
           <h2 style={styles.h2}>Privacy &amp; data collection</h2>
           <p style={styles.p}>
-            When you book a consultation, we collect your name, email, and (optionally) phone number to provide the service and follow up on your interest. We use Google Analytics to understand how visitors navigate the site; you can decline analytics from the cookie banner at the bottom of any page.
+            The only time we collect personal information on this site is when you book a free meeting. The phone-call form collects your name, email, phone number, state of residence, and meeting preferences. The Zoom video booking flow (via Calendly) collects the same. We use that information solely to contact you for the meeting and to follow up — never for marketing lists, advertising, or resale.
           </p>
           <p style={styles.p}>
-            Calculator inputs are processed in your browser and are <strong>not</strong> stored on our servers. We do not sell, rent, or share your personal information with third parties for marketing purposes.
+            Calculator inputs (salary, years of service, TSP balance, etc.) are processed entirely in your browser and are <strong>not</strong> transmitted to our servers. We use Google Analytics for anonymous traffic measurement; you can decline analytics from the cookie banner at the bottom of any page. For full details, see our <Link to="/privacy" style={styles.link}>Privacy Policy</Link>.
           </p>
         </section>
 

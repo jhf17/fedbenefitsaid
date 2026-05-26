@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import Seo from '../components/Seo'
 import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget'
+import AmericanFlag from '../components/AmericanFlag'
 import { colors, fonts } from '../constants/theme'
 
 const FONT_SERIF = fonts.serif
@@ -155,120 +156,145 @@ export default function Landing() {
             pointerEvents: 'none',
           }}
         />
-        <div style={{ maxWidth: 1140, margin: '0 auto', position: 'relative' }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '6px 14px',
-              borderRadius: 999,
-              background: 'rgba(176,141,90,0.18)',
-              border: '1px solid rgba(176,141,90,0.4)',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              color: colors.brassLight,
-              marginBottom: 28,
-            }}
-          >
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.brassLight, display: 'inline-block' }} />
-            Updated April 2026 · Sourced from OPM, IRS, SSA
+        <div
+          style={{
+            maxWidth: 1140,
+            margin: '0 auto',
+            position: 'relative',
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'minmax(0, 1.35fr) minmax(0, 1fr)',
+            gap: isMobile ? 36 : 48,
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '6px 14px',
+                borderRadius: 999,
+                background: 'rgba(176,141,90,0.18)',
+                border: '1px solid rgba(176,141,90,0.4)',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: colors.brassLight,
+                marginBottom: 28,
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.brassLight, display: 'inline-block' }} />
+              Updated April 2026 · Sourced from OPM, IRS, SSA
+            </div>
+
+            <h1
+              style={{
+                fontFamily: FONT_SERIF,
+                fontSize: isMobile ? 'clamp(2rem, 9vw, 3rem)' : 'clamp(2.6rem, 5vw, 4.2rem)',
+                fontWeight: 600,
+                lineHeight: 1.04,
+                letterSpacing: '-0.02em',
+                fontVariationSettings: '"opsz" 144, "SOFT" 50',
+                maxWidth: 720,
+                marginBottom: 24,
+                color: '#ffffff',
+              }}
+            >
+              Your federal retirement,
+              <br />
+              <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
+                by the numbers.
+              </span>
+            </h1>
+
+            <p
+              style={{
+                fontFamily: FONT_SANS,
+                fontSize: isMobile ? '1.05rem' : '1.18rem',
+                lineHeight: 1.55,
+                color: 'rgba(255,255,255,0.82)',
+                maxWidth: 560,
+                marginBottom: 40,
+                fontWeight: 400,
+              }}
+            >
+              Free calculators, current government data, and honest education for the choices federal employees make at
+              retirement. No signup. No upsell.
+            </p>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              <Link
+                to="/calculator"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '15px 28px',
+                  background: colors.brass,
+                  color: '#ffffff',
+                  borderRadius: 10,
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  letterSpacing: '0.01em',
+                  boxShadow: '0 8px 24px rgba(176,141,90,0.32)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = colors.brassDeep
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = colors.brass
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                Run the FERS calculator
+                <span aria-hidden>→</span>
+              </Link>
+              <Link
+                to="/assessment"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '15px 28px',
+                  background: 'transparent',
+                  color: '#ffffff',
+                  borderRadius: 10,
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255,255,255,0.35)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'
+                }}
+              >
+                Take the readiness check
+              </Link>
+            </div>
           </div>
 
-          <h1
+          {/* American flag — decorative */}
+          <div
             style={{
-              fontFamily: FONT_SERIF,
-              fontSize: isMobile ? 'clamp(2rem, 9vw, 3rem)' : 'clamp(3rem, 6vw, 4.6rem)',
-              fontWeight: 600,
-              lineHeight: 1.04,
-              letterSpacing: '-0.02em',
-              fontVariationSettings: '"opsz" 144, "SOFT" 50',
-              maxWidth: 880,
-              marginBottom: 24,
-              color: '#ffffff',
+              display: 'flex',
+              justifyContent: isMobile ? 'center' : 'flex-end',
+              alignItems: 'center',
+              opacity: 0.95,
+              marginTop: isMobile ? 8 : 0,
             }}
           >
-            Your federal retirement,
-            <br />
-            <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
-              by the numbers.
-            </span>
-          </h1>
-
-          <p
-            style={{
-              fontFamily: FONT_SANS,
-              fontSize: isMobile ? '1.05rem' : '1.2rem',
-              lineHeight: 1.55,
-              color: 'rgba(255,255,255,0.82)',
-              maxWidth: 640,
-              marginBottom: 40,
-              fontWeight: 400,
-            }}
-          >
-            Free calculators, current government data, and honest education for the choices federal employees make at
-            retirement. No signup. No upsell.
-          </p>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-            <Link
-              to="/calculator"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '15px 28px',
-                background: colors.brass,
-                color: '#ffffff',
-                borderRadius: 10,
-                fontSize: '1rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-                letterSpacing: '0.01em',
-                boxShadow: '0 8px 24px rgba(176,141,90,0.32)',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = colors.brassDeep
-                e.currentTarget.style.transform = 'translateY(-1px)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = colors.brass
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              Run the FERS calculator
-              <span aria-hidden>→</span>
-            </Link>
-            <Link
-              to="/assessment"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '15px 28px',
-                background: 'transparent',
-                color: '#ffffff',
-                borderRadius: 10,
-                fontSize: '1rem',
-                fontWeight: 500,
-                textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.35)',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.6)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'
-              }}
-            >
-              Take the readiness check
-            </Link>
+            <AmericanFlag width={isMobile ? 240 : 360} />
           </div>
         </div>
       </section>

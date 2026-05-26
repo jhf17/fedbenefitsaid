@@ -9,187 +9,178 @@ export default function Terms() {
     <main style={styles.main}>
       <Seo
         title="Terms of Service"
-        description="Terms governing your use of FedBenefitsAid tools, content, and consultation referrals. Educational-use disclaimer and limitation of liability."
+        description="Terms governing your use of FedBenefitsAid. Educational use only; no financial, tax, or legal advice; limitation of liability and accuracy disclaimer."
         path="/terms"
       />
       <div style={styles.container}>
         <h1 style={styles.h1}>Terms of Service</h1>
-        <p style={styles.updated}>Last updated: April 7, 2026</p>
+        <p style={styles.updated}>Last updated: May 26, 2026</p>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>1. Acceptance of Terms</h2>
+          <h2 style={styles.h2}>1. Acceptance of these Terms</h2>
           <p style={styles.p}>
-            By accessing and using fedbenefitsaid.com, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use this website. You must be at least 18 years of age to use FedBenefitsAid.
+            These Terms of Service ("Terms") govern your access to and use of <strong>fedbenefitsaid.com</strong> (the "Site"), operated by Federal Market Associates ("we," "us," "our"). By accessing or using the Site, you agree to be bound by these Terms. If you do not agree, do not use the Site.
+          </p>
+          <p style={styles.p}>
+            You must be at least 18 years old to use the Site or to book a meeting through it.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>2. Description of Service</h2>
+          <h2 style={styles.h2}>2. What the Site is</h2>
           <p style={styles.p}>
-            FedBenefitsAid provides educational tools and informational resources about federal employee retirement benefits, including FERS pension, TSP, FEHB, FEGLI, Social Security, and the FERS Supplement. Our platform offers:
+            FedBenefitsAid is a free, public educational resource for U.S. federal employees. The Site offers:
           </p>
           <ul style={styles.list}>
-            <li>Retirement calculator for estimating FERS pension benefits</li>
-            <li>AI chat assistant for answering federal benefits questions</li>
-            <li>Retirement readiness assessment (12-question quiz)</li>
-            <li>Reference guides and educational content</li>
-            <li>Free consultation booking through Calendly</li>
+            <li>Calculators for FERS pension, CSRS pension, Special Provisions pension, FEGLI cost over time, retirement income picture, "what-if" coverage, and High-3 average salary</li>
+            <li>A reference library of federal benefit topics (FERS, CSRS, TSP, FEHB, FEGLI, Medicare, Social Security, Survivor Benefits)</li>
+            <li>A short readiness assessment that routes you to the right calculator and library section</li>
+            <li>The option to book a free meeting (phone or Zoom) with a Federal Retirement Consultant at Federal Market Associates</li>
+          </ul>
+          <p style={styles.p}>
+            There are no paid features on the Site, no user accounts to create, and no requirement to provide your information except when you choose to book a meeting.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>3. NOT financial, tax, or legal advice</h2>
+          <p style={styles.p}>
+            The Site is provided for general educational purposes only. <strong>Nothing on the Site constitutes personalized financial, investment, tax, insurance, or legal advice</strong>, and nothing on the Site creates a fiduciary, advisory, or attorney-client relationship between you and us. By using the Site, you understand and agree that:
+          </p>
+          <ul style={styles.list}>
+            <li>Calculator results are <strong>estimates</strong> based on the inputs you provide and publicly available formulas, rates, and limits. Actual benefits, taxes, and outcomes may differ.</li>
+            <li>Library content summarizes federal rules for educational purposes and may be incomplete, generalized, or out of date.</li>
+            <li>Before making any decision about retirement, benefits, insurance, taxes, or investments, you should consult an appropriately licensed professional and verify any figure with the official source (OPM, IRS, SSA, CMS, TSP, or your agency HR office).</li>
+          </ul>
+          <p style={styles.p}>
+            FedBenefitsAid and Federal Market Associates are <strong>not affiliated with, endorsed by, or authorized to speak on behalf of</strong> the U.S. Office of Personnel Management, the federal government, or any federal agency.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>4. Free meetings with Federal Market Associates</h2>
+          <p style={styles.p}>
+            When you book a meeting through the Site, you are scheduling time with a <strong>Federal Retirement Consultant ("FRC") at Federal Market Associates</strong>. The meeting is free and has no set time limit. You understand that:
+          </p>
+          <ul style={styles.list}>
+            <li>The meeting is educational in nature. It does not, by itself, create an advisory, fiduciary, brokerage, or insurance-agent relationship.</li>
+            <li>Federal Retirement Consultants at Federal Market Associates are also licensed in life and health insurance. If a product is discussed and you choose to purchase it, Federal Market Associates may be compensated by the insurance carrier — never by you directly through the Site.</li>
+            <li>Choosing not to purchase any product is always an option. You are under no obligation to purchase anything as a result of using the Site or attending a meeting.</li>
+            <li>Insurance and annuity products are not available to residents of California, New York, or Arkansas. The educational portion of the Site is open to everyone.</li>
+            <li>Phone-call requests are routed through our internal system; Zoom meetings are scheduled through Calendly. By using either flow, you agree to the third-party terms of any provider used in the process.</li>
           </ul>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>3. NOT Financial or Legal Advice</h2>
+          <h2 style={styles.h2}>5. Accuracy and currency of information</h2>
           <p style={styles.p}>
-            FedBenefitsAid provides informational and educational content only. Nothing on this website constitutes personalized financial advice, investment advice, tax advice, or legal advice. By using our tools and resources, you understand that:
+            We update benefit figures, contribution limits, and rules for the current benefit year and cite official government sources where possible. However, federal benefit rules, limits, premium amounts, and eligibility criteria change. We are <strong>not responsible</strong> for:
           </p>
           <ul style={styles.list}>
-            <li>Calculator results are estimates based on user-provided inputs and publicly available formulas. Actual benefits may differ from estimates.</li>
-            <li>AI chat responses are generated by artificial intelligence and may contain errors or outdated information. AI responses should never be treated as official advice.</li>
-            <li>You should consult qualified financial advisors, tax professionals, or attorneys for personalized advice tailored to your situation.</li>
-            <li>You can verify critical information directly with the Office of Personnel Management (OPM) at opm.gov.</li>
+            <li>Changes in federal law, regulation, or guidance issued after information is posted</li>
+            <li>Errors, omissions, or out-of-date figures</li>
+            <li>Discrepancies between content on the Site and official government publications</li>
           </ul>
           <p style={styles.p}>
-            FedBenefitsAid is not affiliated with OPM, the U.S. government, or any federal agency.
+            Always verify critical numbers (multipliers, premiums, contribution limits, COLA percentages, Medicare premiums, FERS Supplement calculations, etc.) with OPM, IRS, SSA, CMS, the Federal Retirement Thrift Investment Board (TSP), or your agency HR office before relying on them for a decision.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>4. User Accounts</h2>
+          <h2 style={styles.h2}>6. Limitation of liability</h2>
           <p style={styles.p}>
-            If you create an account on FedBenefitsAid, you agree to:
+            The Site is provided <strong>"as is"</strong> and <strong>"as available"</strong>, without warranty of any kind, whether express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, accuracy, completeness, non-infringement, or uninterrupted availability.
+          </p>
+          <p style={styles.p}>
+            To the fullest extent permitted by applicable law, in no event will Federal Market Associates, FedBenefitsAid, or any of their officers, employees, contractors, or affiliates be liable for any direct, indirect, incidental, special, consequential, exemplary, or punitive damages — including loss of profits, loss of benefits, loss of savings, lost data, or any other intangible loss — arising out of or related to:
           </p>
           <ul style={styles.list}>
-            <li>Provide accurate and complete information during registration</li>
-            <li>Maintain the confidentiality of your password and account credentials</li>
-            <li>Notify us immediately of any unauthorized access to your account</li>
-            <li>Accept responsibility for all activities that occur under your account</li>
+            <li>Your use of, or inability to use, the Site or any of its tools</li>
+            <li>Decisions made based on calculator estimates or library content</li>
+            <li>Errors, omissions, or inaccuracies in any content</li>
+            <li>Any interruption, suspension, or termination of the Site</li>
+            <li>Any conduct or content of any third party (including Calendly, Airtable, Netlify, Cloudflare, Google, or any insurance carrier referenced in a meeting)</li>
           </ul>
           <p style={styles.p}>
-            We reserve the right to suspend or terminate accounts that violate these terms or engage in prohibited activities.
+            Because the Site is provided to you free of charge, our maximum aggregate liability to you under or in connection with these Terms will not exceed <strong>one hundred U.S. dollars ($100)</strong>. Some jurisdictions do not allow the exclusion or limitation of certain damages, so some of the above may not apply to you.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>5. Consultations</h2>
+          <h2 style={styles.h2}>7. Acceptable use</h2>
           <p style={styles.p}>
-            Free consultations are booked through Calendly and conducted by Federal Market Associates, a separate financial consulting firm. You understand that:
+            You agree not to use the Site to:
           </p>
           <ul style={styles.list}>
-            <li>FedBenefitsAid connects you with Federal Market Associates but does not employ their advisors directly</li>
-            <li>Consultations are educational in nature and do not establish a fiduciary relationship unless a formal advisory agreement is executed</li>
-            <li>Any advice given during consultations is general in nature and the responsibility of the consulting firm and advisor providing it</li>
-          </ul>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>6. Intellectual Property</h2>
-          <p style={styles.p}>
-            All content, tools, designs, code, and materials on fedbenefitsaid.com are owned by or licensed to FedBenefitsAid. This includes:
-          </p>
-          <ul style={styles.list}>
-            <li>The retirement calculator and assessment tools</li>
-            <li>Reference data and educational content</li>
-            <li>Website design, layout, and user interface</li>
-            <li>All proprietary formulas and algorithms</li>
-          </ul>
-          <p style={styles.p}>
-            You may not copy, modify, distribute, or create derivative works without express written permission. Unauthorized use of our intellectual property is prohibited.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>7. Limitation of Liability</h2>
-          <p style={styles.p}>
-            FedBenefitsAid is provided "as is" without warranties of any kind, either expressed or implied. To the fullest extent permitted by law, FedBenefitsAid is not liable for:
-          </p>
-          <ul style={styles.list}>
-            <li>Any damages arising from your use of the site, tools, or information provided</li>
-            <li>Financial losses, missed benefits, or incorrect decisions based on calculator results or AI chat responses</li>
-            <li>Errors, omissions, or inaccuracies in the information provided</li>
-            <li>Interruptions in service or technical issues with the website</li>
-          </ul>
-          <p style={styles.p}>
-            Your maximum liability against FedBenefitsAid is limited to zero dollars, as the service is provided free of charge.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>8. Accuracy of Information</h2>
-          <p style={styles.p}>
-            We strive to keep all information current based on 2026 federal retirement data. However, federal benefit rules, regulations, and rates can change at any time. FedBenefitsAid is not responsible for:
-          </p>
-          <ul style={styles.list}>
-            <li>Changes in federal law or regulations that occur after information is posted</li>
-            <li>Errors, omissions, or outdated information</li>
-            <li>Discrepancies between our information and official government sources</li>
-          </ul>
-          <p style={styles.p}>
-            You should verify critical information with official government sources such as OPM.gov, IRS.gov, or SSA.gov before making important benefit decisions.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>9. Third-Party Services</h2>
-          <p style={styles.p}>
-            FedBenefitsAid uses various third-party services including Supabase, Airtable, Anthropic, Calendly, and Netlify. We are not responsible for:
-          </p>
-          <ul style={styles.list}>
-            <li>The availability, accuracy, or functionality of third-party services</li>
-            <li>Data loss or security breaches involving third parties</li>
-            <li>Third-party terms of service or privacy policies</li>
-          </ul>
-          <p style={styles.p}>
-            Your use of third-party services is subject to their respective terms and conditions.
-          </p>
-        </section>
-
-        <section style={styles.section}>
-          <h2 style={styles.h2}>10. Prohibited Uses</h2>
-          <p style={styles.p}>
-            You agree not to use FedBenefitsAid for any of the following purposes:
-          </p>
-          <ul style={styles.list}>
-            <li>Attempting to gain unauthorized access to the site or its systems</li>
-            <li>Using automated tools, bots, or scrapers to harvest data</li>
-            <li>Impersonating others or providing false information</li>
-            <li>Using the service for any illegal, fraudulent, or harmful purpose</li>
-            <li>Violating any applicable laws or regulations</li>
+            <li>Attempt to gain unauthorized access to the Site, its underlying systems, or any of our third-party providers</li>
+            <li>Probe, scan, or test the vulnerability of the Site or circumvent any security or authentication measure</li>
+            <li>Use automated tools, bots, scrapers, or any similar means to harvest content or submit forms</li>
+            <li>Impersonate another person or provide false information when booking a meeting</li>
+            <li>Use the Site for any illegal, fraudulent, harassing, defamatory, or otherwise harmful purpose</li>
+            <li>Interfere with, disrupt, or impair the operation of the Site or the availability of the meeting-booking flow for others</li>
           </ul>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>11. Modifications to Terms</h2>
+          <h2 style={styles.h2}>8. Intellectual property</h2>
           <p style={styles.p}>
-            FedBenefitsAid reserves the right to modify these terms at any time. We will update the "Last updated" date when changes are made. Your continued use of the website after changes are posted constitutes your acceptance of the revised terms. We recommend reviewing these terms periodically.
+            All content, design, code, calculators, formulas, layout, and educational materials on the Site are owned by or licensed to Federal Market Associates. Government-published rates, formulas, and rules are public information; the way we present, organize, and explain them on this Site is ours.
+          </p>
+          <p style={styles.p}>
+            You may read, share, and link to the Site for personal, non-commercial use. You may not copy, reproduce, modify, distribute, republish, scrape, or create derivative works from any part of the Site for commercial purposes without our prior written permission.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>12. Governing Law</h2>
+          <h2 style={styles.h2}>9. Third-party services and links</h2>
           <p style={styles.p}>
-            These Terms of Service are governed by and construed in accordance with the laws of the United States, without regard to its conflict of law provisions. Any legal action or proceeding shall be brought exclusively in the appropriate courts of the United States.
+            The Site relies on third-party providers — including Netlify (hosting), Cloudflare (DNS/CDN), Airtable (CRM), Calendly (scheduling), Resend (transactional email), and Google Analytics (analytics) — and may link to third-party sites (e.g., opm.gov, ssa.gov, irs.gov, tsp.gov). We are not responsible for the availability, accuracy, content, or practices of any third-party service or site, and your use of any third-party service is governed by that party's own terms and privacy policy.
           </p>
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.h2}>13. Contact Information</h2>
+          <h2 style={styles.h2}>10. Privacy</h2>
           <p style={styles.p}>
-            If you have questions about these Terms of Service, please contact us:
+            Your use of the Site is also subject to our <Link to="/privacy" style={styles.link}>Privacy Policy</Link>, which describes what information we collect, how we use it, and your rights with respect to that information.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>11. Changes to the Site or to these Terms</h2>
+          <p style={styles.p}>
+            We may add, change, or remove any feature, calculator, or page on the Site at any time, with or without notice. We may also update these Terms from time to time. When we do, we will revise the "Last updated" date at the top of this page. Your continued use of the Site after we post a change constitutes your acceptance of the updated Terms.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>12. Governing law and disputes</h2>
+          <p style={styles.p}>
+            These Terms and any dispute arising out of or relating to your use of the Site are governed by the laws of the United States and (where applicable) the State of New Jersey, without regard to conflict-of-law principles. Any action or proceeding must be brought in a court of competent jurisdiction in the United States.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>13. Severability and entire agreement</h2>
+          <p style={styles.p}>
+            If any provision of these Terms is held to be invalid or unenforceable, the remaining provisions will remain in full force and effect. These Terms, together with the Privacy Policy and the Disclaimer, constitute the entire agreement between you and us regarding your use of the Site, and supersede any prior agreements on the same subject.
+          </p>
+        </section>
+
+        <section style={styles.section}>
+          <h2 style={styles.h2}>14. Contact</h2>
+          <p style={styles.p}>
+            Questions about these Terms? Contact us:
           </p>
           <ul style={styles.list}>
-            <li>Email: jhf17@icloud.com</li>
-            <li>Website: fedbenefitsaid.com</li>
-            <li>Schedule a consultation:{' '}
-              <a href="https://calendly.com/jhf17/30min" target="_blank" rel="noopener noreferrer" style={styles.link}>
-                calendly.com/jhf17/30min
-              </a>
-            </li>
+            <li>Email: <a href="mailto:jhf17@icloud.com" style={styles.link}>jhf17@icloud.com</a></li>
+            <li>Website: <a href="https://fedbenefitsaid.com" target="_blank" rel="noopener noreferrer" style={styles.link}>fedbenefitsaid.com</a></li>
+            <li>Book a free meeting: <Link to="/consultation" style={styles.link}>/consultation</Link></li>
           </ul>
         </section>
 
         <section style={styles.disclaimer}>
           <p style={styles.disclaimerText}>
-            These terms are provided for transparency and informational purposes. We recommend consulting with a legal professional for specific legal questions or interpretations of these terms.
+            These Terms are provided in good faith for transparency. They are not a substitute for legal advice; consult an attorney for specific legal questions.
           </p>
         </section>
 

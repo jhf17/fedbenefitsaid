@@ -87,7 +87,7 @@ async function addToAirtable(payload) {
   const notesParts = [
     payload.employer && `Employer/Dept: ${payload.employer}`,
     payload.preferredDate && `Preferred date: ${payload.preferredDate}`,
-    payload.preferredTimeWindow && `Time window: ${payload.preferredTimeWindow}`,
+    payload.preferredTime && `Preferred time: ${payload.preferredTime}`,
     payload.message && `Message: ${payload.message}`,
   ].filter(Boolean)
 
@@ -149,7 +149,7 @@ async function notifyFrc(payload) {
         <tr><td style="padding: 8px 12px; font-weight: 600;">State</td><td style="padding: 8px 12px;">${escapeHtml(payload.state)}</td></tr>
         ${payload.employer ? `<tr><td style="padding: 8px 12px; background: #f8fafc; font-weight: 600;">Employer / Dept</td><td style="padding: 8px 12px; background: #f8fafc;">${escapeHtml(payload.employer)}</td></tr>` : ''}
         ${payload.preferredDate ? `<tr><td style="padding: 8px 12px; font-weight: 600;">Preferred date</td><td style="padding: 8px 12px;">${escapeHtml(payload.preferredDate)}</td></tr>` : ''}
-        ${payload.preferredTimeWindow ? `<tr><td style="padding: 8px 12px; background: #f8fafc; font-weight: 600;">Time window</td><td style="padding: 8px 12px; background: #f8fafc;">${escapeHtml(payload.preferredTimeWindow)}</td></tr>` : ''}
+        ${payload.preferredTime ? `<tr><td style="padding: 8px 12px; background: #f8fafc; font-weight: 600;">Preferred time</td><td style="padding: 8px 12px; background: #f8fafc;">${escapeHtml(payload.preferredTime)}</td></tr>` : ''}
         ${payload.message ? `<tr><td style="padding: 8px 12px; font-weight: 600; vertical-align: top;">Message</td><td style="padding: 8px 12px; white-space: pre-wrap;">${escapeHtml(payload.message)}</td></tr>` : ''}
       </table>
       <p style="font-size: 12px; color: #94a3b8; margin: 24px 0 0;">
@@ -214,7 +214,7 @@ exports.handler = async (event) => {
     state: sanitize(body.state, 50),
     employer: sanitize(body.employer, 150),
     preferredDate: sanitize(body.preferredDate, 30),
-    preferredTimeWindow: sanitize(body.preferredTimeWindow, 50),
+    preferredTime: sanitize(body.preferredTime, 50),
     message: sanitize(body.message, 1000),
   }
 
