@@ -51,7 +51,7 @@ const CONCERN_ROUTING = {
     label: 'FEGLI — premiums look like they\'ll explode at retirement',
     calculators: [
       { title: 'FEGLI Cost Over Time Calculator', body: 'See exactly how your premiums change after age 50, 60, 65 — through age 80. Most people are surprised by what happens at 65.', href: '/calculators/fegli' },
-      { title: 'What-If Coverage Estimator', body: 'See what your federal benefits pay if you die, become disabled, or need long-term care — and where the gaps are.', href: '/calculators/what-if' },
+      { title: 'What-If Coverage Estimator', body: 'See what your federal benefits pay if you die or become disabled — and where the gaps are.', href: '/calculators/what-if' },
     ],
     libraryTitle: 'Read the FEGLI section of the Library',
     libraryBody: 'Option A/B/C breakdown, the 75% reduction election, why premiums spike at 65, and when private term life makes more sense.',
@@ -73,7 +73,7 @@ const CONCERN_ROUTING = {
   survivor: {
     label: 'What my family / spouse gets if something happens',
     calculators: [
-      { title: 'What-If Coverage Estimator', body: 'FEGLI, FERS Survivor, FERS Disability, and FLTCIP modeled honestly — what each actually pays in your situation.', href: '/calculators/what-if' },
+      { title: 'What-If Coverage Estimator', body: 'FEGLI, FERS Survivor, Social Security, and FERS Disability modeled honestly — what each actually pays in your situation.', href: '/calculators/what-if' },
       { title: 'FERS Pension Calculator', body: 'See how the survivor annuity election reduces your pension while alive in exchange for spousal coverage.', href: '/calculators/fers' },
       { title: 'Full Income Picture', body: 'Run the picture with and without you — can your spouse live on the federal package alone?', href: '/calculators/income-picture' },
     ],

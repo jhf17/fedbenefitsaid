@@ -41,7 +41,6 @@ const helpText = {
 const TABS = [
   { id: 'death', label: 'If I die', sub: 'FEGLI + FERS survivor + SS' },
   { id: 'disability', label: 'If I become disabled', sub: 'FERS disability formula' },
-  { id: 'ltc', label: 'If I need long-term care', sub: 'FLTCIP vs typical cost' },
 ]
 
 export default function WhatIf() {
@@ -71,12 +70,6 @@ export default function WhatIf() {
 
   // Disability-specific
   const [ssdiEstimate, setSsdiEstimate] = useState(0)
-
-  // LTC-specific
-  const [hasFltcip, setHasFltcip] = useState(false)
-  const [fltcipDailyBenefit, setFltcipDailyBenefit] = useState(150)
-  const [fltcipBenefitYears, setFltcipBenefitYears] = useState(3)
-  const [careType, setCareType] = useState('nursing') // nursing | assisted | home
 
   // ---- DEATH calculations ----
   const deathOutput = useMemo(() => {
@@ -155,43 +148,11 @@ export default function WhatIf() {
     }
   }, [tab, annualSalary, ssdiEstimate])
 
-  // ---- LTC calculations ----
-  const ltcOutput = useMemo(() => {
-    if (tab !== 'ltc') return null
-
-    // National median LTC costs (Genworth Cost of Care 2024 data — refresh annually):
-    //   Private nursing home room: ~$120,000/yr
-    //   Assisted living: ~$65,000/yr
-    //   Home health aide (44 hrs/wk): ~$75,000/yr
-    const annualCost = careType === 'nursing' ? 120000 : careType === 'assisted' ? 65000 : 75000
-    const careTypeName = careType === 'nursing' ? 'Private nursing home room' : careType === 'assisted' ? 'Assisted living facility' : 'In-home health aide'
-
-    // FLTCIP coverage
-    const fltcipAnnualBenefit = hasFltcip ? Number(fltcipDailyBenefit) * 365 : 0
-    const fltcipLifetimeMax = hasFltcip ? Number(fltcipDailyBenefit) * 365 * Number(fltcipBenefitYears) : 0
-
-    const annualGap = annualCost - fltcipAnnualBenefit
-    const threeYearTotal = annualCost * 3
-    const threeYearCovered = Math.min(fltcipLifetimeMax, threeYearTotal)
-    const threeYearOutOfPocket = threeYearTotal - threeYearCovered
-
-    return {
-      careTypeName,
-      annualCost,
-      fltcipAnnualBenefit,
-      fltcipLifetimeMax,
-      annualGap,
-      threeYearTotal,
-      threeYearCovered,
-      threeYearOutOfPocket,
-    }
-  }, [tab, careType, hasFltcip, fltcipDailyBenefit, fltcipBenefitYears])
-
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
         title='What if... federal benefits coverage estimator'
-        description='Honest math on what your federal benefits actually pay if you die, become disabled, or need long-term care. FEGLI, FERS Survivor, FERS Disability, and FLTCIP modeled.'
+        description='Honest math on what your federal benefits actually pay if you die or become disabled. FEGLI, FERS Survivor, Social Security, and FERS Disability modeled.'
         path='/calculators/what-if'
       />
 
@@ -214,9 +175,8 @@ export default function WhatIf() {
             <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>actually pay when bad things happen?</span>
           </h1>
           <p style={{ fontSize: '1.12rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 660 }}>
-            Honest math, not hand-waving. We model FEGLI plus FERS Survivor plus Social Security for death,
-            FERS Disability for disability, and FLTCIP versus national median costs for long-term care. The gap is
-            the gap.
+            Honest math, not hand-waving. We model FEGLI plus FERS Survivor plus Social Security for death, and
+            FERS Disability for disability. The gap is the gap.
           </p>
         </div>
       </header>
@@ -226,7 +186,7 @@ export default function WhatIf() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
             gap: 8,
             marginBottom: 28,
           }}
@@ -351,35 +311,6 @@ export default function WhatIf() {
                   <span style={helpText}>FERS Disability requires you to apply for SSDI within one year of approval. The FERS payment is reduced by 100% of SSDI in year 1, and 60% thereafter.</span>
                 </label>
               )}
-
-              {tab === 'ltc' && (
-                <>
-                  <label style={labelText}>
-                    Care type
-                    <select value={careType} onChange={(e) => setCareType(e.target.value)} style={inputBox}>
-                      <option value='nursing'>Private nursing home room</option>
-                      <option value='assisted'>Assisted living facility</option>
-                      <option value='home'>In-home health aide (~44 hrs/wk)</option>
-                    </select>
-                  </label>
-                  <label style={{ ...labelText, display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                    <input type='checkbox' checked={hasFltcip} onChange={(e) => setHasFltcip(e.target.checked)} />
-                    Enrolled in FLTCIP (Federal Long Term Care Insurance Program)
-                  </label>
-                  {hasFltcip && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <label style={labelText}>
-                        Daily benefit ($)
-                        <input type='number' value={fltcipDailyBenefit} onChange={(e) => setFltcipDailyBenefit(e.target.value)} step='10' style={inputBox} />
-                      </label>
-                      <label style={labelText}>
-                        Benefit period (years)
-                        <input type='number' value={fltcipBenefitYears} onChange={(e) => setFltcipBenefitYears(e.target.value)} step='1' min='1' max='10' style={inputBox} />
-                      </label>
-                    </div>
-                  )}
-                </>
-              )}
             </div>
           </div>
 
@@ -387,7 +318,6 @@ export default function WhatIf() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {tab === 'death' && deathOutput && <DeathOutput data={deathOutput} hasSpouse={hasSpouse} dependentChildren={dependentChildren} />}
             {tab === 'disability' && disabilityOutput && <DisabilityOutput data={disabilityOutput} annualSalary={annualSalary} />}
-            {tab === 'ltc' && ltcOutput && <LtcOutput data={ltcOutput} />}
           </div>
         </div>
 
@@ -432,7 +362,7 @@ export default function WhatIf() {
               boxShadow: '0 6px 20px rgba(176,141,90,0.32)',
             }}
           >
-            Book a 15-min call →
+            Book a free meeting →
           </Link>
         </div>
       </section>
@@ -562,37 +492,3 @@ function DisabilityOutput({ data, annualSalary }) {
   )
 }
 
-function LtcOutput({ data }) {
-  return (
-    <>
-      <GapCard title='3-year out-of-pocket exposure' status={data.threeYearOutOfPocket > 0 ? 'shortfall' : 'covered'}>
-        <div style={{ fontFamily: FONT_SERIF, fontSize: '2.4rem', fontWeight: 600, marginBottom: 6, letterSpacing: '-0.02em', fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>
-          {formatCurrency(data.threeYearOutOfPocket)}
-        </div>
-        <div style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.78)' }}>
-          {data.careTypeName}: median {formatCurrency(data.annualCost)}/yr. FLTCIP covers {formatCurrency(data.threeYearCovered)} over the three-year window.
-        </div>
-      </GapCard>
-
-      <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: 24 }}>
-        <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.1rem', fontWeight: 600, color: colors.pine, marginBottom: 14, letterSpacing: '-0.01em' }}>
-          Annual math
-        </h3>
-        <StatRow label={`${data.careTypeName} median cost`} value={formatCurrency(data.annualCost) + '/yr'} />
-        <StatRow label='FLTCIP annual benefit (if enrolled)' value={formatCurrency(data.fltcipAnnualBenefit) + '/yr'} />
-        <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
-        <StatRow label='Annual gap' value={formatCurrency(data.annualGap) + '/yr'} bold />
-        {data.fltcipLifetimeMax > 0 && (
-          <StatRow label='FLTCIP lifetime maximum benefit' value={formatCurrency(data.fltcipLifetimeMax)} muted />
-        )}
-      </div>
-
-      <div style={{ background: colors.brassPale, border: `1px solid ${colors.brass}`, borderRadius: 12, padding: '14px 18px', fontSize: '0.85rem', color: colors.slate700, lineHeight: 1.55 }}>
-        <strong style={{ color: colors.brassDeep, fontFamily: FONT_SERIF }}>Notes:</strong> National median LTC costs
-        from Genworth Cost of Care Survey 2024 (refresh annually). Your local rates may be higher (urban/coastal) or
-        lower (rural). FLTCIP enrollment was suspended in 2022 and remains under review — if you weren't enrolled
-        before then, this option may not currently be available. Existing enrollees retain their coverage.
-      </div>
-    </>
-  )
-}
