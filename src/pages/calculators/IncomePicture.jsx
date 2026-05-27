@@ -5,6 +5,7 @@ import Seo from '../../components/Seo'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
 import { DATA_LAST_UPDATED } from '../../config/site'
+import { monthlyGuaranteedIncome } from '../../data/guaranteedIncomeCalc'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -107,7 +108,9 @@ export default function IncomePicture() {
   const [supplementMonthly, setSupplementMonthly] = useState(0)
   const [ssMonthlyAt62, setSsMonthlyAt62] = useState(0)
   const [tspBalance, setTspBalance] = useState(500000)
-  const [withdrawalRate, setWithdrawalRate] = useState(4) // % per year
+  const [currentAge, setCurrentAge] = useState(58)
+  const [retirementAge, setRetirementAge] = useState(62)
+  const [yearsToDefer, setYearsToDefer] = useState(0)
   const [fehbMonthly, setFehbMonthly] = useState(450)
   const [medicarePartB, setMedicarePartB] = useState(202.90) // 2026 standard
   const [filingStatus, setFilingStatus] = useState('mfj')
@@ -117,7 +120,9 @@ export default function IncomePicture() {
   const [scenario, setScenario] = useState('between') // 'before62', 'between', 'after65'
 
   const computed = useMemo(() => {
-    const tspMonthlyWithdrawal = (Number(tspBalance) * (Number(withdrawalRate) / 100)) / 12
+    const incomeStartAge = Number(retirementAge) + Number(yearsToDefer)
+    const tspResult = monthlyGuaranteedIncome(tspBalance, currentAge, incomeStartAge)
+    const tspMonthlyIncome = tspResult.monthly
     const pension = Number(pensionMonthly) || 0
     const supplement = Number(supplementMonthly) || 0
     const ss = Number(ssMonthlyAt62) || 0
@@ -129,27 +134,27 @@ export default function IncomePicture() {
 
     if (scenario === 'before62') {
       // Retired before 62: pension + supplement + TSP. No SS yet.
-      preTaxMonthly = pension + supplement + tspMonthlyWithdrawal
+      preTaxMonthly = pension + supplement + tspMonthlyIncome
       breakdown = {
         Pension: pension,
         'FERS Supplement': supplement,
-        'TSP withdrawal': tspMonthlyWithdrawal,
+        'Guaranteed income from TSP': tspMonthlyIncome,
       }
     } else if (scenario === 'between') {
       // Age 62–65: pension + SS + TSP. Supplement ended at 62. No Medicare yet.
-      preTaxMonthly = pension + ss + tspMonthlyWithdrawal
+      preTaxMonthly = pension + ss + tspMonthlyIncome
       breakdown = {
         Pension: pension,
         'Social Security': ss,
-        'TSP withdrawal': tspMonthlyWithdrawal,
+        'Guaranteed income from TSP': tspMonthlyIncome,
       }
     } else {
       // 65+: pension + SS + TSP. Medicare Part B kicks in.
-      preTaxMonthly = pension + ss + tspMonthlyWithdrawal
+      preTaxMonthly = pension + ss + tspMonthlyIncome
       breakdown = {
         Pension: pension,
         'Social Security': ss,
-        'TSP withdrawal': tspMonthlyWithdrawal,
+        'Guaranteed income from TSP': tspMonthlyIncome,
       }
     }
 
@@ -176,7 +181,7 @@ export default function IncomePicture() {
     const gapPct = currentTakeHome > 0 ? gap / Number(currentTakeHome) : 0
 
     return {
-      tspMonthlyWithdrawal,
+      tspMonthlyIncome,
       preTaxMonthly,
       annualIncome,
       effectiveFedRate,
@@ -189,7 +194,7 @@ export default function IncomePicture() {
       gapPct,
       breakdown,
     }
-  }, [pensionMonthly, supplementMonthly, ssMonthlyAt62, tspBalance, withdrawalRate, fehbMonthly, medicarePartB, scenario, currentTakeHome, filingStatus, stateRate])
+  }, [pensionMonthly, supplementMonthly, ssMonthlyAt62, tspBalance, currentAge, retirementAge, yearsToDefer, fehbMonthly, medicarePartB, scenario, currentTakeHome, filingStatus, stateRate])
 
   const pieData = Object.entries(computed.breakdown)
     .filter(([, v]) => v > 0)
@@ -201,7 +206,7 @@ export default function IncomePicture() {
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
         title="Full Income Picture Calculator"
-        description="Layer your federal pension, FERS Supplement, Social Security, and TSP withdrawals against your current take-home. See the full income picture — pre-tax, after federal/state tax, and net of FEHB + Medicare."
+        description="Layer your federal pension, FERS Supplement, Social Security, and guaranteed TSP income against your current take-home. See the full income picture — pre-tax, after federal/state tax, and net of FEHB + Medicare."
         path="/calculators/income-picture"
       />
 
@@ -348,17 +353,34 @@ export default function IncomePicture() {
               </label>
             )}
 
-            <label style={labelText}>
-              Projected TSP balance at retirement
-              <input type="number" value={tspBalance} onChange={(e) => setTspBalance(e.target.value)} step="10000" style={inputBox} />
-              <span style={helpText}>Project forward from your current balance with assumed contributions and 5–7% growth.</span>
-            </label>
+            <div style={{ paddingTop: 6, borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.brassDeep, marginTop: 10, marginBottom: 10 }}>
+                Guaranteed income from TSP
+              </div>
 
-            <label style={labelText}>
-              Annual TSP withdrawal rate
-              <input type="number" value={withdrawalRate} onChange={(e) => setWithdrawalRate(e.target.value)} step="0.25" min="0" max="15" style={inputBox} />
-              <span style={helpText}>4% is the classic safe-withdrawal benchmark. Lower if you want more longevity safety.</span>
-            </label>
+              <label style={labelText}>
+                Projected TSP balance at retirement
+                <input type="number" value={tspBalance} onChange={(e) => setTspBalance(e.target.value)} step="10000" min="0" style={inputBox} />
+                <span style={helpText}>Project forward from your current balance with assumed contributions and 5–7% growth.</span>
+              </label>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
+                <label style={labelText}>
+                  Your current age
+                  <input type="number" value={currentAge} onChange={(e) => setCurrentAge(e.target.value)} step="1" min="40" max="80" style={inputBox} />
+                </label>
+                <label style={labelText}>
+                  Your retirement age
+                  <input type="number" value={retirementAge} onChange={(e) => setRetirementAge(e.target.value)} step="1" min="50" max="80" style={inputBox} />
+                </label>
+              </div>
+
+              <label style={{ ...labelText, marginTop: 14 }}>
+                Years after retirement to wait before drawing income
+                <input type="number" value={yearsToDefer} onChange={(e) => setYearsToDefer(e.target.value)} step="1" min="0" max="20" style={inputBox} />
+                <span style={helpText}>Default is 0 — start drawing income at retirement. Waiting longer increases the monthly amount.</span>
+              </label>
+            </div>
 
             <label style={labelText}>
               FEHB monthly premium
@@ -503,7 +525,7 @@ export default function IncomePicture() {
           <ul style={{ paddingLeft: 20, color: colors.slate700, fontSize: '0.95rem', lineHeight: 1.7 }}>
             <li>The tax estimate uses 2026 federal brackets and the standard deduction for your filing status. It is a blended effective rate, not a precise filing-by-filing number.</li>
             <li>Healthcare cost: FEHB-only before 65, FEHB + Medicare Part B after. IRMAA can push Part B significantly higher above income thresholds — not modeled.</li>
-            <li>TSP withdrawals: all assumed traditional (taxable). Roth TSP withdrawals would shift the after-tax math meaningfully — not modeled here.</li>
+            <li>TSP income is assumed traditional (taxable). Roth TSP income would shift the after-tax math meaningfully — not modeled here.</li>
             <li>This is a planning estimate. For an actual tax projection, run your numbers through tax software for the year you'll retire — or talk to us.</li>
           </ul>
         </div>
@@ -528,7 +550,7 @@ export default function IncomePicture() {
               Most gaps have three or four real fixes.
             </h3>
             <p style={{ fontSize: '0.98rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.78)' }}>
-              Working a year longer for the 1.1% kicker. Adjusting TSP withdrawal strategy. Timing Social Security differently. We can walk through which ones are realistic for you — meeting is free, no time limit.
+              Working a year longer for the 1.1% kicker. Waiting longer before starting TSP income. Timing Social Security differently. We can walk through which ones are realistic for you — meeting is free, no time limit.
             </p>
           </div>
           <Link
