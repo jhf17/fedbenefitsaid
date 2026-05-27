@@ -294,7 +294,7 @@ export default function Landing() {
               marginTop: isMobile ? 8 : 0,
             }}
           >
-            <AmericanFlag width={isMobile ? 240 : 360} />
+            <AmericanFlag width={isMobile ? 96 : 144} />
           </div>
         </div>
       </section>

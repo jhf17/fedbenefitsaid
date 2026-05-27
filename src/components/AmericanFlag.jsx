@@ -28,12 +28,12 @@ export default function AmericanFlag({ width = 360, ariaHidden = true }) {
   // Geometry
   const flagW = width
   const flagH = flagW * FLAG_RATIO
-  const poleW = Math.max(7, Math.round(flagW * 0.022)) // pole shaft thickness
-  const finialR = Math.max(11, Math.round(flagW * 0.035)) // gold ball radius (visibly larger than pole)
+  const poleW = Math.max(3, Math.round(flagW * 0.012)) // pole shaft thickness
+  const finialR = Math.max(3, Math.round(flagW * 0.014)) // gold ball radius (subtly larger than pole)
   // Flag attaches just under the bottom of the finial.
   const flagTop = finialR * 2 + 2
-  // Pole extends below the flag for a natural flagpole silhouette.
-  const bottomExtension = flagH * 0.55
+  // Pole extends well below the flag for a taller, more realistic silhouette.
+  const bottomExtension = flagH * 1.5
   const totalH = flagTop + flagH + bottomExtension
   // Container width = pole shaft + flag. The finial is centered on the pole, so its
   // overhang (finialR - poleW/2) just bleeds left — we add that padding to the viewBox.
