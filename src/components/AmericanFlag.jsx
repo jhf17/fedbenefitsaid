@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Aspect ratio of the chroma-keyed flag.webm (800x440)
-const FLAG_RATIO = 440 / 800
+// Aspect ratio of the tightly-cropped flag.webm (720x402).
+const FLAG_RATIO = 402 / 720
 
 export default function AmericanFlag({ width = 360, ariaHidden = true }) {
   const videoRef = useRef(null)
@@ -25,15 +25,26 @@ export default function AmericanFlag({ width = 360, ariaHidden = true }) {
     }
   }, [reducedMotion])
 
-  // Pole sits flush along the left edge of the flag and extends above + below.
+  // Geometry
   const flagW = width
   const flagH = flagW * FLAG_RATIO
-  const poleW = Math.max(6, Math.round(flagW * 0.02))
-  const finialR = poleW * 1.7
-  const topExtension = finialR * 2 + 4
+  const poleW = Math.max(7, Math.round(flagW * 0.022)) // pole shaft thickness
+  const finialR = Math.max(11, Math.round(flagW * 0.035)) // gold ball radius (visibly larger than pole)
+  // Flag attaches just under the bottom of the finial.
+  const flagTop = finialR * 2 + 2
+  // Pole extends below the flag for a natural flagpole silhouette.
   const bottomExtension = flagH * 0.55
-  const totalH = topExtension + flagH + bottomExtension
-  const totalW = flagW + poleW
+  const totalH = flagTop + flagH + bottomExtension
+  // Container width = pole shaft + flag. The finial is centered on the pole, so its
+  // overhang (finialR - poleW/2) just bleeds left — we add that padding to the viewBox.
+  const finialOverhang = Math.max(0, finialR - poleW / 2)
+  const totalW = finialOverhang + poleW + flagW
+
+  // X-coords inside the SVG / container
+  const poleX = finialOverhang
+  const finialCx = poleX + poleW / 2
+  const finialCy = finialR
+  const flagX = poleX + poleW
 
   return (
     <div
@@ -51,7 +62,7 @@ export default function AmericanFlag({ width = 360, ariaHidden = true }) {
         width={totalW}
         height={totalH}
         viewBox={`0 0 ${totalW} ${totalH}`}
-        style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }}
+        style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none', overflow: 'visible' }}
         aria-hidden
       >
         <defs>
@@ -67,21 +78,29 @@ export default function AmericanFlag({ width = 360, ariaHidden = true }) {
             <stop offset="100%" stopColor="#8a6a1f" />
           </radialGradient>
         </defs>
-        {/* Pole shaft */}
+
+        {/* Pole shaft — starts just under the finial, runs to the bottom of the container */}
         <rect
-          x={0}
-          y={finialR + 2}
+          x={poleX}
+          y={finialCy + finialR * 0.85}
           width={poleW}
-          height={totalH - (finialR + 2)}
+          height={totalH - (finialCy + finialR * 0.85)}
           fill="url(#fba-pole-grad)"
           rx={poleW / 2}
         />
-        {/* Finial */}
-        <circle cx={poleW / 2} cy={finialR + 2} r={finialR} fill="url(#fba-finial-grad)" />
-        <circle cx={poleW / 2 - finialR * 0.35} cy={finialR + 2 - finialR * 0.35} r={finialR * 0.28} fill="rgba(255,255,255,0.55)" />
+
+        {/* Gold finial (the ball on top) */}
+        <circle cx={finialCx} cy={finialCy} r={finialR} fill="url(#fba-finial-grad)" stroke="#7a5722" strokeWidth="0.5" />
+        {/* Highlight */}
+        <circle
+          cx={finialCx - finialR * 0.32}
+          cy={finialCy - finialR * 0.34}
+          r={finialR * 0.26}
+          fill="rgba(255,255,255,0.65)"
+        />
       </svg>
 
-      {/* Flag video — chroma-keyed WebM with alpha */}
+      {/* Flag video — chroma-keyed WebM with alpha. Positioned flush with pole, just below finial. */}
       <video
         ref={videoRef}
         src="/flag.webm"
@@ -93,14 +112,13 @@ export default function AmericanFlag({ width = 360, ariaHidden = true }) {
         preload="auto"
         style={{
           position: 'absolute',
-          left: poleW,
-          top: topExtension,
+          left: flagX,
+          top: flagTop,
           width: flagW,
           height: flagH,
-          objectFit: 'contain',
+          objectFit: 'fill',
           display: 'block',
           background: 'transparent',
-          // tiny shadow under the flag to ground it on the dark hero
           filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.18))',
         }}
       />
