@@ -1,6 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 import Seo from '../../components/Seo'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
@@ -39,59 +48,35 @@ const helpText = {
   lineHeight: 1.45,
 }
 
-// Federal effective tax brackets — tax year 2026.
-// Source: IRS Rev. Proc. 2025-32 (https://www.irs.gov/pub/irs-drop/rp-25-32.pdf).
-// Used as a rough "blended effective rate" estimator for retirement income.
-function estimateFederalEffectiveRate(annualIncome, filingStatus = 'mfj') {
-  const brackets = filingStatus === 'mfj' ? [
-    { upTo: 24800,  rate: 0.10 },
-    { upTo: 100800, rate: 0.12 },
-    { upTo: 211400, rate: 0.22 },
-    { upTo: 403550, rate: 0.24 },
-    { upTo: 512450, rate: 0.32 },
-    { upTo: 768700, rate: 0.35 },
-    { upTo: Infinity, rate: 0.37 },
-  ] : [
-    { upTo: 12400,  rate: 0.10 },
-    { upTo: 50400,  rate: 0.12 },
-    { upTo: 105700, rate: 0.22 },
-    { upTo: 201775, rate: 0.24 },
-    { upTo: 256225, rate: 0.32 },
-    { upTo: 640600, rate: 0.35 },
-    { upTo: Infinity, rate: 0.37 },
-  ]
-
-  // 2026 standard deduction (IRS Rev. Proc. 2025-32).
-  const stdDeduction = filingStatus === 'mfj' ? 32200 : 16100
-  const taxable = Math.max(0, annualIncome - stdDeduction)
-
-  let tax = 0
-  let prev = 0
-  for (const b of brackets) {
-    const slice = Math.max(0, Math.min(taxable, b.upTo) - prev)
-    tax += slice * b.rate
-    prev = b.upTo
-    if (taxable <= b.upTo) break
-  }
-  return annualIncome > 0 ? tax / annualIncome : 0
+const sectionLabel = {
+  fontSize: '0.8rem',
+  fontWeight: 700,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
+  color: colors.brassDeep,
+  marginBottom: 10,
 }
 
-// IRS provisional-income test (IRS Pub. 915) — determines what portion of
-// Social Security benefits is included in taxable income. Up to 85% may be
-// taxable for high-income retirees; less for lower-income.
-function taxableSsAmount(annualSsBenefits, otherIncome, filingStatus) {
-  if (annualSsBenefits <= 0) return 0
-  const provisional = otherIncome + 0.5 * annualSsBenefits
-  const t1 = filingStatus === 'mfj' ? 32000 : 25000
-  const t2 = filingStatus === 'mfj' ? 44000 : 34000
-  if (provisional <= t1) return 0
-  if (provisional <= t2) {
-    return Math.min(0.5 * annualSsBenefits, 0.5 * (provisional - t1))
+// Standard SSA formula. FRA = 67 for anyone born in 1960 or later — close enough
+// for everyone using this tool. Returns the multiplier applied to PIA.
+//   62 → 0.70   (30% reduction: 36 months × 5/9% + 24 months × 5/12%)
+//   67 → 1.00   (FRA, full PIA)
+//   70 → 1.24   (3 years × 8% delayed credits)
+function ssMultiplierAtAge(age) {
+  const FRA = 67
+  if (age < 62) return 0
+  if (age < FRA) {
+    const monthsBeforeFRA = (FRA - age) * 12
+    let reduction
+    if (monthsBeforeFRA <= 36) {
+      reduction = (monthsBeforeFRA * 5) / 9 / 100
+    } else {
+      reduction = (36 * 5) / 9 / 100 + ((monthsBeforeFRA - 36) * 5) / 12 / 100
+    }
+    return 1 - reduction
   }
-  // Provisional > t2
-  const tier1 = Math.min(0.5 * annualSsBenefits, 0.5 * (t2 - t1))
-  const tier2 = 0.85 * (provisional - t2)
-  return Math.min(0.85 * annualSsBenefits, tier1 + tier2)
+  const cappedAge = Math.min(age, 70)
+  return 1 + (cappedAge - FRA) * 0.08
 }
 
 export default function IncomePicture() {
@@ -102,111 +87,155 @@ export default function IncomePicture() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Inputs
-  const [currentTakeHome, setCurrentTakeHome] = useState(7000) // monthly net take-home today
-  const [pensionMonthly, setPensionMonthly] = useState(3500)
-  const [supplementMonthly, setSupplementMonthly] = useState(0)
-  const [ssMonthlyAt62, setSsMonthlyAt62] = useState(0)
-  const [tspBalance, setTspBalance] = useState(500000)
-  const [currentAge, setCurrentAge] = useState(58)
-  const [retirementAge, setRetirementAge] = useState(62)
-  const [yearsToDefer, setYearsToDefer] = useState(0)
-  const [fehbMonthly, setFehbMonthly] = useState(450)
-  const [medicarePartB, setMedicarePartB] = useState(202.90) // 2026 standard
-  const [filingStatus, setFilingStatus] = useState('mfj')
-  const [stateRate, setStateRate] = useState(5) // % flat estimate
+  // Flow: 'pre62' (retire before 62, FERS Supplement applies) or 'post62' (retire at 62+)
+  const [flow, setFlow] = useState('pre62')
 
-  // Scenarios — three conceptual phases users can compare
-  const [scenario, setScenario] = useState('between') // 'before62', 'between', 'after65'
+  // Common inputs
+  const [retirementAge, setRetirementAge] = useState(58)
+  const [currentAge, setCurrentAge] = useState(55)
+  const [pensionMonthly, setPensionMonthly] = useState(3500)
+
+  // Pre-62 only
+  const [ssAt62, setSsAt62] = useState(2000)
+  const [yearsOfFersService, setYearsOfFersService] = useState(30)
+
+  // Post-62 only
+  const [ssReferenceAge, setSsReferenceAge] = useState('claim') // 'claim' | '62' | '67' | '70'
+  const [ssReferenceAmount, setSsReferenceAmount] = useState(2500)
+
+  // SS claim age (both flows)
+  const [ssClaimAge, setSsClaimAge] = useState(62)
+
+  // TSP
+  const [tspBalance, setTspBalance] = useState(500000)
+  const [yearsToDefer, setYearsToDefer] = useState(0)
+
+  // FEHB
+  const [fehbMonthly, setFehbMonthly] = useState(450)
+
+  // When user flips flow, snap retirement age and claim age into the valid range
+  // for that flow so the chart doesn't break.
+  useEffect(() => {
+    const ra = Number(retirementAge)
+    if (flow === 'pre62' && ra >= 62) setRetirementAge(58)
+    if (flow === 'post62' && ra < 62) setRetirementAge(62)
+  }, [flow]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (flow === 'post62') {
+      const ra = Number(retirementAge)
+      const claim = Number(ssClaimAge)
+      if (claim < ra) setSsClaimAge(ra)
+    }
+  }, [flow, retirementAge]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const computed = useMemo(() => {
-    const incomeStartAge = Number(retirementAge) + Number(yearsToDefer)
-    const tspResult = monthlyGuaranteedIncome(tspBalance, currentAge, incomeStartAge)
-    const tspMonthlyIncome = tspResult.monthly
+    const ra = Number(retirementAge) || 0
+    const claim = Number(ssClaimAge) || 62
+    const tspStartAge = ra + (Number(yearsToDefer) || 0)
     const pension = Number(pensionMonthly) || 0
-    const supplement = Number(supplementMonthly) || 0
-    const ss = Number(ssMonthlyAt62) || 0
     const fehb = Number(fehbMonthly) || 0
-    const medB = Number(medicarePartB) || 0
 
-    let preTaxMonthly = 0
-    let breakdown = {}
+    // FERS Supplement (pre-62 flow only). Formula: (Years of FERS service / 40) × SS@62.
+    // Paid from retirement until 62.
+    const supplement =
+      flow === 'pre62'
+        ? ((Number(yearsOfFersService) || 0) / 40) * (Number(ssAt62) || 0)
+        : 0
 
-    if (scenario === 'before62') {
-      // Retired before 62: pension + supplement + TSP. No SS yet.
-      preTaxMonthly = pension + supplement + tspMonthlyIncome
-      breakdown = {
-        Pension: pension,
-        'FERS Supplement': supplement,
-        'Guaranteed income from TSP': tspMonthlyIncome,
-      }
-    } else if (scenario === 'between') {
-      // Age 62–65: pension + SS + TSP. Supplement ended at 62. No Medicare yet.
-      preTaxMonthly = pension + ss + tspMonthlyIncome
-      breakdown = {
-        Pension: pension,
-        'Social Security': ss,
-        'Guaranteed income from TSP': tspMonthlyIncome,
-      }
+    // Compute PIA (the full-FRA benefit) so we can extrapolate to any claim age.
+    let pia = 0
+    if (flow === 'pre62') {
+      // SS@62 is 70% of PIA
+      pia = (Number(ssAt62) || 0) / 0.7
     } else {
-      // 65+: pension + SS + TSP. Medicare Part B kicks in.
-      preTaxMonthly = pension + ss + tspMonthlyIncome
-      breakdown = {
-        Pension: pension,
-        'Social Security': ss,
-        'Guaranteed income from TSP': tspMonthlyIncome,
+      // Post-62 flow: user picks a reference age (or "exact claim age") and enters an amount.
+      const refAmt = Number(ssReferenceAmount) || 0
+      if (ssReferenceAge === 'claim') {
+        const mult = ssMultiplierAtAge(claim)
+        pia = mult > 0 ? refAmt / mult : 0
+      } else {
+        const refMult = ssMultiplierAtAge(Number(ssReferenceAge))
+        pia = refMult > 0 ? refAmt / refMult : 0
       }
     }
+    const ssAtClaim = pia * ssMultiplierAtAge(claim)
 
-    const annualIncome = preTaxMonthly * 12
-    // SS tax: apply IRS provisional-income test (Pub. 915). Up to 85% of SS may
-    // be federally taxable; the rest is exempt. State tax usually follows the
-    // federal taxable amount (some states exempt all SS; we approximate by
-    // applying state rate to the same taxable base).
-    const annualSs = (scenario === 'before62' ? 0 : ss) * 12
-    const otherTaxableIncome = annualIncome - annualSs
-    const taxableSs = taxableSsAmount(annualSs, otherTaxableIncome, filingStatus)
-    const annualTaxableIncome = otherTaxableIncome + taxableSs
-    const effectiveFedRate = estimateFederalEffectiveRate(annualTaxableIncome, filingStatus)
-    const stateRateDecimal = (Number(stateRate) || 0) / 100
-    const monthlyFedTax = (annualTaxableIncome * effectiveFedRate) / 12
-    const monthlyStateTax = (annualTaxableIncome * stateRateDecimal) / 12
+    // TSP guaranteed monthly income
+    const tspResult = monthlyGuaranteedIncome(
+      Number(tspBalance) || 0,
+      Number(currentAge) || 0,
+      tspStartAge
+    )
+    const tspMonthly = tspResult.monthly
 
-    const monthlyHealthCare = scenario === 'after65' ? medB + fehb : fehb
+    // Chart data: retirement age → 90
+    const chartData = []
+    const endAge = 90
+    for (let age = ra; age <= endAge; age++) {
+      const p = pension
+      const s = flow === 'pre62' && age < 62 ? supplement : 0
+      const ss = age >= claim ? ssAtClaim : 0
+      const tsp = age >= tspStartAge ? tspMonthly : 0
+      chartData.push({
+        age,
+        pension: Math.round(p),
+        supplement: Math.round(s),
+        ss: Math.round(ss),
+        tsp: Math.round(tsp),
+        total: Math.round(p + s + ss + tsp),
+      })
+    }
 
-    const afterTaxMonthly = preTaxMonthly - monthlyFedTax - monthlyStateTax
-    const netMonthly = afterTaxMonthly - monthlyHealthCare
+    // Pick a representative "steady state" age — once SS and TSP are both on.
+    // Use that for the summary card.
+    const steadyAge = Math.min(endAge, Math.max(claim, tspStartAge, ra))
+    const steady = chartData.find((d) => d.age === steadyAge) || chartData[chartData.length - 1]
 
-    const gap = netMonthly - Number(currentTakeHome)
-    const gapPct = currentTakeHome > 0 ? gap / Number(currentTakeHome) : 0
+    // First year of retirement, for the "starting" stat.
+    const firstYear = chartData[0] || { total: 0 }
 
     return {
-      tspMonthlyIncome,
-      preTaxMonthly,
-      annualIncome,
-      effectiveFedRate,
-      monthlyFedTax,
-      monthlyStateTax,
-      monthlyHealthCare,
-      afterTaxMonthly,
-      netMonthly,
-      gap,
-      gapPct,
-      breakdown,
+      supplement,
+      ssAtClaim,
+      tspMonthly,
+      tspStartAge,
+      pia,
+      chartData,
+      steady,
+      firstYear,
+      fehb,
     }
-  }, [pensionMonthly, supplementMonthly, ssMonthlyAt62, tspBalance, currentAge, retirementAge, yearsToDefer, fehbMonthly, medicarePartB, scenario, currentTakeHome, filingStatus, stateRate])
+  }, [
+    flow,
+    retirementAge,
+    currentAge,
+    pensionMonthly,
+    ssAt62,
+    yearsOfFersService,
+    ssReferenceAge,
+    ssReferenceAmount,
+    ssClaimAge,
+    tspBalance,
+    yearsToDefer,
+    fehbMonthly,
+  ])
 
-  const pieData = Object.entries(computed.breakdown)
-    .filter(([, v]) => v > 0)
-    .map(([name, value]) => ({ name, value: Math.round(value) }))
-
-  const pieColors = [colors.pine, colors.brass, colors.sage, colors.brassDeep]
+  const tooltipFormatter = (value, name) => {
+    const labels = {
+      pension: 'Pension',
+      supplement: 'FERS Supplement',
+      ss: 'Social Security',
+      tsp: 'Guaranteed income from TSP',
+    }
+    return [formatCurrency(value) + '/mo', labels[name] || name]
+  }
 
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
         title="Full Income Picture Calculator"
-        description="Layer your federal pension, FERS Supplement, Social Security, and guaranteed TSP income against your current take-home. See the full income picture — pre-tax, after federal/state tax, and net of FEHB + Medicare."
+        description="Layer your federal pension, FERS Supplement, Social Security, and guaranteed TSP income into one pre-tax income picture — with a year-by-year chart showing how it changes from your retirement date forward."
         path="/calculators/income-picture"
       />
 
@@ -254,16 +283,16 @@ export default function IncomePicture() {
           >
             Full Income Picture <br />
             <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
-              Pension + Supplement + SS + TSP vs your current take-home.
+              Pension, Supplement, Social Security, and TSP — year by year.
             </span>
           </h1>
           <p style={{ fontSize: '1.12rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 660 }}>
-            The three (or four) legs of federal retirement income — pension, FERS Supplement, Social Security, TSP — laid out side-by-side against your current take-home. Pre-tax, after federal/state tax, and net of FEHB + Medicare. Honest math, no spin.
+            All four legs of federal retirement income stacked together, pre-tax — with a year-by-year view of how it changes as your FERS Supplement ends, Social Security turns on, and TSP income kicks in.
           </p>
         </div>
       </header>
 
-      <section style={{ maxWidth: 1140, margin: '0 auto', padding: '48px 24px 96px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 28 }}>
+      <section style={{ maxWidth: 1140, margin: '0 auto', padding: '48px 24px 32px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 28 }}>
         {/* INPUTS */}
         <div
           style={{
@@ -289,35 +318,26 @@ export default function IncomePicture() {
           </h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <label style={labelText}>
-              Current monthly take-home (after taxes & FEHB)
-              <input type="number" value={currentTakeHome} onChange={(e) => setCurrentTakeHome(e.target.value)} step="100" style={inputBox} />
-              <span style={helpText}>What hits your bank account today after all deductions.</span>
-            </label>
-
-            <div style={{ paddingTop: 6, borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.brassDeep, marginTop: 10, marginBottom: 6 }}>
-                Time period
-              </div>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {/* FLOW SELECT */}
+            <div>
+              <div style={sectionLabel}>When are you retiring?</div>
+              <div style={{ display: 'flex', gap: 8 }}>
                 {[
-                  ['before62', 'Before 62', 'Pension + Supplement + TSP'],
-                  ['between', '62 – 64', 'Pension + SS + TSP'],
-                  ['after65', '65+', 'Pension + SS + TSP, Medicare adds in'],
+                  ['pre62', 'Before 62', 'FERS Supplement applies'],
+                  ['post62', '62 or later', 'No FERS Supplement'],
                 ].map(([val, label, sub]) => (
                   <button
                     key={val}
                     type="button"
-                    onClick={() => setScenario(val)}
+                    onClick={() => setFlow(val)}
                     style={{
                       flex: 1,
-                      minWidth: 100,
-                      padding: '10px 12px',
-                      background: scenario === val ? colors.pine : '#ffffff',
-                      color: scenario === val ? '#ffffff' : colors.pine,
-                      border: `1px solid ${scenario === val ? colors.pine : colors.borderSubtle || 'rgba(31,61,44,0.10)'}`,
+                      padding: '12px 14px',
+                      background: flow === val ? colors.pine : '#ffffff',
+                      color: flow === val ? '#ffffff' : colors.pine,
+                      border: `1px solid ${flow === val ? colors.pine : 'rgba(31,61,44,0.10)'}`,
                       borderRadius: 10,
-                      fontSize: '0.86rem',
+                      fontSize: '0.92rem',
                       fontWeight: 600,
                       cursor: 'pointer',
                       fontFamily: FONT_SANS,
@@ -325,10 +345,37 @@ export default function IncomePicture() {
                     }}
                   >
                     <div>{label}</div>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 400, opacity: 0.78, marginTop: 2 }}>{sub}</div>
+                    <div style={{ fontSize: '0.74rem', fontWeight: 400, opacity: 0.78, marginTop: 2 }}>{sub}</div>
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <label style={labelText}>
+                Retirement age
+                <input
+                  type="number"
+                  value={retirementAge}
+                  onChange={(e) => setRetirementAge(e.target.value)}
+                  step="1"
+                  min={flow === 'pre62' ? 50 : 62}
+                  max={flow === 'pre62' ? 61 : 70}
+                  style={inputBox}
+                />
+              </label>
+              <label style={labelText}>
+                Your current age
+                <input
+                  type="number"
+                  value={currentAge}
+                  onChange={(e) => setCurrentAge(e.target.value)}
+                  step="1"
+                  min="40"
+                  max="80"
+                  style={inputBox}
+                />
+              </label>
             </div>
 
             <label style={labelText}>
@@ -337,43 +384,161 @@ export default function IncomePicture() {
               <span style={helpText}>From the FERS or CSRS pension calculator.</span>
             </label>
 
-            {scenario === 'before62' && (
-              <label style={labelText}>
-                Monthly FERS Supplement (until 62)
-                <input type="number" value={supplementMonthly} onChange={(e) => setSupplementMonthly(e.target.value)} step="25" style={inputBox} />
-                <span style={helpText}>Only applies to FERS retirees who left before 62 with immediate annuity. CSRS retirees: leave at 0.</span>
-              </label>
-            )}
+            {/* SOCIAL SECURITY */}
+            <div style={{ paddingTop: 6, borderTop: `1px solid rgba(31,61,44,0.06)` }}>
+              <div style={{ ...sectionLabel, marginTop: 10 }}>Social Security</div>
 
-            {scenario !== 'before62' && (
-              <label style={labelText}>
-                Monthly Social Security benefit
-                <input type="number" value={ssMonthlyAt62} onChange={(e) => setSsMonthlyAt62(e.target.value)} step="25" style={inputBox} />
-                <span style={helpText}>From SSA.gov. Use the row matching your assumed claiming age.</span>
-              </label>
-            )}
+              {flow === 'pre62' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <label style={labelText}>
+                    Your SS estimate at age 62
+                    <input
+                      type="number"
+                      value={ssAt62}
+                      onChange={(e) => setSsAt62(e.target.value)}
+                      step="25"
+                      style={inputBox}
+                    />
+                    <span style={helpText}>From SSA.gov. We use this to compute both your FERS Supplement and your SS at any other claim age.</span>
+                  </label>
 
-            <div style={{ paddingTop: 6, borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.brassDeep, marginTop: 10, marginBottom: 10 }}>
-                Guaranteed income from TSP
-              </div>
+                  <label style={labelText}>
+                    Years of FERS service at retirement
+                    <input
+                      type="number"
+                      value={yearsOfFersService}
+                      onChange={(e) => setYearsOfFersService(e.target.value)}
+                      step="1"
+                      min="5"
+                      max="42"
+                      style={inputBox}
+                    />
+                    <span style={helpText}>Creditable FERS service. Formula: (Years ÷ 40) × your SS at 62 = your FERS Supplement.</span>
+                  </label>
+
+                  <div
+                    style={{
+                      background: colors.bone,
+                      border: `1px solid rgba(176,141,90,0.30)`,
+                      borderRadius: 10,
+                      padding: 14,
+                      fontSize: '0.88rem',
+                      color: colors.pine,
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                      Your FERS Supplement: {formatCurrency(computed.supplement)}/mo
+                    </div>
+                    <div style={{ color: colors.slate700, fontSize: '0.82rem' }}>
+                      Pays from age {retirementAge} until you turn 62.
+                    </div>
+                  </div>
+
+                  <label style={labelText}>
+                    When will you claim Social Security?
+                    <input
+                      type="number"
+                      value={ssClaimAge}
+                      onChange={(e) => setSsClaimAge(e.target.value)}
+                      step="1"
+                      min="62"
+                      max="70"
+                      style={inputBox}
+                    />
+                    <span style={helpText}>Between 62 and 70. We estimate your benefit at this age using SSA's standard reduction/delayed-credit formulas.</span>
+                  </label>
+
+                  {Number(ssClaimAge) !== 62 && (
+                    <div
+                      style={{
+                        background: colors.bone,
+                        border: `1px solid rgba(176,141,90,0.30)`,
+                        borderRadius: 10,
+                        padding: 14,
+                        fontSize: '0.88rem',
+                        color: colors.pine,
+                      }}
+                    >
+                      <div style={{ fontWeight: 700 }}>
+                        Estimated SS at age {ssClaimAge}: {formatCurrency(computed.ssAtClaim)}/mo
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <label style={labelText}>
+                    When will you claim Social Security?
+                    <input
+                      type="number"
+                      value={ssClaimAge}
+                      onChange={(e) => setSsClaimAge(e.target.value)}
+                      step="1"
+                      min={Math.max(62, Number(retirementAge) || 62)}
+                      max="70"
+                      style={inputBox}
+                    />
+                    <span style={helpText}>Between your retirement age and 70.</span>
+                  </label>
+
+                  <label style={labelText}>
+                    Which SSA estimate are you entering?
+                    <select
+                      value={ssReferenceAge}
+                      onChange={(e) => setSsReferenceAge(e.target.value)}
+                      style={inputBox}
+                    >
+                      <option value="claim">My estimate at the exact age I'll claim ({ssClaimAge})</option>
+                      <option value="62">My estimate at age 62</option>
+                      <option value="67">My estimate at age 67 (Full Retirement Age)</option>
+                      <option value="70">My estimate at age 70</option>
+                    </select>
+                    <span style={helpText}>SSA.gov shows estimates at 62, FRA, and 70. Pick whichever you have handy.</span>
+                  </label>
+
+                  <label style={labelText}>
+                    Monthly SS estimate
+                    <input
+                      type="number"
+                      value={ssReferenceAmount}
+                      onChange={(e) => setSsReferenceAmount(e.target.value)}
+                      step="25"
+                      style={inputBox}
+                    />
+                  </label>
+
+                  {ssReferenceAge !== 'claim' && Number(ssReferenceAge) !== Number(ssClaimAge) && (
+                    <div
+                      style={{
+                        background: colors.bone,
+                        border: `1px solid rgba(176,141,90,0.30)`,
+                        borderRadius: 10,
+                        padding: 14,
+                        fontSize: '0.88rem',
+                        color: colors.pine,
+                      }}
+                    >
+                      <div style={{ fontWeight: 700 }}>
+                        Estimated SS at age {ssClaimAge}: {formatCurrency(computed.ssAtClaim)}/mo
+                      </div>
+                      <div style={{ color: colors.slate700, fontSize: '0.82rem', marginTop: 2 }}>
+                        Extrapolated from your age-{ssReferenceAge} estimate using SSA's standard formulas.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* TSP */}
+            <div style={{ paddingTop: 6, borderTop: `1px solid rgba(31,61,44,0.06)` }}>
+              <div style={{ ...sectionLabel, marginTop: 10 }}>Guaranteed income from TSP</div>
 
               <label style={labelText}>
                 Projected TSP balance at retirement
                 <input type="number" value={tspBalance} onChange={(e) => setTspBalance(e.target.value)} step="10000" min="0" style={inputBox} />
                 <span style={helpText}>Project forward from your current balance with assumed contributions and 5–7% growth.</span>
               </label>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
-                <label style={labelText}>
-                  Your current age
-                  <input type="number" value={currentAge} onChange={(e) => setCurrentAge(e.target.value)} step="1" min="40" max="80" style={inputBox} />
-                </label>
-                <label style={labelText}>
-                  Your retirement age
-                  <input type="number" value={retirementAge} onChange={(e) => setRetirementAge(e.target.value)} step="1" min="50" max="80" style={inputBox} />
-                </label>
-              </div>
 
               <label style={{ ...labelText, marginTop: 14 }}>
                 Years after retirement to wait before drawing income
@@ -387,40 +552,15 @@ export default function IncomePicture() {
               <input type="number" value={fehbMonthly} onChange={(e) => setFehbMonthly(e.target.value)} step="25" style={inputBox} />
               <span style={helpText}>Same plan you have today, often. Continues into retirement.</span>
             </label>
-
-            {scenario === 'after65' && (
-              <label style={labelText}>
-                Medicare Part B monthly premium
-                <input type="number" value={medicarePartB} onChange={(e) => setMedicarePartB(e.target.value)} step="1" style={inputBox} />
-                <span style={helpText}>2026 standard premium is $202.90. IRMAA applies above income thresholds.</span>
-              </label>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <label style={labelText}>
-                Filing status
-                <select value={filingStatus} onChange={(e) => setFilingStatus(e.target.value)} style={inputBox}>
-                  <option value="mfj">Married, joint</option>
-                  <option value="single">Single</option>
-                </select>
-              </label>
-              <label style={labelText}>
-                State income tax (%)
-                <input type="number" value={stateRate} onChange={(e) => setStateRate(e.target.value)} step="0.5" min="0" max="15" style={inputBox} />
-                <span style={helpText}>Effective rate. 0 if you live in a no-state-tax state.</span>
-              </label>
-            </div>
           </div>
         </div>
 
         {/* OUTPUT */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Result card */}
+          {/* Headline card */}
           <div
             style={{
-              background: computed.gap >= 0
-                ? `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`
-                : `linear-gradient(135deg, #5d2d24 0%, #8d3f2c 100%)`,
+              background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`,
               color: '#ffffff',
               borderRadius: 16,
               padding: 32,
@@ -437,7 +577,7 @@ export default function IncomePicture() {
                 marginBottom: 10,
               }}
             >
-              {computed.gap >= 0 ? 'Income surplus' : 'Income shortfall'}
+              Pre-tax monthly income · all sources on
             </div>
             <div
               style={{
@@ -449,12 +589,10 @@ export default function IncomePicture() {
                 fontVariationSettings: '"opsz" 144, "SOFT" 50',
               }}
             >
-              {computed.gap >= 0 ? '+' : ''}{formatCurrency(computed.gap)}/mo
+              {formatCurrency(computed.steady.total - computed.fehb)}/mo
             </div>
-            <div style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.78)' }}>
-              {computed.gap >= 0
-                ? `That's ${(computed.gapPct * 100).toFixed(0)}% above your current take-home.`
-                : `That's ${(Math.abs(computed.gapPct) * 100).toFixed(0)}% below your current take-home.`}
+            <div style={{ fontSize: '0.98rem', color: 'rgba(255,255,255,0.78)', lineHeight: 1.5 }}>
+              At age {computed.steady.age}, once your Social Security and TSP income are both flowing. Pre-tax — actual take-home will be lower after federal and state tax.
             </div>
           </div>
 
@@ -462,49 +600,83 @@ export default function IncomePicture() {
           <div
             style={{
               background: '#ffffff',
-              border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+              border: `1px solid rgba(31,61,44,0.08)`,
               borderRadius: 16,
               padding: 28,
             }}
           >
-            <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600, color: colors.pine, marginBottom: 16, letterSpacing: '-0.01em' }}>
-              Where it lands
+            <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
+              Where it lands at age {computed.steady.age}
             </h3>
-            <Stat label="Gross monthly retirement income" value={formatCurrency(computed.preTaxMonthly)} />
-            <Stat label={`Federal tax (~${(computed.effectiveFedRate * 100).toFixed(1)}% effective)`} value={`–${formatCurrency(computed.monthlyFedTax)}`} negative />
-            <Stat label="State tax" value={`–${formatCurrency(computed.monthlyStateTax)}`} negative />
-            <Stat label={scenario === 'after65' ? 'FEHB + Medicare Part B' : 'FEHB premium'} value={`–${formatCurrency(computed.monthlyHealthCare)}`} negative />
-            <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '12px 0' }} />
-            <Stat label="Net monthly" value={formatCurrency(computed.netMonthly)} bold />
-            <Stat label="Compared to today" value={formatCurrency(currentTakeHome)} muted />
-          </div>
-
-          {/* Pie chart */}
-          {pieData.length > 0 && (
-            <div
-              style={{
-                background: '#ffffff',
-                border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
-                borderRadius: 16,
-                padding: 24,
-              }}
-            >
-              <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.1rem', fontWeight: 600, color: colors.pine, marginBottom: 12, letterSpacing: '-0.01em' }}>
-                Income sources (gross)
-              </h3>
-              <div style={{ width: '100%', height: 200 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={2} dataKey="value">
-                      {pieData.map((entry, i) => <Cell key={i} fill={pieColors[i % pieColors.length]} />)}
-                    </Pie>
-                    <Tooltip formatter={(v) => formatCurrency(v) + '/mo'} contentStyle={{ background: '#ffffff', border: `1px solid ${colors.brass}`, borderRadius: 8, fontFamily: FONT_SANS, fontSize: '0.85rem' }} />
-                    <Legend wrapperStyle={{ fontSize: '0.82rem', fontFamily: FONT_SANS }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+            <div style={{ fontSize: '0.82rem', color: colors.slate500, marginBottom: 14 }}>
+              When all your income sources are flowing.
             </div>
-          )}
+            <Stat label="Pension" value={formatCurrency(computed.steady.pension)} />
+            {computed.steady.ss > 0 && <Stat label="Social Security" value={formatCurrency(computed.steady.ss)} />}
+            {computed.steady.tsp > 0 && <Stat label="Guaranteed income from TSP" value={formatCurrency(computed.steady.tsp)} />}
+            <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
+            <Stat label="Gross monthly" value={formatCurrency(computed.steady.total)} />
+            <Stat label="FEHB premium" value={`–${formatCurrency(computed.fehb)}`} negative />
+            <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
+            <Stat label="Pre-tax monthly" value={formatCurrency(computed.steady.total - computed.fehb)} bold />
+          </div>
+        </div>
+      </section>
+
+      {/* INCOME OVER TIME CHART (full width) */}
+      <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px 32px' }}>
+        <div
+          style={{
+            background: '#ffffff',
+            border: `1px solid rgba(31,61,44,0.08)`,
+            borderRadius: 16,
+            padding: isMobile ? 20 : 32,
+            boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+          }}
+        >
+          <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
+            Income over time
+          </h3>
+          <p style={{ fontSize: '0.92rem', color: colors.slate500, marginBottom: 20, maxWidth: 720 }}>
+            Pre-tax monthly income by age, by source. Watch what happens when your FERS Supplement ends at 62, when Social Security turns on, and when TSP income kicks in.
+          </p>
+          <div style={{ width: '100%', height: isMobile ? 320 : 400 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={computed.chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(31,61,44,0.08)" />
+                <XAxis
+                  dataKey="age"
+                  tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }}
+                  label={{ value: 'Age', position: 'insideBottom', offset: -4, fontSize: 12, fill: colors.slate500, fontFamily: FONT_SANS }}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }}
+                  tickFormatter={(v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v)}
+                />
+                <Tooltip
+                  formatter={tooltipFormatter}
+                  labelFormatter={(v) => `Age ${v}`}
+                  contentStyle={{ background: '#ffffff', border: `1px solid ${colors.brass}`, borderRadius: 8, fontFamily: FONT_SANS, fontSize: '0.85rem' }}
+                />
+                <Legend
+                  wrapperStyle={{ fontSize: '0.82rem', fontFamily: FONT_SANS, paddingTop: 8 }}
+                  formatter={(value) => {
+                    const labels = {
+                      pension: 'Pension',
+                      supplement: 'FERS Supplement',
+                      ss: 'Social Security',
+                      tsp: 'Guaranteed income from TSP',
+                    }
+                    return labels[value] || value
+                  }}
+                />
+                <Area type="stepAfter" dataKey="pension" stackId="1" stroke={colors.pine} fill={colors.pine} fillOpacity={0.85} />
+                <Area type="stepAfter" dataKey="supplement" stackId="1" stroke={colors.brassDeep} fill={colors.brassDeep} fillOpacity={0.85} />
+                <Area type="stepAfter" dataKey="ss" stackId="1" stroke={colors.sageLight} fill={colors.sageLight} fillOpacity={0.85} />
+                <Area type="stepAfter" dataKey="tsp" stackId="1" stroke={colors.brass} fill={colors.brass} fillOpacity={0.85} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </section>
 
@@ -515,7 +687,7 @@ export default function IncomePicture() {
             background: colors.bone,
             borderRadius: 16,
             padding: isMobile ? 24 : 32,
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid rgba(31,61,44,0.08)`,
             marginBottom: 28,
           }}
         >
@@ -523,10 +695,10 @@ export default function IncomePicture() {
             How this calculator works
           </h3>
           <ul style={{ paddingLeft: 20, color: colors.slate700, fontSize: '0.95rem', lineHeight: 1.7 }}>
-            <li>The tax estimate uses 2026 federal brackets and the standard deduction for your filing status. It is a blended effective rate, not a precise filing-by-filing number.</li>
-            <li>Healthcare cost: FEHB-only before 65, FEHB + Medicare Part B after. IRMAA can push Part B significantly higher above income thresholds — not modeled.</li>
-            <li>TSP income is assumed traditional (taxable). Roth TSP income would shift the after-tax math meaningfully — not modeled here.</li>
-            <li>This is a planning estimate. For an actual tax projection, run your numbers through tax software for the year you'll retire — or talk to us.</li>
+            <li><strong>FERS Supplement</strong> = (Years of FERS service ÷ 40) × your SS estimate at 62. Pays from your retirement date until you turn 62.</li>
+            <li><strong>Social Security</strong> is extrapolated to your planned claim age using SSA's standard reduction (5/9% per month for the first 36 months before FRA, 5/12% beyond that) and delayed-retirement credits (8%/yr after FRA). FRA is assumed to be 67.</li>
+            <li><strong>TSP guaranteed income</strong> comes from a fixed-rate annuity quote. Waiting longer to start income raises the monthly amount.</li>
+            <li>All figures shown are <strong>pre-tax</strong>. Your actual after-tax take-home will be lower depending on your federal and state tax situation.</li>
           </ul>
         </div>
 
@@ -577,16 +749,16 @@ export default function IncomePicture() {
   )
 }
 
-function Stat({ label, value, bold, muted, negative }) {
+function Stat({ label, value, bold, negative }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-      <span style={{ fontSize: '0.9rem', color: muted ? colors.slate500 : colors.slate700 }}>{label}</span>
+      <span style={{ fontSize: '0.92rem', color: colors.slate700 }}>{label}</span>
       <span
         style={{
           fontFamily: bold ? FONT_SERIF : FONT_SANS,
-          fontSize: bold ? '1.3rem' : '1rem',
+          fontSize: bold ? '1.4rem' : '1rem',
           fontWeight: bold ? 600 : 500,
-          color: muted ? colors.slate500 : negative ? colors.brassDeep : colors.charcoal,
+          color: negative ? colors.brassDeep : colors.charcoal,
         }}
       >
         {value}
