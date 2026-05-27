@@ -544,13 +544,13 @@ export default function IncomePicture() {
         >
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: '0.74rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 8 }}>
-              Found a gap?
+              Your TSP, your call
             </div>
             <h3 style={{ fontFamily: FONT_SERIF, fontSize: isMobile ? '1.4rem' : '1.6rem', fontWeight: 600, marginBottom: 10, letterSpacing: '-0.01em', fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>
-              Most gaps have three or four real fixes.
+              Want to learn how to use your TSP to maximize your income?
             </h3>
             <p style={{ fontSize: '0.98rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.78)' }}>
-              Working a year longer for the 1.1% kicker. Waiting longer before starting TSP income. Timing Social Security differently. We can walk through which ones are realistic for you — meeting is free, no time limit.
+              Book a free meeting — phone or video, no set time limit. We'll walk through your numbers, show you what each TSP decision actually costs (or earns), and answer any questions the calculator left open.
             </p>
           </div>
           <Link
@@ -566,9 +566,10 @@ export default function IncomePicture() {
               fontFamily: FONT_SANS,
               flexShrink: 0,
               boxShadow: '0 6px 20px rgba(176,141,90,0.32)',
+              whiteSpace: 'nowrap',
             }}
           >
-            Book a 15-min call →
+            Book a free meeting →
           </Link>
         </div>
       </section>
