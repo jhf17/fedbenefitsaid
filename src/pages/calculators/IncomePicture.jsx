@@ -1,15 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts'
 import Seo from '../../components/Seo'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
@@ -92,7 +82,6 @@ export default function IncomePicture() {
 
   // Common inputs
   const [retirementAge, setRetirementAge] = useState(58)
-  const [currentAge, setCurrentAge] = useState(55)
   const [pensionMonthly, setPensionMonthly] = useState(3500)
 
   // Pre-62 only
@@ -113,8 +102,7 @@ export default function IncomePicture() {
   // FEHB
   const [fehbMonthly, setFehbMonthly] = useState(450)
 
-  // When user flips flow, snap retirement age and claim age into the valid range
-  // for that flow so the chart doesn't break.
+  // When user flips flow, snap retirement age and claim age into the valid range.
   useEffect(() => {
     const ra = Number(retirementAge)
     if (flow === 'pre62' && ra >= 62) setRetirementAge(58)
@@ -161,39 +149,49 @@ export default function IncomePicture() {
     }
     const ssAtClaim = pia * ssMultiplierAtAge(claim)
 
-    // TSP guaranteed monthly income
+    // TSP guaranteed monthly income.
+    // We assume the user is buying the contract AT retirement (issueAge = retirementAge),
+    // so the only gap is yearsToDefer. This is what Nassau's NIA quote tool assumes when
+    // "Years Until Retirement" = 0.
     const tspResult = monthlyGuaranteedIncome(
       Number(tspBalance) || 0,
-      Number(currentAge) || 0,
+      ra,
       tspStartAge
     )
     const tspMonthly = tspResult.monthly
 
-    // Chart data: retirement age → 90
-    const chartData = []
-    const endAge = 90
-    for (let age = ra; age <= endAge; age++) {
-      const p = pension
-      const s = flow === 'pre62' && age < 62 ? supplement : 0
-      const ss = age >= claim ? ssAtClaim : 0
-      const tsp = age >= tspStartAge ? tspMonthly : 0
-      chartData.push({
-        age,
-        pension: Math.round(p),
-        supplement: Math.round(s),
-        ss: Math.round(ss),
-        tsp: Math.round(tsp),
-        total: Math.round(p + s + ss + tsp),
-      })
+    // Build income intervals — each interval is a phase where the source mix is constant.
+    // Transitions happen at: retirement age, 62 (when supplement ends, pre-62 only),
+    // SS claim age, and TSP start age.
+    const incomeAtAge = (age) => ({
+      pension,
+      supplement: flow === 'pre62' && age < 62 ? supplement : 0,
+      ss: age >= claim ? ssAtClaim : 0,
+      tsp: age >= tspStartAge ? tspMonthly : 0,
+    })
+
+    const transitions = new Set([ra, claim, tspStartAge])
+    if (flow === 'pre62') transitions.add(62)
+    const transitionAges = [...transitions]
+      .filter((a) => a >= ra && a <= 90)
+      .sort((a, b) => a - b)
+
+    const intervals = transitionAges.map((startAge, i) => {
+      const nextStart = transitionAges[i + 1]
+      const endAge = nextStart != null ? nextStart - 1 : null // null = open-ended
+      const sources = incomeAtAge(startAge)
+      const gross = sources.pension + sources.supplement + sources.ss + sources.tsp
+      const net = gross - fehb
+      return { startAge, endAge, sources, gross, net }
+    })
+
+    const atRetirement = intervals[0] || {
+      startAge: ra,
+      endAge: null,
+      sources: { pension: 0, supplement: 0, ss: 0, tsp: 0 },
+      gross: 0,
+      net: -fehb,
     }
-
-    // Pick a representative "steady state" age — once SS and TSP are both on.
-    // Use that for the summary card.
-    const steadyAge = Math.min(endAge, Math.max(claim, tspStartAge, ra))
-    const steady = chartData.find((d) => d.age === steadyAge) || chartData[chartData.length - 1]
-
-    // First year of retirement, for the "starting" stat.
-    const firstYear = chartData[0] || { total: 0 }
 
     return {
       supplement,
@@ -201,15 +199,13 @@ export default function IncomePicture() {
       tspMonthly,
       tspStartAge,
       pia,
-      chartData,
-      steady,
-      firstYear,
+      intervals,
+      atRetirement,
       fehb,
     }
   }, [
     flow,
     retirementAge,
-    currentAge,
     pensionMonthly,
     ssAt62,
     yearsOfFersService,
@@ -220,16 +216,6 @@ export default function IncomePicture() {
     yearsToDefer,
     fehbMonthly,
   ])
-
-  const tooltipFormatter = (value, name) => {
-    const labels = {
-      pension: 'Pension',
-      supplement: 'FERS Supplement',
-      ss: 'Social Security',
-      tsp: 'Guaranteed income from TSP',
-    }
-    return [formatCurrency(value) + '/mo', labels[name] || name]
-  }
 
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
@@ -351,32 +337,18 @@ export default function IncomePicture() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <label style={labelText}>
-                Retirement age
-                <input
-                  type="number"
-                  value={retirementAge}
-                  onChange={(e) => setRetirementAge(e.target.value)}
-                  step="1"
-                  min={flow === 'pre62' ? 50 : 62}
-                  max={flow === 'pre62' ? 61 : 70}
-                  style={inputBox}
-                />
-              </label>
-              <label style={labelText}>
-                Your current age
-                <input
-                  type="number"
-                  value={currentAge}
-                  onChange={(e) => setCurrentAge(e.target.value)}
-                  step="1"
-                  min="40"
-                  max="80"
-                  style={inputBox}
-                />
-              </label>
-            </div>
+            <label style={labelText}>
+              Retirement age
+              <input
+                type="number"
+                value={retirementAge}
+                onChange={(e) => setRetirementAge(e.target.value)}
+                step="1"
+                min={flow === 'pre62' ? 50 : 62}
+                max={flow === 'pre62' ? 61 : 70}
+                style={inputBox}
+              />
+            </label>
 
             <label style={labelText}>
               Monthly pension at retirement
@@ -555,9 +527,8 @@ export default function IncomePicture() {
           </div>
         </div>
 
-        {/* OUTPUT */}
+        {/* OUTPUT: headline at retirement */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Headline card */}
           <div
             style={{
               background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`,
@@ -577,7 +548,7 @@ export default function IncomePicture() {
                 marginBottom: 10,
               }}
             >
-              Pre-tax monthly income · all sources on
+              Pre-tax monthly income at retirement
             </div>
             <div
               style={{
@@ -589,14 +560,13 @@ export default function IncomePicture() {
                 fontVariationSettings: '"opsz" 144, "SOFT" 50',
               }}
             >
-              {formatCurrency(computed.steady.total - computed.fehb)}/mo
+              {formatCurrency(computed.atRetirement.net)}/mo
             </div>
             <div style={{ fontSize: '0.98rem', color: 'rgba(255,255,255,0.78)', lineHeight: 1.5 }}>
-              At age {computed.steady.age}, once your Social Security and TSP income are both flowing. Pre-tax — actual take-home will be lower after federal and state tax.
+              Your starting monthly income the day you retire at age {retirementAge}. Pre-tax — actual take-home will be lower after federal and state tax.
             </div>
           </div>
 
-          {/* Breakdown */}
           <div
             style={{
               background: '#ffffff',
@@ -606,79 +576,83 @@ export default function IncomePicture() {
             }}
           >
             <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
-              Where it lands at age {computed.steady.age}
+              Where it lands at age {retirementAge}
             </h3>
             <div style={{ fontSize: '0.82rem', color: colors.slate500, marginBottom: 14 }}>
-              When all your income sources are flowing.
+              The day your retirement starts.
             </div>
-            <Stat label="Pension" value={formatCurrency(computed.steady.pension)} />
-            {computed.steady.ss > 0 && <Stat label="Social Security" value={formatCurrency(computed.steady.ss)} />}
-            {computed.steady.tsp > 0 && <Stat label="Guaranteed income from TSP" value={formatCurrency(computed.steady.tsp)} />}
+            {computed.atRetirement.sources.pension > 0 && (
+              <Stat label="Pension" value={formatCurrency(computed.atRetirement.sources.pension)} dotColor={colors.pine} />
+            )}
+            {computed.atRetirement.sources.supplement > 0 && (
+              <Stat label="FERS Supplement" value={formatCurrency(computed.atRetirement.sources.supplement)} dotColor={colors.brassDeep} />
+            )}
+            {computed.atRetirement.sources.ss > 0 && (
+              <Stat label="Social Security" value={formatCurrency(computed.atRetirement.sources.ss)} dotColor={colors.sageLight} />
+            )}
+            {computed.atRetirement.sources.tsp > 0 && (
+              <Stat label="Guaranteed income from TSP" value={formatCurrency(computed.atRetirement.sources.tsp)} dotColor={colors.brass} />
+            )}
             <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
-            <Stat label="Gross monthly" value={formatCurrency(computed.steady.total)} />
+            <Stat label="Gross monthly" value={formatCurrency(computed.atRetirement.gross)} />
             <Stat label="FEHB premium" value={`–${formatCurrency(computed.fehb)}`} negative />
             <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
-            <Stat label="Pre-tax monthly" value={formatCurrency(computed.steady.total - computed.fehb)} bold />
+            <Stat label="Pre-tax monthly" value={formatCurrency(computed.atRetirement.net)} bold />
           </div>
         </div>
       </section>
 
-      {/* INCOME OVER TIME CHART (full width) */}
-      <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px 32px' }}>
-        <div
-          style={{
-            background: '#ffffff',
-            border: `1px solid rgba(31,61,44,0.08)`,
-            borderRadius: 16,
-            padding: isMobile ? 20 : 32,
-            boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
-          }}
-        >
-          <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
-            Income over time
-          </h3>
-          <p style={{ fontSize: '0.92rem', color: colors.slate500, marginBottom: 20, maxWidth: 720 }}>
-            Pre-tax monthly income by age, by source. Watch what happens when your FERS Supplement ends at 62, when Social Security turns on, and when TSP income kicks in.
-          </p>
-          <div style={{ width: '100%', height: isMobile ? 320 : 400 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={computed.chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(31,61,44,0.08)" />
-                <XAxis
-                  dataKey="age"
-                  tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }}
-                  label={{ value: 'Age', position: 'insideBottom', offset: -4, fontSize: 12, fill: colors.slate500, fontFamily: FONT_SANS }}
-                />
-                <YAxis
-                  tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }}
-                  tickFormatter={(v) => '$' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v)}
-                />
-                <Tooltip
-                  formatter={tooltipFormatter}
-                  labelFormatter={(v) => `Age ${v}`}
-                  contentStyle={{ background: '#ffffff', border: `1px solid ${colors.brass}`, borderRadius: 8, fontFamily: FONT_SANS, fontSize: '0.85rem' }}
-                />
-                <Legend
-                  wrapperStyle={{ fontSize: '0.82rem', fontFamily: FONT_SANS, paddingTop: 8 }}
-                  formatter={(value) => {
-                    const labels = {
-                      pension: 'Pension',
-                      supplement: 'FERS Supplement',
-                      ss: 'Social Security',
-                      tsp: 'Guaranteed income from TSP',
-                    }
-                    return labels[value] || value
-                  }}
-                />
-                <Area type="stepAfter" dataKey="pension" stackId="1" stroke={colors.pine} fill={colors.pine} fillOpacity={0.85} />
-                <Area type="stepAfter" dataKey="supplement" stackId="1" stroke={colors.brassDeep} fill={colors.brassDeep} fillOpacity={0.85} />
-                <Area type="stepAfter" dataKey="ss" stackId="1" stroke={colors.sageLight} fill={colors.sageLight} fillOpacity={0.85} />
-                <Area type="stepAfter" dataKey="tsp" stackId="1" stroke={colors.brass} fill={colors.brass} fillOpacity={0.85} />
-              </AreaChart>
-            </ResponsiveContainer>
+      {/* INCOME OVER TIME — interval cards */}
+      {computed.intervals.length > 1 && (
+        <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px 32px' }}>
+          <div
+            style={{
+              background: '#ffffff',
+              border: `1px solid rgba(31,61,44,0.08)`,
+              borderRadius: 16,
+              padding: isMobile ? 20 : 32,
+              boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+            }}
+          >
+            <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
+              Income over time
+            </h3>
+            <p style={{ fontSize: '0.92rem', color: colors.slate500, marginBottom: 22, maxWidth: 720 }}>
+              Each card is a phase where your income stays the same. Watch what happens when your FERS Supplement ends, when Social Security turns on, and when TSP income kicks in.
+            </p>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: isMobile
+                  ? '1fr'
+                  : `repeat(${Math.min(computed.intervals.length, 4)}, 1fr)`,
+                gap: 16,
+              }}
+            >
+              {computed.intervals.map((interval, i) => {
+                const prev = i > 0 ? computed.intervals[i - 1] : null
+                const changes = []
+                if (prev) {
+                  if (prev.sources.supplement > 0 && interval.sources.supplement === 0)
+                    changes.push('FERS Supplement ended')
+                  if (prev.sources.ss === 0 && interval.sources.ss > 0)
+                    changes.push('Social Security turned on')
+                  if (prev.sources.tsp === 0 && interval.sources.tsp > 0)
+                    changes.push('TSP income turned on')
+                }
+                return (
+                  <IntervalCard
+                    key={interval.startAge}
+                    interval={interval}
+                    changes={changes}
+                    fehb={computed.fehb}
+                  />
+                )
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Notes + CTA */}
       <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px 96px' }}>
@@ -749,10 +723,25 @@ export default function IncomePicture() {
   )
 }
 
-function Stat({ label, value, bold, negative }) {
+function Stat({ label, value, bold, negative, dotColor }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
-      <span style={{ fontSize: '0.92rem', color: colors.slate700 }}>{label}</span>
+      <span style={{ fontSize: '0.92rem', color: colors.slate700, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+        {dotColor && (
+          <span
+            aria-hidden
+            style={{
+              display: 'inline-block',
+              width: 10,
+              height: 10,
+              borderRadius: 999,
+              background: dotColor,
+              flexShrink: 0,
+            }}
+          />
+        )}
+        {label}
+      </span>
       <span
         style={{
           fontFamily: bold ? FONT_SERIF : FONT_SANS,
@@ -763,6 +752,106 @@ function Stat({ label, value, bold, negative }) {
       >
         {value}
       </span>
+    </div>
+  )
+}
+
+function IntervalCard({ interval, changes, fehb }) {
+  const { startAge, endAge, sources, gross, net } = interval
+  const rangeLabel =
+    endAge == null
+      ? `Age ${startAge}+`
+      : startAge === endAge
+        ? `Age ${startAge}`
+        : `Ages ${startAge}–${endAge}`
+  const rows = [
+    { label: 'Pension', value: sources.pension, color: colors.pine },
+    { label: 'FERS Supplement', value: sources.supplement, color: colors.brassDeep },
+    { label: 'Social Security', value: sources.ss, color: colors.sageLight },
+    { label: 'TSP income', value: sources.tsp, color: colors.brass },
+  ].filter((r) => r.value > 0)
+
+  return (
+    <div
+      style={{
+        background: colors.ivory,
+        border: `1px solid rgba(31,61,44,0.10)`,
+        borderRadius: 14,
+        padding: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+      }}
+    >
+      <div>
+        <div
+          style={{
+            fontSize: '0.72rem',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: colors.brassDeep,
+            marginBottom: 4,
+          }}
+        >
+          {rangeLabel}
+        </div>
+        {changes.length > 0 && (
+          <div style={{ fontSize: '0.78rem', color: colors.slate500, lineHeight: 1.4 }}>
+            {changes.join(' · ')}
+          </div>
+        )}
+      </div>
+
+      <div
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.7rem',
+          fontWeight: 600,
+          color: colors.pine,
+          letterSpacing: '-0.01em',
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+          lineHeight: 1.1,
+        }}
+      >
+        {formatCurrency(net)}<span style={{ fontSize: '0.9rem', color: colors.slate500, fontFamily: FONT_SANS, fontWeight: 500 }}>/mo</span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: '0.85rem' }}
+          >
+            <span style={{ color: colors.slate700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+              <span
+                aria-hidden
+                style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 999, background: r.color, flexShrink: 0 }}
+              />
+              {r.label}
+            </span>
+            <span style={{ color: colors.charcoal, fontWeight: 500 }}>{formatCurrency(r.value)}</span>
+          </div>
+        ))}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '0.78rem',
+            color: colors.slate500,
+            marginTop: 4,
+            paddingTop: 6,
+            borderTop: '1px solid rgba(31,61,44,0.08)',
+          }}
+        >
+          <span>Gross</span>
+          <span>{formatCurrency(gross)}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: colors.slate500 }}>
+          <span>FEHB</span>
+          <span>–{formatCurrency(fehb)}</span>
+        </div>
+      </div>
     </div>
   )
 }
