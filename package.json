@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev:fma": "VITE_BRAND=fma vite",
     "build": "vite build",
+    "build:fma": "VITE_BRAND=fma vite build",
     "preview": "vite preview",
     "og-image": "node scripts/generate-og-image.mjs",
     "probe-resend": "node scripts/probe-resend.mjs"

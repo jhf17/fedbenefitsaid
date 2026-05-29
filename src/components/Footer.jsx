@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { colors, fonts } from '../constants/theme'
+import { brand } from '../constants/brand'
+import { DATA_LAST_UPDATED } from '../config/site'
+
+const PRIMARY = brand.colors.primary
+const PRIMARY_DARK = brand.colors.primaryDark
+const ACCENT_LIGHT = brand.colors.accentLight
 
 const linkBase = {
   fontSize: '0.85rem',
@@ -18,9 +24,17 @@ const colTitle = {
   fontWeight: 700,
   letterSpacing: '0.12em',
   textTransform: 'uppercase',
-  color: colors.brassLight,
+  color: ACCENT_LIGHT,
   marginBottom: 16,
   fontFamily: fonts.sans,
+}
+
+function formatLastUpdated(yyyyDashMm) {
+  if (!yyyyDashMm) return ''
+  const [y, m] = yyyyDashMm.split('-')
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  const monthIdx = Math.max(0, Math.min(11, parseInt(m, 10) - 1))
+  return `${months[monthIdx]} ${y}`
 }
 
 export default function Footer() {
@@ -34,10 +48,17 @@ export default function Footer() {
   const hoverOn = (e) => { e.currentTarget.style.color = '#ffffff' }
   const hoverOff = (e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.72)' }
 
+  const lastUpdatedLabel = formatLastUpdated(DATA_LAST_UPDATED)
+  // FBA names its parent operator in the disclaimer; FMA is the operator itself.
+  const complianceBrands =
+    brand.id === 'fba'
+      ? `${brand.name} and ${brand.legalName}`
+      : brand.name
+
   return (
     <footer
       style={{
-        background: `linear-gradient(180deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`,
+        background: `linear-gradient(180deg, ${PRIMARY_DARK} 0%, ${PRIMARY} 100%)`,
         color: 'rgba(255,255,255,0.78)',
         padding: isMobile ? '48px 20px 28px' : '72px 48px 32px',
         fontFamily: fonts.sans,
@@ -65,24 +86,37 @@ export default function Footer() {
               marginBottom: 6,
             }}
           >
-            FedBenefitsAid
+            {brand.name}
           </div>
-          <div
-            style={{
-              fontSize: '0.78rem',
-              color: colors.brassLight,
-              fontWeight: 500,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              marginBottom: 16,
-            }}
-          >
-            An education resource by Federal Market Associates
-          </div>
-          <p style={{ fontSize: '0.85rem', lineHeight: 1.65, color: 'rgba(255,255,255,0.72)', maxWidth: 320 }}>
-            Free, accurate education for federal employees navigating retirement benefits — built and maintained for the
-            current benefit year.
+          {brand.attributionLine && (
+            <div
+              style={{
+                fontSize: '0.78rem',
+                color: ACCENT_LIGHT,
+                fontWeight: 500,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                marginBottom: 16,
+              }}
+            >
+              {brand.attributionLine}
+            </div>
+          )}
+          <p style={{ fontSize: '0.85rem', lineHeight: 1.65, color: 'rgba(255,255,255,0.72)', maxWidth: 320, marginTop: brand.attributionLine ? 0 : 16 }}>
+            {brand.shortDescription}
           </p>
+          {brand.contact.phoneDisplay && (
+            <div style={{ marginTop: 16, fontSize: '0.92rem' }}>
+              <a
+                href={`tel:${brand.contact.phone}`}
+                style={{ color: '#ffffff', textDecoration: 'none', fontWeight: 600, letterSpacing: '0.02em' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT_LIGHT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#ffffff' }}
+              >
+                {brand.contact.phoneDisplay}
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Tools */}
@@ -126,14 +160,14 @@ export default function Footer() {
           maxWidth: 1200,
           margin: '0 auto',
           paddingTop: 24,
-          borderTop: '1px solid rgba(212,184,138,0.18)',
+          borderTop: `1px solid ${ACCENT_LIGHT}2e`,
           fontSize: '0.78rem',
           lineHeight: 1.7,
           color: 'rgba(255,255,255,0.62)',
         }}
       >
         <p style={{ marginBottom: 12 }}>
-          Educational content. FedBenefitsAid and Federal Market Associates are not affiliated with, endorsed by, or
+          Educational content. {complianceBrands} {brand.id === 'fba' ? 'are' : 'is'} not affiliated with, endorsed by, or
           authorized to speak on behalf of the U.S. government, the Office of Personnel Management, or any federal
           agency. Information presented does not constitute personalized financial, tax, or legal advice. Insurance and
           annuity products discussed in consultations are not available in California, New York, or Arkansas. Verify
@@ -149,8 +183,8 @@ export default function Footer() {
             fontSize: '0.75rem',
           }}
         >
-          <span>© 2026 Federal Market Associates. All rights reserved.</span>
-          <span style={{ color: 'rgba(255,255,255,0.5)' }}>Information current as of April 2026 · Sourced from OPM, IRS, SSA</span>
+          <span>© {new Date().getFullYear()} {brand.copyrightHolder}. All rights reserved.</span>
+          <span style={{ color: 'rgba(255,255,255,0.5)' }}>Information current as of {lastUpdatedLabel} · Sourced from OPM, IRS, SSA</span>
         </div>
       </div>
     </footer>

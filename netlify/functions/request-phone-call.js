@@ -15,17 +15,40 @@
  * Wire-up: posted to from src/pages/Consultation.jsx PhoneCallForm component.
  */
 
+// Origins allowed to POST to this function. Add new brand domains here when
+// they go live. Wildcard `*.netlify.app` is matched in corsHeadersFor below
+// (so any deploy preview / branch deploy works during development).
+const ALLOWED_ORIGINS = new Set([
+  'https://fedbenefitsaid.com',
+  'https://www.fedbenefitsaid.com',
+  'https://federalmarketassociates.com',
+  'https://www.federalmarketassociates.com',
+])
+
+const DEFAULT_ORIGIN = 'https://fedbenefitsaid.com'
+
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://fedbenefitsaid.com',
+  'Access-Control-Allow-Origin': DEFAULT_ORIGIN,
   'Access-Control-Allow-Headers': 'Content-Type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Content-Type': 'application/json',
 }
 
-// Allow localhost during dev when running `netlify dev`.
+// Echo the request origin if it's allow-listed. Allows multiple brand
+// domains plus localhost dev and Netlify preview subdomains.
 function corsHeadersFor(event) {
   const origin = event.headers && (event.headers.origin || event.headers.Origin)
-  if (origin && /^http:\/\/localhost(:[0-9]+)?$/.test(origin)) {
+  if (!origin) return CORS_HEADERS
+  if (ALLOWED_ORIGINS.has(origin)) {
+    return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': origin }
+  }
+  // Local dev (vite + netlify dev)
+  if (/^http:\/\/localhost(:[0-9]+)?$/.test(origin)) {
+    return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': origin }
+  }
+  // Netlify preview deploys (e.g. https://something.netlify.app or
+  // https://deploy-preview-12--site.netlify.app)
+  if (/^https:\/\/[a-z0-9-]+\.netlify\.app$/i.test(origin)) {
     return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': origin }
   }
   return CORS_HEADERS
@@ -140,7 +163,7 @@ async function notifyFrc(payload) {
     <html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; color: #1f2937; line-height: 1.5; max-width: 640px; margin: 0 auto; padding: 24px;">
       <h2 style="font-family: Georgia, serif; color: #1f3d2c; margin: 0 0 16px;">New phone-call request</h2>
       <p style="font-size: 14px; color: #475569; margin: 0 0 24px;">
-        Submitted via fedbenefitsaid.com/consultation. Reply directly to this email to follow up with the lead.
+        Submitted via the consultation form (${escapeHtml(payload._source || 'website')}). Reply directly to this email to follow up with the lead.
       </p>
       <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
         <tr><td style="padding: 8px 12px; background: #f8fafc; font-weight: 600; width: 180px;">Name</td><td style="padding: 8px 12px; background: #f8fafc;">${escapeHtml(payload.name)}</td></tr>
@@ -216,6 +239,9 @@ exports.handler = async (event) => {
     preferredDate: sanitize(body.preferredDate, 30),
     preferredTime: sanitize(body.preferredTime, 50),
     message: sanitize(body.message, 1000),
+    // Originating site (e.g. "fedbenefitsaid.com" or "federalmarketassociates.com").
+    // Used in the notification email so the FRC knows which brand the lead came from.
+    _source: sanitize(body._source, 100),
   }
 
   if (!payload.name) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Name is required.' }) }

@@ -3,7 +3,12 @@ import { Suspense, lazy } from 'react'
 import Navbar from './components/Navbar'
 import ErrorBoundary from './components/ErrorBoundary'
 import Seo from './components/Seo'
-import Landing from './pages/Landing'
+import { brand } from './constants/brand'
+import LandingFBA from './pages/Landing'
+import LandingFMA from './pages/LandingFMA'
+
+// Home component switches by brand. Drop in another LandingX for a future brand.
+const Landing = brand.homePage === 'LandingFMA' ? LandingFMA : LandingFBA
 const Reference = lazy(() => import('./pages/Reference'))
 const Resources = lazy(() => import('./pages/Resources'))
 const Assessment = lazy(() => import('./pages/Assessment'))
@@ -27,7 +32,7 @@ import CookieConsent from './components/CookieConsent'
 function NotFound() {
   return (
     <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf6ef', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-      <Seo title="Page Not Found" description="The page you're looking for doesn't exist on FedBenefitsAid." path="/404" noindex />
+      <Seo title="Page Not Found" description={`The page you're looking for doesn't exist on ${brand.name}.`} path="/404" noindex />
       <div style={{ textAlign: 'center', maxWidth: 480, padding: '0 24px' }}>
         <div style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '4.5rem', fontWeight: 600, color: '#d4b88a', letterSpacing: '-0.04em', marginBottom: 12, fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>404</div>
         <h1 style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '1.6rem', fontWeight: 600, color: '#1f3d2c', marginBottom: 12, letterSpacing: '-0.01em' }}>Page not found</h1>

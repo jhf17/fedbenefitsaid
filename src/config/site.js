@@ -1,21 +1,21 @@
 // Single source of truth for site-wide configuration.
-// Move external URLs and policy values here so they can change in one place.
+// Brand-specific values (name, domain, calendar URL) come from brand.js,
+// which reads VITE_BRAND at build time. Edit brand.data.js to change them.
+
+import { brand } from '../constants/brand'
 
 export const siteConfig = {
   brand: {
-    siteName: 'FedBenefitsAid',
-    operator: 'Federal Market Associates',
-    operatorLegal: 'Federal Market Associates',
-    domain: 'fedbenefitsaid.com',
+    siteName: brand.name,
+    operator: brand.legalName,
+    operatorLegal: brand.legalName,
+    domain: brand.domain,
   },
 
   scheduling: {
-    // Calendly inline-embed URL. The path /jhf17/30min is the live booking link.
-    // Append ?hide_gdpr_banner=1 + theme params for a cleaner embed.
-    calendlyUrl: 'https://calendly.com/jhf17/30min',
-    calendlyEmbedUrl:
-      'https://calendly.com/jhf17/30min?hide_gdpr_banner=1&background_color=faf6ef&text_color=1f2937&primary_color=b08d5a',
-    callDurationMinutes: 30,
+    calendlyUrl: brand.calendly.url,
+    calendlyEmbedUrl: brand.calendly.embedUrl,
+    callDurationMinutes: brand.calendly.durationMinutes,
   },
 
   // States where insurance/annuity products cannot be placed.
