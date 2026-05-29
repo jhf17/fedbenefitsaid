@@ -62,7 +62,7 @@ export const FMA = {
     type: 'image',
     src: '/fma-logo.png',
     // Used as the in-header logo height (px). Width auto-scales.
-    height: 38,
+    height: 52,
     alt: 'Federal Market Associates',
     // Fallback text rendered when logo image fails to load.
     fallbackText: 'FMA',
