@@ -2,10 +2,19 @@ import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
 import { colors, fonts } from '../constants/theme'
+import { brand } from '../constants/brand'
 import { CALENDLY_EMBED_URL, UNAVAILABLE_STATES, UNAVAILABLE_STATE_NAMES } from '../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
+
+// Brand-aware shortcuts
+const PRIMARY = colors.primary
+const PRIMARY_DARK = colors.primaryDark
+const PRIMARY_LIGHT = colors.primaryLight
+const ACCENT = colors.accent
+const ACCENT_DARK = colors.accentDark
+const ACCENT_LIGHT = colors.accentLight
 
 const US_STATES = [
   ['AL', 'Alabama'], ['AK', 'Alaska'], ['AZ', 'Arizona'], ['AR', 'Arkansas'], ['CA', 'California'],
@@ -49,14 +58,14 @@ export default function Consultation() {
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
         title="Book a free meeting"
-        description="Free meeting with a Federal Retirement Consultant at Federal Market Associates — phone or video, no set time limit. No sales pitch — straight answers about FERS, TSP, FEHB, FEGLI, and Medicare decisions."
+        description={`Talk to a Federal Retirement Consultant at ${brand.name}. Phone or Zoom, no time limit, no sales pitch. Bring your questions about FERS, TSP, FEHB, FEGLI, Medicare timing, or Social Security strategy.`}
         path="/consultation"
       />
 
       {/* HERO */}
       <header
         style={{
-          background: `linear-gradient(165deg, ${colors.pineDeep} 0%, ${colors.pine} 55%, ${colors.pineLight} 100%)`,
+          background: `linear-gradient(165deg, ${PRIMARY_DARK} 0%, ${PRIMARY} 55%, ${PRIMARY_LIGHT} 100%)`,
           color: '#ffffff',
           padding: '72px 24px 80px',
           position: 'relative',
@@ -68,7 +77,7 @@ export default function Consultation() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)',
+            background: `radial-gradient(circle at 80% 0%, ${rgba(ACCENT_LIGHT, 0.18)} 0%, transparent 55%)`,
             pointerEvents: 'none',
           }}
         />
@@ -79,7 +88,7 @@ export default function Consultation() {
               fontWeight: 700,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: colors.brassLight,
+              color: ACCENT_LIGHT,
               marginBottom: 16,
             }}
           >
@@ -97,13 +106,15 @@ export default function Consultation() {
               maxWidth: 720,
             }}
           >
-            Free meeting, your way.<br />
-            <span style={{ color: colors.brassLight, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
-              No agenda you didn't bring.
+            Bring the question.<br />
+            <span style={{ color: ACCENT_LIGHT, fontStyle: 'italic', fontVariationSettings: '"opsz" 144, "SOFT" 100' }}>
+              We bring the rest.
             </span>
           </h1>
-          <p style={{ fontSize: '1.15rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 600 }}>
-            Phone or video, your pick. The meeting is free, there's no set time limit, and there's no second-meeting expectation if it isn't useful. After the meeting, your FRC can send a personalized summary of the conversation and any calculations you walked through.
+          <p style={{ fontSize: '1.15rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.82)', maxWidth: 620 }}>
+            Phone or Zoom. The meeting is free and there is no time limit on it. Most run 30 to 45 minutes; some go 90.
+            We send a written summary afterward with any numbers we walked through. If a follow-up isn't useful, there
+            won't be one.
           </p>
         </div>
       </header>
@@ -117,7 +128,7 @@ export default function Consultation() {
               fontWeight: 700,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: colors.brassDeep,
+              color: ACCENT_DARK,
               marginBottom: 10,
             }}
           >
@@ -128,14 +139,14 @@ export default function Consultation() {
               fontFamily: FONT_SERIF,
               fontSize: 'clamp(1.7rem, 3.5vw, 2.2rem)',
               fontWeight: 600,
-              color: colors.pine,
+              color: PRIMARY,
               lineHeight: 1.15,
               letterSpacing: '-0.015em',
               fontVariationSettings: '"opsz" 144, "SOFT" 50',
-              maxWidth: 600,
+              maxWidth: 640,
             }}
           >
-            We'll go where the questions are.
+            A few of the topics that come up most.
           </h2>
         </div>
         <div
@@ -152,7 +163,7 @@ export default function Consultation() {
                 background: '#ffffff',
                 padding: 24,
                 borderRadius: 14,
-                border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+                border: `1px solid ${colors.primaryBorder}`,
               }}
             >
               <h3
@@ -160,7 +171,7 @@ export default function Consultation() {
                   fontFamily: FONT_SERIF,
                   fontSize: '1.1rem',
                   fontWeight: 600,
-                  color: colors.pine,
+                  color: PRIMARY,
                   marginBottom: 8,
                   letterSpacing: '-0.005em',
                 }}
@@ -184,7 +195,7 @@ export default function Consultation() {
                   fontWeight: 700,
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
-                  color: colors.brassDeep,
+                  color: ACCENT_DARK,
                   marginBottom: 10,
                 }}
               >
@@ -195,26 +206,26 @@ export default function Consultation() {
                   fontFamily: FONT_SERIF,
                   fontSize: 'clamp(1.7rem, 3.5vw, 2.2rem)',
                   fontWeight: 600,
-                  color: colors.pine,
+                  color: PRIMARY,
                   lineHeight: 1.15,
                   letterSpacing: '-0.015em',
                   fontVariationSettings: '"opsz" 144, "SOFT" 50',
                 }}
               >
-                Phone or video?
+                Phone or Zoom?
               </h2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
               <MethodCard
                 title="Phone call"
-                tagline="We call you, on your schedule"
-                body="Pick a date and a time window — morning, afternoon, or evening. An FRC will call you at the number you provide. Works well if you'd rather have the conversation without sharing your screen."
+                tagline="We call you at the time you pick"
+                body="Pick a date and a 30-minute slot between 8 AM and 7:30 PM ET. We call you. Works best if you would rather not share your screen, or you are calling from your car."
                 onClick={() => pickMethod('phone')}
               />
               <MethodCard
-                title="Video call (Zoom)"
-                tagline="Pick a slot from the calendar"
-                body="Choose a time from the live calendar. You'll get a confirmation email with the Zoom link. Easiest if you'd like to walk through calculator outputs together on screen."
+                title="Zoom"
+                tagline="Pick a slot from the live calendar"
+                body="Choose any open slot on the calendar. You get a confirmation email with the Zoom link. Works best when you want to walk through calculator outputs on screen together."
                 onClick={() => pickMethod('video')}
               />
             </div>
@@ -227,7 +238,7 @@ export default function Consultation() {
       </section>
 
       {/* TRUST FOOTER STRIP */}
-      <section style={{ background: colors.bone, padding: '48px 24px', borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, marginTop: 48 }}>
+      <section style={{ background: colors.bone, padding: '48px 24px', borderTop: `1px solid ${colors.primaryBorder}`, marginTop: 48 }}>
         <div
           style={{
             maxWidth: 880,
@@ -238,9 +249,9 @@ export default function Consultation() {
             textAlign: 'center',
           }}
         >
-          <TrustItem label="No cost" body="The meeting is free, with no set time limit." />
-          <TrustItem label="No prep" body="Bring your questions; we'll bring the rest." />
-          <TrustItem label="No pressure" body="If we're not the right fit, we'll tell you." />
+          <TrustItem label="No cost" body="The meeting is free. There is no time limit on it." />
+          <TrustItem label="No prep" body="Bring the questions. We have the rest." />
+          <TrustItem label="No pressure" body="If we are not the right fit, we will say so." />
         </div>
       </section>
     </main>
@@ -256,24 +267,24 @@ function MethodCard({ title, tagline, body, onClick }) {
         textAlign: 'left',
         padding: '28px 28px 24px',
         background: '#ffffff',
-        border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+        border: `1px solid ${colors.primaryBorder}`,
         borderRadius: 16,
         cursor: 'pointer',
         fontFamily: FONT_SANS,
-        boxShadow: '0 2px 12px rgba(20,42,29,0.04)',
+        boxShadow: '0 2px 12px rgba(20,30,55,0.04)',
         transition: 'all 0.2s ease',
         display: 'flex',
         flexDirection: 'column',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = colors.brass
+        e.currentTarget.style.borderColor = colors.accentBorder
         e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 8px 28px rgba(20,42,29,0.10)'
+        e.currentTarget.style.boxShadow = '0 8px 28px rgba(20,30,55,0.10)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = colors.borderSubtle || 'rgba(31,61,44,0.08)'
+        e.currentTarget.style.borderColor = colors.primaryBorder
         e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 2px 12px rgba(20,42,29,0.04)'
+        e.currentTarget.style.boxShadow = '0 2px 12px rgba(20,30,55,0.04)'
       }}
     >
       <div
@@ -282,7 +293,7 @@ function MethodCard({ title, tagline, body, onClick }) {
           fontWeight: 700,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: colors.brassDeep,
+          color: ACCENT_DARK,
           marginBottom: 8,
         }}
       >
@@ -293,7 +304,7 @@ function MethodCard({ title, tagline, body, onClick }) {
           fontFamily: FONT_SERIF,
           fontSize: '1.4rem',
           fontWeight: 600,
-          color: colors.pine,
+          color: PRIMARY,
           marginBottom: 12,
           letterSpacing: '-0.01em',
           fontVariationSettings: '"opsz" 144, "SOFT" 50',
@@ -302,7 +313,7 @@ function MethodCard({ title, tagline, body, onClick }) {
         {title}
       </h3>
       <p style={{ fontSize: '0.96rem', lineHeight: 1.6, color: colors.slate700, marginBottom: 16, flex: 1 }}>{body}</p>
-      <span style={{ fontSize: '0.92rem', fontWeight: 600, color: colors.brassDeep, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <span style={{ fontSize: '0.92rem', fontWeight: 600, color: ACCENT_DARK, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
         Choose this <span aria-hidden>→</span>
       </span>
     </button>
@@ -368,7 +379,7 @@ function PhonePath({ onBack }) {
       const res = await fetch('/.netlify/functions/request-phone-call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, _source: brand.domain }),
       })
       const data = await res.json().catch(() => ({}))
       if (res.status === 403) {
@@ -413,7 +424,7 @@ function PhonePath({ onBack }) {
         background: '#ffffff',
         borderRadius: 18,
         padding: '40px 36px',
-        border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+        border: `1px solid ${colors.primaryBorder}`,
         boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
       }}
     >
@@ -423,7 +434,7 @@ function PhonePath({ onBack }) {
           fontFamily: FONT_SERIF,
           fontSize: '1.7rem',
           fontWeight: 600,
-          color: colors.pine,
+          color: colors.primary,
           marginBottom: 8,
           marginTop: 14,
           letterSpacing: '-0.015em',
@@ -509,7 +520,7 @@ function PhonePath({ onBack }) {
           style={{
             marginTop: 8,
             padding: '14px 28px',
-            background: status === 'submitting' ? 'rgba(176,141,90,0.6)' : colors.brass,
+            background: status === 'submitting' ? rgba(ACCENT, 0.55) : colors.accent,
             color: '#ffffff',
             borderRadius: 10,
             fontSize: '1rem',
@@ -517,7 +528,7 @@ function PhonePath({ onBack }) {
             border: 'none',
             cursor: status === 'submitting' ? 'not-allowed' : 'pointer',
             letterSpacing: '0.01em',
-            boxShadow: '0 6px 18px rgba(176,141,90,0.28)',
+            boxShadow: `0 6px 18px ${rgba(ACCENT, 0.28)}`,
             fontFamily: FONT_SANS,
             alignSelf: 'flex-start',
           }}
@@ -556,10 +567,10 @@ function VideoPath({ onBack }) {
             marginTop: 18,
             marginBottom: 18,
             padding: '14px 18px',
-            background: colors.sagePale,
+            background: colors.primaryTint,
             borderRadius: 12,
             fontSize: '0.92rem',
-            color: colors.pine,
+            color: colors.primary,
           }}
         >
           Booking video call for <strong>{US_STATES.find((s) => s[0] === state)?.[1] || state}</strong>. Pick any open slot below — you'll get a confirmation email with the Zoom link.
@@ -579,7 +590,7 @@ function VideoPath({ onBack }) {
         background: '#ffffff',
         borderRadius: 18,
         padding: '40px 36px',
-        border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+        border: `1px solid ${colors.primaryBorder}`,
         boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
       }}
     >
@@ -589,7 +600,7 @@ function VideoPath({ onBack }) {
           fontFamily: FONT_SERIF,
           fontSize: '1.7rem',
           fontWeight: 600,
-          color: colors.pine,
+          color: colors.primary,
           marginBottom: 8,
           marginTop: 14,
           letterSpacing: '-0.015em',
@@ -605,7 +616,7 @@ function VideoPath({ onBack }) {
         onSubmit={(e) => { e.preventDefault(); if (state) setShowCalendly(true) }}
         style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
       >
-        <label style={{ fontSize: '0.88rem', fontWeight: 600, color: colors.pine }}>
+        <label style={{ fontSize: '0.88rem', fontWeight: 600, color: colors.primary }}>
           What state do you live in?
           <select
             value={state}
@@ -628,7 +639,7 @@ function VideoPath({ onBack }) {
           style={{
             marginTop: 8,
             padding: '14px 28px',
-            background: !state || stateBlocked ? 'rgba(176,141,90,0.4)' : colors.brass,
+            background: !state || stateBlocked ? rgba(ACCENT, 0.35) : colors.accent,
             color: '#ffffff',
             borderRadius: 10,
             fontSize: '1rem',
@@ -636,7 +647,7 @@ function VideoPath({ onBack }) {
             border: 'none',
             cursor: !state || stateBlocked ? 'not-allowed' : 'pointer',
             letterSpacing: '0.01em',
-            boxShadow: !state || stateBlocked ? 'none' : '0 6px 18px rgba(176,141,90,0.28)',
+            boxShadow: !state || stateBlocked ? 'none' : `0 6px 18px ${rgba(ACCENT, 0.28)}`,
             fontFamily: FONT_SANS,
             alignSelf: 'flex-start',
           }}
@@ -660,11 +671,11 @@ function TimeSlotPicker({ preferredDate, selectedTime, onSelect }) {
         style={{
           fontSize: '0.86rem',
           fontWeight: 600,
-          color: colors.pine,
+          color: colors.primary,
           marginBottom: 8,
         }}
       >
-        Preferred time <span style={{ color: colors.brassDeep, marginLeft: 4 }}>*</span>
+        Preferred time <span style={{ color: colors.accentDark, marginLeft: 4 }}>*</span>
       </div>
       {!preferredDate ? (
         <div
@@ -674,7 +685,7 @@ function TimeSlotPicker({ preferredDate, selectedTime, onSelect }) {
             borderRadius: 10,
             fontSize: '0.9rem',
             color: colors.slate500,
-            border: `1px dashed ${colors.borderLight || '#cbd5e1'}`,
+            border: `1px dashed ${colors.slate300}`,
           }}
         >
           Pick a date above to see available times.
@@ -703,9 +714,9 @@ function TimeSlotPicker({ preferredDate, selectedTime, onSelect }) {
                     fontSize: '0.86rem',
                     fontWeight: isSelected ? 600 : 500,
                     fontFamily: 'inherit',
-                    background: isSelected ? colors.brass : isPast ? '#f3f0e8' : '#ffffff',
+                    background: isSelected ? colors.accent : isPast ? '#f3f0e8' : '#ffffff',
                     color: isSelected ? '#ffffff' : isPast ? colors.slate500 : colors.charcoal,
-                    border: `1px solid ${isSelected ? colors.brass : isPast ? 'rgba(31,61,44,0.08)' : colors.borderLight || '#cbd5e1'}`,
+                    border: `1px solid ${isSelected ? colors.accent : isPast ? 'rgba(31,61,44,0.08)' : colors.slate300}`,
                     borderRadius: 8,
                     cursor: isPast ? 'not-allowed' : 'pointer',
                     transition: 'all 0.12s ease',
@@ -714,12 +725,12 @@ function TimeSlotPicker({ preferredDate, selectedTime, onSelect }) {
                   }}
                   onMouseEnter={(e) => {
                     if (isPast || isSelected) return
-                    e.currentTarget.style.borderColor = colors.brass
-                    e.currentTarget.style.background = colors.brassPale
+                    e.currentTarget.style.borderColor = colors.accent
+                    e.currentTarget.style.background = colors.accentPale
                   }}
                   onMouseLeave={(e) => {
                     if (isPast || isSelected) return
-                    e.currentTarget.style.borderColor = colors.borderLight || '#cbd5e1'
+                    e.currentTarget.style.borderColor = colors.slate300
                     e.currentTarget.style.background = '#ffffff'
                   }}
                 >
@@ -768,8 +779,8 @@ function Row({ two, children }) {
 
 function Field({ label, required, hint, children }) {
   return (
-    <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 600, color: colors.pine }}>
-      {label}{required && <span style={{ color: colors.brassDeep, marginLeft: 4 }}>*</span>}
+    <label style={{ display: 'block', fontSize: '0.86rem', fontWeight: 600, color: colors.primary }}>
+      {label}{required && <span style={{ color: colors.accentDark, marginLeft: 4 }}>*</span>}
       {children}
       {hint && <span style={{ display: 'block', fontSize: '0.78rem', color: colors.slate500, marginTop: 4, lineHeight: 1.5, fontWeight: 400 }}>{hint}</span>}
     </label>
@@ -807,7 +818,7 @@ function SuccessPanel({ title, body, onBack }) {
           alignItems: 'center',
           gap: 8,
           padding: '12px 24px',
-          background: colors.pine,
+          background: colors.primary,
           color: '#ffffff',
           borderRadius: 10,
           fontSize: '0.95rem',
@@ -828,7 +839,7 @@ function BlockedPanel({ stateCode, message, onBack }) {
         background: '#ffffff',
         borderRadius: 18,
         padding: '36px 36px',
-        border: `1px solid ${colors.brass}`,
+        border: `1px solid ${colors.accent}`,
       }}
     >
       <BackLink onClick={onBack} label="← Pick a different format" />
@@ -837,7 +848,7 @@ function BlockedPanel({ stateCode, message, onBack }) {
           fontFamily: FONT_SERIF,
           fontSize: '1.5rem',
           fontWeight: 600,
-          color: colors.pine,
+          color: colors.primary,
           marginBottom: 12,
           marginTop: 14,
           letterSpacing: '-0.015em',
@@ -859,7 +870,7 @@ function BlockedPanel({ stateCode, message, onBack }) {
 
 function BlockedInline({ state }) {
   return (
-    <div style={{ padding: '12px 16px', background: colors.brassPale, border: `1px solid ${colors.brass}`, borderRadius: 10, fontSize: '0.92rem', color: colors.slate700, lineHeight: 1.55 }}>
+    <div style={{ padding: '12px 16px', background: colors.accentPale, border: `1px solid ${colors.accent}`, borderRadius: 10, fontSize: '0.92rem', color: colors.slate700, lineHeight: 1.55 }}>
       Federal Market Associates can't currently book consultations for <strong>{UNAVAILABLE_STATE_NAMES[state]}</strong> residents. The calculators and library remain fully open to you.
     </div>
   )
@@ -874,7 +885,7 @@ function TrustItem({ label, body }) {
           fontWeight: 700,
           letterSpacing: '0.14em',
           textTransform: 'uppercase',
-          color: colors.brassDeep,
+          color: colors.accentDark,
           marginBottom: 6,
         }}
       >
@@ -891,7 +902,7 @@ function primaryLinkStyle() {
     alignItems: 'center',
     gap: 8,
     padding: '12px 22px',
-    background: colors.pine,
+    background: colors.primary,
     color: '#ffffff',
     borderRadius: 10,
     fontSize: '0.95rem',
@@ -907,8 +918,8 @@ function secondaryLinkStyle() {
     gap: 8,
     padding: '12px 22px',
     background: 'transparent',
-    color: colors.pine,
-    border: `1px solid ${colors.pine}`,
+    color: colors.primary,
+    border: `1px solid ${colors.primary}`,
     borderRadius: 10,
     fontSize: '0.95rem',
     fontWeight: 600,
@@ -921,10 +932,18 @@ const inputBox = {
   width: '100%',
   padding: '11px 14px',
   fontSize: '0.95rem',
-  border: `1px solid ${colors.borderLight || '#cbd5e1'}`,
+  border: `1px solid ${colors.slate300}`,
   borderRadius: 10,
   fontFamily: FONT_SANS,
   color: colors.charcoal,
   background: '#ffffff',
   marginTop: 6,
+}
+
+function rgba(hex, alpha) {
+  const clean = hex.replace('#', '')
+  const r = parseInt(clean.substring(0, 2), 16)
+  const g = parseInt(clean.substring(2, 4), 16)
+  const b = parseInt(clean.substring(4, 6), 16)
+  return `rgba(${r},${g},${b},${alpha})`
 }

@@ -1,11 +1,48 @@
 // src/constants/theme.js
-// Shared design tokens for FedBenefitsAid (Heritage Pine + Brass).
-// Mirrors CSS :root variables in src/App.css — keep in sync.
+// Shared design tokens. Brand-aware color tokens (primary/accent/...) read
+// from src/constants/brand.js, which resolves the active brand from
+// VITE_BRAND at build time. The legacy pine/brass tokens stay for components
+// that are intentionally FBA-styled (e.g. the FBA-only Landing page).
+//
 // Import pieces as needed:
 //   import { colors, gradients, spacing, radii, shadows, fonts } from '../constants/theme'
 
+import { brand } from './brand'
+
+const PRIMARY = brand.colors.primary
+const PRIMARY_DARK = brand.colors.primaryDark
+const PRIMARY_LIGHT = brand.colors.primaryLight
+const ACCENT = brand.colors.accent
+const ACCENT_DARK = brand.colors.accentDark
+const ACCENT_LIGHT = brand.colors.accentLight
+
+// Tint a hex color into a soft pale background suitable for callouts.
+function pale(hex, alpha = 0.08) {
+  const clean = hex.replace('#', '')
+  const r = parseInt(clean.substring(0, 2), 16)
+  const g = parseInt(clean.substring(2, 4), 16)
+  const b = parseInt(clean.substring(4, 6), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
 export const colors = {
-  // Brand
+  // === Brand-aware tokens — switch with VITE_BRAND ===
+  primary: PRIMARY,
+  primaryDark: PRIMARY_DARK,
+  primaryLight: PRIMARY_LIGHT,
+  primaryTint: pale(PRIMARY, 0.06),
+  primaryBorder: pale(PRIMARY, 0.1),
+  accent: ACCENT,
+  accentDark: ACCENT_DARK,
+  accentLight: ACCENT_LIGHT,
+  accentTint: pale(ACCENT, 0.12),
+  accentPale: pale(ACCENT, 0.06),
+  accentBorder: pale(ACCENT, 0.4),
+
+  // === Legacy FBA-specific tokens (Heritage Pine + Brass) ===
+  // Kept verbatim so the FBA-only Landing page renders unchanged when
+  // someone sets VITE_BRAND=fba. New code should prefer the brand-aware
+  // tokens above.
   pine: '#1f3d2c',
   pineDeep: '#142a1d',
   pineLight: '#2c5544',
@@ -16,6 +53,8 @@ export const colors = {
   brassDeep: '#8d6f44',
   brassLight: '#d4b88a',
   brassPale: '#f4eee0',
+
+  // === Neutrals (brand-independent) ===
   cream: '#faf6ef',
   ivory: '#fefcf7',
   bone: '#f1ead9',

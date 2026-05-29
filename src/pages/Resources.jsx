@@ -1,4 +1,5 @@
 import Seo from '../components/Seo'
+import { brand } from '../constants/brand'
 export default function Resources() {
   return (
     <main style={s.page}>
@@ -258,7 +259,7 @@ export default function Resources() {
 
         {/* Disclaimer */}
         <div style={s.disclaimer}>
-          Links open official government or plan provider websites. FedBenefitsAid is not affiliated with OPM, SSA, TSP, or any government agency. Always verify information directly with the relevant agency or a qualified federal benefits advisor.
+          Links open official government or plan-provider websites. {brand.name} is not affiliated with OPM, SSA, TSP, or any government agency. Always verify information directly with the relevant agency or a qualified federal benefits advisor.
         </div>
 
       </div>
