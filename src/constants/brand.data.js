@@ -103,11 +103,12 @@ export const FMA = {
 export const brands = { fba: FBA, fma: FMA }
 
 /**
- * Resolve a brand config by id. Falls back to FBA for unknown / missing ids
- * so the build never crashes.
+ * Resolve a brand config by id. Falls back to FMA for unknown / missing ids —
+ * FMA is the current default brand. Set VITE_BRAND=fba on a Netlify site to
+ * render the legacy FedBenefitsAid brand instead.
  */
 export function getBrand(id) {
-  if (!id) return FBA
+  if (!id) return FMA
   const key = String(id).toLowerCase()
-  return brands[key] || FBA
+  return brands[key] || FMA
 }
