@@ -602,10 +602,12 @@ function HeroPrimary({ to, children, large = false }) {
         letterSpacing: '0.01em',
         border: `1px solid ${MAROON_LIGHT}`,
         boxShadow: '0 10px 28px -10px rgba(123,28,46,0.7)',
-        transition: 'all 0.18s ease',
+        transition: 'background 0.18s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.2s ease',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.background = brand.colors.accentDark; e.currentTarget.style.transform = 'translateY(-1px)' }}
       onMouseLeave={(e) => { e.currentTarget.style.background = MAROON; e.currentTarget.style.transform = 'translateY(0)' }}
+      onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(-1px) scale(0.97)' }}
+      onMouseUp={(e) => { e.currentTarget.style.transform = 'translateY(-1px)' }}
     >
       {children}
       <span aria-hidden>→</span>
@@ -629,10 +631,12 @@ function HeroGhost({ to, children }) {
         fontWeight: 500,
         textDecoration: 'none',
         border: '1px solid rgba(255,255,255,0.32)',
-        transition: 'all 0.18s ease',
+        transition: 'background 0.18s ease, border-color 0.18s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1)',
       }}
       onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor = BRASS_LIGHT }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.32)' }}
+      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.32)'; e.currentTarget.style.transform = 'none' }}
+      onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)' }}
+      onMouseUp={(e) => { e.currentTarget.style.transform = 'none' }}
     >
       {children}
     </Link>
