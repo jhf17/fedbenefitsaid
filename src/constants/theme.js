@@ -39,13 +39,15 @@ export const colors = {
   accentPale: pale(ACCENT, 0.06),
   accentBorder: pale(ACCENT, 0.4),
 
-  // === Legacy FBA-specific tokens (Heritage Pine + Brass) ===
-  // Kept verbatim so the FBA-only Landing page renders unchanged when
-  // someone sets VITE_BRAND=fba. New code should prefer the brand-aware
-  // tokens above.
-  pine: '#1f3d2c',
-  pineDeep: '#142a1d',
-  pineLight: '#2c5544',
+  // === Legacy "pine" tokens — REMAPPED to FMA navy (2026-06) ===
+  // FMA is the only active brand (FedBenefitsAid is dormant), so these legacy
+  // names now resolve to FMA navy. This instantly brings every not-yet-migrated
+  // page (calculators, About, Consultation, Privacy, Terms, Disclaimer,
+  // ConsultantCTA, ErrorBoundary) into the navy/parchment system without editing
+  // ~16 files. Migrate consumers to the brand/ink tokens over time.
+  pine: '#1a2d5c',       // → FMA navy (was #1f3d2c)
+  pineDeep: '#0f1d3d',   // → FMA navy-dark
+  pineLight: '#2c4280',  // → FMA navy-light
   sage: '#4a6b5a',
   sageLight: '#7d9b8d',
   sagePale: '#e6ede8',
@@ -54,10 +56,10 @@ export const colors = {
   brassLight: '#d4b88a',
   brassPale: '#f4eee0',
 
-  // === Neutrals (brand-independent) ===
-  cream: '#faf6ef',
-  ivory: '#fefcf7',
-  bone: '#f1ead9',
+  // === Neutrals — warmed to FMA parchment (2026-06) ===
+  cream: '#f4ece0',      // → FMA paper (was #faf6ef)
+  ivory: '#fcf8f1',      // → FMA surface (was #fefcf7)
+  bone: '#ece1d0',       // → FMA paperDeep (was #f1ead9)
   charcoal: '#1f2937',
 
   // === "Ink & Parchment" tokens (FMA redesign, June 2026) ===
@@ -83,7 +85,7 @@ export const colors = {
 
   // Page basics
   white: '#ffffff',
-  lightGray: '#faf6ef',
+  lightGray: '#f4ece0',
 
   // Slate / neutrals
   slate700: '#475569',
