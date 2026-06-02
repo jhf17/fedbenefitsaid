@@ -70,7 +70,7 @@ export const colors = {
   surfaceRaised: '#ffffff', // pure white — used sparingly (framed artifacts)
   ink: '#1b2436',          // primary text (near-black, navy undertone)
   inkSoft: '#454f63',      // secondary / body text
-  inkFaint: '#8b93a3',     // captions, meta
+  inkFaint: '#646d80',     // captions, meta — darkened for WCAG AA on small text
   brassDeepInk: '#7a5f37', // brass legible on parchment
 
   // Legacy aliases — existing code uses these names

@@ -499,7 +499,7 @@ export default function LandingFMA() {
 
       {/* reveal animation */}
       <style>{`
-        .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
         .reveal.visible { opacity: 1; transform: none; }
         @keyframes figFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
         .fig-rot { animation: figFade 0.55s ease; }
@@ -751,7 +751,8 @@ function ServiceSupport({ service, index, isMobile, divider }) {
   return (
     <div
       style={{
-        padding: isMobile ? '28px 0' : '34px 0',
+        paddingTop: isMobile ? 28 : 34,
+        paddingBottom: isMobile ? 28 : 34,
         paddingRight: divider ? 48 : 0,
         paddingLeft: !isMobile && !divider ? 48 : 0,
         borderRight: divider ? `1px solid ${rules.ink}` : 'none',
