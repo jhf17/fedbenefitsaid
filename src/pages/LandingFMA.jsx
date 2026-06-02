@@ -8,6 +8,7 @@ import { DATA_LAST_UPDATED } from '../config/site'
 import Engraving from '../components/Engraving'
 import { Diamond, IconIndividual, IconCalculator, IconInstitution } from '../components/Glyphs'
 import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget'
+import Button from '../components/fma/Button'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -263,7 +264,7 @@ export default function LandingFMA() {
           }}
         >
           {/* left — message */}
-          <div>
+          <div className="fma-rise">
             <h1
               style={{
                 fontFamily: FONT_SERIF,
@@ -295,8 +296,8 @@ export default function LandingFMA() {
               for the agencies that serve them. Free calculators. No signup. No pressure.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              <HeroPrimary to="/consultation">Book a free consultation</HeroPrimary>
-              <HeroGhost to="/calculators">Try the free calculators</HeroGhost>
+              <Button to="/consultation" variant="primary" arrow>Book a free consultation</Button>
+              <Button to="/calculators" variant="ghost">Try the free calculators</Button>
             </div>
 
             {/* sourcing / trust line */}
@@ -320,7 +321,7 @@ export default function LandingFMA() {
           </div>
 
           {/* right — the "benefit estimate" artifact */}
-          <HeroArtifact isMobile={isMobile} />
+          <HeroArtifact isMobile={isMobile} className="fma-rise-late" />
         </div>
       </section>
 
@@ -455,7 +456,7 @@ export default function LandingFMA() {
                 </li>
               ))}
             </ul>
-            <HeroPrimary to="/consultation">Book a free consultation</HeroPrimary>
+            <Button to="/consultation" variant="primary" arrow>Book a free consultation</Button>
           </div>
 
           <DeliverableArtifact isMobile={isMobile} />
@@ -584,71 +585,12 @@ function SectionTitle({ children, onDark = false }) {
   )
 }
 
-function HeroPrimary({ to, children, large = false }) {
-  return (
-    <Link
-      to={to}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 9,
-        padding: large ? '16px 34px' : '14px 26px',
-        background: MAROON,
-        color: '#fff',
-        borderRadius: 8,
-        fontSize: large ? '1.04rem' : '0.98rem',
-        fontWeight: 600,
-        textDecoration: 'none',
-        letterSpacing: '0.01em',
-        border: `1px solid ${MAROON_LIGHT}`,
-        boxShadow: '0 10px 28px -10px rgba(123,28,46,0.7)',
-        transition: 'background 0.18s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.2s ease',
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = brand.colors.accentDark; e.currentTarget.style.transform = 'translateY(-1px)' }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = MAROON; e.currentTarget.style.transform = 'translateY(0)' }}
-      onMouseDown={(e) => { e.currentTarget.style.transform = 'translateY(-1px) scale(0.97)' }}
-      onMouseUp={(e) => { e.currentTarget.style.transform = 'translateY(-1px)' }}
-    >
-      {children}
-      <span aria-hidden>→</span>
-    </Link>
-  )
-}
-
-function HeroGhost({ to, children }) {
-  return (
-    <Link
-      to={to}
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '14px 26px',
-        background: 'transparent',
-        color: '#fff',
-        borderRadius: 8,
-        fontSize: '0.98rem',
-        fontWeight: 500,
-        textDecoration: 'none',
-        border: '1px solid rgba(255,255,255,0.32)',
-        transition: 'background 0.18s ease, border-color 0.18s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1)',
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.borderColor = BRASS_LIGHT }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.32)'; e.currentTarget.style.transform = 'none' }}
-      onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)' }}
-      onMouseUp={(e) => { e.currentTarget.style.transform = 'none' }}
-    >
-      {children}
-    </Link>
-  )
-}
-
 // The hero centerpiece: a framed FERS result styled like an official benefit
 // statement. Mirrors the actual FERS calculator's result card exactly — leads
 // with the monthly pension, shows the eligibility category, "High-3 used", and
 // "Multiplier" (see PensionScenarioCalculator → ScenarioCard). Worked example:
 // High-3 $80,000 × 25 yrs × 1.1% (age 62, 20+ yrs) = $22,000/yr → $1,833/mo.
-function HeroArtifact({ isMobile }) {
+function HeroArtifact({ isMobile, className = '' }) {
   const row = (label, value) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0' }}>
       <span style={{ fontSize: '0.84rem', color: INK_SOFT }}>{label}</span>
@@ -656,7 +598,7 @@ function HeroArtifact({ isMobile }) {
     </div>
   )
   return (
-    <div style={{ position: 'relative', justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 380 }}>
+    <div className={className} style={{ position: 'relative', justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 380 }}>
       {/* stacked "page" behind, for document depth */}
       <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.4deg)', background: '#f0e7d6', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div
