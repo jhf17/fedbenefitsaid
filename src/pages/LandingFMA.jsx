@@ -210,17 +210,17 @@ export default function LandingFMA() {
       <OrganizationJsonLd />
 
       {/* ===================== MASTHEAD (parchment letterhead — logo sits on its own warm surface, no floating box) ===================== */}
-      <section style={{ background: PAPER, padding: isMobile ? '22px 20px 26px' : '32px 48px 34px' }}>
+      <section style={{ background: PAPER, padding: isMobile ? '26px 20px 30px' : '40px 48px 42px' }}>
         <div style={{ maxWidth: MAXW, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <img
             src={brand.logo.src}
             alt={brand.logo.alt}
-            style={{ height: isMobile ? 74 : 108, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+            style={{ height: isMobile ? 94 : 140, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
           />
           <div
             style={{
               fontFamily: FONT_SERIF,
-              fontSize: isMobile ? '1.5rem' : '2.15rem',
+              fontSize: isMobile ? '1.7rem' : '2.45rem',
               fontWeight: 600,
               color: NAVY,
               letterSpacing: '0.03em',

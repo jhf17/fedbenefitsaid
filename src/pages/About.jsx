@@ -22,15 +22,14 @@ const TEAM = [
     title: 'Federal Retirement Consultant',
     photo: '/Founder.png',
     bio:
-      "I work with federal employees one at a time on FERS, CSRS, TSP, FEHB, FEGLI, Medicare, and Social Security — the parts of retirement the government doesn't make easy. Most conversations are pure education. If something more fits, I'll show you the options and tell you honestly when they don't beat what you already have.",
+      "Jack is the one in the numbers — mapping out FERS and CSRS scenarios, modeling TSP withdrawals, and running the math until the trade-offs are obvious. Bring him the complicated parts of your situation and he'll show you, in plain figures, exactly what each path costs or earns.",
   },
   {
-    // TODO(owner): confirm Kevin's full name + tweak this bio.
-    name: 'Kevin',
+    name: 'Kevin Ferreira',
     title: 'Federal Retirement Consultant',
     photo: '/kevin.jpg',
     bio:
-      'Kevin works alongside Jack, helping federal employees make sense of their benefits — running the numbers on FERS, CSRS, TSP, FEHB, FEGLI, Medicare, and Social Security, and answering the questions people can rarely get a straight answer to. Same approach either way: education first, no pressure, no jargon.',
+      "Kevin has a way of making the dense parts click and taking the time to understand where you're actually coming from — not just what's on the spreadsheet. He knows the federal benefit rules cold, and he's the one people tend to stay in touch with long after the first call.",
   },
 ]
 
