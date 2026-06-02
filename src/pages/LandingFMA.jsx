@@ -890,7 +890,7 @@ function DeliverableArtifact({ isMobile }) {
               <div style={{ fontFamily: FONT_MONO, fontSize: '0.64rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: INK_FAINT }}>Retirement Summary</div>
               <div style={{ fontFamily: FONT_SERIF, fontSize: '1.18rem', fontWeight: 600, color: NAVY, marginTop: 2, letterSpacing: '-0.01em' }}>Prepared for you</div>
             </div>
-            <span style={{ color: BRASS }}><SealRing size={28} w={1.3} /></span>
+            <span style={{ color: BRASS }}><SealMark size={28} w={1.3} /></span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
