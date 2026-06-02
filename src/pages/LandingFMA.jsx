@@ -99,8 +99,8 @@ const SERVICES = [
 const TOPICS = [
   { name: 'FERS', sub: 'Pension formula, MRA, supplement', href: '/calculators/fers' },
   { name: 'CSRS', sub: '1.5 / 1.75 / 2.0% multipliers, 80% cap', href: '/calculators/csrs' },
-  { name: 'TSP', sub: 'Contribution limits, withdrawal options', href: '/reference' },
-  { name: 'Social Security', sub: 'Bend points, claiming-age strategy', href: '/reference' },
+  { name: 'TSP', sub: 'Drawdown — will it last vs. guaranteed', href: '/calculators/tsp-drawdown' },
+  { name: 'Social Security', sub: 'Claiming age, in your income picture', href: '/calculators/income-picture' },
   { name: 'FEHB', sub: 'Carrying coverage into retirement', href: '/reference' },
   { name: 'FEGLI', sub: 'Premiums by age, basic + optional', href: '/calculators/fegli' },
   { name: 'Medicare', sub: 'Part A/B/D, IRMAA, FEHB coordination', href: '/reference' },

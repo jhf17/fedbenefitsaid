@@ -109,7 +109,7 @@ export default function Reference() {
     : '/reference'
 
   return (
-    <main style={{ minHeight: '100vh', background: '#faf6ef', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <main style={{ minHeight: '100vh', background: '#f4ece0', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Seo title={seoTitle} description={seoDesc} path={seoPath} />
       {showDetail && selectedTopic && <TopicFAQJsonLd topic={selectedTopic} />}
       <style>{`
@@ -397,7 +397,7 @@ const fontSans = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
 
 const styles = {
   header: {
-    background: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
+    background: 'linear-gradient(160deg, #0f1d3d 0%, #1a2d5c 60%)',
     color: 'white',
     padding: '56px 0 44px',
     fontFamily: fontSans,
@@ -459,7 +459,7 @@ const styles = {
     padding: '14px 44px 14px 18px',
     borderRadius: 10,
     fontFamily: fontSans,
-    color: '#142a1d',
+    color: '#0f1d3d',
     boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
   },
   searchClear: {
@@ -517,7 +517,7 @@ const styles = {
   },
   searchCardTitle: {
     fontWeight: 700,
-    color: '#142a1d',
+    color: '#0f1d3d',
     fontSize: '0.95rem',
     marginBottom: 4,
     fontFamily: fontSerif,
@@ -548,7 +548,7 @@ const styles = {
     fontFamily: fontSans,
     minHeight: 170,
   },
-  catName: { fontWeight: 700, fontSize: '1.05rem', color: '#142a1d', lineHeight: 1.2, fontFamily: fontSerif },
+  catName: { fontWeight: 700, fontSize: '1.05rem', color: '#0f1d3d', lineHeight: 1.2, fontFamily: fontSerif },
   catCount: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, marginTop: 2, fontFamily: fontSans },
   catDesc: { fontSize: '0.85rem', color: '#64748b', lineHeight: 1.5, fontFamily: fontSans },
   topicList: {
@@ -573,7 +573,7 @@ const styles = {
     fontFamily: fontSans,
   },
   topicCardLeft: { flex: 1 },
-  topicTitle: { fontWeight: 700, fontSize: '1.05rem', color: '#142a1d', marginBottom: 6, fontFamily: fontSerif },
+  topicTitle: { fontWeight: 700, fontSize: '1.05rem', color: '#0f1d3d', marginBottom: 6, fontFamily: fontSerif },
   topicSummary: { fontSize: '0.9rem', color: '#64748b', marginBottom: 8, lineHeight: 1.5, fontFamily: fontSans },
   topicMeta: { fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600, letterSpacing: '0.02em', fontFamily: fontSans },
   topicArrow: { fontSize: '1.2rem', flexShrink: 0, transition: 'transform 0.2s' },
@@ -599,7 +599,7 @@ const styles = {
   detailSection: {
     fontSize: '1.1rem',
     fontWeight: 700,
-    color: '#142a1d',
+    color: '#0f1d3d',
     marginBottom: 18,
     fontFamily: fontSerif,
   },
@@ -615,7 +615,7 @@ const styles = {
     gap: 14,
   },
   numberCard: {
-    background: '#faf6ef',
+    background: '#f4ece0',
     borderTop: '3px solid',
     borderRadius: 10,
     padding: '16px 18px',
@@ -624,7 +624,7 @@ const styles = {
   numberValue: {
     fontWeight: 800,
     fontSize: '1.15rem',
-    color: '#142a1d',
+    color: '#0f1d3d',
     marginBottom: 4,
     letterSpacing: '-0.01em',
     fontFamily: fontSerif,
