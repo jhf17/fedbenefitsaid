@@ -128,7 +128,7 @@ export default function Footer() {
             <Link to="/calculators/csrs" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>CSRS Pension</Link>
             <Link to="/calculators/special" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Special Provisions</Link>
             <Link to="/calculators/fegli" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>FEGLI Cost</Link>
-            <Link to="/assessment" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Readiness Check</Link>
+            <Link to="/calculators/tsp-drawdown" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>TSP Drawdown</Link>
           </div>
         </div>
 

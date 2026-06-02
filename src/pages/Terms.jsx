@@ -36,7 +36,6 @@ export default function Terms() {
           <ul style={styles.list}>
             <li>Calculators for FERS pension, CSRS pension, Special Provisions pension, FEGLI cost over time, retirement income picture, "what-if" coverage, and High-3 average salary</li>
             <li>A reference library of federal benefit topics (FERS, CSRS, TSP, FEHB, FEGLI, Medicare, Social Security, Survivor Benefits)</li>
-            <li>A short readiness assessment that routes you to the right calculator and library section</li>
             <li>The option to book a free meeting (phone or Zoom) with a Federal Retirement Consultant at {brand.name}</li>
           </ul>
           <p style={styles.p}>

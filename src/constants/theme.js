@@ -60,6 +60,19 @@ export const colors = {
   bone: '#f1ead9',
   charcoal: '#1f2937',
 
+  // === "Ink & Parchment" tokens (FMA redesign, June 2026) ===
+  // Warm parchment surfaces instead of stark white, and an ink text ramp
+  // with a navy undertone. Used by the redesigned LandingFMA + rollout pages.
+  // See memory: fma-redesign-direction.
+  paper: '#f4ece0',        // main warm page background
+  paperDeep: '#ece1d0',    // slightly deeper alternating band
+  surface: '#fcf8f1',      // warm off-white card surface
+  surfaceRaised: '#ffffff', // pure white — used sparingly (framed artifacts)
+  ink: '#1b2436',          // primary text (near-black, navy undertone)
+  inkSoft: '#454f63',      // secondary / body text
+  inkFaint: '#8b93a3',     // captions, meta
+  brassDeepInk: '#7a5f37', // brass legible on parchment
+
   // Legacy aliases — existing code uses these names
   navy: '#1f3d2c',
   navyDark: '#142a1d',
@@ -117,7 +130,28 @@ export const shadows = {
 export const fonts = {
   sans: "'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
   serif: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif",
+  // Ledger/data mono — system stack, no extra network font. Pair with
+  // fontVariantNumeric:'tabular-nums' for aligned figures.
+  mono: "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace",
 }
 
-const theme = { colors, gradients, spacing, radii, shadows, fonts }
+// Hairline "ledger rule" colors — the primary separation device in the
+// redesign (used instead of soft drop-shadows on most surfaces).
+export const rules = {
+  ink: 'rgba(27,36,53,0.12)',
+  inkStrong: 'rgba(27,36,53,0.22)',
+  brass: 'rgba(176,141,90,0.5)',
+  onDark: 'rgba(255,255,255,0.14)',
+  brassOnDark: 'rgba(205,176,133,0.32)',
+}
+
+// Restrained elevation — reserved for genuinely-floating elements
+// (the hero "estimate" artifact, the sticky nav). Flat hairlines elsewhere.
+export const elevation = {
+  card: '0 1px 2px rgba(20,30,55,0.05)',
+  raised: '0 22px 50px -20px rgba(15,29,61,0.45)',
+  artifact: '0 28px 60px -24px rgba(15,29,61,0.55), 0 2px 0 rgba(27,36,53,0.04)',
+}
+
+const theme = { colors, gradients, spacing, radii, shadows, fonts, rules, elevation }
 export default theme

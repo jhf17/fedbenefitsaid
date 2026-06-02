@@ -50,6 +50,13 @@ const CALCULATORS = [
     eyebrow: 'Whole-picture income',
   },
   {
+    title: 'TSP Drawdown',
+    blurb:
+      'Draw a set amount from your TSP and watch the balance over time at a growth rate you choose. See whether self-managing that income outlasts you — or runs dry — versus a guaranteed lifetime income.',
+    href: '/calculators/tsp-drawdown',
+    eyebrow: 'TSP · Income',
+  },
+  {
     title: '"What if..." Coverage',
     blurb:
       'What your federal benefits actually pay if you die or become disabled. FEGLI, FERS Survivor, Social Security, and FERS Disability modeled honestly.',

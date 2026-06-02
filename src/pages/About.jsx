@@ -14,9 +14,26 @@ const ACCENT = colors.accent
 const ACCENT_DARK = colors.accentDark
 const ACCENT_LIGHT = colors.accentLight
 
-export default function About() {
-  const [imgFailed, setImgFailed] = useState(false)
+// The consultants on the page. Add a member and they appear automatically —
+// drop in Kevin's headshot + name when ready (see the commented entry).
+const TEAM = [
+  {
+    name: 'Jack Fitzgerald',
+    title: 'Federal Retirement Consultant',
+    photo: '/Founder.png',
+    bio:
+      "I work with federal employees one at a time on FERS, CSRS, TSP, FEHB, FEGLI, Medicare, and Social Security — the parts of retirement the government doesn't make easy. Most conversations are pure education. If something more fits, I'll show you the options and tell you honestly when they don't beat what you already have.",
+  },
+  // Ready for Kevin — uncomment, drop his headshot in /public, and he appears:
+  // {
+  //   name: 'Kevin __________',
+  //   title: 'Federal Retirement Consultant',
+  //   photo: '/kevin.png',
+  //   bio: '…',
+  // },
+]
 
+export default function About() {
   return (
     <main style={{ minHeight: '100vh', background: colors.cream, fontFamily: FONT_SANS, color: colors.charcoal }}>
       <Seo
@@ -88,7 +105,7 @@ export default function About() {
 
       {/* WHAT YOU'LL FIND HERE */}
       <section style={{ maxWidth: 1000, margin: '0 auto', padding: '64px 24px 16px' }}>
-        <SectionHeader eyebrow="On this site" title="Three ways to use it." />
+        <SectionHeader eyebrow="On this site" title="Two ways to use it." />
         <div
           style={{
             display: 'grid',
@@ -109,13 +126,6 @@ export default function About() {
             body="Eleven topic areas, every figure cited to OPM, IRS, SSA, CMS, or TSP. Updated each benefit year so 2026 is actually 2026."
             href="/reference"
             cta="Open the library"
-          />
-          <OfferCard
-            label="Assessment"
-            title="Not sure where to start?"
-            body="Three or four questions and we will point you at the right calculator, the right library section, or a meeting if it would actually help."
-            href="/assessment"
-            cta="Take the assessment"
           />
         </div>
       </section>
@@ -157,98 +167,28 @@ export default function About() {
         </div>
       </section>
 
-      {/* FOUNDER */}
-      <section style={{ maxWidth: 880, margin: '0 auto', padding: '40px 24px 24px' }}>
-        <SectionHeader eyebrow="Who built this" title="A note from the founder." />
+      {/* TEAM */}
+      <section style={{ maxWidth: 980, margin: '0 auto', padding: '40px 24px 24px' }}>
+        <SectionHeader eyebrow="The team" title="Who you'll work with." />
+        <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 30, maxWidth: 780 }}>
+          {brand.name} exists because we kept watching federal employees make decisions they didn't have to make. The
+          FERS Supplement surrendered for the wrong reason. FEGLI premiums that double at 60 and again at 65 with no
+          warning. Medicare Part B delayed on a break-room rumor and penalized for life. The official sources are
+          accurate — they're also scattered across four agencies and written for attorneys. So we built this site as
+          the version we wished existed: the 2026 figures correct, every rule cited to OPM and the IRS, and the
+          calculators showing their work. Book a meeting and you'll talk to one of us — phone or Zoom, your call, no
+          agenda you didn't bring.
+        </p>
         <div
           style={{
-            background: '#ffffff',
-            border: `1px solid ${colors.primaryBorder}`,
-            borderRadius: 20,
-            padding: '40px',
-            boxShadow: '0 8px 32px rgba(20,30,55,0.06)',
             display: 'grid',
-            gridTemplateColumns: '180px 1fr',
-            gap: 36,
-            alignItems: 'flex-start',
+            gridTemplateColumns: TEAM.length > 1 ? 'repeat(auto-fit, minmax(300px, 1fr))' : '1fr',
+            gap: 20,
           }}
-          className="founder-card"
         >
-          <div
-            style={{
-              width: 180,
-              height: 180,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              flexShrink: 0,
-              background: `linear-gradient(135deg, ${PRIMARY_LIGHT}, ${PRIMARY_DARK})`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontFamily: FONT_SERIF,
-              fontSize: '2.6rem',
-              fontWeight: 600,
-              fontVariationSettings: '"opsz" 144, "SOFT" 50',
-              boxShadow: '0 12px 32px rgba(15,29,61,0.22)',
-              border: `3px solid ${ACCENT}`,
-            }}
-            aria-label="Jack Fitzgerald"
-          >
-            {!imgFailed ? (
-              <img
-                src="/Founder.png"
-                alt="Jack Fitzgerald, Federal Retirement Consultant"
-                onError={() => setImgFailed(true)}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-              />
-            ) : (
-              'JF'
-            )}
-          </div>
-          <div>
-            <div
-              style={{
-                fontFamily: FONT_SERIF,
-                fontSize: '1.6rem',
-                fontWeight: 600,
-                color: PRIMARY,
-                marginBottom: 4,
-                letterSpacing: '-0.01em',
-                fontVariationSettings: '"opsz" 144, "SOFT" 50',
-              }}
-            >
-              Jack Fitzgerald
-            </div>
-            <div
-              style={{
-                fontSize: '0.86rem',
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: ACCENT_DARK,
-                marginBottom: 14,
-              }}
-            >
-              Founder · Federal Retirement Consultant · {brand.name}
-            </div>
-            <p style={{ fontSize: '1rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 14 }}>
-              I started {brand.name} because I kept watching federal employees make decisions they didn't have to
-              make. The FERS Supplement gets surrendered for the wrong reason. FEGLI premiums double at 60 and double
-              again at 65, and nobody warns anyone in advance. People delay Medicare Part B because someone in the
-              break room said to, and end up paying late penalties for the rest of their lives.
-            </p>
-            <p style={{ fontSize: '1rem', lineHeight: 1.7, color: colors.slate700, marginBottom: 14 }}>
-              The official sources are accurate. They are also scattered across four agencies and written for
-              attorneys. So I built this site as the version I wished existed: the 2026 figures correct, the rules
-              cited to OPM and the IRS, and the calculators showing their work. Then I started sending it to clients
-              between meetings, and it turned out other people found it useful too.
-            </p>
-            <p style={{ fontSize: '0.98rem', lineHeight: 1.65, color: colors.slate500 }}>
-              If you book a meeting, you'll talk to me or another consultant at {brand.shortName}. Phone or Zoom, your
-              call. No agenda you didn't bring.
-            </p>
-          </div>
+          {TEAM.map((m) => (
+            <TeamCard key={m.name} member={m} />
+          ))}
         </div>
       </section>
 
@@ -366,19 +306,86 @@ export default function About() {
         </div>
       </section>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .founder-card {
-            grid-template-columns: 1fr !important;
-            text-align: center;
-            padding: 28px !important;
-          }
-          .founder-card > div:first-child {
-            margin: 0 auto;
-          }
-        }
-      `}</style>
     </main>
+  )
+}
+
+function TeamCard({ member }) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const initials = member.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        border: `1px solid ${colors.primaryBorder}`,
+        borderRadius: 18,
+        padding: '30px 30px 32px',
+        boxShadow: '0 6px 24px rgba(20,30,55,0.05)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+      }}
+    >
+      <div
+        style={{
+          width: 104,
+          height: 104,
+          borderRadius: '50%',
+          overflow: 'hidden',
+          flexShrink: 0,
+          background: `linear-gradient(135deg, ${PRIMARY_LIGHT}, ${PRIMARY_DARK})`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff',
+          fontFamily: FONT_SERIF,
+          fontSize: '2rem',
+          fontWeight: 600,
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+          boxShadow: '0 12px 32px rgba(15,29,61,0.22)',
+          border: `3px solid ${ACCENT}`,
+          marginBottom: 20,
+        }}
+        aria-label={member.name}
+      >
+        {member.photo && !imgFailed ? (
+          <img
+            src={member.photo}
+            alt={`${member.name}, ${brand.shortName}`}
+            onError={() => setImgFailed(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          initials
+        )}
+      </div>
+      <div
+        style={{
+          fontFamily: FONT_SERIF,
+          fontSize: '1.4rem',
+          fontWeight: 600,
+          color: PRIMARY,
+          letterSpacing: '-0.01em',
+          marginBottom: 4,
+          fontVariationSettings: '"opsz" 144, "SOFT" 50',
+        }}
+      >
+        {member.name}
+      </div>
+      <div
+        style={{
+          fontSize: '0.82rem',
+          fontWeight: 600,
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+          color: ACCENT_DARK,
+          marginBottom: 16,
+        }}
+      >
+        {member.title} · {brand.shortName}
+      </div>
+      <p style={{ fontSize: '0.97rem', lineHeight: 1.66, color: colors.slate700, margin: 0 }}>{member.bio}</p>
+    </div>
   )
 }
 

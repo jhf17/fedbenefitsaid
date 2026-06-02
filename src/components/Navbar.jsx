@@ -42,7 +42,7 @@ export default function Navbar() {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    background: scrolled ? 'rgba(250, 246, 239, 0.95)' : 'rgba(250, 246, 239, 0.88)',
+    background: scrolled ? 'rgba(244, 236, 224, 0.94)' : 'rgba(244, 236, 224, 0.82)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     borderBottom: scrolled ? `1px solid ${PRIMARY_BORDER}` : '1px solid transparent',
@@ -58,13 +58,6 @@ export default function Navbar() {
         </Link>
 
         <div data-navbar-links="" style={styles.links}>
-          <Link
-            to="/assessment"
-            style={{ ...styles.link, ...(isActive('/assessment') ? activeLinkStyle() : {}) }}
-            aria-current={isActive('/assessment') ? 'page' : undefined}
-          >
-            Assessment
-          </Link>
           <Link
             to="/calculators"
             style={{ ...styles.link, ...(isActive('/calculators') ? activeLinkStyle() : {}) }}
@@ -118,7 +111,6 @@ export default function Navbar() {
 
       {menuOpen && (
         <div id="mobile-nav-menu" data-mobile-menu="" style={styles.mobileMenu} role="navigation" aria-label="Mobile navigation">
-          <Link to="/assessment" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Assessment</Link>
           <Link to="/calculators" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Calculators</Link>
           <Link to="/reference" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Library</Link>
           <Link to="/resources" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Resources</Link>
@@ -144,10 +136,13 @@ function BrandLogo() {
         src={brand.logo.src}
         alt={brand.logo.alt}
         style={{
-          height: brand.logo.height,
+          height: 42,
           width: 'auto',
           display: 'block',
-          // Image logos typically include their own colors; no filters applied.
+          // The PNG has a baked-in white background. `multiply` blends that
+          // white into the parchment nav so the logo sits directly on the
+          // surface instead of in a white "sticker" box.
+          mixBlendMode: 'multiply',
         }}
       />
     )
@@ -218,7 +213,7 @@ const styles = {
     maxWidth: 1200,
     margin: '0 auto',
     padding: '0 24px',
-    height: brand.logo.type === 'image' ? 76 : 68,
+    height: brand.logo.type === 'image' ? 72 : 68,
     display: 'flex',
     alignItems: 'center',
     gap: 28,

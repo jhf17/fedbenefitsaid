@@ -11,7 +11,6 @@ import LandingFMA from './pages/LandingFMA'
 const Landing = brand.homePage === 'LandingFMA' ? LandingFMA : LandingFBA
 const Reference = lazy(() => import('./pages/Reference'))
 const Resources = lazy(() => import('./pages/Resources'))
-const Assessment = lazy(() => import('./pages/Assessment'))
 const Calculators = lazy(() => import('./pages/Tools'))
 const FEGLICalculator = lazy(() => import('./pages/FEGLICalculator'))
 const FersPension = lazy(() => import('./pages/calculators/FersPension'))
@@ -20,6 +19,8 @@ const SpecialProvisionsPension = lazy(() => import('./pages/calculators/SpecialP
 const IncomePicture = lazy(() => import('./pages/calculators/IncomePicture'))
 const High3 = lazy(() => import('./pages/calculators/High3'))
 const WhatIf = lazy(() => import('./pages/calculators/WhatIf'))
+const TspDrawdown = lazy(() => import('./pages/calculators/TspDrawdown'))
+const AdvisorSummary = lazy(() => import('./pages/AdvisorSummary'))
 const About = lazy(() => import('./pages/About'))
 import Disclaimer from './pages/Disclaimer'
 import Terms from './pages/Terms'
@@ -58,7 +59,6 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/reference" element={<Reference />} />
           <Route path="/resources" element={<Resources />} />
-          <Route path="/assessment" element={<Assessment />} />
           <Route path="/calculators" element={<Calculators />} />
           <Route path="/calculators/fers" element={<FersPension />} />
           <Route path="/calculators/csrs" element={<CsrsPension />} />
@@ -67,6 +67,8 @@ export default function App() {
           <Route path="/calculators/income-gap" element={<Navigate to="/calculators/income-picture" replace />} />
           <Route path="/calculators/high-3" element={<High3 />} />
           <Route path="/calculators/what-if" element={<WhatIf />} />
+          <Route path="/calculators/tsp-drawdown" element={<TspDrawdown />} />
+          <Route path="/advisor" element={<AdvisorSummary />} />
           <Route path="/calculators/fegli" element={<FEGLICalculator />} />
           <Route path="/calculator" element={<Navigate to="/calculators/fers" replace />} />
           <Route path="/about" element={<About />} />

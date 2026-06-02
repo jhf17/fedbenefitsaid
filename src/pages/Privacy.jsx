@@ -23,7 +23,7 @@ export default function Privacy() {
           <p style={styles.p}>
             This is a free educational website operated by <strong>{brand.name}</strong>. You don't need an account,
             you don't have to sign up, and you don't have to hand over an email address to use anything on it. The
-            calculators, library, and assessment all run without collecting your personal information.
+            calculators and library run without collecting your personal information.
           </p>
           <p style={styles.p}>
             <strong>The only time we collect personal information is when you choose to book a free meeting</strong>{' '}
@@ -74,10 +74,10 @@ export default function Privacy() {
             Calendly's policy: <a href="https://calendly.com/privacy" target="_blank" rel="noopener noreferrer" style={styles.link}>calendly.com/privacy</a>.
           </p>
 
-          <h3 style={styles.h3}>3. Calculator and assessment inputs</h3>
+          <h3 style={styles.h3}>3. Calculator inputs</h3>
           <p style={styles.p}>
             All calculators (FERS pension, CSRS, Special Provisions, FEGLI cost, income picture, what-if coverage,
-            High-3) and the readiness assessment <strong>run entirely in your browser</strong>. The numbers you enter
+            High-3) <strong>run entirely in your browser</strong>. The numbers you enter
             (salary, years of service, retirement age, TSP balance) are not transmitted to our servers and aren't stored
             outside your device. We never see them.
           </p>
