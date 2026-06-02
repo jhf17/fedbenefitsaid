@@ -215,7 +215,7 @@ export default function LandingFMA() {
           <img
             src={brand.logo.src}
             alt={brand.logo.alt}
-            style={{ height: isMobile ? 94 : 140, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+            style={{ height: isMobile ? 110 : 172, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
           />
           <div
             style={{

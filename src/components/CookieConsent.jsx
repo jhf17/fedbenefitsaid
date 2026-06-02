@@ -36,7 +36,7 @@ export default function CookieConsent() {
         left: 0,
         right: 0,
         zIndex: 9999,
-        background: '#142a1d',
+        background: '#0f1d3d',
         color: '#e2e8f0',
         padding: '16px 24px',
         display: 'flex',

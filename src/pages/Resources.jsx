@@ -286,7 +286,7 @@ function ResourceCard({ title, desc, href, tag, highlight }) {
 }
 
 const s = {
-  page: { minHeight: '100vh', background: '#faf6ef', paddingBottom: 80 },
+  page: { minHeight: '100vh', background: '#f4ece0', paddingBottom: 80 },
   container: { maxWidth: 960, margin: '0 auto', padding: '40px 20px' },
 
   header: { textAlign: 'center', marginBottom: 52 },
@@ -302,7 +302,7 @@ const s = {
     borderRadius: 20,
     marginBottom: 14,
   },
-  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#142a1d', letterSpacing: '-0.02em', marginBottom: 12, fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif" },
+  h1: { fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 800, color: '#1a2d5c', letterSpacing: '-0.02em', marginBottom: 12, fontFamily: "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif" },
   sub: { fontSize: '1rem', color: '#475569', maxWidth: 540, margin: '0 auto', lineHeight: 1.6, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
 
   section: { marginBottom: 44 },
@@ -311,7 +311,7 @@ const s = {
     fontWeight: 700,
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
-    color: '#142a1d',
+    color: '#1a2d5c',
     marginBottom: 16,
     paddingBottom: 10,
     borderBottom: '2px solid #cbd5e1',
@@ -352,7 +352,7 @@ const s = {
   },
   tagHighlight: { background: '#f5e6e8', color: '#b08d5a' },
   extIcon: { fontSize: '0.8rem', color: '#94a3b8' },
-  cardTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#142a1d', marginBottom: 6, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
+  cardTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#1a2d5c', marginBottom: 6, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
   cardDesc: { fontSize: '0.82rem', color: '#475569', lineHeight: 1.5, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
 
   disclaimer: {

@@ -32,11 +32,11 @@ import CookieConsent from './components/CookieConsent'
 
 function NotFound() {
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf6ef', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <div style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4ece0', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Seo title="Page Not Found" description={`The page you're looking for doesn't exist on ${brand.name}.`} path="/404" noindex />
       <div style={{ textAlign: 'center', maxWidth: 480, padding: '0 24px' }}>
         <div style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '4.5rem', fontWeight: 600, color: '#d4b88a', letterSpacing: '-0.04em', marginBottom: 12, fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>404</div>
-        <h1 style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '1.6rem', fontWeight: 600, color: '#1f3d2c', marginBottom: 12, letterSpacing: '-0.01em' }}>Page not found</h1>
+        <h1 style={{ fontFamily: "'Fraunces', 'Source Serif 4', Georgia, serif", fontSize: '1.6rem', fontWeight: 600, color: '#1a2d5c', marginBottom: 12, letterSpacing: '-0.01em' }}>Page not found</h1>
         <p style={{ color: '#475569', marginBottom: 28, lineHeight: 1.65 }}>
           The page you're looking for doesn't exist. Head back to the home page or jump into a calculator.
         </p>

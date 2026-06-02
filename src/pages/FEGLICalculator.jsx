@@ -28,13 +28,13 @@ import {
 const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 
 const COLORS = {
-  navy: '#142a1d',
-  navyMid: '#1f3d2c',
+  navy: '#0f1d3d',
+  navyMid: '#1a2d5c',
   maroon: '#b08d5a',
   gold: '#b8860b',
   goldLight: '#d4af37',
   mutedRed: '#9b3a4d',
-  bgCream: '#faf6ef',
+  bgCream: '#f4ece0',
   cardBg: '#ffffff',
   border: '#cbd5e1',
   text: '#1e293b',
@@ -510,7 +510,7 @@ export default function FEGLICalculator() {
 function Field({ label, hint, children }) {
   return (
     <label style={{ display: 'block', marginBottom: 12 }}>
-      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#142a1d', marginBottom: 4, fontFamily: FONT_SANS }}>{label}</div>
+      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f1d3d', marginBottom: 4, fontFamily: FONT_SANS }}>{label}</div>
       {children}
       {hint && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: 4, fontFamily: FONT_SANS }}>{hint}</div>}
     </label>
