@@ -5,9 +5,9 @@
 
 :root {
   /* === Brand palette: Heritage Pine === */
-  --pine: #1f3d2c;
-  --pine-deep: #142a1d;
-  --pine-light: #2c5544;
+  --pine: #1a2d5c;       /* remapped to FMA navy (2026-06) — FBA dormant */
+  --pine-deep: #0f1d3d;
+  --pine-light: #2c4280;
   --sage: #4a6b5a;
   --sage-light: #7d9b8d;
   --sage-pale: #e6ede8;
@@ -15,9 +15,9 @@
   --brass-deep: #8d6f44;
   --brass-light: #d4b88a;
   --brass-pale: #f4eee0;
-  --cream: #faf6ef;
-  --ivory: #fefcf7;
-  --bone: #f1ead9;
+  --cream: #f4ece0;      /* warmed to FMA parchment (2026-06) */
+  --ivory: #fcf8f1;
+  --bone: #ece1d0;
   --charcoal: #1f2937;
 
   /* === Semantic tokens (preferred for new code) === */
