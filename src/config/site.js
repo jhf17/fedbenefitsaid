@@ -33,7 +33,7 @@ export const siteConfig = {
 
   // Source citations shown on benefit-rate pages. When figures change at year-end,
   // update the date here and on refData.js so the UI signals freshness.
-  dataLastUpdated: '2026-04',
+  dataLastUpdated: '2026-06',
   dataSources: [
     { name: 'Office of Personnel Management', url: 'https://www.opm.gov/retirement-center/' },
     { name: 'Internal Revenue Service', url: 'https://www.irs.gov/' },

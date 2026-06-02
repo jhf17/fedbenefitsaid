@@ -6,7 +6,8 @@ import { colors, fonts, rules, elevation } from '../constants/theme'
 import { brand } from '../constants/brand'
 import { DATA_LAST_UPDATED } from '../config/site'
 import Engraving from '../components/Engraving'
-import { SealMark, Diamond, IconIndividual, IconCalculator, IconInstitution } from '../components/Glyphs'
+import { Diamond, IconIndividual, IconCalculator, IconInstitution } from '../components/Glyphs'
+import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -54,6 +55,14 @@ const FIGURES = [
   { value: '$202.90', label: 'Medicare Part B', note: 'standard / mo · 2026' },
   { value: '$24,500', label: 'TSP deferral limit', note: 'elective · 2026' },
   { value: '57', label: 'Earliest MRA', note: 'born 1970 or later' },
+  { value: '$8,000', label: 'TSP catch-up', note: 'age 50–59 · 2026' },
+  { value: '$11,250', label: 'TSP “super” catch-up', note: 'age 60–63 · 2026' },
+  { value: '$24,480', label: 'FERS Supplement test', note: 'earnings limit · 2026' },
+  { value: '5%', label: 'Full TSP match', note: 'contribute 5% to capture it' },
+  { value: '50%', label: 'Full survivor annuity', note: '≈10% reduction to yours' },
+  { value: '80%', label: 'CSRS pension cap', note: 'reached ~41 yr 11 mo' },
+  { value: '36 mo', label: 'High-3 window', note: 'highest consecutive pay' },
+  { value: '25 yrs', label: 'VERA, any age', note: 'early-out eligibility' },
 ]
 
 const SERVICES = [
@@ -62,8 +71,8 @@ const SERVICES = [
     eyebrow: 'For individuals',
     title: 'Free 1-on-1 consultations',
     body:
-      'Phone or video, no time limit, no sales pitch. A Federal Retirement Consultant walks through your FERS or CSRS pension, TSP withdrawal options, FEHB + Medicare coordination, Social Security timing, and FEGLI cost curves — at your career stage.',
-    bullets: ['Phone or Zoom — your choice', 'No prep required', 'No obligation, no upsell'],
+      'Phone or video, no time limit, no sales pitch. A Federal Retirement Consultant walks through your FERS or CSRS pension, TSP withdrawal options, FEHB + Medicare coordination, Social Security timing, and FEGLI — and you leave with a personalized retirement summary to keep. Bring any question about your own situation, right down to the specific forms and paperwork.',
+    bullets: ['You keep a personalized retirement summary', 'Ask anything — even forms & paperwork', 'Phone or Zoom · no obligation'],
     cta: { to: '/consultation', label: 'Book a consultation' },
   },
   {
@@ -205,27 +214,20 @@ export default function LandingFMA() {
           <img
             src={brand.logo.src}
             alt={brand.logo.alt}
-            style={{ height: isMobile ? 58 : 80, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
+            style={{ height: isMobile ? 74 : 108, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
           />
           <div
             style={{
               fontFamily: FONT_SERIF,
-              fontSize: isMobile ? '1.2rem' : '1.55rem',
+              fontSize: isMobile ? '1.5rem' : '2.15rem',
               fontWeight: 600,
               color: NAVY,
-              letterSpacing: '0.06em',
-              marginTop: 12,
+              letterSpacing: '0.03em',
+              marginTop: 14,
               fontVariationSettings: '"opsz" 144, "SOFT" 50',
             }}
           >
             Federal Market Associates
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 11 }}>
-            <span style={{ width: 30, height: 1, background: BRASS, opacity: 0.75 }} aria-hidden />
-            <span style={{ fontFamily: FONT_MONO, fontSize: '0.68rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: colors.brassDeepInk }}>
-              Independent federal benefits education
-            </span>
-            <span style={{ width: 30, height: 1, background: BRASS, opacity: 0.75 }} aria-hidden />
           </div>
         </div>
       </section>
@@ -322,44 +324,8 @@ export default function LandingFMA() {
         </div>
       </section>
 
-      {/* ===================== FIGURES BAND ===================== */}
-      <section
-        style={{
-          background: NAVY_DARK,
-          color: '#fff',
-          borderTop: `1px solid ${rules.brassOnDark}`,
-          borderBottom: `1px solid ${rules.brassOnDark}`,
-          padding: isMobile ? '8px 20px' : '0 48px',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: MAXW,
-            margin: '0 auto',
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
-          }}
-        >
-          {FIGURES.map((f, i) => (
-            <div
-              key={f.label}
-              style={{
-                padding: isMobile ? '22px 14px' : '30px 28px',
-                borderLeft: !isMobile && i > 0 ? `1px solid ${rules.onDark}` : 'none',
-                borderTop: isMobile && i > 1 ? `1px solid ${rules.onDark}` : 'none',
-                borderLeftStyle: 'solid',
-                ...(isMobile && i % 2 === 1 ? { borderLeft: `1px solid ${rules.onDark}` } : {}),
-              }}
-            >
-              <div style={{ fontFamily: FONT_MONO, fontSize: isMobile ? '1.5rem' : '1.9rem', fontWeight: 600, color: BRASS_LIGHT, letterSpacing: '-0.01em', ...tnum }}>
-                {f.value}
-              </div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff', marginTop: 6 }}>{f.label}</div>
-              <div style={{ fontFamily: FONT_MONO, fontSize: '0.68rem', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.5)', marginTop: 3 }}>{f.note}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ===================== FIGURES BAND (auto-rotating) ===================== */}
+      <FiguresBand isMobile={isMobile} />
 
       {/* ===================== SERVICES (editorial) ===================== */}
       <section ref={addReveal} className="reveal" style={{ background: PAPER, padding: isMobile ? '64px 20px' : '104px 48px' }}>
@@ -524,33 +490,10 @@ export default function LandingFMA() {
         </div>
       </section>
 
-      {/* ===================== FINAL CTA ===================== */}
-      <section
-        style={{ position: 'relative', background: `linear-gradient(168deg, ${NAVY_DARK} 0%, ${NAVY} 100%)`, color: '#fff', padding: isMobile ? '72px 20px' : '116px 48px', overflow: 'hidden', borderTop: `1px solid ${rules.brassOnDark}` }}
-      >
-        <Engraving color={BRASS_LIGHT} opacity={0.12} size={isMobile ? 420 : 680} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 22, color: BRASS_LIGHT }}>
-            <SealMark size={30} />
-          </div>
-          <h2
-            style={{
-              fontFamily: FONT_SERIF,
-              fontSize: isMobile ? '2rem' : '2.9rem',
-              fontWeight: 600,
-              lineHeight: 1.08,
-              letterSpacing: '-0.02em',
-              margin: '0 0 18px',
-              color: '#fff',
-              fontVariationSettings: '"opsz" 144, "SOFT" 50',
-            }}
-          >
-            Ready to ask the questions you’ve been holding?
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: isMobile ? '1.04rem' : '1.16rem', lineHeight: 1.55, margin: '0 auto 34px', maxWidth: 600 }}>
-            Free consultation. No sales pitch. Schedule a phone or video call with a Federal Retirement Consultant.
-          </p>
-          <HeroPrimary to="/consultation" large>Book a free consultation</HeroPrimary>
+      {/* ===================== ELIGIBILITY (interactive closer — replaces the old CTA) ===================== */}
+      <section ref={addReveal} className="reveal" style={{ background: PAPER, padding: isMobile ? '64px 20px' : '100px 48px', borderTop: `1px solid ${rules.ink}` }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+          <RetirementEligibilityWidget isMobile={isMobile} fontSerifOverride={FONT_SERIF} fontSansOverride={FONT_SANS} />
         </div>
       </section>
 
@@ -558,13 +501,69 @@ export default function LandingFMA() {
       <style>{`
         .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s ease, transform 0.6s ease; }
         .reveal.visible { opacity: 1; transform: none; }
-        @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+        @keyframes figFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        .fig-rot { animation: figFade 0.55s ease; }
+        @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } .fig-rot { animation: none; } }
       `}</style>
     </div>
   )
 }
 
 /* ============================ sub-components ============================ */
+
+// The "by the numbers" band, auto-rotating through pages of real 2026 figures.
+// Pauses on hover; respects prefers-reduced-motion (no auto-advance, no fade).
+function FiguresBand({ isMobile }) {
+  const PER = 4
+  const pages = []
+  for (let i = 0; i < FIGURES.length; i += PER) pages.push(FIGURES.slice(i, i + PER))
+  const [page, setPage] = useState(0)
+  const [paused, setPaused] = useState(false)
+  useEffect(() => {
+    if (pages.length <= 1 || paused) return
+    const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) return
+    const id = setInterval(() => setPage((p) => (p + 1) % pages.length), 4500)
+    return () => clearInterval(id)
+  }, [paused, pages.length])
+  const current = pages[page] || []
+  return (
+    <section
+      style={{ background: NAVY_DARK, color: '#fff', borderTop: `1px solid ${rules.brassOnDark}`, borderBottom: `1px solid ${rules.brassOnDark}`, padding: isMobile ? '6px 20px 14px' : '0 48px 16px' }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+        <div key={page} className="fig-rot" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)' }}>
+          {current.map((f, i) => {
+            const leftBorder = (!isMobile && i > 0) || (isMobile && i % 2 === 1)
+            const topBorder = isMobile && i > 1
+            return (
+              <div key={f.label} style={{ padding: isMobile ? '20px 14px' : '30px 28px', borderLeft: leftBorder ? `1px solid ${rules.onDark}` : 'none', borderTop: topBorder ? `1px solid ${rules.onDark}` : 'none' }}>
+                <div style={{ fontFamily: FONT_MONO, fontSize: isMobile ? '1.4rem' : '1.9rem', fontWeight: 600, color: BRASS_LIGHT, letterSpacing: '-0.01em', ...tnum }}>{f.value}</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#fff', marginTop: 6 }}>{f.label}</div>
+                <div style={{ fontFamily: FONT_MONO, fontSize: '0.68rem', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.5)', marginTop: 3 }}>{f.note}</div>
+              </div>
+            )
+          })}
+        </div>
+        {pages.length > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 7, padding: isMobile ? '12px 0 2px' : '16px 0 4px' }}>
+            {pages.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setPage(i)}
+                aria-label={`Show figure set ${i + 1} of ${pages.length}`}
+                style={{ width: i === page ? 22 : 8, height: 8, borderRadius: 4, border: 'none', padding: 0, cursor: 'pointer', background: i === page ? BRASS_LIGHT : 'rgba(255,255,255,0.28)', transition: 'all 0.3s ease' }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
 
 function SectionTitle({ children, onDark = false }) {
   return (
@@ -675,7 +674,6 @@ function HeroArtifact({ isMobile }) {
               <div style={{ fontFamily: FONT_SERIF, fontSize: '1.18rem', fontWeight: 600, color: NAVY, marginTop: 2, letterSpacing: '-0.01em' }}>FERS pension</div>
               <div style={{ fontSize: '0.78rem', color: INK_SOFT, marginTop: 2 }}>Age 62 · 25 yr of service</div>
             </div>
-            <span style={{ color: BRASS }}><SealMark size={30} w={1.3} /></span>
           </div>
 
           {/* eligibility category badge — the calculator's exact label */}
@@ -847,7 +845,6 @@ function ScenarioCompare({ isMobile }) {
               <div style={{ fontFamily: FONT_MONO, fontSize: '0.66rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: INK_FAINT }}>FERS calculator</div>
               <div style={{ fontFamily: FONT_SERIF, fontSize: '1.18rem', fontWeight: 600, color: NAVY, marginTop: 2, letterSpacing: '-0.01em' }}>Side by side</div>
             </div>
-            <span style={{ color: BRASS }}><SealMark size={28} w={1.3} /></span>
           </div>
           <div style={{ fontFamily: FONT_MONO, fontSize: '0.7rem', color: INK_SOFT, marginTop: 8, ...tnum }}>High-3 $95,000 · same employee, two retirement dates</div>
 
@@ -890,7 +887,6 @@ function DeliverableArtifact({ isMobile }) {
               <div style={{ fontFamily: FONT_MONO, fontSize: '0.64rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: INK_FAINT }}>Retirement Summary</div>
               <div style={{ fontFamily: FONT_SERIF, fontSize: '1.18rem', fontWeight: 600, color: NAVY, marginTop: 2, letterSpacing: '-0.01em' }}>Prepared for you</div>
             </div>
-            <span style={{ color: BRASS }}><SealMark size={28} w={1.3} /></span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>

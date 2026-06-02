@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { colors } from '../constants/theme'
+import { brand } from '../constants/brand'
 
 /**
  * "When can I retire?" inline eligibility widget.
@@ -15,13 +17,14 @@ import { Link } from 'react-router-dom'
  * don't collect). MRA follows OPM's tiered table.
  */
 
-const NAVY = '#142a1d'
-const MAROON = '#b08d5a'
-const GOLD = '#b8860b'
-const CREAM = '#faf6ef'
-const BORDER = '#cbd5e1'
-const SUBTLE = '#475569'
-const MUTED = '#64748b'
+// FMA brand-aware palette (was hardcoded FBA pine/brass). Logic unchanged.
+const NAVY = brand.colors.primary
+const MAROON = brand.colors.accent
+const GOLD = colors.brass
+const CREAM = colors.surface
+const BORDER = 'rgba(27,36,53,0.18)'
+const SUBTLE = colors.inkSoft
+const MUTED = colors.inkFaint
 
 const FONT_SERIF = "'Fraunces', 'Source Serif 4', Georgia, 'Times New Roman', serif"
 const FONT_SANS = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
@@ -277,8 +280,8 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
         <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: SUBTLE, marginBottom: 28, maxWidth: 480 }}>
           Two inputs, a dated timeline of every retirement milestone you'll hit, and whether each one comes with the FERS Supplement. Change the numbers — the timeline updates instantly.
         </p>
-        <Link to="/assessment" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', color: MAROON }}>
-          Run the full assessment →
+        <Link to="/consultation" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', color: MAROON }}>
+          Book a free consultation →
         </Link>
       </div>
 

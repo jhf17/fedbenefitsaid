@@ -1,7 +1,7 @@
 // Accuracy metadata — surfaced in the UI to signal freshness and let visitors verify.
 // Update `lastUpdated` and `benefitYear` when figures are refreshed for a new year.
 export const REF_DATA_META = {
-  lastUpdated: '2026-04-30',
+  lastUpdated: '2026-06-01',
   benefitYear: 2026,
   reviewedBy: 'Federal Market Associates',
   sources: [
