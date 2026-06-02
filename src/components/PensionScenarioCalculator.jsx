@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import Button from './fma/Button'
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { colors, fonts } from '../constants/theme'
 import { formatCurrency, formatYearsMonths, formatMonth } from '../lib/pensionCalc'
@@ -565,24 +566,7 @@ export default function PensionScenarioCalculator({
             A short conversation usually surfaces what the calculator can't show — sick-leave nuances, pay-band quirks, what to ask your HR office, and whether your scenarios actually pencil out for the rest of your financial picture.
           </p>
         </div>
-        <Link
-          to="/consultation"
-          style={{
-            padding: '14px 28px',
-            background: colors.brass,
-            color: '#ffffff',
-            borderRadius: 10,
-            fontSize: '1rem',
-            fontWeight: 600,
-            textDecoration: 'none',
-            fontFamily: FONT_SANS,
-            flexShrink: 0,
-            letterSpacing: '0.01em',
-            boxShadow: '0 6px 20px rgba(176,141,90,0.32)',
-          }}
-        >
-          Book a meeting →
-        </Link>
+        <Button to="/consultation" variant="primary" arrow style={{ flexShrink: 0 }}>Book a meeting</Button>
       </section>
     </div>
   )

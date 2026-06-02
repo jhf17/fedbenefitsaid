@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import Button from '../../components/fma/Button'
 import Seo from '../../components/Seo'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
@@ -699,24 +700,7 @@ export default function IncomePicture() {
               Book a free meeting — phone or video, no set time limit. We'll walk through your numbers, show you what each TSP decision actually costs (or earns), and answer any questions the calculator left open.
             </p>
           </div>
-          <Link
-            to="/consultation"
-            style={{
-              padding: '14px 28px',
-              background: colors.brass,
-              color: '#ffffff',
-              borderRadius: 10,
-              fontSize: '1rem',
-              fontWeight: 600,
-              textDecoration: 'none',
-              fontFamily: FONT_SANS,
-              flexShrink: 0,
-              boxShadow: '0 6px 20px rgba(176,141,90,0.32)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Book a free meeting →
-          </Link>
+          <Button to="/consultation" variant="primary" arrow style={{ flexShrink: 0 }}>Book a free meeting</Button>
         </div>
       </section>
     </main>

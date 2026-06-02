@@ -96,3 +96,40 @@
 @media (prefers-reduced-motion: reduce) {
   .fma-rise > *, .fma-rise-late { opacity: 1; animation: none; }
 }
+
+/* ---------- Form inputs — consistent focus across every form (Impeccable/Emil) ---------- */
+.fma-ui input:focus-visible,
+.fma-ui select:focus-visible,
+.fma-ui textarea:focus-visible,
+input.fma-input:focus-visible,
+select.fma-input:focus-visible {
+  outline: 2px solid var(--fma-brass);
+  outline-offset: 1px;
+  border-color: var(--fma-navy);
+}
+
+/* ---------- Card ---------- */
+.fma-card {
+  background: #fff;
+  border: 1px solid var(--fma-rule);
+  border-radius: 14px;
+  transition: transform 0.2s var(--fma-ease-out), box-shadow 0.22s var(--fma-ease-out), border-color 0.18s ease;
+}
+.fma-card-hover:hover { transform: translateY(-2px); box-shadow: 0 14px 36px -18px rgba(15, 29, 61, 0.42); border-color: var(--fma-brass); }
+@media (prefers-reduced-motion: reduce) { .fma-card-hover:hover { transform: none; } }
+
+/* ---------- Badge ---------- */
+.fma-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.fma-badge-brass { color: var(--fma-brass-ink); background: rgba(176, 141, 90, 0.14); border: 1px solid rgba(176, 141, 90, 0.4); }
+.fma-badge-navy { color: var(--fma-navy); background: rgba(26, 45, 92, 0.08); border: 1px solid rgba(26, 45, 92, 0.18); }

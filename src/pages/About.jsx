@@ -24,13 +24,14 @@ const TEAM = [
     bio:
       "I work with federal employees one at a time on FERS, CSRS, TSP, FEHB, FEGLI, Medicare, and Social Security — the parts of retirement the government doesn't make easy. Most conversations are pure education. If something more fits, I'll show you the options and tell you honestly when they don't beat what you already have.",
   },
-  // Ready for Kevin — uncomment, drop his headshot in /public, and he appears:
-  // {
-  //   name: 'Kevin __________',
-  //   title: 'Federal Retirement Consultant',
-  //   photo: '/kevin.png',
-  //   bio: '…',
-  // },
+  {
+    // TODO(owner): confirm Kevin's full name + tweak this bio.
+    name: 'Kevin',
+    title: 'Federal Retirement Consultant',
+    photo: '/kevin.jpg',
+    bio:
+      'Kevin works alongside Jack, helping federal employees make sense of their benefits — running the numbers on FERS, CSRS, TSP, FEHB, FEGLI, Medicare, and Social Security, and answering the questions people can rarely get a straight answer to. Same approach either way: education first, no pressure, no jargon.',
+  },
 ]
 
 export default function About() {
