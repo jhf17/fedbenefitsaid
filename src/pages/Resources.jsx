@@ -286,14 +286,14 @@ function ResourceCard({ title, desc, href, tag, highlight }) {
 }
 
 const s = {
-  page: { minHeight: '100vh', background: '#f4ece0', paddingBottom: 80 },
+  page: { minHeight: '100vh', background: '#f6f3ee', paddingBottom: 80 },
   container: { maxWidth: 960, margin: '0 auto', padding: '40px 20px' },
 
   header: { textAlign: 'center', marginBottom: 52 },
   badge: {
     display: 'inline-block',
     background: '#f5e6e8',
-    color: '#b08d5a',
+    color: '#7b1c2e',
     fontSize: '0.73rem',
     fontWeight: 700,
     letterSpacing: '0.1em',
@@ -336,8 +336,8 @@ const s = {
     boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
   },
   cardHighlight: {
-    border: '1.5px solid #b08d5a',
-    boxShadow: '0 4px 24px rgba(176,141,90,0.08)',
+    border: '1.5px solid #7b1c2e',
+    boxShadow: '0 4px 24px rgba(123,28,46,0.08)',
   },
   cardTop: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   tag: {
@@ -350,7 +350,7 @@ const s = {
     padding: '2px 8px',
     borderRadius: 6,
   },
-  tagHighlight: { background: '#f5e6e8', color: '#b08d5a' },
+  tagHighlight: { background: '#f5e6e8', color: '#7b1c2e' },
   extIcon: { fontSize: '0.8rem', color: '#94a3b8' },
   cardTitle: { fontWeight: 700, fontSize: '0.95rem', color: '#1a2d5c', marginBottom: 6, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },
   cardDesc: { fontSize: '0.82rem', color: '#475569', lineHeight: 1.5, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" },

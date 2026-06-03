@@ -30,11 +30,11 @@ const CALENDLY_URL = 'https://calendly.com/jhf17/30min'
 const COLORS = {
   navy: '#0f1d3d',
   navyMid: '#1a2d5c',
-  maroon: '#b08d5a',
-  gold: '#b8860b',
-  goldLight: '#d4af37',
+  maroon: '#7b1c2e',      // gold KILLED → FMA oxblood (primary series)
+  gold: '#5b6b7f',        // gold KILLED → steel-slate (distinct 2nd series)
+  goldLight: '#9aa7b4',   // → light steel (3rd series)
   mutedRed: '#9b3a4d',
-  bgCream: '#f4ece0',
+  bgCream: '#f6f3ee',     // de-parchmented → warm-white
   cardBg: '#ffffff',
   border: '#cbd5e1',
   text: '#1e293b',

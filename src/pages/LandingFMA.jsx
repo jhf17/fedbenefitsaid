@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import Seo from '../components/Seo'
 import { colors, fonts, rules, elevation } from '../constants/theme'
 import { brand } from '../constants/brand'
 import { DATA_LAST_UPDATED } from '../config/site'
 import Engraving from '../components/Engraving'
+import WavingFlag from '../components/WavingFlag'
 import { Diamond, IconIndividual, IconCalculator, IconInstitution } from '../components/Glyphs'
 import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget'
 import Button from '../components/fma/Button'
@@ -63,7 +65,7 @@ const FIGURES = [
   { value: '50%', label: 'Full survivor annuity', note: '≈10% reduction to yours' },
   { value: '80%', label: 'CSRS pension cap', note: 'reached ~41 yr 11 mo' },
   { value: '36 mo', label: 'High-3 window', note: 'highest consecutive pay' },
-  { value: '25 yrs', label: 'VERA, any age', note: 'early-out eligibility' },
+  { value: '5 yrs', label: 'FEHB into retirement', note: 'enrolled to carry it for life' },
 ]
 
 const SERVICES = [
@@ -199,6 +201,7 @@ export default function LandingFMA() {
   const SECTION_X = isMobile ? 20 : 48
   const MAXW = 1180
 
+
   return (
     <div style={{ fontFamily: FONT_SANS, color: INK, background: PAPER, overflowX: 'hidden' }}>
       <Seo
@@ -209,29 +212,9 @@ export default function LandingFMA() {
       />
       <OrganizationJsonLd />
 
-      {/* ===================== MASTHEAD (parchment letterhead — logo sits on its own warm surface, no floating box) ===================== */}
-      <section style={{ background: PAPER, padding: isMobile ? '26px 20px 30px' : '40px 48px 42px' }}>
-        <div style={{ maxWidth: MAXW, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <img
-            src={brand.logo.src}
-            alt={brand.logo.alt}
-            style={{ height: isMobile ? 110 : 172, width: 'auto', display: 'block', mixBlendMode: 'multiply' }}
-          />
-          <div
-            style={{
-              fontFamily: FONT_SERIF,
-              fontSize: isMobile ? '1.7rem' : '2.45rem',
-              fontWeight: 600,
-              color: NAVY,
-              letterSpacing: '0.03em',
-              marginTop: 14,
-              fontVariationSettings: '"opsz" 144, "SOFT" 50',
-            }}
-          >
-            Federal Market Associates
-          </div>
-        </div>
-      </section>
+      {/* Masthead band removed 2026-06-03 — it duplicated the navbar logo and pushed the
+          value proposition below the fold (entirely, on mobile). The brand mark lives in the
+          navbar; the homepage now leads straight with the hero. */}
 
       {/* ===================== HERO ===================== */}
       <section
@@ -245,11 +228,12 @@ export default function LandingFMA() {
         }}
       >
         {/* engraved guilloché watermark, bleeding off the top-right */}
-        <Engraving
+        {/* signature: a line-art "blueprint" U.S. flag, waving slowly (see WavingFlag) */}
+        <WavingFlag
           color={BRASS_LIGHT}
-          opacity={0.16}
-          size={isMobile ? 360 : 620}
-          style={{ position: 'absolute', top: isMobile ? -140 : -180, right: isMobile ? -160 : -150 }}
+          opacity={isMobile ? 0.16 : 0.2}
+          width={isMobile ? 540 : 920}
+          style={{ position: 'absolute', top: isMobile ? 40 : 18, right: isMobile ? -130 : -40 }}
         />
 
         <div
@@ -265,6 +249,18 @@ export default function LandingFMA() {
         >
           {/* left — message */}
           <div className="fma-rise">
+            {/* brand lockup — FMA monogram (echoes the logo's navy/oxblood/navy) + full name */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 13, marginBottom: 24 }}>
+              <span style={{ fontFamily: FONT_SERIF, fontWeight: 700, fontSize: '1.4rem', letterSpacing: '0.01em', lineHeight: 1 }}>
+                <span style={{ color: '#fff' }}>F</span>
+                <span style={{ color: '#c97f8b' }}>M</span>
+                <span style={{ color: '#fff' }}>A</span>
+              </span>
+              <span style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.25)' }} />
+              <span style={{ fontFamily: FONT_MONO, fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: BRASS_LIGHT }}>
+                Federal Market Associates
+              </span>
+            </div>
             <h1
               style={{
                 fontFamily: FONT_SERIF,
@@ -591,6 +587,19 @@ function SectionTitle({ children, onDark = false }) {
 // "Multiplier" (see PensionScenarioCalculator → ScenarioCard). Worked example:
 // High-3 $80,000 × 25 yrs × 1.1% (age 62, 20+ yrs) = $22,000/yr → $1,833/mo.
 function HeroArtifact({ isMobile, className = '' }) {
+  // Cursor-reactive 3D tilt — the "instrument" leans toward your pointer, spring-damped (Emil).
+  const px = useMotionValue(0)
+  const py = useMotionValue(0)
+  const sx = useSpring(px, { stiffness: 140, damping: 18, mass: 0.4 })
+  const sy = useSpring(py, { stiffness: 140, damping: 18, mass: 0.4 })
+  const rotateY = useTransform(sx, [-0.5, 0.5], [9, -9])
+  const rotateX = useTransform(sy, [-0.5, 0.5], [-9, 9])
+  const handleTilt = (e) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    px.set((e.clientX - r.left) / r.width - 0.5)
+    py.set((e.clientY - r.top) / r.height - 0.5)
+  }
+  const resetTilt = () => { px.set(0); py.set(0) }
   const row = (label, value) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0' }}>
       <span style={{ fontSize: '0.84rem', color: INK_SOFT }}>{label}</span>
@@ -598,7 +607,12 @@ function HeroArtifact({ isMobile, className = '' }) {
     </div>
   )
   return (
-    <div className={className} style={{ position: 'relative', justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 380 }}>
+    <div className={className} style={{ justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 380 }}>
+      <motion.div
+        onPointerMove={isMobile ? undefined : handleTilt}
+        onPointerLeave={isMobile ? undefined : resetTilt}
+        style={{ position: 'relative', rotateX: isMobile ? 0 : rotateX, rotateY: isMobile ? 0 : rotateY, transformPerspective: 1000, willChange: 'transform' }}
+      >
       {/* stacked "page" behind, for document depth */}
       <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.4deg)', background: '#f0e7d6', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div
@@ -649,6 +663,7 @@ function HeroArtifact({ isMobile, className = '' }) {
           </div>
         </div>
       </div>
+      </motion.div>
     </div>
   )
 }

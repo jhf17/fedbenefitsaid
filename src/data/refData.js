@@ -166,7 +166,7 @@ export const REF_DATA = [
        'A refund of contributions on separation forfeits ALL service credit tied to those contributions unless you later redeposit (with interest)'
      ]}
   ]},
-  {cat:'TSP',icon:'💰',color:'#b08d5a',topics:[
+  {cat:'TSP',icon:'💰',color:'#7b1c2e',topics:[
     {id:'tsp-contributions',title:'Contributions & Agency Matching',summary:'Limits, matching formula, and vesting schedule',
      overview:'The TSP is a defined-contribution retirement savings plan. FERS employees receive significant employer contributions, making full participation critical to maximizing retirement income.',
      rules:[
@@ -467,7 +467,7 @@ export const REF_DATA = [
        'SF-2823 not updated after divorce? Ex-spouse may receive the death benefit — check and update immediately after life events'
      ]}
   ]},
-  {cat:'Medicare',icon:'⚕️',color:'#b08d5a',topics:[
+  {cat:'Medicare',icon:'⚕️',color:'#7b1c2e',topics:[
     {id:'medicare-parts',title:'Parts A, B, C, D Overview',summary:'What each part covers and how they fit together',
      overview:'Medicare is the federal health insurance program for people age 65 and older. For federal employees, it layers on top of FEHB in retirement, often resulting in near-zero out-of-pocket costs.',
      rules:[
@@ -658,7 +658,7 @@ export const REF_DATA = [
        'Sick leave fully credited toward CSRS service as with FERS'
      ]}
   ]},
-  {cat:'Survivor Benefits',icon:'👨‍👩‍👧',color:'#b08d5a',topics:[
+  {cat:'Survivor Benefits',icon:'👨‍👩‍👧',color:'#7b1c2e',topics:[
     {id:'survivor-election',title:'Post-Retirement Survivor Elections',summary:'Full, partial, or no survivor; FEHB implications',
      overview:'At retirement, FERS and CSRS employees must elect a survivor benefit for their spouse. This election permanently reduces the retiree\'s monthly annuity in exchange for providing income to the surviving spouse.',
      rules:[
@@ -852,7 +852,7 @@ export const REF_DATA = [
        'Accepting FERS disability retirement does NOT automatically end OWCP — employee must formally elect'
      ]}
   ]},
-  {cat:'Forms & Administration',icon:'📝',color:'#b08d5a',topics:[
+  {cat:'Forms & Administration',icon:'📝',color:'#7b1c2e',topics:[
     {id:'forms-retirement',title:'Key Retirement Forms',summary:'SF-3107, SF-2801, and OPM processing timeline',
      overview:'Filing the correct forms accurately and on time is critical for a smooth transition to retirement. OPM processing takes months — starting the paperwork 6 months before the target retirement date is strongly advised.',
      rules:[

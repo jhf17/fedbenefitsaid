@@ -52,13 +52,13 @@ export default function CookieConsent() {
     >
       <p style={{ margin: 0, maxWidth: 600 }}>
         We use cookies and Google Analytics to improve your experience. See our{' '}
-        <a href="/privacy" style={{ color: '#b08d5a', textDecoration: 'underline' }}>Privacy Policy</a>.
+        <a href="/privacy" style={{ color: '#cdd7e3', textDecoration: 'underline' }}>Privacy Policy</a>.
       </p>
       <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
         <button
           onClick={accept}
           style={{
-            background: '#b08d5a',
+            background: '#7b1c2e',
             color: '#fff',
             border: 'none',
             borderRadius: 8,

@@ -109,7 +109,7 @@ export default function Reference() {
     : '/reference'
 
   return (
-    <main style={{ minHeight: '100vh', background: '#f4ece0', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
+    <main style={{ minHeight: '100vh', background: '#f6f3ee', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Seo title={seoTitle} description={seoDesc} path={seoPath} />
       {showDetail && selectedTopic && <TopicFAQJsonLd topic={selectedTopic} />}
       <style>{`
@@ -160,18 +160,18 @@ export default function Reference() {
               gap: 10,
               padding: '6px 14px',
               borderRadius: 999,
-              background: 'rgba(176,141,90,0.18)',
-              border: '1px solid rgba(176,141,90,0.4)',
+              background: 'rgba(205,213,227,0.14)',
+              border: '1px solid rgba(205,213,227,0.3)',
               fontSize: '0.78rem',
               fontWeight: 600,
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              color: '#d4b88a',
+              color: '#cdd7e3',
               marginTop: 12,
             }}
             title={`Sourced from: ${REF_DATA_META.sources.map(s => s.name).join(', ')}`}
           >
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4b88a', display: 'inline-block' }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#cdd7e3', display: 'inline-block' }} />
             Updated {REF_DATA_META.lastUpdated} · Sourced from OPM, IRS, SSA, CMS, TSP
           </div>
 
@@ -615,7 +615,7 @@ const styles = {
     gap: 14,
   },
   numberCard: {
-    background: '#f4ece0',
+    background: '#f6f3ee',
     borderTop: '3px solid',
     borderRadius: 10,
     padding: '16px 18px',

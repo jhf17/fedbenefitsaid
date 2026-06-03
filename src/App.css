@@ -11,13 +11,13 @@
   --sage: #4a6b5a;
   --sage-light: #7d9b8d;
   --sage-pale: #e6ede8;
-  --brass: #b08d5a;
-  --brass-deep: #8d6f44;
-  --brass-light: #d4b88a;
-  --brass-pale: #f4eee0;
-  --cream: #f4ece0;      /* warmed to FMA parchment (2026-06) */
-  --ivory: #fcf8f1;
-  --bone: #ece1d0;
+  --brass: #7b1c2e;      /* gold KILLED → FMA oxblood (legacy .btn-navy/.btn-maroon, focus ring, selection) */
+  --brass-deep: #5e1422;
+  --brass-light: #a3334a;
+  --brass-pale: #f6e9eb;
+  --cream: #f6f3ee;      /* de-parchmented → warm-white whisper */
+  --ivory: #fdfcf9;
+  --bone: #edeae3;
   --charcoal: #1f2937;
 
   /* === Semantic tokens (preferred for new code) === */
@@ -65,7 +65,7 @@
   --shadow: 0 4px 6px -1px rgba(20,42,29,0.08), 0 2px 4px -1px rgba(20,42,29,0.04);
   --shadow-md: 0 10px 15px -3px rgba(20,42,29,0.08), 0 4px 6px -2px rgba(20,42,29,0.04);
   --shadow-lg: 0 20px 25px -5px rgba(20,42,29,0.10), 0 10px 10px -5px rgba(20,42,29,0.04);
-  --shadow-glow: 0 0 0 1px rgba(176,141,90,0.12), 0 8px 24px rgba(31,61,44,0.08);
+  --shadow-glow: 0 0 0 1px rgba(123,28,46,0.12), 0 8px 24px rgba(15,29,61,0.08);
 
   /* === Radii === */
   --radius-sm: 6px;
@@ -254,7 +254,7 @@ img { max-width: 100%; }
 }
 .form-input:focus {
   border-color: var(--brass);
-  box-shadow: 0 0 0 3px rgba(176,141,90,0.18);
+  box-shadow: 0 0 0 3px rgba(123,28,46,0.18);
 }
 .form-input::placeholder { color: var(--gray-400); }
 .form-error { font-size: 0.85rem; color: var(--red); }

@@ -51,41 +51,41 @@ export const colors = {
   sage: '#4a6b5a',
   sageLight: '#7d9b8d',
   sagePale: '#e6ede8',
-  brass: '#b08d5a',
-  brassDeep: '#8d6f44',
-  brassLight: '#d4b88a',
-  brassPale: '#f4eee0',
+  brass: '#7b1c2e',        // gold KILLED → FMA oxblood (accent on light surfaces) 2026-06-03
+  brassDeep: '#5e1422',
+  brassLight: '#cdd7e3',   // gold KILLED → light steel (the accent on navy surfaces)
+  brassPale: '#eef1f6',
 
   // === Neutrals — warmed to FMA parchment (2026-06) ===
-  cream: '#f4ece0',      // → FMA paper (was #faf6ef)
-  ivory: '#fcf8f1',      // → FMA surface (was #fefcf7)
-  bone: '#ece1d0',       // → FMA paperDeep (was #f1ead9)
+  cream: '#f6f3ee',      // de-parchmented → warm-white whisper 2026-06-03
+  ivory: '#fdfcf9',
+  bone: '#edeae3',
   charcoal: '#1f2937',
 
   // === "Ink & Parchment" tokens (FMA redesign, June 2026) ===
   // Warm parchment surfaces instead of stark white, and an ink text ramp
   // with a navy undertone. Used by the redesigned LandingFMA + rollout pages.
   // See memory: fma-redesign-direction.
-  paper: '#f4ece0',        // main warm page background
-  paperDeep: '#ece1d0',    // slightly deeper alternating band
-  surface: '#fcf8f1',      // warm off-white card surface
+  paper: '#f6f3ee',        // main page bg — warm-white whisper (was parchment #f4ece0)
+  paperDeep: '#edeae3',    // slightly deeper alternating band
+  surface: '#fdfcf9',      // off-white card surface
   surfaceRaised: '#ffffff', // pure white — used sparingly (framed artifacts)
   ink: '#1b2436',          // primary text (near-black, navy undertone)
   inkSoft: '#454f63',      // secondary / body text
   inkFaint: '#646d80',     // captions, meta — darkened for WCAG AA on small text
-  brassDeepInk: '#7a5f37', // brass legible on parchment
+  brassDeepInk: '#7b1c2e', // gold KILLED → oxblood (label / badge ink)
 
   // Legacy aliases — existing code uses these names
-  navy: '#1f3d2c',
-  navyDark: '#142a1d',
-  secondaryNavy: '#2c5544',
-  maroon: '#b08d5a',
-  maroonDark: '#8d6f44',
-  gold: '#b08d5a',
+  navy: '#1a2d5c',         // FIXED: was FBA pine-green #1f3d2c
+  navyDark: '#0f1d3d',     // FIXED
+  secondaryNavy: '#2c4280',// FIXED
+  maroon: '#7b1c2e',       // FIXED: was brass #b08d5a
+  maroonDark: '#5e1422',   // FIXED
+  gold: '#7b1c2e',         // gold retired → oxblood
 
   // Page basics
   white: '#ffffff',
-  lightGray: '#f4ece0',
+  lightGray: '#f6f3ee',
 
   // Slate / neutrals
   slate700: '#475569',
@@ -96,10 +96,10 @@ export const colors = {
 }
 
 export const gradients = {
-  heroNavy: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
-  heroPine: 'linear-gradient(160deg, #142a1d 0%, #1f3d2c 60%)',
-  cream: 'linear-gradient(135deg, #faf6ef, #fefcf7)',
-  brass: 'linear-gradient(135deg, #b08d5a, #d4b88a)',
+  heroNavy: 'linear-gradient(160deg, #0f1d3d 0%, #1a2d5c 60%)',  // FIXED: was FBA green
+  heroPine: 'linear-gradient(160deg, #0f1d3d 0%, #1a2d5c 60%)',
+  cream: 'linear-gradient(135deg, #f6f3ee, #fdfcf9)',
+  brass: 'linear-gradient(135deg, #7b1c2e, #a3334a)',            // gold retired → oxblood
 }
 
 export const spacing = {
@@ -142,9 +142,9 @@ export const fonts = {
 export const rules = {
   ink: 'rgba(27,36,53,0.12)',
   inkStrong: 'rgba(27,36,53,0.22)',
-  brass: 'rgba(176,141,90,0.5)',
+  brass: 'rgba(123,28,46,0.4)',          // gold KILLED → oxblood hairline
   onDark: 'rgba(255,255,255,0.14)',
-  brassOnDark: 'rgba(205,176,133,0.32)',
+  brassOnDark: 'rgba(205,213,227,0.32)', // gold KILLED → light-steel hairline on navy
 }
 
 // Restrained elevation — reserved for genuinely-floating elements

@@ -13,13 +13,13 @@
   --fma-maroon: #7b1c2e;
   --fma-maroon-dark: #5e1422;
   --fma-maroon-light: #a3334a;
-  --fma-brass: #b08d5a;
-  --fma-brass-light: #d4b88a;
-  --fma-brass-ink: #7a5f37;
+  --fma-brass: #7b1c2e;        /* gold KILLED → oxblood accent (focus ring, badges) */
+  --fma-brass-light: #cdd7e3;  /* gold KILLED → light steel (accent on navy) */
+  --fma-brass-ink: #7b1c2e;    /* gold KILLED → oxblood label ink */
   --fma-ink: #1b2436;
   --fma-ink-soft: #454f63;
-  --fma-paper: #f4ece0;
-  --fma-surface: #fcf8f1;
+  --fma-paper: #f6f3ee;        /* de-parchmented → warm-white whisper */
+  --fma-surface: #fdfcf9;
   --fma-rule: rgba(27, 36, 53, 0.12);
   /* Emil Kowalski's strong UI ease-out + on-screen ease-in-out */
   --fma-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -97,6 +97,22 @@
   .fma-rise > *, .fma-rise-late { opacity: 1; animation: none; }
 }
 
+/* ---------- Engraving "draw-on" — the guilloché inscribes itself (Emil: stroke-dashoffset) ---------- */
+@keyframes fmaDraw { to { stroke-dashoffset: 0; } }
+.fma-eng-draw path { stroke-dasharray: 1; }
+
+/* ---------- Engraving ambient drift — two guilloché layers counter-rotate very slowly ---------- */
+.fma-eng-spin, .fma-eng-spin-rev { transform-box: fill-box; transform-origin: center; }
+@keyframes fmaEngSpin { to { transform: rotate(360deg); } }
+@keyframes fmaEngSpinRev { to { transform: rotate(-360deg); } }
+.fma-eng-spin { animation: fmaEngSpin 90s linear infinite; }
+.fma-eng-spin-rev { animation: fmaEngSpinRev 115s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fma-eng-draw path { animation: none !important; stroke-dashoffset: 0 !important; }
+  .fma-eng-spin, .fma-eng-spin-rev { animation: none !important; }
+}
+
 /* ---------- Form inputs — consistent focus across every form (Impeccable/Emil) ---------- */
 .fma-ui input:focus-visible,
 .fma-ui select:focus-visible,
@@ -131,5 +147,5 @@ select.fma-input:focus-visible {
   padding: 4px 10px;
   border-radius: 999px;
 }
-.fma-badge-brass { color: var(--fma-brass-ink); background: rgba(176, 141, 90, 0.14); border: 1px solid rgba(176, 141, 90, 0.4); }
+.fma-badge-brass { color: var(--fma-brass-ink); background: rgba(123, 28, 46, 0.10); border: 1px solid rgba(123, 28, 46, 0.32); }
 .fma-badge-navy { color: var(--fma-navy); background: rgba(26, 45, 92, 0.08); border: 1px solid rgba(26, 45, 92, 0.18); }

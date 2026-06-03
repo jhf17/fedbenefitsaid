@@ -42,7 +42,7 @@ export default function Navbar() {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    background: scrolled ? 'rgba(244, 236, 224, 0.94)' : 'rgba(244, 236, 224, 0.82)',
+    background: scrolled ? 'rgba(246, 243, 238, 0.94)' : 'rgba(246, 243, 238, 0.82)',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     borderBottom: scrolled ? `1px solid ${PRIMARY_BORDER}` : '1px solid transparent',
@@ -132,19 +132,35 @@ export default function Navbar() {
 function BrandLogo() {
   if (brand.logo.type === 'image') {
     return (
-      <img
-        src={brand.logo.src}
-        alt={brand.logo.alt}
-        style={{
-          height: 42,
-          width: 'auto',
-          display: 'block',
-          // The PNG has a baked-in white background. `multiply` blends that
-          // white into the parchment nav so the logo sits directly on the
-          // surface instead of in a white "sticker" box.
-          mixBlendMode: 'multiply',
-        }}
-      />
+      <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <img
+          src={brand.logo.src}
+          alt={brand.logo.alt}
+          style={{
+            height: 46,
+            width: 'auto',
+            display: 'block',
+            // The PNG has a baked-in white background. `multiply` blends that
+            // white into the nav surface so the logo sits directly on it.
+            mixBlendMode: 'multiply',
+          }}
+        />
+        <span
+          data-brand-name=""
+          style={{
+            fontFamily: fonts.serif,
+            fontWeight: 600,
+            fontSize: '1.12rem',
+            lineHeight: 1.05,
+            color: PRIMARY,
+            letterSpacing: '0.005em',
+            fontVariationSettings: '"opsz" 144, "SOFT" 50',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Federal Market Associates
+        </span>
+      </span>
     )
   }
   // Default: text logo (FBA-style) — uses brand.logo.parts with primary/accent emphasis
@@ -302,6 +318,9 @@ if (typeof document !== 'undefined') {
         [data-navbar-auth] { display: none !important; }
         [data-hamburger] { display: flex !important; }
         [data-mobile-menu] { display: flex !important; }
+      }
+      @media (max-width: 560px) {
+        [data-brand-name] { display: none !important; }
       }
     `
     document.head.appendChild(style)
