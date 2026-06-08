@@ -94,7 +94,7 @@ export default function TspDrawdown() {
           overflow: 'hidden',
         }}
       >
-        <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)', pointerEvents: 'none' }} />
+        <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 880, margin: '0 auto', position: 'relative' }}>
           <div style={{ fontSize: '0.74rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 14 }}>
             TSP Drawdown · Updated {DATA_LAST_UPDATED}
@@ -115,7 +115,7 @@ export default function TspDrawdown() {
 
       <section style={{ maxWidth: 1140, margin: '0 auto', padding: '48px 24px 32px', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 28 }}>
         {/* INPUTS */}
-        <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: isMobile ? 24 : 32, boxShadow: '0 1px 3px rgba(20,42,29,0.04)' }}>
+        <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`, borderRadius: 16, padding: isMobile ? 24 : 32, boxShadow: '0 1px 3px rgba(15,29,61,0.04)' }}>
           <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 6, letterSpacing: '-0.01em', fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>
             Your TSP
           </h2>
@@ -181,7 +181,7 @@ export default function TspDrawdown() {
         {/* OUTPUT: the comparison */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* self-managed */}
-          <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: 26 }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`, borderRadius: 16, padding: 26 }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.slate500, marginBottom: 8 }}>
               Self-managed · keep it in the TSP
             </div>
@@ -198,7 +198,7 @@ export default function TspDrawdown() {
           </div>
 
           {/* guaranteed */}
-          <div style={{ background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`, color: '#fff', borderRadius: 16, padding: 26, boxShadow: '0 8px 24px rgba(20,42,29,0.12)' }}>
+          <div style={{ background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`, color: '#fff', borderRadius: 16, padding: 26, boxShadow: '0 8px 24px rgba(15,29,61,0.12)' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 8 }}>
               Guaranteed · lifetime income
             </div>
@@ -214,7 +214,7 @@ export default function TspDrawdown() {
 
       {/* CHART */}
       <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px 32px' }}>
-        <div style={{ background: '#ffffff', border: `1px solid rgba(31,61,44,0.08)`, borderRadius: 16, padding: isMobile ? 20 : 32, boxShadow: '0 1px 3px rgba(20,42,29,0.04)' }}>
+        <div style={{ background: '#ffffff', border: `1px solid rgba(26,45,92,0.08)`, borderRadius: 16, padding: isMobile ? 20 : 32, boxShadow: '0 1px 3px rgba(15,29,61,0.04)' }}>
           <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
             Your TSP balance, self-managed
           </h3>
@@ -231,7 +231,7 @@ export default function TspDrawdown() {
                     <stop offset="100%" stopColor={colors.pine} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="rgba(31,61,44,0.08)" strokeDasharray="3 3" />
+                <CartesianGrid stroke="rgba(26,45,92,0.08)" strokeDasharray="3 3" />
                 <XAxis dataKey="age" tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }} label={{ value: 'Age', position: 'insideBottom', offset: -2, fontSize: 12, fill: colors.slate500 }} />
                 <YAxis tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }} tickFormatter={(v) => (v >= 1000000 ? `$${(v / 1000000).toFixed(1)}m` : `$${Math.round(v / 1000)}k`)} />
                 <Tooltip
@@ -251,7 +251,7 @@ export default function TspDrawdown() {
 
       {/* Notes + CTA */}
       <section style={{ maxWidth: 1140, margin: '0 auto', padding: '0 24px 96px' }}>
-        <div style={{ background: colors.bone, borderRadius: 16, padding: isMobile ? 24 : 32, border: `1px solid rgba(31,61,44,0.08)`, marginBottom: 28 }}>
+        <div style={{ background: colors.bone, borderRadius: 16, padding: isMobile ? 24 : 32, border: `1px solid rgba(26,45,92,0.08)`, marginBottom: 28 }}>
           <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600, color: colors.pine, marginBottom: 12, letterSpacing: '-0.01em' }}>
             How this calculator works
           </h3>

@@ -240,7 +240,7 @@ export default function IncomePicture() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)',
+            background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)',
             pointerEvents: 'none',
           }}
         />
@@ -284,10 +284,10 @@ export default function IncomePicture() {
         <div
           style={{
             background: '#ffffff',
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
             borderRadius: 16,
             padding: isMobile ? 24 : 32,
-            boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+            boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
           }}
         >
           <h2
@@ -322,7 +322,7 @@ export default function IncomePicture() {
                       padding: '12px 14px',
                       background: flow === val ? colors.pine : '#ffffff',
                       color: flow === val ? '#ffffff' : colors.pine,
-                      border: `1px solid ${flow === val ? colors.pine : 'rgba(31,61,44,0.10)'}`,
+                      border: `1px solid ${flow === val ? colors.pine : 'rgba(26,45,92,0.10)'}`,
                       borderRadius: 10,
                       fontSize: '0.92rem',
                       fontWeight: 600,
@@ -358,7 +358,7 @@ export default function IncomePicture() {
             </label>
 
             {/* SOCIAL SECURITY */}
-            <div style={{ paddingTop: 6, borderTop: `1px solid rgba(31,61,44,0.06)` }}>
+            <div style={{ paddingTop: 6, borderTop: `1px solid rgba(26,45,92,0.06)` }}>
               <div style={{ ...sectionLabel, marginTop: 10 }}>Social Security</div>
 
               {flow === 'pre62' ? (
@@ -392,7 +392,7 @@ export default function IncomePicture() {
                   <div
                     style={{
                       background: colors.bone,
-                      border: `1px solid rgba(176,141,90,0.30)`,
+                      border: `1px solid rgba(123,28,46,0.30)`,
                       borderRadius: 10,
                       padding: 14,
                       fontSize: '0.88rem',
@@ -425,7 +425,7 @@ export default function IncomePicture() {
                     <div
                       style={{
                         background: colors.bone,
-                        border: `1px solid rgba(176,141,90,0.30)`,
+                        border: `1px solid rgba(123,28,46,0.30)`,
                         borderRadius: 10,
                         padding: 14,
                         fontSize: '0.88rem',
@@ -484,7 +484,7 @@ export default function IncomePicture() {
                     <div
                       style={{
                         background: colors.bone,
-                        border: `1px solid rgba(176,141,90,0.30)`,
+                        border: `1px solid rgba(123,28,46,0.30)`,
                         borderRadius: 10,
                         padding: 14,
                         fontSize: '0.88rem',
@@ -504,7 +504,7 @@ export default function IncomePicture() {
             </div>
 
             {/* TSP */}
-            <div style={{ paddingTop: 6, borderTop: `1px solid rgba(31,61,44,0.06)` }}>
+            <div style={{ paddingTop: 6, borderTop: `1px solid rgba(26,45,92,0.06)` }}>
               <div style={{ ...sectionLabel, marginTop: 10 }}>Guaranteed income from TSP</div>
 
               <label style={labelText}>
@@ -536,7 +536,7 @@ export default function IncomePicture() {
               color: '#ffffff',
               borderRadius: 16,
               padding: 32,
-              boxShadow: '0 8px 24px rgba(20,42,29,0.12)',
+              boxShadow: '0 8px 24px rgba(15,29,61,0.12)',
             }}
           >
             <div
@@ -571,7 +571,7 @@ export default function IncomePicture() {
           <div
             style={{
               background: '#ffffff',
-              border: `1px solid rgba(31,61,44,0.08)`,
+              border: `1px solid rgba(26,45,92,0.08)`,
               borderRadius: 16,
               padding: 28,
             }}
@@ -594,10 +594,10 @@ export default function IncomePicture() {
             {computed.atRetirement.sources.tsp > 0 && (
               <Stat label="Guaranteed income from TSP" value={formatCurrency(computed.atRetirement.sources.tsp)} dotColor={colors.brass} />
             )}
-            <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
+            <div style={{ height: 1, background: 'rgba(26,45,92,0.08)', margin: '10px 0' }} />
             <Stat label="Gross monthly" value={formatCurrency(computed.atRetirement.gross)} />
             <Stat label="FEHB premium" value={`–${formatCurrency(computed.fehb)}`} negative />
-            <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
+            <div style={{ height: 1, background: 'rgba(26,45,92,0.08)', margin: '10px 0' }} />
             <Stat label="Pre-tax monthly" value={formatCurrency(computed.atRetirement.net)} bold />
           </div>
         </div>
@@ -609,10 +609,10 @@ export default function IncomePicture() {
           <div
             style={{
               background: '#ffffff',
-              border: `1px solid rgba(31,61,44,0.08)`,
+              border: `1px solid rgba(26,45,92,0.08)`,
               borderRadius: 16,
               padding: isMobile ? 20 : 32,
-              boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+              boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
             }}
           >
             <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 4, letterSpacing: '-0.01em' }}>
@@ -662,7 +662,7 @@ export default function IncomePicture() {
             background: colors.bone,
             borderRadius: 16,
             padding: isMobile ? 24 : 32,
-            border: `1px solid rgba(31,61,44,0.08)`,
+            border: `1px solid rgba(26,45,92,0.08)`,
             marginBottom: 28,
           }}
         >
@@ -759,7 +759,7 @@ function IntervalCard({ interval, changes, fehb }) {
     <div
       style={{
         background: colors.ivory,
-        border: `1px solid rgba(31,61,44,0.10)`,
+        border: `1px solid rgba(26,45,92,0.10)`,
         borderRadius: 14,
         padding: 20,
         display: 'flex',
@@ -825,7 +825,7 @@ function IntervalCard({ interval, changes, fehb }) {
             color: colors.slate500,
             marginTop: 4,
             paddingTop: 6,
-            borderTop: '1px solid rgba(31,61,44,0.08)',
+            borderTop: '1px solid rgba(26,45,92,0.08)',
           }}
         >
           <span>Gross</span>

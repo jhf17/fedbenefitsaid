@@ -155,10 +155,10 @@ export default function PensionScenarioCalculator({
       <section
         style={{
           background: '#ffffff',
-          border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+          border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
           borderRadius: 16,
           padding: isMobile ? 24 : 32,
-          boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+          boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
         }}
       >
         <h2
@@ -259,10 +259,10 @@ export default function PensionScenarioCalculator({
       <section
         style={{
           background: '#ffffff',
-          border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+          border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
           borderRadius: 16,
           padding: isMobile ? 24 : 32,
-          boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+          boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
         }}
       >
         <h2
@@ -294,7 +294,7 @@ export default function PensionScenarioCalculator({
                 padding: 16,
                 background: colors.cream,
                 borderRadius: 12,
-                border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}`,
+                border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.06)'}`,
               }}
             >
               <label style={labelText}>
@@ -407,10 +407,10 @@ export default function PensionScenarioCalculator({
         <section
           style={{
             background: '#ffffff',
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
             borderRadius: 16,
             padding: isMobile ? 20 : 32,
-            boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+            boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
           }}
         >
           <h2
@@ -433,7 +433,7 @@ export default function PensionScenarioCalculator({
           <div style={{ width: '100%', height: 320 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
-                <CartesianGrid stroke="rgba(31,61,44,0.08)" strokeDasharray="3 3" />
+                <CartesianGrid stroke="rgba(26,45,92,0.08)" strokeDasharray="3 3" />
                 <XAxis dataKey="age" tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }} label={{ value: 'Age at retirement', position: 'insideBottom', offset: -2, fontSize: 12, fill: colors.slate500 }} />
                 <YAxis tick={{ fontSize: 12, fill: colors.slate700, fontFamily: FONT_SANS }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
@@ -462,7 +462,7 @@ export default function PensionScenarioCalculator({
         <section
           style={{
             background: colors.bone,
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
             borderRadius: 16,
             padding: isMobile ? 24 : 32,
           }}
@@ -493,7 +493,7 @@ export default function PensionScenarioCalculator({
                   background: '#ffffff',
                   padding: '12px 16px',
                   borderRadius: 8,
-                  border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+                  border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
                   letterSpacing: '-0.005em',
                 }}
               >
@@ -637,7 +637,7 @@ function ScenarioCard({ scenario, result, renderExtra }) {
               style={{
                 marginTop: 14,
                 padding: '14px 16px',
-                background: `linear-gradient(135deg, rgba(184,134,11,0.10) 0%, rgba(176,141,90,0.10) 100%)`,
+                background: `linear-gradient(135deg, rgba(123,28,46,0.10) 0%, rgba(123,28,46,0.10) 100%)`,
                 border: `1px solid ${colors.brass}`,
                 borderRadius: 10,
                 fontFamily: FONT_SANS,
@@ -700,8 +700,8 @@ const cardStyle = {
   background: '#ffffff',
   borderRadius: 16,
   padding: 24,
-  border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
-  boxShadow: '0 4px 16px rgba(20,42,29,0.05)',
+  border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
+  boxShadow: '0 4px 16px rgba(15,29,61,0.05)',
 }
 
 const cardHeader = {

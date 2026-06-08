@@ -179,7 +179,7 @@ export default function High3() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)',
+            background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)',
             pointerEvents: 'none',
           }}
         />
@@ -222,10 +222,10 @@ export default function High3() {
         <div
           style={{
             background: '#ffffff',
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
             borderRadius: 16,
             padding: 32,
-            boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+            boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
             marginBottom: 24,
           }}
         >
@@ -258,7 +258,7 @@ export default function High3() {
                   padding: 16,
                   background: colors.cream,
                   borderRadius: 12,
-                  border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}`,
+                  border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.06)'}`,
                 }}
               >
                 <label style={labelText}>
@@ -344,10 +344,10 @@ export default function High3() {
         <div
           style={{
             background: '#ffffff',
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
             borderRadius: 16,
             padding: 32,
-            boxShadow: '0 4px 16px rgba(20,42,29,0.05)',
+            boxShadow: '0 4px 16px rgba(15,29,61,0.05)',
           }}
         >
           {!result ? (
@@ -416,7 +416,7 @@ export default function High3() {
           style={{
             marginTop: 24,
             background: colors.bone,
-            border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
+            border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
             borderRadius: 16,
             padding: 32,
           }}

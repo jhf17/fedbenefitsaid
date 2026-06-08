@@ -6,7 +6,6 @@ import Seo from '../components/Seo'
 import { colors, fonts, rules, elevation } from '../constants/theme'
 import { brand } from '../constants/brand'
 import { DATA_LAST_UPDATED } from '../config/site'
-import Engraving from '../components/Engraving'
 import WavingFlag from '../components/WavingFlag'
 import { Diamond, IconIndividual, IconCalculator, IconInstitution } from '../components/Glyphs'
 import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget'
@@ -253,7 +252,7 @@ export default function LandingFMA() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 13, marginBottom: 24 }}>
               <span style={{ fontFamily: FONT_SERIF, fontWeight: 700, fontSize: '1.4rem', letterSpacing: '0.01em', lineHeight: 1 }}>
                 <span style={{ color: '#fff' }}>F</span>
-                <span style={{ color: '#c97f8b' }}>M</span>
+                <span style={{ color: '#fff' }}>M</span>
                 <span style={{ color: '#fff' }}>A</span>
               </span>
               <span style={{ width: 1, height: 22, background: 'rgba(255,255,255,0.25)' }} />
@@ -465,7 +464,6 @@ export default function LandingFMA() {
         className="reveal"
         style={{ position: 'relative', background: NAVY, color: '#fff', padding: isMobile ? '64px 20px' : '104px 48px', overflow: 'hidden' }}
       >
-        <Engraving color={BRASS_LIGHT} opacity={0.1} size={isMobile ? 380 : 560} style={{ position: 'absolute', bottom: -200, left: -160 }} />
         <div style={{ position: 'relative', maxWidth: MAXW, margin: '0 auto' }}>
           <div style={{ maxWidth: 720, marginBottom: isMobile ? 40 : 56 }}>
             <Eyebrow onDark>How we work</Eyebrow>
@@ -614,7 +612,7 @@ function HeroArtifact({ isMobile, className = '' }) {
         style={{ position: 'relative', rotateX: isMobile ? 0 : rotateX, rotateY: isMobile ? 0 : rotateY, transformPerspective: 1000, willChange: 'transform' }}
       >
       {/* stacked "page" behind, for document depth */}
-      <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.4deg)', background: '#f0e7d6', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
+      <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.4deg)', background: '#e7ebf3', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div
         style={{
           position: 'relative',
@@ -762,7 +760,7 @@ function CoverRow({ topic, n, isMobile }) {
     <Link
       to={topic.href}
       style={{ display: 'flex', alignItems: 'center', gap: 16, padding: isMobile ? '16px 0' : '18px 4px', borderBottom: `1px solid ${rules.ink}`, textDecoration: 'none', transition: 'all 0.15s ease' }}
-      onMouseEnter={(e) => { e.currentTarget.style.paddingLeft = '12px'; e.currentTarget.style.background = 'rgba(176,141,90,0.06)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.paddingLeft = '12px'; e.currentTarget.style.background = 'rgba(26,45,92,0.05)' }}
       onMouseLeave={(e) => { e.currentTarget.style.paddingLeft = isMobile ? '0' : '4px'; e.currentTarget.style.background = 'transparent' }}
     >
       <span style={{ fontFamily: FONT_MONO, fontSize: '0.78rem', color: BRASS, fontWeight: 600, ...tnum }}>{String(n).padStart(2, '0')}</span>
@@ -797,7 +795,7 @@ function ScenarioCompare({ isMobile }) {
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: 440, justifySelf: isMobile ? 'center' : 'end' }}>
       {/* stacked "page" behind */}
-      <div style={{ position: 'absolute', inset: 0, transform: 'translate(9px, 11px) rotate(-1.2deg)', background: '#f0e7d6', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
+      <div style={{ position: 'absolute', inset: 0, transform: 'translate(9px, 11px) rotate(-1.2deg)', background: '#e7ebf3', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div style={{ position: 'relative', background: WHITE, borderRadius: 8, border: `1px solid ${rules.inkStrong}`, boxShadow: elevation.artifact, overflow: 'hidden' }}>
         <div style={{ height: 4, background: `linear-gradient(90deg, ${BRASS}, ${MAROON})` }} />
         <div style={{ padding: isMobile ? '18px 16px 16px' : '22px 22px 18px' }}>
@@ -840,7 +838,7 @@ function DeliverableArtifact({ isMobile }) {
   )
   return (
     <div style={{ position: 'relative', justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 400 }}>
-      <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.3deg)', background: '#f0e7d6', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
+      <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.3deg)', background: '#e7ebf3', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div style={{ position: 'relative', background: WHITE, borderRadius: 8, border: `1px solid ${rules.inkStrong}`, boxShadow: elevation.artifact, overflow: 'hidden' }}>
         <div style={{ height: 4, background: `linear-gradient(90deg, ${MAROON}, ${BRASS})` }} />
         <div style={{ padding: isMobile ? '20px 20px 18px' : '24px 24px 20px' }}>

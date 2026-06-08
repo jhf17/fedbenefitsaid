@@ -48,9 +48,9 @@ export const colors = {
   pine: '#1a2d5c',       // → FMA navy (was #1f3d2c)
   pineDeep: '#0f1d3d',   // → FMA navy-dark
   pineLight: '#2c4280',  // → FMA navy-light
-  sage: '#4a6b5a',
-  sageLight: '#7d9b8d',
-  sagePale: '#e6ede8',
+  sage: '#4a5a7a',         // green KILLED → steel-navy (positive accents)
+  sageLight: '#8290ad',    // green KILLED → light steel-blue (e.g. SS chart series)
+  sagePale: '#eef1f6',     // green KILLED → light steel pale (eligible badges)
   brass: '#7b1c2e',        // gold KILLED → FMA oxblood (accent on light surfaces) 2026-06-03
   brassDeep: '#5e1422',
   brassLight: '#cdd7e3',   // gold KILLED → light steel (the accent on navy surfaces)
@@ -122,11 +122,11 @@ export const radii = {
 }
 
 export const shadows = {
-  sm: '0 1px 3px rgba(20,42,29,0.06)',
-  md: '0 4px 12px rgba(20,42,29,0.08)',
-  lg: '0 10px 25px rgba(20,42,29,0.10)',
-  panel: '-2px 0 8px rgba(20,42,29,0.15)',
-  glow: '0 0 0 1px rgba(176,141,90,0.12), 0 8px 24px rgba(31,61,44,0.08)',
+  sm: '0 1px 3px rgba(15,29,61,0.06)',
+  md: '0 4px 12px rgba(15,29,61,0.08)',
+  lg: '0 10px 25px rgba(15,29,61,0.10)',
+  panel: '-2px 0 8px rgba(15,29,61,0.15)',
+  glow: '0 0 0 1px rgba(26,45,92,0.12), 0 8px 24px rgba(15,29,61,0.08)',
 }
 
 export const fonts = {

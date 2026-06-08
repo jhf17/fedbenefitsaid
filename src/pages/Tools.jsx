@@ -88,7 +88,7 @@ export default function Tools() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)',
+            background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)',
             pointerEvents: 'none',
           }}
         />
@@ -146,20 +146,20 @@ export default function Tools() {
                 background: '#ffffff',
                 borderRadius: 18,
                 padding: 32,
-                border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`,
-                boxShadow: '0 1px 3px rgba(20,42,29,0.04)',
+                border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`,
+                boxShadow: '0 1px 3px rgba(15,29,61,0.04)',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'all 0.2s ease',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = colors.brass
-                e.currentTarget.style.boxShadow = '0 8px 28px rgba(20,42,29,0.08)'
+                e.currentTarget.style.boxShadow = '0 8px 28px rgba(15,29,61,0.08)'
                 e.currentTarget.style.transform = 'translateY(-2px)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(31,61,44,0.08)'
-                e.currentTarget.style.boxShadow = '0 1px 3px rgba(20,42,29,0.04)'
+                e.currentTarget.style.borderColor = 'rgba(26,45,92,0.08)'
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,29,61,0.04)'
                 e.currentTarget.style.transform = 'translateY(0)'
               }}
             >

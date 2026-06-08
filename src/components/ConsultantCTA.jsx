@@ -84,7 +84,7 @@ const styles = {
     fontWeight: 600,
     textDecoration: 'none',
     letterSpacing: '0.01em',
-    boxShadow: '0 6px 20px rgba(176,141,90,0.35)',
+    boxShadow: '0 6px 20px rgba(123,28,46,0.35)',
     fontFamily: fonts.sans,
   },
   bannerNote: {
@@ -93,7 +93,7 @@ const styles = {
   },
   compact: {
     background: colors.cream,
-    border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.10)'}`,
+    border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.10)'}`,
     borderRadius: 12,
     padding: '16px 20px',
     display: 'flex',

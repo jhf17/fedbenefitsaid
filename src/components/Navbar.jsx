@@ -46,7 +46,7 @@ export default function Navbar() {
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
     borderBottom: scrolled ? `1px solid ${PRIMARY_BORDER}` : '1px solid transparent',
-    boxShadow: scrolled ? '0 1px 3px rgba(20,42,29,0.06)' : 'none',
+    boxShadow: scrolled ? '0 1px 3px rgba(15,29,61,0.06)' : 'none',
     transition: 'all 0.2s ease',
   }
 
@@ -132,35 +132,11 @@ export default function Navbar() {
 function BrandLogo() {
   if (brand.logo.type === 'image') {
     return (
-      <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <img
-          src={brand.logo.src}
-          alt={brand.logo.alt}
-          style={{
-            height: 46,
-            width: 'auto',
-            display: 'block',
-            // The PNG has a baked-in white background. `multiply` blends that
-            // white into the nav surface so the logo sits directly on it.
-            mixBlendMode: 'multiply',
-          }}
-        />
-        <span
-          data-brand-name=""
-          style={{
-            fontFamily: fonts.serif,
-            fontWeight: 600,
-            fontSize: '1.12rem',
-            lineHeight: 1.05,
-            color: PRIMARY,
-            letterSpacing: '0.005em',
-            fontVariationSettings: '"opsz" 144, "SOFT" 50',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Federal Market Associates
-        </span>
-      </span>
+      <img
+        src="/fma-logo-mark.png"
+        alt={brand.logo.alt}
+        style={{ height: 44, width: 'auto', display: 'block' }}
+      />
     )
   }
   // Default: text logo (FBA-style) — uses brand.logo.parts with primary/accent emphasis

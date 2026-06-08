@@ -271,7 +271,7 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
   return (
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 28 : 56, alignItems: 'center' }}>
       <div>
-        <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16, display: 'inline-block', padding: '6px 14px', borderRadius: 6, color: GOLD, background: 'rgba(184,134,11,0.08)' }}>
+        <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16, display: 'inline-block', padding: '6px 14px', borderRadius: 6, color: GOLD, background: 'rgba(123,28,46,0.08)' }}>
           When can I retire?
         </div>
         <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: 700, lineHeight: 1.18, letterSpacing: '-0.01em', marginBottom: 20, color: NAVY }}>
@@ -328,10 +328,10 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
                     <div style={{ fontSize: '0.78rem', color: SUBTLE, marginTop: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
                       <span>Age {formatAge(m.age)}</span>
                       {eligibleNow && (
-                        <span style={{ padding: '1px 7px', background: 'rgba(74,107,90,0.15)', color: '#1f3d2c', borderRadius: 4, fontWeight: 700, fontSize: '0.72rem', letterSpacing: '0.02em' }}>Eligible now</span>
+                        <span style={{ padding: '1px 7px', background: 'rgba(74,90,122,0.15)', color: '#1a2d5c', borderRadius: 4, fontWeight: 700, fontSize: '0.72rem', letterSpacing: '0.02em' }}>Eligible now</span>
                       )}
                       {m.supplementEligible && (
-                        <span style={{ padding: '1px 6px', background: 'rgba(184,134,11,0.15)', color: GOLD, borderRadius: 4, fontWeight: 700, fontSize: '0.72rem' }}>+ FERS Supplement</span>
+                        <span style={{ padding: '1px 6px', background: 'rgba(123,28,46,0.15)', color: GOLD, borderRadius: 4, fontWeight: 700, fontSize: '0.72rem' }}>+ FERS Supplement</span>
                       )}
                     </div>
                     <div style={{ fontSize: '0.78rem', color: MUTED, marginTop: 3, lineHeight: 1.5 }}>{m.eligibilityNote}</div>

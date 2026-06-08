@@ -716,7 +716,7 @@ function RateTable({ currentAge, retireAge }) {
           {FEGLI_RATES.map((b) => {
             const isToday = currentAge && currentBracket.label === b.label
             const isRetire = retireAge && retireBracket.label === b.label && !isToday
-            const bg = isToday ? 'rgba(176,141,90,0.08)' : isRetire ? 'rgba(31,61,44,0.08)' : 'transparent'
+            const bg = isToday ? 'rgba(123,28,46,0.08)' : isRetire ? 'rgba(26,45,92,0.08)' : 'transparent'
             return (
               <tr key={b.label} style={{ background: bg }}>
                 <td style={{ ...styles.td, fontWeight: 700 }}>{b.label}</td>
@@ -802,7 +802,7 @@ const styles = {
     textTransform: 'uppercase',
     padding: '6px 14px',
     borderRadius: 100,
-    background: 'rgba(176,141,90,0.08)',
+    background: 'rgba(123,28,46,0.08)',
     color: COLORS.maroon,
     marginBottom: 14,
   },
@@ -853,7 +853,7 @@ const styles = {
     color: '#fff',
     borderRadius: 16,
     padding: '22px 22px 24px',
-    boxShadow: '0 8px 24px rgba(20,42,29,0.15)',
+    boxShadow: '0 8px 24px rgba(15,29,61,0.15)',
   },
   sidebarLabel: {
     fontSize: '0.72rem',
@@ -1008,7 +1008,7 @@ const styles = {
     color: COLORS.text,
     lineHeight: 1.6,
     padding: '12px 14px',
-    background: 'rgba(20,42,29,0.04)',
+    background: 'rgba(15,29,61,0.04)',
     borderLeft: `3px solid ${COLORS.navyMid}`,
     borderRadius: 6,
   },

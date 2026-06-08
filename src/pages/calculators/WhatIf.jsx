@@ -166,7 +166,7 @@ export default function WhatIf() {
           overflow: 'hidden',
         }}
       >
-        <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)', pointerEvents: 'none' }} />
+        <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 880, margin: '0 auto', position: 'relative' }}>
           <div style={{ fontSize: '0.74rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 14 }}>
             "What if..." · Updated {DATA_LAST_UPDATED}
@@ -201,7 +201,7 @@ export default function WhatIf() {
                 padding: '16px 20px',
                 background: tab === t.id ? colors.pine : '#ffffff',
                 color: tab === t.id ? '#ffffff' : colors.pine,
-                border: `1px solid ${tab === t.id ? colors.pine : colors.borderSubtle || 'rgba(31,61,44,0.10)'}`,
+                border: `1px solid ${tab === t.id ? colors.pine : colors.borderSubtle || 'rgba(26,45,92,0.10)'}`,
                 borderRadius: 12,
                 fontSize: '0.98rem',
                 fontWeight: 600,
@@ -219,7 +219,7 @@ export default function WhatIf() {
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 28 }}>
           {/* INPUTS */}
-          <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: isMobile ? 24 : 32 }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`, borderRadius: 16, padding: isMobile ? 24 : 32 }}>
             <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.4rem', fontWeight: 600, color: colors.pine, marginBottom: 18, letterSpacing: '-0.01em', fontVariationSettings: '"opsz" 144, "SOFT" 50' }}>
               Your inputs
             </h2>
@@ -242,7 +242,7 @@ export default function WhatIf() {
 
               {tab === 'death' && (
                 <>
-                  <div style={{ paddingTop: 10, borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
+                  <div style={{ paddingTop: 10, borderTop: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.06)'}` }}>
                     <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.brassDeep, marginTop: 4, marginBottom: 12 }}>
                       Family
                     </div>
@@ -261,7 +261,7 @@ export default function WhatIf() {
                     </div>
                   </div>
 
-                  <div style={{ paddingTop: 10, borderTop: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.06)'}` }}>
+                  <div style={{ paddingTop: 10, borderTop: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.06)'}` }}>
                     <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.brassDeep, marginTop: 4, marginBottom: 12 }}>
                       FEGLI elections
                     </div>
@@ -383,7 +383,7 @@ function GapCard({ title, status, children }) {
         color: '#ffffff',
         borderRadius: 16,
         padding: 28,
-        boxShadow: '0 8px 24px rgba(20,42,29,0.12)',
+        boxShadow: '0 8px 24px rgba(15,29,61,0.12)',
       }}
     >
       <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 8 }}>
@@ -407,7 +407,7 @@ function DeathOutput({ data, hasSpouse, dependentChildren }) {
         </div>
       </GapCard>
 
-      <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: 24 }}>
+      <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`, borderRadius: 16, padding: 24 }}>
         <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.1rem', fontWeight: 600, color: colors.pine, marginBottom: 14, letterSpacing: '-0.01em' }}>
           FEGLI breakdown
         </h3>
@@ -419,13 +419,13 @@ function DeathOutput({ data, hasSpouse, dependentChildren }) {
       </div>
 
       {hasSpouse && data.survivorAnnualPension > 0 && (
-        <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: 24 }}>
+        <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`, borderRadius: 16, padding: 24 }}>
           <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.1rem', fontWeight: 600, color: colors.pine, marginBottom: 14, letterSpacing: '-0.01em' }}>
             Spouse income (annual)
           </h3>
           <StatRow label={`FERS survivor pension (${(data.survivorPercent * 100).toFixed(0)}%)`} value={formatCurrency(data.survivorAnnualPension)} />
           <StatRow label='Social Security survivor benefit' value={formatCurrency(data.ssSurvivorAnnual)} />
-          <div style={{ height: 1, background: 'rgba(31,61,44,0.08)', margin: '10px 0' }} />
+          <div style={{ height: 1, background: 'rgba(26,45,92,0.08)', margin: '10px 0' }} />
           <StatRow label='Total annual to spouse' value={formatCurrency(data.annualToSpouse)} bold />
           <StatRow label='Approximately monthly' value={formatCurrency(data.monthlyToSpouse) + '/mo'} muted />
         </div>
@@ -453,7 +453,7 @@ function DisabilityOutput({ data, annualSalary }) {
         </div>
       </GapCard>
 
-      <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(31,61,44,0.08)'}`, borderRadius: 16, padding: 24 }}>
+      <div style={{ background: '#ffffff', border: `1px solid ${colors.borderSubtle || 'rgba(26,45,92,0.08)'}`, borderRadius: 16, padding: 24 }}>
         <h3 style={{ fontFamily: FONT_SERIF, fontSize: '1.1rem', fontWeight: 600, color: colors.pine, marginBottom: 14, letterSpacing: '-0.01em' }}>
           After year one (until age 62)
         </h3>

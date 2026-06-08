@@ -11,7 +11,7 @@ function SpecialTierBreakdown(result) {
   if (!result || !result.tiers) return null
   const { first20Years, additionalSpecial, additionalRegular } = result.tiers
   return (
-    <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(31,61,44,0.08)' }}>
+    <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(26,45,92,0.08)' }}>
       <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.brassDeep, marginBottom: 8 }}>
         Tier breakdown
       </div>
@@ -60,7 +60,7 @@ export default function SpecialProvisionsPension() {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(circle at 80% 0%, rgba(176,141,90,0.18) 0%, transparent 55%)',
+            background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)',
             pointerEvents: 'none',
           }}
         />

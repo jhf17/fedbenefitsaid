@@ -425,7 +425,7 @@ function PhonePath({ onBack }) {
         borderRadius: 18,
         padding: '40px 36px',
         border: `1px solid ${colors.primaryBorder}`,
-        boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
+        boxShadow: '0 4px 24px rgba(15,29,61,0.06)',
       }}
     >
       <BackLink onClick={onBack} label="← Pick a different format" />
@@ -591,7 +591,7 @@ function VideoPath({ onBack }) {
         borderRadius: 18,
         padding: '40px 36px',
         border: `1px solid ${colors.primaryBorder}`,
-        boxShadow: '0 4px 24px rgba(20,42,29,0.06)',
+        boxShadow: '0 4px 24px rgba(15,29,61,0.06)',
       }}
     >
       <BackLink onClick={onBack} label="← Pick a different format" />
@@ -716,7 +716,7 @@ function TimeSlotPicker({ preferredDate, selectedTime, onSelect }) {
                     fontFamily: 'inherit',
                     background: isSelected ? colors.accent : isPast ? '#f3f0e8' : '#ffffff',
                     color: isSelected ? '#ffffff' : isPast ? colors.slate500 : colors.charcoal,
-                    border: `1px solid ${isSelected ? colors.accent : isPast ? 'rgba(31,61,44,0.08)' : colors.slate300}`,
+                    border: `1px solid ${isSelected ? colors.accent : isPast ? 'rgba(26,45,92,0.08)' : colors.slate300}`,
                     borderRadius: 8,
                     cursor: isPast ? 'not-allowed' : 'pointer',
                     transition: 'all 0.12s ease',
