@@ -22,7 +22,7 @@ const TEAM = [
     title: 'Federal Retirement Consultant',
     photo: '/Founder.png',
     bio:
-      "Jack is the one in the numbers — mapping out FERS and CSRS scenarios, modeling TSP withdrawals, and running the math until the trade-offs are obvious. Bring him the complicated parts of your situation and he'll show you, in plain figures, exactly what each path costs or earns.",
+      "Working with federal employees nationwide, I specialize in breaking down the complexities of the federal pension system, Thrift Savings Plan (TSP), and the fragmented nature of federal retirement benefits in a clear, practical way. My approach is rooted in education and analysis. I help clients evaluate trade-offs, understand long-term implications, and approach retirement decisions with clarity and confidence.\n\nI am licensed in Life and Health insurance and hold the FRC designation. I graduated from the University of Connecticut with a degree in Economics and am based in Canton, Connecticut.",
   },
   {
     name: 'Kevin Ferreira',
@@ -384,7 +384,9 @@ function TeamCard({ member }) {
       >
         {member.title} · {brand.shortName}
       </div>
-      <p style={{ fontSize: '0.97rem', lineHeight: 1.66, color: colors.slate700, margin: 0 }}>{member.bio}</p>
+      {member.bio.split('\n\n').map((para, i) => (
+        <p key={i} style={{ fontSize: '0.97rem', lineHeight: 1.66, color: colors.slate700, margin: i === 0 ? 0 : '14px 0 0' }}>{para}</p>
+      ))}
     </div>
   )
 }
