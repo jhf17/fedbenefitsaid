@@ -277,12 +277,9 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
         <h2 style={{ fontFamily: fontSerif, fontSize: 'clamp(1.7rem, 3.5vw, 2.4rem)', fontWeight: 700, lineHeight: 1.18, letterSpacing: '-0.01em', marginBottom: 20, color: NAVY }}>
           Your eligibility,<br />by the year.
         </h2>
-        <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: SUBTLE, marginBottom: 28, maxWidth: 480 }}>
+        <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: SUBTLE, maxWidth: 480 }}>
           Two inputs, a dated timeline of every retirement milestone you'll hit, and whether each one comes with the FERS Supplement. Change the numbers — the timeline updates instantly.
         </p>
-        <Link to="/consultation" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', color: MAROON }}>
-          Book a free consultation →
-        </Link>
       </div>
 
       <div style={{ background: '#fff', border: `1px solid ${BORDER}`, borderRadius: 20, padding: isMobile ? '22px 18px' : 28, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>

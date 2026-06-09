@@ -219,7 +219,7 @@ export default function LandingFMA() {
         {/* signature: a line-art "blueprint" U.S. flag, waving slowly (see WavingFlag) */}
         <WavingFlag
           color={BRASS_LIGHT}
-          opacity={isMobile ? 0.16 : 0.2}
+          opacity={isMobile ? 0.1 : 0.13}
           width={isMobile ? 540 : 920}
           style={{ position: 'absolute', top: isMobile ? 40 : 18, right: isMobile ? -130 : -40 }}
         />
@@ -549,13 +549,11 @@ function SectionTitle({ children, onDark = false }) {
   )
 }
 
-// The hero centerpiece: a framed FERS result styled like an official benefit
-// statement. Mirrors the actual FERS calculator's result card exactly — leads
-// with the monthly pension, shows the eligibility category, "High-3 used", and
-// "Multiplier" (see PensionScenarioCalculator → ScenarioCard). Worked example:
-// High-3 $80,000 × 25 yrs × 1.1% (age 62, 20+ yrs) = $22,000/yr → $1,833/mo.
-function HeroArtifact({ isMobile, className = '' }) {
-  // Cursor-reactive 3D tilt — the "instrument" leans toward your pointer, spring-damped (Emil).
+// Cursor-reactive 3D tilt wrapper — the card leans toward your pointer,
+// spring-damped (Emil Kowalski motion). Shared by every homepage "artifact"
+// sample (hero, side-by-side, deliverable) so they all move identically.
+// Wrap the (stacked-page + card) in this; tilt is disabled on touch/mobile.
+function TiltCard({ isMobile, children }) {
   const px = useMotionValue(0)
   const py = useMotionValue(0)
   const sx = useSpring(px, { stiffness: 140, damping: 18, mass: 0.4 })
@@ -568,6 +566,23 @@ function HeroArtifact({ isMobile, className = '' }) {
     py.set((e.clientY - r.top) / r.height - 0.5)
   }
   const resetTilt = () => { px.set(0); py.set(0) }
+  return (
+    <motion.div
+      onPointerMove={isMobile ? undefined : handleTilt}
+      onPointerLeave={isMobile ? undefined : resetTilt}
+      style={{ position: 'relative', rotateX: isMobile ? 0 : rotateX, rotateY: isMobile ? 0 : rotateY, transformPerspective: 1000, willChange: 'transform' }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// The hero centerpiece: a framed FERS result styled like an official benefit
+// statement. Mirrors the actual FERS calculator's result card exactly — leads
+// with the monthly pension, shows the eligibility category, "High-3 used", and
+// "Multiplier" (see PensionScenarioCalculator → ScenarioCard). Worked example:
+// High-3 $80,000 × 25 yrs × 1.1% (age 62, 20+ yrs) = $22,000/yr → $1,833/mo.
+function HeroArtifact({ isMobile, className = '' }) {
   const row = (label, value) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0' }}>
       <span style={{ fontSize: '0.84rem', color: INK_SOFT }}>{label}</span>
@@ -576,11 +591,7 @@ function HeroArtifact({ isMobile, className = '' }) {
   )
   return (
     <div className={className} style={{ justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 380 }}>
-      <motion.div
-        onPointerMove={isMobile ? undefined : handleTilt}
-        onPointerLeave={isMobile ? undefined : resetTilt}
-        style={{ position: 'relative', rotateX: isMobile ? 0 : rotateX, rotateY: isMobile ? 0 : rotateY, transformPerspective: 1000, willChange: 'transform' }}
-      >
+      <TiltCard isMobile={isMobile}>
       {/* stacked "page" behind, for document depth */}
       <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.4deg)', background: '#e7ebf3', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div
@@ -631,7 +642,7 @@ function HeroArtifact({ isMobile, className = '' }) {
           </div>
         </div>
       </div>
-      </motion.div>
+      </TiltCard>
     </div>
   )
 }
@@ -744,7 +755,8 @@ function ScenarioCompare({ isMobile }) {
     </div>
   )
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 440, justifySelf: isMobile ? 'center' : 'end' }}>
+    <div style={{ width: '100%', maxWidth: 440, justifySelf: isMobile ? 'center' : 'end' }}>
+      <TiltCard isMobile={isMobile}>
       {/* stacked "page" behind */}
       <div style={{ position: 'absolute', inset: 0, transform: 'translate(9px, 11px) rotate(-1.2deg)', background: '#e7ebf3', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div style={{ position: 'relative', background: WHITE, borderRadius: 8, border: `1px solid ${rules.inkStrong}`, boxShadow: elevation.artifact, overflow: 'hidden' }}>
@@ -773,6 +785,7 @@ function ScenarioCompare({ isMobile }) {
           </div>
         </div>
       </div>
+      </TiltCard>
     </div>
   )
 }
@@ -788,7 +801,8 @@ function DeliverableArtifact({ isMobile }) {
     </div>
   )
   return (
-    <div style={{ position: 'relative', justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 400 }}>
+    <div style={{ justifySelf: isMobile ? 'center' : 'end', width: '100%', maxWidth: 400 }}>
+      <TiltCard isMobile={isMobile}>
       <div style={{ position: 'absolute', inset: 0, transform: 'translate(10px, 12px) rotate(1.3deg)', background: '#e7ebf3', borderRadius: 8, border: `1px solid ${rules.ink}` }} aria-hidden />
       <div style={{ position: 'relative', background: WHITE, borderRadius: 8, border: `1px solid ${rules.inkStrong}`, boxShadow: elevation.artifact, overflow: 'hidden' }}>
         <div style={{ height: 4, background: `linear-gradient(90deg, ${MAROON}, ${BRASS})` }} />
@@ -825,6 +839,7 @@ function DeliverableArtifact({ isMobile }) {
           </div>
         </div>
       </div>
+      </TiltCard>
     </div>
   )
 }
