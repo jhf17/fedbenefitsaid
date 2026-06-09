@@ -242,13 +242,44 @@ function Builder({ advisorEmail, onSignOut }) {
 
   const data = useMemo(() => deriveSummary({ client, pension, ss, tsp, compare, fegli }), [client, pension, ss, tsp, compare, fegli])
 
+  // Direct PDF export — capture each document "page" card exactly as rendered
+  // (full color), one card per PDF page, and download. No browser print dialog.
+  const [pdfBusy, setPdfBusy] = useState(false)
+  async function downloadPdf() {
+    if (pdfBusy) return
+    setPdfBusy(true)
+    try {
+      const [h2c, jspdf] = await Promise.all([import('html2canvas'), import('jspdf')])
+      const html2canvas = h2c.default || h2c
+      const JsPDF = jspdf.jsPDF || jspdf.default
+      const pages = [...document.querySelectorAll('[data-print-doc]')]
+      let pdf
+      for (let i = 0; i < pages.length; i++) {
+        const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false })
+        const w = canvas.width / 2
+        const h = canvas.height / 2
+        const orientation = w >= h ? 'landscape' : 'portrait'
+        if (!pdf) pdf = new JsPDF({ unit: 'px', format: [w, h], orientation, compress: true })
+        else pdf.addPage([w, h], orientation)
+        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, w, h, undefined, 'FAST')
+      }
+      const safe = (client.name || 'Client').replace(/[^\w .-]/g, '').trim() || 'Client'
+      pdf.save(`Retirement Summary - ${safe}.pdf`)
+    } catch (e) {
+      console.error('PDF export failed', e)
+      alert('Sorry — the PDF export hit an error. Please try again.')
+    } finally {
+      setPdfBusy(false)
+    }
+  }
+
   return (
     <>
       <div data-no-print style={{ position: 'sticky', top: 0, zIndex: 20, background: NAVY, color: '#fff', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
         <span style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: '1.05rem' }}>Retirement Summary <span style={{ color: STEEL, fontWeight: 400 }}>· builder</span></span>
         <span style={{ fontFamily: FONT_MONO, fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)' }}>{advisorEmail}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
-          <button onClick={() => window.print()} style={toolbarBtn(MAROON)}>Print / Save as PDF</button>
+          <button onClick={downloadPdf} disabled={pdfBusy} style={{ ...toolbarBtn(MAROON), opacity: pdfBusy ? 0.7 : 1, cursor: pdfBusy ? 'wait' : 'pointer' }}>{pdfBusy ? 'Generating PDF…' : 'Download PDF'}</button>
           <button onClick={onSignOut} style={toolbarBtn('transparent', true)}>Sign out</button>
         </div>
       </div>
@@ -986,7 +1017,7 @@ function FegliPage({ client, data }) {
 // The close — sits after the FEGLI page so it's the final thing the client reads.
 function ClosingCard({ client, data }) {
   return (
-    <div className="summary-section" style={{ width: '100%', maxWidth: 760, background: `linear-gradient(150deg, ${NAVY_DARK}, ${NAVY})`, color: '#fff', borderRadius: 12, padding: '22px 26px', boxShadow: elevation.artifact, display: 'flex', alignItems: 'center', gap: 18, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+    <div data-print-doc className="summary-section" style={{ width: '100%', maxWidth: 760, background: `linear-gradient(150deg, ${NAVY_DARK}, ${NAVY})`, color: '#fff', borderRadius: 12, padding: '22px 26px', boxShadow: elevation.artifact, display: 'flex', alignItems: 'center', gap: 18, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
       <span style={{ color: STEEL, flexShrink: 0 }}><SealRing size={36} w={1.4} /></span>
       <div>
         <div style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600, marginBottom: 4 }}>Congratulations, {firstName(client.name)} — you're ready to plan with clarity.</div>
