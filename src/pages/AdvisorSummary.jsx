@@ -252,7 +252,7 @@ function Builder({ advisorEmail, onSignOut }) {
       const [h2c, jspdf] = await Promise.all([import('html2canvas'), import('jspdf')])
       const html2canvas = h2c.default || h2c
       const JsPDF = jspdf.jsPDF || jspdf.default
-      const pages = [...document.querySelectorAll('[data-print-doc]')]
+      const pages = [...document.querySelectorAll('[data-pdf-page]')]
       let pdf
       for (let i = 0; i < pages.length; i++) {
         const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false })
@@ -420,8 +420,10 @@ function Builder({ advisorEmail, onSignOut }) {
         {/* PREVIEW / the deliverable (page 1 + FEGLI page 2) */}
         <div style={{ padding: '32px 24px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, background: PAPER }}>
           <SummaryDoc client={client} pension={pension} ss={ss} tsp={tsp} data={data} />
-          <FegliPage client={client} data={data} />
-          <ClosingCard client={client} data={data} />
+          <div data-pdf-page style={{ width: '100%', maxWidth: 760, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+            <FegliPage client={client} data={data} />
+            <ClosingCard client={client} data={data} />
+          </div>
         </div>
       </div>
 
@@ -628,7 +630,7 @@ function SummaryDoc({ client, pension, data }) {
   const pct = Math.round(data.replacement * 100)
   const covered = data.gapMonthly <= 0
   return (
-    <div data-print-doc style={{ width: '100%', maxWidth: 760, background: WHITE, border: `1px solid ${rules.ink}`, boxShadow: elevation.artifact, padding: '44px 48px 40px' }}>
+    <div data-print-doc data-pdf-page style={{ width: '100%', maxWidth: 760, background: WHITE, border: `1px solid ${rules.ink}`, boxShadow: elevation.artifact, padding: '44px 48px 40px' }}>
       {/* header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
         <img src="/fma-logo-mark.png" alt={brand.name} style={{ height: 44, width: 'auto', display: 'block' }} />
