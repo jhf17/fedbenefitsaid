@@ -52,6 +52,8 @@
 .fma-btn-sm { padding: 10px 18px; font-size: 0.9rem; }
 .fma-btn-arrow { transition: transform 0.18s var(--fma-ease-out); }
 .fma-btn:hover .fma-btn-arrow { transform: translateX(3px); }
+.fma-btn:focus-visible { outline: 2px solid var(--fma-brass); outline-offset: 2px; }
+.fma-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; pointer-events: none; }
 
 /* primary — maroon fill, lifts on hover, presses on click */
 .fma-btn-primary {

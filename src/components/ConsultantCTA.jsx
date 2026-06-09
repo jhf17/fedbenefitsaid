@@ -9,7 +9,7 @@ export default function ConsultantCTA({ compact = false }) {
           <div style={styles.compactTitle}>Want to talk it through?</div>
           <div style={styles.compactSub}>Book a free meeting with a Federal Retirement Consultant at Federal Market Associates. No time limit.</div>
         </div>
-        <Link to="/consultation" style={styles.compactBtn}>Book a meeting</Link>
+        <Link to="/consultation" className="fma-btn fma-btn-primary fma-btn-sm">Book a meeting</Link>
       </div>
     )
   }
@@ -24,7 +24,7 @@ export default function ConsultantCTA({ compact = false }) {
         </div>
       </div>
       <div style={styles.bannerRight}>
-        <Link to="/consultation" style={styles.bannerBtn}>Book a meeting</Link>
+        <Link to="/consultation" className="fma-btn fma-btn-primary">Book a meeting</Link>
         <div style={styles.bannerNote}>Free. No time limit. No obligation.</div>
       </div>
     </div>
@@ -34,7 +34,7 @@ export default function ConsultantCTA({ compact = false }) {
 const styles = {
   banner: {
     background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 60%, ${colors.pineLight} 100%)`,
-    borderRadius: 18,
+    borderRadius: 16,
     padding: '36px 40px',
     display: 'flex',
     alignItems: 'center',
@@ -75,18 +75,6 @@ const styles = {
     gap: 8,
     flexShrink: 0,
   },
-  bannerBtn: {
-    padding: '13px 26px',
-    background: colors.brass,
-    color: '#ffffff',
-    borderRadius: 10,
-    fontSize: '0.98rem',
-    fontWeight: 600,
-    textDecoration: 'none',
-    letterSpacing: '0.01em',
-    boxShadow: '0 6px 20px rgba(123,28,46,0.35)',
-    fontFamily: fonts.sans,
-  },
   bannerNote: {
     fontSize: '0.82rem',
     color: 'rgba(255,255,255,0.58)',
@@ -114,16 +102,5 @@ const styles = {
     fontSize: '0.85rem',
     color: colors.slate700,
     marginTop: 2,
-  },
-  compactBtn: {
-    padding: '8px 16px',
-    background: colors.brass,
-    color: '#ffffff',
-    borderRadius: 8,
-    fontSize: '0.86rem',
-    fontWeight: 600,
-    textDecoration: 'none',
-    fontFamily: fonts.sans,
-    flexShrink: 0,
   },
 }

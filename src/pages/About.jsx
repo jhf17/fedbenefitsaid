@@ -254,52 +254,11 @@ export default function About() {
             meeting is free.
           </p>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link
-              to="/consultation"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '15px 32px',
-                background: ACCENT,
-                color: '#ffffff',
-                borderRadius: 10,
-                fontSize: '1rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-                boxShadow: `0 8px 24px ${rgba(ACCENT, 0.32)}`,
-                transition: 'all 0.2s ease',
-                letterSpacing: '0.01em',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = ACCENT_DARK
-                e.currentTarget.style.transform = 'translateY(-1px)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = ACCENT
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
+            <Link to="/consultation" className="fma-btn fma-btn-primary fma-btn-lg">
               Book a meeting
-              <span aria-hidden>→</span>
+              <span className="fma-btn-arrow" aria-hidden>→</span>
             </Link>
-            <Link
-              to="/calculators"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '15px 32px',
-                background: 'transparent',
-                color: PRIMARY,
-                border: `1px solid ${PRIMARY}`,
-                borderRadius: 10,
-                fontSize: '1rem',
-                fontWeight: 600,
-                textDecoration: 'none',
-                letterSpacing: '0.01em',
-              }}
-            >
+            <Link to="/calculators" className="fma-btn fma-btn-secondary fma-btn-lg">
               Browse the calculators
             </Link>
           </div>

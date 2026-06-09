@@ -517,21 +517,8 @@ function PhonePath({ onBack }) {
         <button
           type="submit"
           disabled={status === 'submitting'}
-          style={{
-            marginTop: 8,
-            padding: '14px 28px',
-            background: status === 'submitting' ? rgba(ACCENT, 0.55) : colors.accent,
-            color: '#ffffff',
-            borderRadius: 10,
-            fontSize: '1rem',
-            fontWeight: 600,
-            border: 'none',
-            cursor: status === 'submitting' ? 'not-allowed' : 'pointer',
-            letterSpacing: '0.01em',
-            boxShadow: `0 6px 18px ${rgba(ACCENT, 0.28)}`,
-            fontFamily: FONT_SANS,
-            alignSelf: 'flex-start',
-          }}
+          className="fma-btn fma-btn-primary"
+          style={{ marginTop: 8, alignSelf: 'flex-start' }}
         >
           {status === 'submitting' ? 'Sending…' : 'Request the call →'}
         </button>
@@ -636,21 +623,8 @@ function VideoPath({ onBack }) {
         <button
           type="submit"
           disabled={!state || stateBlocked}
-          style={{
-            marginTop: 8,
-            padding: '14px 28px',
-            background: !state || stateBlocked ? rgba(ACCENT, 0.35) : colors.accent,
-            color: '#ffffff',
-            borderRadius: 10,
-            fontSize: '1rem',
-            fontWeight: 600,
-            border: 'none',
-            cursor: !state || stateBlocked ? 'not-allowed' : 'pointer',
-            letterSpacing: '0.01em',
-            boxShadow: !state || stateBlocked ? 'none' : `0 6px 18px ${rgba(ACCENT, 0.28)}`,
-            fontFamily: FONT_SANS,
-            alignSelf: 'flex-start',
-          }}
+          className="fma-btn fma-btn-primary"
+          style={{ marginTop: 8, alignSelf: 'flex-start' }}
         >
           Continue →
         </button>

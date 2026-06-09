@@ -88,7 +88,8 @@ export default function Navbar() {
           </Link>
           <Link
             to="/consultation"
-            style={ctaStyle()}
+            className="fma-btn fma-btn-primary fma-btn-sm"
+            style={{ marginLeft: 6 }}
             aria-current={isActive('/consultation') ? 'page' : undefined}
           >
             Book a Meeting
@@ -117,7 +118,8 @@ export default function Navbar() {
           <Link to="/about" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>About</Link>
           <Link
             to="/consultation"
-            style={{ ...styles.mobileLink, background: ACCENT, color: '#fff', fontWeight: 700, justifyContent: 'center' }}
+            className="fma-btn fma-btn-primary"
+            style={{ width: '100%', marginTop: 4 }}
             onClick={() => setMenuOpen(false)}
           >
             Book a Meeting
@@ -167,26 +169,6 @@ function activeLinkStyle() {
     color: PRIMARY,
     background: PRIMARY_TINT,
     fontWeight: 600,
-  }
-}
-
-function ctaStyle() {
-  return {
-    minHeight: 44,
-    display: 'flex',
-    alignItems: 'center',
-    padding: '10px 20px',
-    borderRadius: 8,
-    fontSize: '0.92rem',
-    fontWeight: 600,
-    fontFamily: fonts.sans,
-    background: ACCENT,
-    color: '#ffffff',
-    textDecoration: 'none',
-    transition: 'all 0.15s ease',
-    marginLeft: 6,
-    letterSpacing: '0.01em',
-    boxShadow: `0 1px 3px ${ACCENT_SHADOW}`,
   }
 }
 

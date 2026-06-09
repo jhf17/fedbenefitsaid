@@ -97,17 +97,6 @@ const SERVICES = [
   },
 ]
 
-const TOPICS = [
-  { name: 'FERS', sub: 'Pension formula, MRA, supplement', href: '/calculators/fers' },
-  { name: 'CSRS', sub: '1.5 / 1.75 / 2.0% multipliers, 80% cap', href: '/calculators/csrs' },
-  { name: 'TSP', sub: 'Drawdown — will it last vs. guaranteed', href: '/calculators/tsp-drawdown' },
-  { name: 'Social Security', sub: 'Claiming age, in your income picture', href: '/calculators/income-picture' },
-  { name: 'FEHB', sub: 'Carrying coverage into retirement', href: '/reference' },
-  { name: 'FEGLI', sub: 'Premiums by age, basic + optional', href: '/calculators/fegli' },
-  { name: 'Medicare', sub: 'Part A/B/D, IRMAA, FEHB coordination', href: '/reference' },
-  { name: 'Special Provisions', sub: 'LEO, FF, ATC, USSS — 1.7% formula', href: '/calculators/special' },
-]
-
 const PRINCIPLES = [
   {
     title: 'Educate first',
@@ -349,25 +338,6 @@ export default function LandingFMA() {
           >
             {[SERVICES[1], SERVICES[2]].map((s, i) => (
               <ServiceSupport key={s.title} service={s} index={i + 2} isMobile={isMobile} divider={!isMobile && i === 0} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===================== WHAT WE COVER (reference index) ===================== */}
-      <section ref={addReveal} className="reveal" style={{ background: SURFACE, padding: isMobile ? '64px 20px' : '104px 48px', borderTop: `1px solid ${rules.ink}` }}>
-        <div style={{ maxWidth: MAXW, margin: '0 auto' }}>
-          <div style={{ maxWidth: 720, marginBottom: isMobile ? 36 : 56 }}>
-            <Eyebrow>What we cover</Eyebrow>
-            <SectionTitle>The full federal benefits picture.</SectionTitle>
-            <p style={{ color: INK_SOFT, lineHeight: 1.62, marginTop: 16, fontSize: '1.05rem', maxWidth: 600 }}>
-              Every topic links to a calculator or the reference library — both free, no signup.
-            </p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', columnGap: isMobile ? 0 : 56 }}>
-            {TOPICS.map((t, i) => (
-              <CoverRow key={t.name} topic={t} n={i + 1} isMobile={isMobile} />
             ))}
           </div>
         </div>
@@ -750,25 +720,6 @@ function CardLink({ to, children }) {
     >
       {children}
       <span aria-hidden>→</span>
-    </Link>
-  )
-}
-
-// A reference-index row — reads like the contents page of a benefits manual.
-function CoverRow({ topic, n, isMobile }) {
-  return (
-    <Link
-      to={topic.href}
-      style={{ display: 'flex', alignItems: 'center', gap: 16, padding: isMobile ? '16px 0' : '18px 4px', borderBottom: `1px solid ${rules.ink}`, textDecoration: 'none', transition: 'all 0.15s ease' }}
-      onMouseEnter={(e) => { e.currentTarget.style.paddingLeft = '12px'; e.currentTarget.style.background = 'rgba(26,45,92,0.05)' }}
-      onMouseLeave={(e) => { e.currentTarget.style.paddingLeft = isMobile ? '0' : '4px'; e.currentTarget.style.background = 'transparent' }}
-    >
-      <span style={{ fontFamily: FONT_MONO, fontSize: '0.78rem', color: BRASS, fontWeight: 600, ...tnum }}>{String(n).padStart(2, '0')}</span>
-      <span style={{ flex: 1 }}>
-        <span style={{ display: 'block', fontFamily: FONT_SERIF, fontSize: '1.22rem', fontWeight: 600, color: NAVY, letterSpacing: '-0.01em' }}>{topic.name}</span>
-        <span style={{ display: 'block', fontSize: '0.85rem', color: INK_SOFT, marginTop: 2 }}>{topic.sub}</span>
-      </span>
-      <span aria-hidden style={{ color: BRASS, fontSize: '1.05rem' }}>→</span>
     </Link>
   )
 }
