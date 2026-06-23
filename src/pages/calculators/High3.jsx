@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Seo from '../../components/Seo'
 import ConsultantCTA from '../../components/ConsultantCTA'
+import CalcDisclaimer from '../../components/CalcDisclaimer'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
 
@@ -442,6 +443,8 @@ export default function High3() {
             <li>Source: 5 USC 8331(4) (CSRS), 5 USC 8401(3) (FERS); OPM CSRS-FERS Handbook ch. 50.</li>
           </ul>
         </div>
+
+        <CalcDisclaimer />
 
         <div style={{ marginTop: 36 }}>
           <ConsultantCTA compact />

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 
-// Lightweight GDPR cookie consent banner.
-// Checks document.cookie for "fba_consent=yes" — if not present, shows banner.
-// GA4 tag in index.html loads regardless (for US users), but this gives EU visitors
-// a way to understand what's being tracked + satisfies GDPR notice requirement.
+// Consent-first cookie banner. Google Analytics does NOT load until the
+// visitor accepts: index.html defines window.loadGA4(), which is called here
+// on Accept (and on return visits with a prior fba_consent=yes cookie).
+// Decline sets a refusal cookie and GA4 is never injected.
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false)
 
@@ -14,12 +14,13 @@ export default function CookieConsent() {
 
   const accept = () => {
     document.cookie = 'fba_consent=yes; max-age=31536000; path=/; SameSite=Lax'
+    if (typeof window.loadGA4 === 'function') window.loadGA4()
     setVisible(false)
   }
 
   const decline = () => {
     document.cookie = 'fba_consent=no; max-age=31536000; path=/; SameSite=Lax'
-    // Disable GA4 tracking
+    // Belt-and-suspenders: even if GA4 were ever loaded, disable it.
     window['ga-disable-G-6K0NHQ5WSK'] = true
     setVisible(false)
   }

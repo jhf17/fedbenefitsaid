@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
 import { colors, fonts } from '../constants/theme'
 import { brand } from '../constants/brand'
+import { POSTAL_ADDRESS } from '../config/site'
 
 export default function Privacy() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
@@ -16,7 +17,7 @@ export default function Privacy() {
       />
       <div style={styles.container}>
         <h1 style={styles.h1}>Privacy Policy</h1>
-        <p style={styles.updated}>Last updated: May 26, 2026</p>
+        <p style={styles.updated}>Last updated: June 16, 2026</p>
 
         <section style={styles.section}>
           <h2 style={styles.h2}>The short version</h2>
@@ -35,7 +36,7 @@ export default function Privacy() {
         <section style={styles.section}>
           <h2 style={styles.h2}>Who we are</h2>
           <p style={styles.p}>
-            On this site, "we," "us," and "our" refer to <strong>{brand.name}</strong>. We are an independent firm and
+            On this site, "we," "us," and "our" refer to <strong>{brand.legalName}</strong>. We are an independent firm and
             are not affiliated with, endorsed by, or authorized to speak on behalf of the U.S. Office of Personnel
             Management or any federal agency.
           </p>
@@ -77,7 +78,7 @@ export default function Privacy() {
           <h3 style={styles.h3}>3. Calculator inputs</h3>
           <p style={styles.p}>
             All calculators (FERS pension, CSRS, Special Provisions, FEGLI cost, income picture, what-if coverage,
-            High-3) <strong>run entirely in your browser</strong>. The numbers you enter
+            High-3, TSP drawdown) <strong>run entirely in your browser</strong>. The numbers you enter
             (salary, years of service, retirement age, TSP balance) are not transmitted to our servers and aren't stored
             outside your device. We never see them.
           </p>
@@ -139,6 +140,7 @@ export default function Privacy() {
             <li style={styles.li}><strong>Cloudflare</strong> — DNS, content delivery, and basic security protection</li>
             <li style={styles.li}><strong>Calendly</strong> — Scheduling for Zoom video meetings</li>
             <li style={styles.li}><strong>Resend</strong> — Sends an internal notification email to the consultant so they know you've requested a call</li>
+            <li style={styles.li}><strong>Airtable</strong> — Our CRM; stores your meeting-request details so the assigned consultant can schedule and follow up with you</li>
             <li style={styles.li}><strong>Google Analytics 4</strong> — Anonymous traffic and usage analytics</li>
           </ul>
           <p style={styles.p}>
@@ -236,6 +238,7 @@ export default function Privacy() {
           </p>
           <ul style={styles.ul}>
             <li style={styles.li}><strong>Email:</strong> <a href={`mailto:${brand.contact.email}`} style={styles.link}>{brand.contact.email}</a></li>
+            <li style={styles.li}><strong>Mailing address:</strong> {brand.legalName}, {POSTAL_ADDRESS}</li>
             <li style={styles.li}><strong>Website:</strong> <a href={brand.url} target="_blank" rel="noopener noreferrer" style={styles.link}>{brand.domain}</a></li>
           </ul>
         </section>

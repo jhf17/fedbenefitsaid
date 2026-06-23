@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import Seo from '../components/Seo'
 import ConsultantCTA from '../components/ConsultantCTA'
+import CalcDisclaimer from '../components/CalcDisclaimer'
 import { brand } from '../constants/brand'
 import {
   FEGLI_RATES,
@@ -498,6 +499,8 @@ export default function FEGLICalculator() {
             <li>This is an estimate. Consult <a href={FEGLI_SOURCE_URL} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.maroon }}>OPM</a> for official rates and election rules.</li>
           </ul>
         </div>
+
+        <CalcDisclaimer extra="FEGLI premiums shown use the OPM rate schedule effective October 1, 2021 — still the current schedule as of June 2026." />
 
         <ConsultantCTA compact />
       </div>

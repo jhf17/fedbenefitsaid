@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { REF_DATA, REF_DATA_META } from '../data/refData'
+import { DATA_LAST_UPDATED_LABEL } from '../config/site'
 import ConsultantCTA from '../components/ConsultantCTA'
 import Seo from '../components/Seo'
 
@@ -172,7 +173,7 @@ export default function Reference() {
             title={`Sourced from: ${REF_DATA_META.sources.map(s => s.name).join(', ')}`}
           >
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#cdd7e3', display: 'inline-block' }} />
-            Updated {REF_DATA_META.lastUpdated} · Sourced from OPM, IRS, SSA, CMS, TSP
+            Updated {DATA_LAST_UPDATED_LABEL} · Sourced from OPM, IRS, SSA, CMS, TSP
           </div>
 
           {/* Search (only on category grid view) */}

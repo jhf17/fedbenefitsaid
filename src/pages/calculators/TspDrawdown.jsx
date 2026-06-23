@@ -5,7 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContai
 import Seo from '../../components/Seo'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
-import { DATA_LAST_UPDATED } from '../../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../../config/site'
 import { monthlyGuaranteedIncome } from '../../data/guaranteedIncomeCalc'
 import { projectDrawdown } from '../../lib/tspProjection'
 
@@ -97,7 +97,7 @@ export default function TspDrawdown() {
         <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 880, margin: '0 auto', position: 'relative' }}>
           <div style={{ fontSize: '0.74rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 14 }}>
-            TSP Drawdown · Updated {DATA_LAST_UPDATED}
+            TSP Drawdown · Updated {DATA_LAST_UPDATED_LABEL}
           </div>
           <h1 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(2rem, 4.6vw, 3.2rem)', fontWeight: 600, lineHeight: 1.08, letterSpacing: '-0.02em', fontVariationSettings: '"opsz" 144, "SOFT" 50', marginBottom: 18 }}>
             Will your TSP last? <br />
@@ -200,13 +200,18 @@ export default function TspDrawdown() {
           {/* guaranteed */}
           <div style={{ background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 100%)`, color: '#fff', borderRadius: 16, padding: 26, boxShadow: '0 8px 24px rgba(15,29,61,0.12)' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 8 }}>
-              Guaranteed · lifetime income
+              Guaranteed · lifetime income (annuity option)
             </div>
             <div style={{ fontFamily: FONT_SERIF, fontSize: '1.9rem', fontWeight: 600, letterSpacing: '-0.01em', lineHeight: 1.1 }}>
               {formatCurrency(guaranteedAnnual)}<span style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', fontFamily: FONT_SANS, fontWeight: 500 }}>/yr</span>
             </div>
             <div style={{ fontSize: '0.92rem', color: 'rgba(255,255,255,0.82)', marginTop: 8, lineHeight: 1.5 }}>
               The same {formatCurrency(Math.round(guaranteed.monthly))}/mo — <strong style={{ color: '#fff' }}>paid for life, no matter how markets or longevity play out</strong>. The trade-off: you give up direct control of the balance.
+            </div>
+            <div style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.6)', marginTop: 10, lineHeight: 1.5 }}>
+              Illustrated with a representative commercial annuity carrying a lifetime-income rider — an insurance
+              product purchased with TSP money, not a TSP program feature. Actual payout rates vary by carrier, age,
+              and state.
             </div>
           </div>
         </div>
@@ -257,11 +262,13 @@ export default function TspDrawdown() {
           </h3>
           <ul style={{ paddingLeft: 20, color: colors.slate700, fontSize: '0.95rem', lineHeight: 1.7 }}>
             <li>Each year once income starts, the withdrawal is taken first and the remaining balance grows at the rate you set. Growth is a flat assumption — real returns vary year to year.</li>
-            <li>The <strong>guaranteed lifetime income</strong> figure is the same one used in the <Link to="/calculators/income-picture" style={{ color: colors.brassDeep, fontWeight: 600 }}>Full Income Picture</Link> calculator — what a protected lifetime-income option would pay from this balance, for life.</li>
+            <li>The <strong>guaranteed lifetime income</strong> figure is the same one used in the <Link to="/calculators/income-picture" style={{ color: colors.brassDeep, fontWeight: 600 }}>Full Income Picture</Link> calculator. It illustrates what a <strong>commercial annuity with a guaranteed-lifetime-withdrawal rider</strong> — an insurance product funded by moving TSP money out of the plan, not a TSP feature — would pay from this balance, for life. Rates are representative; actual products differ by carrier, age, and state, and aren't available in every state.</li>
             <li>Self-managing keeps your money under your control with market upside and a balance for heirs, but the income can run out. Guaranteed income never runs out, but you give up direct access to the balance. Neither is "right" — it depends on your situation.</li>
             <li>All figures are estimates, pre-tax, and not a recommendation. For numbers specific to you, talk to us.</li>
           </ul>
         </div>
+
+        <CalcDisclaimer extra="The guaranteed-income figure is an insurance-product illustration, not a quote or an offer — product availability and rates vary by state and carrier." />
 
         <div style={{ background: `linear-gradient(135deg, ${colors.pineDeep} 0%, ${colors.pine} 70%, ${colors.pineLight} 100%)`, color: '#ffffff', borderRadius: 16, padding: isMobile ? 28 : 40, display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', gap: 24 }}>
           <div style={{ flex: 1 }}>

@@ -1,8 +1,10 @@
 import Seo from '../../components/Seo'
 import PensionScenarioCalculator from '../../components/PensionScenarioCalculator'
+import CalcDisclaimer from '../../components/CalcDisclaimer'
+import ConsultantCTA from '../../components/ConsultantCTA'
 import { fersPension } from '../../lib/pensionCalc'
 import { colors, fonts } from '../../constants/theme'
-import { DATA_LAST_UPDATED } from '../../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -45,7 +47,7 @@ export default function FersPension() {
               marginBottom: 14,
             }}
           >
-            FERS Pension · Updated {DATA_LAST_UPDATED}
+            FERS Pension · Updated {DATA_LAST_UPDATED_LABEL}
           </div>
           <h1
             style={{
@@ -93,6 +95,10 @@ export default function FersPension() {
             'This calculator does not account for survivor election reductions, military service deposits, or part-time service prorations. For those, get an official estimate from your HR Specialist or run it past us on a call.',
           ]}
         />
+        <CalcDisclaimer />
+        <div style={{ marginTop: 36 }}>
+          <ConsultantCTA compact />
+        </div>
       </section>
     </main>
   )

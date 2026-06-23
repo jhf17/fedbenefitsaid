@@ -4,7 +4,7 @@ import Button from '../../components/fma/Button'
 import Seo from '../../components/Seo'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
-import { DATA_LAST_UPDATED } from '../../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../../config/site'
 import { monthlyGuaranteedIncome } from '../../data/guaranteedIncomeCalc'
 
 const FONT_SERIF = fonts.serif
@@ -255,7 +255,7 @@ export default function IncomePicture() {
               marginBottom: 14,
             }}
           >
-            Full Income Picture · Updated {DATA_LAST_UPDATED}
+            Full Income Picture · Updated {DATA_LAST_UPDATED_LABEL}
           </div>
           <h1
             style={{

@@ -2,10 +2,12 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/fma/Button'
 import Seo from '../../components/Seo'
+import CalcDisclaimer from '../../components/CalcDisclaimer'
+import ConsultantCTA from '../../components/ConsultantCTA'
 import { colors, fonts } from '../../constants/theme'
 import { formatCurrency } from '../../lib/pensionCalc'
 import { basicCoverageForSalary, monthlyPremium } from '../../data/fegliRates'
-import { DATA_LAST_UPDATED } from '../../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -133,7 +135,9 @@ export default function WhatIf() {
     //  At age 62: converts to "earned" retirement annuity
     const high3 = annualSalary // approximation
     const ssdiAnnual = (Number(ssdiEstimate) || 0) * 12
-    const firstYearAnnual = high3 * 0.60 - ssdiAnnual * 1.00
+    // The FERS portion is offset by SSDI but never goes negative — when SSDI
+    // exceeds the FERS benefit, FERS pays $0 and the person keeps full SSDI.
+    const firstYearAnnual = Math.max(0, high3 * 0.60 - ssdiAnnual * 1.00)
     const afterYearOneAnnual = Math.max(0, high3 * 0.40 - ssdiAnnual * 0.60)
 
     const replacementYearOne = (firstYearAnnual + ssdiAnnual) / annualSalary
@@ -169,7 +173,7 @@ export default function WhatIf() {
         <div aria-hidden style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 0%, rgba(123,28,46,0.18) 0%, transparent 55%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 880, margin: '0 auto', position: 'relative' }}>
           <div style={{ fontSize: '0.74rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: colors.brassLight, marginBottom: 14 }}>
-            "What if..." · Updated {DATA_LAST_UPDATED}
+            "What if..." · Updated {DATA_LAST_UPDATED_LABEL}
           </div>
           <h1 style={{ fontFamily: FONT_SERIF, fontSize: 'clamp(2rem, 4.6vw, 3.2rem)', fontWeight: 600, lineHeight: 1.08, letterSpacing: '-0.02em', fontVariationSettings: '"opsz" 144, "SOFT" 50', marginBottom: 18 }}>
             What does your federal package <br />
@@ -349,6 +353,11 @@ export default function WhatIf() {
             </p>
           </div>
           <Button to="/consultation" variant="primary" arrow style={{ flexShrink: 0 }}>Book a free meeting</Button>
+        </div>
+
+        <CalcDisclaimer extra="The survivor and disability figures on this page use simplified approximations of the OPM formulas — they assume your High-3 equals your current salary." />
+        <div style={{ marginTop: 36 }}>
+          <ConsultantCTA compact />
         </div>
       </section>
     </main>

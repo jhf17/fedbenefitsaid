@@ -3,6 +3,7 @@ import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, R
 import Seo from '../components/Seo'
 import { colors, fonts, rules, elevation } from '../constants/theme'
 import { brand } from '../constants/brand'
+import { POSTAL_ADDRESS } from '../config/site'
 import { SealStar, SealRing, Diamond } from '../components/Glyphs'
 import { formatCurrency, computeAge, mraForBirthYear, formatYearsMonths } from '../lib/pensionCalc'
 import { monthlyGuaranteedIncome } from '../data/guaranteedIncomeCalc'
@@ -424,6 +425,9 @@ function Builder({ advisorEmail, onSignOut }) {
             <FegliPage client={client} data={data} />
             <ClosingCard client={client} data={data} />
           </div>
+          <div data-pdf-page style={{ width: '100%', maxWidth: 760 }}>
+            <DisclosuresCard client={client} />
+          </div>
         </div>
       </div>
 
@@ -465,12 +469,15 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
   let csrsCapped = false
   if (high3 > 0 && pensionYos > 0) {
     if (system === 'csrs') {
-      // 1.5% first 5 yrs + 1.75% next 5 + 2.0% beyond, capped at 80% of High-3.
-      const t1 = Math.min(pensionYos, 5), t2 = Math.min(Math.max(pensionYos - 5, 0), 5), t3 = Math.max(pensionYos - 10, 0)
+      // 1.5% first 5 yrs + 1.75% next 5 + 2.0% beyond. The 80% cap applies to
+      // EARNED service only; unused sick leave is added on top and can push the
+      // annuity above 80% of High-3 (OPM CSRS-FERS Handbook ch. 50).
+      const tiered = (svc) => high3 * (0.015 * Math.min(svc, 5) + 0.0175 * Math.min(Math.max(svc - 5, 0), 5) + 0.020 * Math.max(svc - 10, 0))
       const cap = high3 * 0.80
-      let annual = high3 * (0.015 * t1 + 0.0175 * t2 + 0.020 * t3)
-      csrsCapped = annual > cap
-      annual = Math.min(annual, cap)
+      const earnedAnnual = tiered(yos)
+      const sickIncrement = tiered(pensionYos) - earnedAnnual
+      csrsCapped = earnedAnnual > cap
+      const annual = Math.min(earnedAnnual, cap) + sickIncrement
       pensionUnreduced = annual / 12
     } else if (system === 'special') {
       // 1.7% × first 20 yrs + 1.0% × additional.
@@ -607,11 +614,11 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
     const startIdx = Math.max(0, FEGLI_RATES.findIndex((b) => fegliAgeNow >= b.min && fegliAgeNow <= b.max))
     for (const b of FEGLI_RATES.slice(startIdx, startIdx + 5)) {
       const repAge = Math.max(b.min, fegliAgeNow)
-      const adj = applyReductionFactors(monthlyPremium({ age: repAge, ...fegliInputs }), fegliElections, repAge, repAge >= fegliRetAge)
+      const adj = applyReductionFactors(monthlyPremium({ age: repAge, ...fegliInputs }), fegliElections, repAge, repAge >= fegliRetAge, { salary, basic: fegliInputs.basic })
       fegliTable.push({ interval: b.label, basic: adj.basic, optionA: adj.optionA, optionB: adj.optionB, optionC: adj.optionC, total: adj.total })
     }
     for (let age = fegliRetAge; age <= 90; age++) {
-      fegliTotal += applyReductionFactors(monthlyPremium({ age, ...fegliInputs }), fegliElections, age, true).total * 12
+      fegliTotal += applyReductionFactors(monthlyPremium({ age, ...fegliInputs }), fegliElections, age, true, { salary, basic: fegliInputs.basic }).total * 12
     }
   }
 
@@ -840,6 +847,11 @@ function SummaryDoc({ client, pension, data }) {
             </p>
           </div>
         )}
+        <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 8, border: `1px solid ${rules.brass}`, background: SURFACE }}>
+          <p style={{ fontSize: '0.78rem', color: INK_SOFT, margin: 0, lineHeight: 1.55 }}>
+            <strong style={{ color: OXBLOOD_INK }}>About "guaranteed income for life":</strong> this is a feature of a fixed annuity issued by an insurance company — not a TSP or federal benefit. Any guarantee depends on the issuing insurer's claims-paying ability and is <strong>not</strong> insured by the U.S. government, the TSP, or the FDIC. Converting TSP savings to guaranteed income means moving money out of the TSP, which is generally hard to reverse and may carry tax effects, surrender charges, and reduced liquidity. Figures are illustrative — not a quote or a contract. The self-managed comparison above is hypothetical and uses only the single growth and withdrawal rate shown. See the full disclosures on the final page.
+          </p>
+        </div>
       </Section>
 
       {/* health coverage — FEHB + Medicare */}
@@ -882,10 +894,10 @@ function SummaryDoc({ client, pension, data }) {
       <div style={{ marginTop: 24, paddingTop: 16, borderTop: `1px solid ${rules.ink}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ color: MAROON }}><SealRing size={26} w={1.3} /></span>
-          <div style={{ fontFamily: FONT_SERIF, fontSize: '0.92rem', fontWeight: 600, color: NAVY }}>Federal Market Associates</div>
+          <div style={{ fontFamily: FONT_SERIF, fontSize: '0.92rem', fontWeight: 600, color: NAVY }}>{brand.name}</div>
         </div>
-        <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: 0, maxWidth: 440, textAlign: 'right' }}>
-          Estimates only — based on the figures provided and current federal rules. Not personalized financial, tax, or legal advice. Guaranteed-income figures are illustrative and depend on product availability at time of purchase. {brand.name} is independent and not affiliated with OPM or any federal agency.
+        <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: 0, maxWidth: 460, textAlign: 'right' }}>
+          Estimates only — prepared from the figures provided and current federal rules; your official benefits are set by OPM, SSA, the TSP, and your agency. Not financial, tax, or legal advice. "Guaranteed income" is a fixed-annuity feature backed solely by the issuing insurer's claims-paying ability — not guaranteed by the U.S. government, the TSP, or the FDIC. {brand.name} is independent, is not affiliated with OPM or any federal agency, and may be compensated by an insurance carrier if you choose to purchase a product. Full disclosures on the final page.
         </p>
       </div>
     </div>
@@ -1008,8 +1020,8 @@ function FegliPage({ client, data }) {
           <span style={{ color: MAROON }}><SealRing size={26} w={1.3} /></span>
           <div style={{ fontFamily: FONT_SERIF, fontSize: '0.92rem', fontWeight: 600, color: NAVY }}>Federal Market Associates</div>
         </div>
-        <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: 0, maxWidth: 440, textAlign: 'right' }}>
-          FEGLI estimates use current OPM rates. Premiums and reductions depend on your elections at retirement. Not insurance or financial advice.
+        <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: 0, maxWidth: 460, textAlign: 'right' }}>
+          FEGLI estimates only, using current OPM rates. Premiums, reductions, and coverage depend on your actual elections and rules in effect at retirement — verify with OPM and your agency. Not insurance, financial, tax, or legal advice. Full disclosures on the final page.
         </p>
       </div>
     </div>
@@ -1026,6 +1038,45 @@ function ClosingCard({ client, data }) {
         <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.55, color: 'rgba(255,255,255,0.85)' }}>
           You have a clear, written plan — pension, Social Security, your income gap, TSP, health coverage, and FEGLI, all in one place. That's further than most federal employees ever get.{data.annualLeavePayout > 0 ? <> And don't forget: your unused annual leave pays out as a <strong>one-time {formatCurrency(data.annualLeavePayout)}</strong> lump sum on your final paycheck (taxable, paid once).</> : null}
         </p>
+      </div>
+    </div>
+  )
+}
+
+// Final page — the full disclosures for an illustration that discusses
+// insurance/annuity products and a potential TSP rollover. Kept as its own
+// page so the required disclosures are complete and legible, not fine print.
+function DisclosuresCard({ client }) {
+  const cardStyle = { width: '100%', maxWidth: 760, background: WHITE, border: `1px solid ${rules.ink}`, boxShadow: elevation.artifact, padding: '40px 48px' }
+  const para = { fontSize: '0.78rem', color: INK_SOFT, lineHeight: 1.6, margin: '0 0 12px' }
+  const term = { color: OXBLOOD_INK, fontWeight: 700 }
+  return (
+    <div data-print-doc style={cardStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <span style={{ color: MAROON }}><SealStar size={15} /></span>
+        <span style={{ fontFamily: FONT_MONO, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: OXBLOOD_INK }}>Important disclosures</span>
+      </div>
+      <div style={{ height: 2, background: `linear-gradient(90deg, ${MAROON}, ${NAVY} 60%, transparent)`, margin: '0 0 18px' }} />
+
+      <p style={para}><strong style={term}>Educational estimate, not advice.</strong> This Retirement Summary is an educational illustration prepared from the figures you provided and current federal benefit rules. It is not personalized financial, investment, tax, or legal advice, not a benefit determination, and not an offer or contract. Your official benefits are determined solely by OPM, the Social Security Administration, the Thrift Savings Plan (TSP), and your agency. Verify every figure with them before making any decision.</p>
+
+      <p style={para}><strong style={term}>Figures are estimates.</strong> Pension, survivor, Social Security, FERS Supplement, FEGLI, and income figures depend on your actual High-3, service, elections, and the rules in effect when you retire, and will differ from the amounts shown. The FERS Supplement is subject to an annual earnings test before your full retirement age and ends at age 62.</p>
+
+      <p style={para}><strong style={term}>“Guaranteed income for life.”</strong> Any guaranteed lifetime income shown is a feature of a fixed annuity issued by a life insurance company — not a federal, TSP, or government benefit. Guarantees are subject solely to the claims-paying ability of the issuing insurer and are not insured or guaranteed by the U.S. government, the TSP, the FDIC, or {brand.name}. Amounts are illustrative, are not a quote or a contract, and depend on the product, interest rates, and your age at the time of purchase. Annuities may carry surrender charges and limited liquidity.</p>
+
+      <p style={para}><strong style={term}>Moving money out of the TSP.</strong> Illustrations that convert TSP savings to guaranteed income assume funds are moved out of the TSP. That decision is generally difficult to reverse, may have tax consequences and surrender charges, and forgoes the TSP's low costs and features. Any self-managed comparison is hypothetical, uses only the single growth rate and withdrawal amount shown, ignores taxes, fees, and market volatility, and is not a prediction of future results.</p>
+
+      <p style={para}><strong style={term}>How we are paid.</strong> {brand.name}'s consultants are licensed life and health insurance producers who place insurance and annuity business through SBIA, an affiliated insurance agency. If you choose to purchase an insurance or annuity product, {brand.name} or SBIA may be compensated by the issuing carrier — never by you directly. You are under no obligation to purchase anything, and doing so is never a condition of this summary. Insurance and annuity products are not available to residents of California, New York, or Arkansas.</p>
+
+      <p style={para}><strong style={term}>Independence.</strong> {brand.name} is independent and is not affiliated with, endorsed by, or authorized to speak on behalf of OPM, the TSP, the Social Security Administration, or any federal agency.</p>
+
+      <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${rules.ink}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontFamily: FONT_MONO, fontSize: '0.62rem', color: INK_FAINT, letterSpacing: '0.04em' }}>
+          Confidential — prepared for {client.name || 'client'}{client.preparedBy ? ` by ${client.preparedBy}` : ''} · {fmtDate(client.date)}
+        </span>
+        <span style={{ fontFamily: FONT_MONO, fontSize: '0.62rem', color: INK_FAINT, textAlign: 'right' }}>
+          {brand.legalName}{POSTAL_ADDRESS ? ` · ${POSTAL_ADDRESS}` : ''}{brand.contact?.email ? ` · ${brand.contact.email}` : ''}
+        </span>
       </div>
     </div>
   )

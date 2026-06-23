@@ -98,14 +98,26 @@
     }
     </script>
 
-    <!-- Google Analytics 4 -->
-    <!-- Replace G-6K0NHQ5WSK with your GA4 Measurement ID from analytics.google.com -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6K0NHQ5WSK"></script>
+    <!-- Google Analytics 4 — consent-gated. The script is injected only after
+         the visitor accepts the cookie banner (CookieConsent.jsx calls
+         window.loadGA4()), or on a return visit with a prior consent cookie.
+         Nothing loads or beacons before consent. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-6K0NHQ5WSK');
+      window.loadGA4 = function () {
+        if (window.__ga4Loaded || window['ga-disable-G-6K0NHQ5WSK']) return;
+        window.__ga4Loaded = true;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-6K0NHQ5WSK';
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('config', 'G-6K0NHQ5WSK');
+      };
+      if (document.cookie.split(';').some(function (c) { return c.trim().indexOf('fba_consent=yes') === 0; })) {
+        window.loadGA4();
+      }
     </script>
   
     <!-- ADA: Focus indicators and skip navigation -->

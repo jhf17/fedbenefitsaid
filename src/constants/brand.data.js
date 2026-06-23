@@ -7,7 +7,7 @@
 export const FBA = {
   id: 'fba',
   name: 'FedBenefitsAid',
-  legalName: 'Federal Market Associates',
+  legalName: 'Federal Market Associates LLC',
   shortName: 'FBA',
   domain: 'fedbenefitsaid.com',
   url: 'https://fedbenefitsaid.com',
@@ -25,7 +25,7 @@ export const FBA = {
   shortDescription:
     'Free, accurate education for federal employees navigating retirement benefits — built and maintained for the current benefit year.',
   attributionLine: 'An education resource by Federal Market Associates',
-  copyrightHolder: 'Federal Market Associates',
+  copyrightHolder: 'Federal Market Associates LLC',
   ogImage: '/og-image.png',
   favicon: '/favicon.svg',
   colors: {
@@ -45,7 +45,7 @@ export const FBA = {
   contact: {
     phone: '',
     phoneDisplay: '',
-    email: 'jhf17@icloud.com',
+    email: 'jack@federalmarketassociates.com',
   },
   // Home page component name — App.jsx routes to this
   homePage: 'Landing',
@@ -54,7 +54,7 @@ export const FBA = {
 export const FMA = {
   id: 'fma',
   name: 'Federal Market Associates',
-  legalName: 'Federal Market Associates',
+  legalName: 'Federal Market Associates LLC',
   shortName: 'FMA',
   domain: 'federalmarketassociates.com',
   url: 'https://federalmarketassociates.com',
@@ -73,7 +73,7 @@ export const FMA = {
   shortDescription:
     'Independent federal benefits education and on-site agency training. Free calculators, library, and 1-on-1 consultations.',
   attributionLine: '', // FMA is the brand itself — no parent attribution
-  copyrightHolder: 'Federal Market Associates',
+  copyrightHolder: 'Federal Market Associates LLC',
   // TODO: Generate FMA-specific OG image. Falls back to logo for now.
   ogImage: '/fma-logo.png',
   favicon: '/favicon.svg', // TODO: FMA-specific favicon
@@ -95,7 +95,7 @@ export const FMA = {
   contact: {
     phone: '', // TODO: dedicated FMA business line
     phoneDisplay: '',
-    email: 'jhf17@icloud.com',
+    email: 'jack@federalmarketassociates.com',
   },
   homePage: 'LandingFMA',
 }

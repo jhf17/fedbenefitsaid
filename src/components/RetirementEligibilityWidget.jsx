@@ -341,7 +341,7 @@ export default function RetirementEligibilityWidget({ isMobile, fontSerifOverrid
 
         {valid && (
           <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${BORDER}`, textAlign: 'center' }}>
-            <Link to="/calculator" style={{ fontSize: '0.88rem', fontWeight: 700, color: MAROON, textDecoration: 'none' }}>
+            <Link to="/calculators/fers" style={{ fontSize: '0.88rem', fontWeight: 700, color: MAROON, textDecoration: 'none' }}>
               Calculate your pension amount →
             </Link>
           </div>

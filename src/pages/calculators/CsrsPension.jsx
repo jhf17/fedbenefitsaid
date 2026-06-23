@@ -1,8 +1,10 @@
 import Seo from '../../components/Seo'
 import PensionScenarioCalculator from '../../components/PensionScenarioCalculator'
+import CalcDisclaimer from '../../components/CalcDisclaimer'
+import ConsultantCTA from '../../components/ConsultantCTA'
 import { csrsPension, formatCurrency } from '../../lib/pensionCalc'
 import { colors, fonts } from '../../constants/theme'
-import { DATA_LAST_UPDATED } from '../../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -81,7 +83,7 @@ export default function CsrsPension() {
               marginBottom: 14,
             }}
           >
-            CSRS Pension · Updated {DATA_LAST_UPDATED}
+            CSRS Pension · Updated {DATA_LAST_UPDATED_LABEL}
           </div>
           <h1
             style={{
@@ -128,6 +130,10 @@ export default function CsrsPension() {
           ]}
           renderScenarioDetails={CsrsTierBreakdown}
         />
+        <CalcDisclaimer />
+        <div style={{ marginTop: 36 }}>
+          <ConsultantCTA compact />
+        </div>
       </section>
     </main>
   )

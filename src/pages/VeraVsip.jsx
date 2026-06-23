@@ -219,7 +219,7 @@ export default function VeraVsip() {
               <strong>Understand the TSP withdrawal rules for your age.</strong> If you separate in or after the year you turn 55 (50 for certain special-category employees), you can take penalty-free TSP withdrawals under the IRS &ldquo;rule of 55&rdquo; equivalent for governmental plans. If you leave earlier, pre-59&frac12; distributions may incur a 10% tax penalty.
             </li>
             <li style={liStyle}>
-              <strong>Talk to someone who doesn&rsquo;t get paid to sell you products.</strong> An objective, fee-only review of your offer is worth far more than the time it takes.
+              <strong>Get a second set of eyes on your actual numbers.</strong> An objective review of your offer — what you keep after tax, how it changes your pension and FERS Supplement, and what gaps it leaves — is worth far more than the time it takes.
             </li>
           </ol>
           {/* NOTE: Items 1-5 are general evaluation guidance, not statutory claims.

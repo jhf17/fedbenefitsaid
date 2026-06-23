@@ -355,6 +355,11 @@ function getEtTodayString() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date())
 }
 
+// Exact consent language shown next to the checkbox. The same string is sent
+// to the server and stored with the lead as TCPA proof-of-consent.
+const TCPA_CONSENT_TEXT =
+  'By checking this box and submitting this form, I expressly authorize Federal Market Associates and its representatives to contact me at the phone number and email I provided — including by call or text message, and including through automated technology — about federal benefits education and related insurance products. Consent is not a condition of any purchase. Message and data rates may apply. I can revoke consent at any time by replying STOP to a text or emailing us.'
+
 function PhonePath({ onBack }) {
   const [form, setForm] = useState({
     name: '',
@@ -365,6 +370,8 @@ function PhonePath({ onBack }) {
     preferredDate: '',
     preferredTime: '',
     message: '',
+    consent: false,
+    website: '', // honeypot — humans never see or fill this
   })
   const [status, setStatus] = useState('idle') // 'idle' | 'submitting' | 'success' | 'error' | 'blocked'
   const [errorMsg, setErrorMsg] = useState('')
@@ -379,7 +386,12 @@ function PhonePath({ onBack }) {
       const res = await fetch('/.netlify/functions/request-phone-call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, _source: brand.domain }),
+        body: JSON.stringify({
+          ...form,
+          _source: brand.domain,
+          consentText: TCPA_CONSENT_TEXT,
+          consentTimestamp: new Date().toISOString(),
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (res.status === 403) {
@@ -406,7 +418,7 @@ function PhonePath({ onBack }) {
     return (
       <SuccessPanel
         title="Request received."
-        body={`Thanks, ${form.name.split(' ')[0] || 'there'}. We'll call you at ${form.phone} on ${friendlyDate} at ${form.preferredTime || 'your selected time'}. If anything changes before then, reply to the confirmation we'll send to ${form.email}.`}
+        body={`Thanks, ${form.name.split(' ')[0] || 'there'}. We'll call you at ${form.phone} on ${friendlyDate} at ${form.preferredTime || 'your selected time'}. Need to change anything before then? Just email us at ${brand.contact.email}.`}
         onBack={onBack}
       />
     )
@@ -448,6 +460,17 @@ function PhonePath({ onBack }) {
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 14 }}>
+        {/* Honeypot — bots fill it, humans never see it. Server rejects non-empty. */}
+        <input
+          type="text"
+          name="website"
+          value={form.website}
+          onChange={(e) => update({ website: e.target.value })}
+          autoComplete="off"
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+        />
         <Row two>
           <Field label="Name" required>
             <input type="text" required value={form.name} onChange={(e) => update({ name: e.target.value })} style={inputBox} placeholder="Your name" />
@@ -507,6 +530,31 @@ function PhonePath({ onBack }) {
             placeholder="e.g. Trying to decide whether to retire this December or next June."
           />
         </Field>
+
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 10,
+            padding: '14px 16px',
+            background: '#f8fafc',
+            border: `1px solid ${colors.primaryBorder}`,
+            borderRadius: 10,
+            fontSize: '0.84rem',
+            lineHeight: 1.55,
+            color: colors.slate700,
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            required
+            checked={form.consent}
+            onChange={(e) => update({ consent: e.target.checked })}
+            style={{ marginTop: 3, width: 16, height: 16, flexShrink: 0, accentColor: colors.primary }}
+          />
+          <span>{TCPA_CONSENT_TEXT}</span>
+        </label>
 
         {errorMsg && (
           <div role="alert" style={{ padding: '12px 16px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10, color: '#991b1b', fontSize: '0.92rem' }}>

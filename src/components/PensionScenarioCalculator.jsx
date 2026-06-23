@@ -4,6 +4,8 @@ import Button from './fma/Button'
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { colors, fonts } from '../constants/theme'
 import { formatCurrency, formatYearsMonths, formatMonth } from '../lib/pensionCalc'
+import GsPayFinder from './GsPayFinder'
+import SurvivorElectionPanel from './SurvivorElectionPanel'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -223,6 +225,7 @@ export default function PensionScenarioCalculator({
               Average of the highest 36 consecutive months of basic pay (base salary + locality, no overtime/bonuses/awards). Use the <Link to="/calculators/high-3" style={{ color: colors.brassDeep, fontWeight: 600 }}>High-3 calculator</Link> if you need to project it for a future retirement date.
             </span>
           </label>
+          <GsPayFinder onUse={(v) => setHigh3Salary(v)} />
 
           <label style={labelText}>
             Sick leave balance (hours, optional)
@@ -457,6 +460,11 @@ export default function PensionScenarioCalculator({
         </section>
       )}
 
+      {/* SURVIVOR ELECTION */}
+      {eligibleScenarios.length > 0 && (
+        <SurvivorElectionPanel system={system} result={eligibleScenarios[0].result} isMobile={isMobile} />
+      )}
+
       {/* CONTEXT */}
       {(eligibility.length > 0 || formula || notes.length > 0) && (
         <section
@@ -586,6 +594,7 @@ function ScenarioCard({ scenario, result, renderExtra }) {
 
   const { categoryLabel, ageAtRetirement, yos, high3, monthlyAnnuity, annualAnnuity, supplementEligible, reductionDetail, multiplier } = result
   const ineligible = result.category === 'ineligible'
+  const deferred = result.category === 'deferred'
 
   return (
     <div style={cardStyle}>
@@ -629,6 +638,11 @@ function ScenarioCard({ scenario, result, renderExtra }) {
           {reductionDetail && (
             <div style={{ fontSize: '0.78rem', color: colors.brassDeep, marginTop: 4, marginBottom: 6 }}>
               {reductionDetail}
+            </div>
+          )}
+          {deferred && (
+            <div style={{ fontSize: '0.78rem', color: colors.brassDeep, marginTop: 4, marginBottom: 6, fontWeight: 600 }}>
+              Not payable until age 62. The figure above is the unreduced annuity in today's dollars — you'd separate now and the pension begins at 62.
             </div>
           )}
 

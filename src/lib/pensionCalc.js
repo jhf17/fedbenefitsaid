@@ -269,8 +269,17 @@ export function csrsPension({ birthDate, hireDate, retireDate, high3, sickLeaveH
   const t2 = Math.min(Math.max(yos - 5, 0), 5)
   const t3 = Math.max(yos - 10, 0)
   const baseAnnuity = high3 * (0.015 * t1 + 0.0175 * t2 + 0.020 * t3)
-  const cappedAnnuity = Math.min(baseAnnuity, high3 * 0.80)
-  const cappedHit = baseAnnuity > high3 * 0.80
+  // The 80% cap applies to EARNED service only. Unused sick leave is added on
+  // top of the capped annuity and CAN push it above 80% of High-3
+  // (OPM CSRS-FERS Handbook ch. 50). With no sick leave this is identical to
+  // a straight cap on the full annuity.
+  const earnedYos = Math.max(0, yos - sickLeaveYears(sickLeaveHours))
+  const e1 = Math.min(earnedYos, 5)
+  const e2 = Math.min(Math.max(earnedYos - 5, 0), 5)
+  const e3 = Math.max(earnedYos - 10, 0)
+  const earnedAnnuity = high3 * (0.015 * e1 + 0.0175 * e2 + 0.020 * e3)
+  const cappedAnnuity = Math.min(earnedAnnuity, high3 * 0.80) + (baseAnnuity - earnedAnnuity)
+  const cappedHit = earnedAnnuity > high3 * 0.80
 
   // Effective replacement rate (annuity / High-3)
   const replacementRate = high3 > 0 ? cappedAnnuity / high3 : 0

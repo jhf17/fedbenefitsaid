@@ -28,8 +28,7 @@ export const siteConfig = {
   },
 
   // CAN-SPAM postal address — required at the bottom of all marketing emails.
-  // {{REPLACE_WHEN_AVAILABLE: physical mailing address — e.g., a UPS Store mailbox}}
-  postalAddress: '',
+  postalAddress: '1 South Street, Collinsville, CT 06019',
 
   // Source citations shown on benefit-rate pages. When figures change at year-end,
   // update the date here and on refData.js so the UI signals freshness.
@@ -48,5 +47,16 @@ export const CALENDLY_URL = siteConfig.scheduling.calendlyUrl
 export const CALENDLY_EMBED_URL = siteConfig.scheduling.calendlyEmbedUrl
 export const UNAVAILABLE_STATES = siteConfig.unavailableStates
 export const UNAVAILABLE_STATE_NAMES = siteConfig.unavailableStateNames
+export const POSTAL_ADDRESS = siteConfig.postalAddress
 export const DATA_LAST_UPDATED = siteConfig.dataLastUpdated
 export const DATA_SOURCES = siteConfig.dataSources
+
+// Human-friendly label for the data-freshness date, e.g. "June 2026".
+// Single source of truth so every page renders it identically (instead of
+// some showing the raw "2026-06" ISO string).
+export const DATA_LAST_UPDATED_LABEL = (() => {
+  const [y, m] = String(siteConfig.dataLastUpdated).split('-')
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const idx = Math.max(0, Math.min(11, (parseInt(m, 10) || 1) - 1))
+  return `${months[idx]} ${y}`
+})()

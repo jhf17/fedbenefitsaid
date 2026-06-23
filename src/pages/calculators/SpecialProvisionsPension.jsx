@@ -1,8 +1,10 @@
 import Seo from '../../components/Seo'
 import PensionScenarioCalculator from '../../components/PensionScenarioCalculator'
+import CalcDisclaimer from '../../components/CalcDisclaimer'
+import ConsultantCTA from '../../components/ConsultantCTA'
 import { specialProvisionsPension, formatCurrency, formatYearsMonths } from '../../lib/pensionCalc'
 import { colors, fonts } from '../../constants/theme'
-import { DATA_LAST_UPDATED } from '../../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -75,7 +77,7 @@ export default function SpecialProvisionsPension() {
               marginBottom: 14,
             }}
           >
-            FERS Special Provisions · Updated {DATA_LAST_UPDATED}
+            FERS Special Provisions · Updated {DATA_LAST_UPDATED_LABEL}
           </div>
           <h1
             style={{
@@ -133,6 +135,10 @@ export default function SpecialProvisionsPension() {
           ]}
           renderScenarioDetails={SpecialTierBreakdown}
         />
+        <CalcDisclaimer />
+        <div style={{ marginTop: 36 }}>
+          <ConsultantCTA compact />
+        </div>
       </section>
     </main>
   )

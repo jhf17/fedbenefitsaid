@@ -358,7 +358,7 @@ export default function LandingFMA() {
           {/* left — the boast */}
           <div>
             <Eyebrow>The tools</Eyebrow>
-            <SectionTitle>There isn’t another federal benefits site that works like this.</SectionTitle>
+            <SectionTitle>Most federal benefits sites don’t work like this.</SectionTitle>
             <p style={{ color: INK_SOFT, lineHeight: 1.66, marginTop: 18, fontSize: '1.05rem', maxWidth: 540 }}>
               These are the same calculators we use in consultations — opened up to everyone, free. They run the real
               OPM, IRS, and SSA formulas right in your browser, lay your scenarios out side by side, and cite every

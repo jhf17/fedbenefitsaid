@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { colors, fonts } from '../constants/theme'
 import { brand } from '../constants/brand'
-import { DATA_LAST_UPDATED } from '../config/site'
+import { DATA_LAST_UPDATED, POSTAL_ADDRESS } from '../config/site'
 
 const PRIMARY = brand.colors.primary
 const PRIMARY_DARK = brand.colors.primaryDark
@@ -105,6 +105,11 @@ export default function Footer() {
           <p style={{ fontSize: '0.85rem', lineHeight: 1.65, color: 'rgba(255,255,255,0.72)', maxWidth: 320, marginTop: brand.attributionLine ? 0 : 16 }}>
             {brand.shortDescription}
           </p>
+          {POSTAL_ADDRESS && (
+            <p style={{ fontSize: '0.8rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.6)', marginTop: 14 }}>
+              {brand.legalName}<br />{POSTAL_ADDRESS}
+            </p>
+          )}
           {brand.contact.phoneDisplay && (
             <div style={{ marginTop: 16, fontSize: '0.92rem' }}>
               <a
@@ -146,7 +151,7 @@ export default function Footer() {
         <div>
           <div style={colTitle}>Talk</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <Link to="/consultation" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Book a Call</Link>
+            <Link to="/consultation" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Book a Meeting</Link>
             <Link to="/disclaimer" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Disclaimer</Link>
             <Link to="/privacy" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Privacy</Link>
             <Link to="/terms" style={linkBase} onMouseEnter={hoverOn} onMouseLeave={hoverOff}>Terms</Link>

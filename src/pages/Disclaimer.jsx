@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
 import { colors, fonts } from '../constants/theme'
 import { brand } from '../constants/brand'
-import { UNAVAILABLE_STATE_NAMES, DATA_LAST_UPDATED } from '../config/site'
+import { UNAVAILABLE_STATE_NAMES, DATA_LAST_UPDATED_LABEL } from '../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -51,7 +51,7 @@ export default function Disclaimer() {
             figure that has since been revised. Verify critical decisions with the official source.
           </p>
           <p style={styles.p}>
-            <strong>Most recent figure update:</strong> {DATA_LAST_UPDATED}.
+            <strong>Most recent figure update:</strong> {DATA_LAST_UPDATED_LABEL}.
           </p>
         </section>
 
@@ -96,10 +96,11 @@ export default function Disclaimer() {
         <section style={styles.section}>
           <h2 style={styles.h2}>Compensation</h2>
           <p style={styles.p}>
-            {brand.name} may be compensated by an insurance carrier when a client elects to purchase an insurance,
-            annuity, or related financial product through us. The education on this site is provided free of charge.
-            Choosing to purchase a product through us is always optional and is never a prerequisite for the consultation
-            or for access to anything on the site.
+            {brand.name}'s consultants are licensed life and health insurance producers who place insurance and annuity
+            business through SBIA, an affiliated insurance agency. {brand.name} or SBIA may be compensated by an insurance
+            carrier when a client elects to purchase an insurance, annuity, or related financial product through us. The
+            education on this site is provided free of charge. Choosing to purchase a product through us is always
+            optional and is never a prerequisite for the consultation or for access to anything on the site.
           </p>
         </section>
 

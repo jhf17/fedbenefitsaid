@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
 import { colors, fonts } from '../constants/theme'
-import { DATA_LAST_UPDATED } from '../config/site'
+import { DATA_LAST_UPDATED_LABEL } from '../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -103,7 +103,7 @@ export default function Tools() {
               marginBottom: 14,
             }}
           >
-            Calculators · Updated {DATA_LAST_UPDATED} · OPM, IRS, SSA
+            Calculators · Updated {DATA_LAST_UPDATED_LABEL} · OPM, IRS, SSA
           </div>
           <h1
             style={{

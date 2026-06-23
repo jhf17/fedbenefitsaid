@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import Seo from '../components/Seo'
 import { colors, fonts } from '../constants/theme'
 import { brand } from '../constants/brand'
+import { POSTAL_ADDRESS } from '../config/site'
 
 export default function Terms() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
@@ -16,12 +17,12 @@ export default function Terms() {
       />
       <div style={styles.container}>
         <h1 style={styles.h1}>Terms of Service</h1>
-        <p style={styles.updated}>Last updated: May 26, 2026</p>
+        <p style={styles.updated}>Last updated: June 16, 2026</p>
 
         <section style={styles.section}>
           <h2 style={styles.h2}>1. Acceptance of these Terms</h2>
           <p style={styles.p}>
-            These Terms of Service ("Terms") govern your access to and use of <strong>{brand.domain}</strong> (the "Site"), operated by <strong>{brand.name}</strong> ("we," "us," "our"). By accessing or using the Site, you agree to be bound by these Terms. If you do not agree, do not use the Site.
+            These Terms of Service ("Terms") govern your access to and use of <strong>{brand.domain}</strong> (the "Site"), operated by <strong>{brand.legalName}</strong> ("{brand.name}," "we," "us," "our"). By accessing or using the Site, you agree to be bound by these Terms. If you do not agree, do not use the Site.
           </p>
           <p style={styles.p}>
             You must be at least 18 years old to use the Site or to book a meeting through it.
@@ -34,7 +35,7 @@ export default function Terms() {
             {brand.domain} is a free, public educational resource for U.S. federal employees. The Site offers:
           </p>
           <ul style={styles.list}>
-            <li>Calculators for FERS pension, CSRS pension, Special Provisions pension, FEGLI cost over time, retirement income picture, "what-if" coverage, and High-3 average salary</li>
+            <li>Calculators for FERS pension, CSRS pension, Special Provisions pension, FEGLI cost over time, retirement income picture, "what-if" coverage, High-3 average salary, and TSP drawdown vs. guaranteed-income comparison</li>
             <li>A reference library of federal benefit topics (FERS, CSRS, TSP, FEHB, FEGLI, Medicare, Social Security, Survivor Benefits)</li>
             <li>The option to book a free meeting (phone or Zoom) with a Federal Retirement Consultant at {brand.name}</li>
           </ul>
@@ -65,7 +66,7 @@ export default function Terms() {
           </p>
           <ul style={styles.list}>
             <li>The meeting is educational in nature. It does not, by itself, create an advisory, fiduciary, brokerage, or insurance-agent relationship.</li>
-            <li>FRCs at {brand.name} are also licensed in life and health insurance. If a product is discussed and you choose to purchase it, {brand.name} may be compensated by the insurance carrier — never by you directly through the Site.</li>
+            <li>FRCs at {brand.name} are licensed life and health insurance producers and place any insurance or annuity business through SBIA, an affiliated insurance agency. If a product is discussed and you choose to purchase it, {brand.name} or SBIA may be compensated by the insurance carrier — never by you directly through the Site.</li>
             <li>Choosing not to purchase any product is always an option. You are under no obligation to purchase anything as a result of using the Site or attending a meeting.</li>
             <li>Insurance and annuity products are not available to residents of California, New York, or Arkansas. The educational portion of the Site is open to everyone.</li>
             <li>Phone-call requests are routed through our internal system; Zoom meetings are scheduled through Calendly. By using either flow, you agree to the third-party terms of any provider used in the process.</li>
@@ -135,7 +136,7 @@ export default function Terms() {
         <section style={styles.section}>
           <h2 style={styles.h2}>9. Third-party services and links</h2>
           <p style={styles.p}>
-            The Site relies on third-party providers — including Netlify (hosting), Cloudflare (DNS/CDN), Calendly (scheduling), Resend (transactional email), and Google Analytics (analytics) — and may link to third-party sites (e.g., opm.gov, ssa.gov, irs.gov, tsp.gov). We are not responsible for the availability, accuracy, content, or practices of any third-party service or site, and your use of any third-party service is governed by that party's own terms and privacy policy.
+            The Site relies on third-party providers — including Netlify (hosting), Cloudflare (DNS/CDN), Calendly (scheduling), Resend (transactional email), Airtable (the CRM that stores meeting-request details), and Google Analytics (analytics) — and may link to third-party sites (e.g., opm.gov, ssa.gov, irs.gov, tsp.gov). We are not responsible for the availability, accuracy, content, or practices of any third-party service or site, and your use of any third-party service is governed by that party's own terms and privacy policy.
           </p>
         </section>
 
@@ -174,6 +175,7 @@ export default function Terms() {
           </p>
           <ul style={styles.list}>
             <li>Email: <a href={`mailto:${brand.contact.email}`} style={styles.link}>{brand.contact.email}</a></li>
+            <li>Mailing address: {brand.legalName}, {POSTAL_ADDRESS}</li>
             <li>Website: <a href={brand.url} target="_blank" rel="noopener noreferrer" style={styles.link}>{brand.domain}</a></li>
             <li>Book a free meeting: <Link to="/consultation" style={styles.link}>/consultation</Link></li>
           </ul>

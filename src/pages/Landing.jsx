@@ -5,9 +5,18 @@ import Seo from '../components/Seo'
 import RetirementEligibilityWidget from '../components/RetirementEligibilityWidget'
 import AmericanFlag from '../components/AmericanFlag'
 import { colors, fonts } from '../constants/theme'
+import { DATA_LAST_UPDATED } from '../config/site'
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
+
+function formatLastUpdated(yyyyDashMm) {
+  if (!yyyyDashMm) return ''
+  const [y, m] = yyyyDashMm.split('-')
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const monthIdx = Math.max(0, Math.min(11, parseInt(m, 10) - 1))
+  return `${months[monthIdx]} ${y}`
+}
 
 function OrganizationJsonLd() {
   const schema = {
@@ -186,7 +195,7 @@ export default function Landing() {
               }}
             >
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.brassLight, display: 'inline-block' }} />
-              Updated April 2026 · Sourced from OPM, IRS, SSA
+              Updated {formatLastUpdated(DATA_LAST_UPDATED)} · Sourced from OPM, IRS, SSA
             </div>
 
             <h1
@@ -226,7 +235,7 @@ export default function Landing() {
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <Link
-                to="/calculator"
+                to="/calculators/fers"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -255,7 +264,7 @@ export default function Landing() {
                 <span aria-hidden>→</span>
               </Link>
               <Link
-                to="/assessment"
+                to="/calculators"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

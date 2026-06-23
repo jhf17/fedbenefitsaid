@@ -377,7 +377,7 @@ export const REF_DATA = [
      numbers:[
        {label:'2026 Health Care FSA max',value:'$3,400'},
        {label:'2026 Health Care FSA carryover',value:'$680'},
-       {label:'2026 Dependent Care FSA max',value:'$5,000 ($2,500 married filing separately)'},
+       {label:'2026 Dependent Care FSA max',value:'$7,500 ($3,750 married filing separately) — raised from $5,000 effective 2026'},
        {label:'Enrollment window',value:'Open Season or 60 days from start date'}
      ],
      watch:[
@@ -480,7 +480,7 @@ export const REF_DATA = [
      numbers:[
        {label:'2026 Part B standard premium',value:'$202.90/month'},
        {label:'Part A premium-free threshold',value:'40 quarters (10 years) SS-covered work'},
-       {label:'2026 Part A deductible',value:'$1,676 per benefit period'}
+       {label:'2026 Part A deductible',value:'$1,736 per benefit period'}
      ],
      watch:[
        'Federal retirees with FEHB typically do NOT need Medicare Advantage or Medigap — FEHB already fills the gaps',
@@ -513,14 +513,14 @@ export const REF_DATA = [
      rules:[
        'IRMAA based on Modified Adjusted Gross Income (MAGI) from 2 years prior',
        '2026 surcharges based on 2024 income; applies to both Part B and Part D',
-       'Single filers: IRMAA begins at $106,000 MAGI; married filing jointly at $212,000',
+       'Single filers: IRMAA begins at $109,000 MAGI; married filing jointly at $218,000 (2026)',
        'Can appeal IRMAA if income has significantly decreased due to qualifying life event (retirement, death of spouse, divorce, etc.)',
        'IRMAA income includes: wages, pensions, SS, interest, dividends, capital gains, Roth conversions'
      ],
      numbers:[
        {label:'2026 standard Part B',value:'$202.90/month'},
-       {label:'IRMAA tier 1 (single $106K–$133K)',value:'+$74.00/month Part B'},
-       {label:'Highest IRMAA tier (single $500K+)',value:'$628.90/month Part B total'},
+       {label:'IRMAA tier 1 (single $109K–$137K)',value:'+$81.20/month Part B'},
+       {label:'Highest IRMAA tier (single $500K+)',value:'$689.90/month Part B total'},
        {label:'IRMAA income lookback',value:'2 years prior'}
      ],
      watch:[
@@ -649,7 +649,7 @@ export const REF_DATA = [
        {label:'Years 1–5 multiplier',value:'1.5% per year'},
        {label:'Years 6–10 multiplier',value:'1.75% per year'},
        {label:'Years 11+ multiplier',value:'2.0% per year'},
-       {label:'Example (30 years, $80K)',value:'$46,500 (1.5%×5 + 1.75%×5 + 2%×20 = 58.125% × $80K)'},
+       {label:'Example (30 years, $80K)',value:'$45,000 (1.5%×5 + 1.75%×5 + 2%×20 = 56.25% × $80K)'},
        {label:'Maximum annuity cap',value:'80% of High-3'}
      ],
      watch:[
@@ -686,7 +686,7 @@ export const REF_DATA = [
      rules:[
        '18+ months service: surviving spouse receives Basic Employee Death Benefit (BEDB) lump sum',
        '10+ years service: surviving spouse eligible for ongoing monthly survivor annuity',
-       'BEDB = 50% of final year salary + COLA-adjusted lump sum (approximately $43,800.53 in 2026)',
+       'BEDB = 50% of final year salary + COLA-adjusted lump sum (approximately $43,800.53, effective December 2025)',
        'Monthly survivor annuity = 50% of the annuity the employee would have received (using actual service)',
        'Children receive benefits until age 18 (age 22 if full-time student; no age limit if disabled)',
        'TSP balance passed to TSP-3 beneficiaries; FEGLI paid to SF-2823 beneficiaries — separately from annuity'

@@ -107,22 +107,33 @@ async function addToAirtable(payload) {
   const BASE_ID = 'appnihKPbDBxVQK4c'
   const TABLE_ID = 'tblXc7syn4pXZNhon' // Leads table
 
+  // The Leads table has no dedicated "State" field, so state of residence is
+  // recorded in Notes with the rest of the call details. Employer/agency maps
+  // to the existing "Federal Agency" field below.
   const notesParts = [
-    payload.employer && `Employer/Dept: ${payload.employer}`,
+    payload.state && `State: ${payload.state}`,
     payload.preferredDate && `Preferred date: ${payload.preferredDate}`,
     payload.preferredTime && `Preferred time: ${payload.preferredTime}`,
     payload.message && `Message: ${payload.message}`,
+    payload.consent &&
+      `TCPA consent: checked ${payload.consentTimestamp || 'at submission'} from IP ${payload.clientIp || 'unknown'} — consent language: ${payload.consentText}`,
   ].filter(Boolean)
 
+  // Field names must match the Leads table schema exactly (Name, Email, Phone,
+  // Source, Status, Federal Agency, Signed Up, Activities, Notes). Writing an
+  // unknown field name (previously "State") makes Airtable 422 and drops the
+  // whole record.
   const fields = {
     Name: payload.name,
     Email: payload.email,
     Phone: payload.phone,
-    State: payload.state,
     Source: 'Phone Call Request',
     Status: 'New',
+    'Signed Up': new Date().toISOString(),
+    Activities: ['Consultation Booked'],
     Notes: notesParts.join(' | '),
   }
+  if (payload.employer) fields['Federal Agency'] = payload.employer
 
   try {
     const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`, {
@@ -131,7 +142,11 @@ async function addToAirtable(payload) {
         Authorization: `Bearer ${AIRTABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ records: [{ fields }] }),
+      // typecast lets Airtable create the "Phone Call Request" single-select
+      // option on first use and coerce values to each field's type — exactly as
+      // add-lead.js does. Without it the single-select write 422s and the lead
+      // is silently lost.
+      body: JSON.stringify({ records: [{ fields }], typecast: true }),
     })
     if (!res.ok) {
       const text = await res.text()
@@ -242,12 +257,28 @@ exports.handler = async (event) => {
     // Originating site (e.g. "fedbenefitsaid.com" or "federalmarketassociates.com").
     // Used in the notification email so the FRC knows which brand the lead came from.
     _source: sanitize(body._source, 100),
+    // TCPA proof-of-consent: the exact language the visitor agreed to, when,
+    // and from which IP. Stored with the lead record.
+    consent: body.consent === true,
+    consentText: sanitize(body.consentText, 700),
+    consentTimestamp: sanitize(body.consentTimestamp, 40),
+    clientIp: sanitize(String(clientIp).split(',')[0], 60),
+  }
+
+  // Honeypot: the "website" field is invisible to humans. If a bot filled it,
+  // accept silently (200) but record nothing — don't teach the bot it failed.
+  if (sanitize(body.website, 200)) {
+    console.warn('[request-phone-call] Honeypot tripped; dropping submission from', payload.clientIp)
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) }
   }
 
   if (!payload.name) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Name is required.' }) }
   if (!validateEmail(payload.email)) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid email is required.' }) }
   if (!validatePhone(payload.phone)) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid phone number is required.' }) }
   if (!payload.state) return { statusCode: 400, headers, body: JSON.stringify({ error: 'State is required.' }) }
+  if (!payload.consent || !payload.consentText) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Please check the consent box so we are allowed to call you.' }) }
+  }
 
   // Block bookings from product-unavailable states with a polite message.
   if (['CA', 'NY', 'AR'].includes(payload.state)) {

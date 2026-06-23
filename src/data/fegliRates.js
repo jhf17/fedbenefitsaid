@@ -111,43 +111,59 @@ export function coverageBreakdown({ salary, basic, optionA, optionBMult, optionC
 }
 
 /**
- * Apply retiree reduction elections. Only relevant at and after age 65.
- * Reductions:
- *   Basic: 75% (default — coverage drops 2%/month until 25% remains, no premium)
- *          50% (coverage drops 1%/month until 50% remains, no premium)
- *          No Reduction (retiree pays an additional premium to keep 100%)
+ * Apply retiree reduction elections.
+ * Reductions (OPM annuitant rates, effective Oct 1, 2021, monthly per $1,000 of BIA):
+ *   Basic: 75% reduction (default) — $0.3467 until 65, FREE at 65+; coverage
+ *            drops 2%/month from 65 until 25% remains.
+ *          50% reduction — extra +$0.75/mo per $1,000 FOR LIFE, charged from
+ *            retirement (≈ $1.0967 until 65, $0.75 at 65+); coverage drops
+ *            1%/month from 65 until 50% remains.
+ *          No Reduction — extra +$2.25/mo per $1,000 FOR LIFE, charged from
+ *            retirement (≈ $2.5967 until 65, $2.25 at 65+); coverage stays 100%.
  *   Option A: Full Reduction only — coverage drops 2%/month to zero starting at 65, no premium
  *   Option B: Full Reduction (drops to zero starting at 65, no premium) OR
  *             No Reduction (retiree keeps 100% coverage and continues to pay age-banded premium)
  *   Option C: Full Reduction OR No Reduction — same pattern as B.
  *
  * For simplicity in the chart and estimated costs, we model the "end state"
- * after reductions fully phase in (i.e. at age 65+ Full Reduction = $0 premium
- * and $0 coverage for that option; No Reduction = full premium and full
- * coverage continues). The 2%/month or 1%/month taper is a sawtooth in the
- * real world but is not material to a monthly cost projection chart.
+ * after reductions fully phase in. The 2%/month or 1%/month coverage taper is
+ * a sawtooth in the real world but is not material to a monthly cost chart.
  *
  * @param {object} premium   — output of monthlyPremium() at the target age
  * @param {object} elections — { basicReduction: '75'|'50'|'none', optionBReduction: 'full'|'none', optionCReduction: 'full'|'none' }
  * @param {number} age       — target age
  * @param {boolean} retired  — has the employee retired (i.e. is the reduction election in effect)?
+ * @param {object} [opts]    — { salary, basic } — needed to size the 50%/No-Reduction
+ *                             Basic add-on premium. Omitted ⇒ add-on not modeled.
  */
-export function applyReductionFactors(premium, elections, age, retired) {
-  // Reductions only apply after retirement AND at age 65+
-  if (!retired || age < 65) return premium
+export function applyReductionFactors(premium, elections, age, retired, opts = {}) {
+  if (!retired) return premium
 
   const br = elections.basicReduction || '75'
-  const bReducedToZero = br !== 'none' // 75 and 50 both drop the Basic premium to $0 at 65
+  // Extra lifetime premium for electing 50% or No Reduction on Basic.
+  // Starts at retirement (not 65) and continues for life.
+  const biaThousands = opts.salary && opts.basic ? basicCoverageForSalary(opts.salary) / 1000 : 0
+  const basicAddon = (br === '50' ? 0.75 : br === 'none' ? 2.25 : 0) * biaThousands
+
+  if (age < 65) {
+    // Before 65 the regular age-band premium continues for everything; the
+    // only retirement-specific charge is the Basic reduction-election add-on.
+    if (!basicAddon) return premium
+    return { ...premium, basic: premium.basic + basicAddon, total: premium.total + basicAddon }
+  }
+
   const oBZero = (elections.optionBReduction || 'full') === 'full'
   const oCZero = (elections.optionCReduction || 'full') === 'full'
+  // At 65+ the regular Basic charge ($0.3467/$1,000) stops for annuitants;
+  // only the reduction-election add-on (if any) continues.
+  const basicAt65 = basicAddon
 
   return {
-    basic: bReducedToZero ? 0 : premium.basic,
+    basic: basicAt65,
     optionA: 0, // Option A is always Full Reduction
     optionB: oBZero ? 0 : premium.optionB,
     optionC: oCZero ? 0 : premium.optionC,
-    total: (bReducedToZero ? 0 : premium.basic)
-         + 0
+    total: basicAt65
          + (oBZero ? 0 : premium.optionB)
          + (oCZero ? 0 : premium.optionC),
   }
@@ -179,8 +195,10 @@ export function buildCostProjection({
   const points = []
   for (let age = start; age <= 80; age++) {
     const retired = age >= rAge
-    const base = monthlyPremium({ age, salary, basic, optionA, optionBMult, optionCMult, postal })
-    const adjusted = applyReductionFactors(base, elections, age, retired)
+    // USPS pays Basic only while employed — postal RETIREES pay the normal
+    // annuitant Basic rate, so the postal exemption ends at retirement.
+    const base = monthlyPremium({ age, salary, basic, optionA, optionBMult, optionCMult, postal: postal && !retired })
+    const adjusted = applyReductionFactors(base, elections, age, retired, { salary, basic })
     points.push({
       age,
       basic: Math.round(adjusted.basic * 100) / 100,
