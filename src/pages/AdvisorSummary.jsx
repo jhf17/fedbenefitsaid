@@ -10,6 +10,26 @@ import { monthlyGuaranteedIncome } from '../data/guaranteedIncomeCalc'
 import { projectDrawdown } from '../lib/tspProjection'
 import { monthlyPremium, applyReductionFactors, basicCoverageForSalary, FEGLI_RATES } from '../data/fegliRates'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { diffYMD, ymdToYears, fmtYM, fmtLong, fmtShort, mraDate, addYears, addMonths, addDaysISO, ssFraMonths, rmdAge, computationService, classifyRetirement, partBWindow, LEAVE_YEAR, cmp, parseISO } from '../lib/retirementDates'
+import HEALTH from '../data/healthPlans2027.json'
+import { AGENCIES, GENERAL_PROCESS, agencyKeyFromText } from '../data/agencyProcess'
+
+// Sections the advisor can include/exclude per client. Presets set them all.
+const SECTION_LABELS = {
+  pension: 'Pension & survivor',
+  ss: 'Social Security',
+  income: 'Income comparison / gap',
+  tsp: 'TSP to guaranteed income',
+  health: 'Health coverage',
+  readiness: 'Readiness checklist',
+  process: 'Starting your retirement (agency steps)',
+  fegli: 'FEGLI page',
+}
+const PRESETS = {
+  snapshot: { label: 'Benefits snapshot', sections: { pension: true, ss: true, income: false, tsp: false, health: true, readiness: true, process: true, fegli: true } },
+  full: { label: 'Full plan', sections: { pension: true, ss: true, income: true, tsp: true, health: true, readiness: true, process: true, fegli: true } },
+}
+const ENROLL_LABEL = { self: 'Self Only', selfPlusOne: 'Self Plus One', family: 'Self & Family' }
 
 const FONT_SERIF = fonts.serif
 const FONT_SANS = fonts.sans
@@ -204,35 +224,50 @@ function LoginGate({ onInterimAuth }) {
 /* ============================ builder ============================ */
 function Builder({ advisorEmail, onSignOut }) {
   const [client, setClient] = useState({
-    name: 'Jordan A. Carter',
-    state: 'Virginia',
-    agency: 'Department of Veterans Affairs',
+    name: '',
+    state: '',
+    agency: '',
     system: 'fers',
-    scd: '2004-06',
-    birthdate: '1965-04',
-    yearsOfService: '22',
-    retireDate: '2026-06',
-    salary: 95000,
+    scd: '',
+    birthdate: '',
+    retireDate: '',
+    agencyKey: 'other',
+    married: false,
+    fehbPlanId: '',
+    fehbEnroll: 'self',
+    fehbSince: '',
+    mra10Choice: 'reduced',
+    salary: '',
     high3: '',
-    sickLeaveHours: '1044',
-    annualLeaveHours: '440',
+    sickLeaveHours: '',
+    annualLeaveHours: '',
     netTakeHome: '',
     preparedBy: '',
     date: todayISO(),
   })
   const [pension, setPension] = useState({ survivor: 'none' })
-  const [ss, setSs] = useState([{ age: 62, monthly: 2100 }])
-  const [tsp, setTsp] = useState({ balance: 500000, growthPct: 3.5 })
-  const [compare, setCompare] = useState({ mode: 'today', goalMonthly: 7000 })
+  const [ss, setSs] = useState([{ age: '', monthly: '' }])
+  const [tsp, setTsp] = useState({ balance: '', growthPct: 3.5 })
+  const [compare, setCompare] = useState({ mode: 'today', goalMonthly: '' })
   const [fegli, setFegli] = useState({
     keepInRetirement: true,
     basic: true, basicReduction: '75',
     optionA: false,
-    optionBMult: 2, optionBReduction: 'full',
+    optionBMult: 0, optionBReduction: 'full',
     optionCMult: 0, optionCReduction: 'full',
   })
 
   const setC = (k, v) => setClient((p) => ({ ...p, [k]: v }))
+  // Postal employees are in PSHB, everyone else FEHB: swap to the matching plan when the agency changes.
+  const setAgencyKey = (key) => setClient((p) => {
+    const want = key === 'usps' ? 'pshb' : 'fehb'
+    let planId = p.fehbPlanId
+    if (planId && !planId.startsWith(want + '-')) {
+      const twin = want + planId.slice(planId.indexOf('-'))
+      planId = HEALTH.plans.some((x) => x.id === twin) ? twin : ''
+    }
+    return { ...p, agencyKey: key, fehbPlanId: planId }
+  })
   const setP = (k, v) => setPension((p) => ({ ...p, [k]: v }))
   const setT = (k, v) => setTsp((p) => ({ ...p, [k]: v }))
   const setCmp = (k, v) => setCompare((p) => ({ ...p, [k]: v }))
@@ -241,7 +276,27 @@ function Builder({ advisorEmail, onSignOut }) {
   const addSsRow = () => setSs((rows) => [...rows, { age: '', monthly: '' }])
   const removeSsRow = (i) => setSs((rows) => (rows.length > 1 ? rows.filter((_, j) => j !== i) : rows))
 
+  const [sections, setSections] = useState(PRESETS.full.sections)
+  const toggleSection = (k) => setSections((s) => ({ ...s, [k]: !s[k] }))
+  const presetActive = Object.entries(PRESETS).find(([, p]) => Object.keys(p.sections).every((k) => p.sections[k] === sections[k]))?.[0]
+
   const data = useMemo(() => deriveSummary({ client, pension, ss, tsp, compare, fegli }), [client, pension, ss, tsp, compare, fegli])
+
+  // The document only renders once the essentials are in, so a half-filled PDF can't go out.
+  const missing = [
+    !String(client.name || '').trim() && 'Client name',
+    !parseISO(client.birthdate) && 'Birthdate',
+    !parseISO(client.scd) && 'Service computation date (SCD)',
+    !parseISO(client.retireDate) && 'Retirement date',
+    !(Number(client.salary) > 0 || Number(client.high3) > 0) && 'Salary or High-3',
+    sections.ss && !(ss || []).some((r) => Number(r.monthly) > 0) && 'Social Security estimate (or turn that section off)',
+    sections.tsp && !(Number(tsp.balance) > 0) && 'TSP balance (or turn that section off)',
+    sections.income && compare.mode === 'goal' && !(Number(compare.goalMonthly) > 0) && 'Monthly income goal',
+    sections.health && !client.fehbPlanId && 'Health plan (or turn that section off)',
+    parseISO(client.birthdate) && parseISO(client.scd) && cmp(client.scd, client.birthdate) <= 0 && 'SCD must be after the birthdate',
+    parseISO(client.scd) && parseISO(client.retireDate) && cmp(client.retireDate, client.scd) <= 0 && 'Retirement date must be after the SCD',
+  ].filter(Boolean)
+  const ready = missing.length === 0
 
   // Direct PDF export — capture each document "page" card exactly as rendered
   // (full color), one card per PDF page, and download. No browser print dialog.
@@ -280,7 +335,7 @@ function Builder({ advisorEmail, onSignOut }) {
         <span style={{ fontFamily: FONT_SERIF, fontWeight: 600, fontSize: '1.05rem' }}>Retirement Summary <span style={{ color: STEEL, fontWeight: 400 }}>· builder</span></span>
         <span style={{ fontFamily: FONT_MONO, fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)' }}>{advisorEmail}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 10 }}>
-          <button onClick={downloadPdf} disabled={pdfBusy} style={{ ...toolbarBtn(MAROON), opacity: pdfBusy ? 0.7 : 1, cursor: pdfBusy ? 'wait' : 'pointer' }}>{pdfBusy ? 'Generating PDF…' : 'Download PDF'}</button>
+          <button onClick={downloadPdf} disabled={pdfBusy || !ready} title={ready ? '' : 'Fill in the required fields first'} style={{ ...toolbarBtn(MAROON), opacity: pdfBusy || !ready ? 0.55 : 1, cursor: pdfBusy ? 'wait' : ready ? 'pointer' : 'not-allowed' }}>{pdfBusy ? 'Generating PDF…' : 'Download PDF'}</button>
           <button onClick={onSignOut} style={toolbarBtn('transparent', true)}>Sign out</button>
         </div>
       </div>
@@ -288,14 +343,39 @@ function Builder({ advisorEmail, onSignOut }) {
       <div data-builder-grid style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 380px) 1fr', alignItems: 'start', gap: 0 }}>
         {/* FORM */}
         <div data-no-print style={{ padding: '24px 20px 80px', borderRight: `1px solid ${rules.ink}`, position: 'sticky', top: 52, maxHeight: 'calc(100vh - 52px)', overflowY: 'auto' }}>
+          <FormGroup title="What goes in this PDF">
+            <div style={{ display: 'flex', gap: 6 }}>
+              {Object.entries(PRESETS).map(([key, p]) => (
+                <button key={key} type="button" onClick={() => setSections(p.sections)} style={{ flex: 1, padding: '9px 4px', borderRadius: 7, cursor: 'pointer', fontFamily: FONT_SANS, fontSize: '0.76rem', fontWeight: 600, border: `1px solid ${presetActive === key ? MAROON : rules.inkStrong}`, background: presetActive === key ? colors.accentPale : WHITE, color: presetActive === key ? OXBLOOD_INK : INK_SOFT }}>{p.label}</button>
+              ))}
+            </div>
+            {Object.entries(SECTION_LABELS).map(([k, lbl]) => (
+              <Check key={k} label={lbl} checked={!!sections[k]} onChange={() => toggleSection(k)} />
+            ))}
+            <p style={hintText}>Benefits snapshot = what they have today, no income gap or TSP-to-income. Unchecked sections are left out of the preview and the download.</p>
+          </FormGroup>
+
           <FormGroup title="Client">
             <Field label="Name" type="text" value={client.name} onChange={(v) => setC('name', v)} />
             <Field label="State" type="text" value={client.state} onChange={(v) => setC('state', v)} />
-            <Field label="Agency" type="text" value={client.agency} onChange={(v) => setC('agency', v)} />
-            <Field label="Service computation date (hired)" type="month" value={client.scd} onChange={(v) => setC('scd', v)} />
-            <Field label="Date of birth" type="month" value={client.birthdate} onChange={(v) => setC('birthdate', v)} />
-            <Field label="Years of service" value={client.yearsOfService} onChange={(v) => setC('yearsOfService', v)} />
-            <Field label="Planned retirement date" type="month" value={client.retireDate} onChange={(v) => setC('retireDate', v)} />
+            <Field label="Agency" type="text" value={client.agency} onChange={(v) => { setC('agency', v); setAgencyKey(agencyKeyFromText(v)) }} />
+            <label style={labelText}>Agency process used in the PDF
+              <select value={client.agencyKey} onChange={(e) => setAgencyKey(e.target.value)} style={selectStyle}>
+                {Object.entries(AGENCIES).map(([k, a]) => <option key={k} value={k}>{a.name}</option>)}
+              </select>
+            </label>
+            <Field label="Date of birth" type="date" value={client.birthdate} onChange={(v) => setC('birthdate', v)} />
+            <Field label="Service computation date (SCD)" type="date" value={client.scd} onChange={(v) => setC('scd', v)} />
+            <Field label="Planned retirement date" type="date" value={client.retireDate} onChange={(v) => setC('retireDate', v)} />
+            <div style={readout}>
+              <span style={{ color: INK_SOFT }}>Service at retirement</span>
+              <span style={{ fontFamily: FONT_MONO, fontWeight: 700, color: NAVY }}>{fmtYM(data.svc)}{data.svc.d ? ` ${data.svc.d} d` : ''}</span>
+            </div>
+            <p style={hintText}>Age at retirement {data.ageYMD ? `${data.ageYMD.y} yr ${data.ageYMD.m} mo` : '—'} · MRA {data.mraISO ? fmtShort(data.mraISO) : '—'} · {data.elig.label || '—'}{data.elig.type === 'mra10' ? ` (${data.elig.reductionPct}% reduction)` : ''}.</p>
+            {data.elig.type === 'mra10' && (
+              <Seg label="MRA+10: start the pension" value={client.mra10Choice} onChange={(v) => setC('mra10Choice', v)} options={[['reduced', `At retirement (−${data.elig.reductionPct}%)`], ['postpone', `Postpone to ${data.elig.postponeAge}`]]} />
+            )}
+            <Check label="Married" checked={!!client.married} onChange={() => setC('married', !client.married)} />
             <Field label="Current annual salary" value={client.salary} onChange={(v) => setC('salary', v)} prefix="$" />
             <Field label="High-3 average (optional)" value={client.high3} onChange={(v) => setC('high3', v)} prefix="$" placeholder={`uses salary (${formatCurrency(Number(client.salary))})`} />
             <Field label="Unused sick leave (hours)" value={client.sickLeaveHours} onChange={(v) => setC('sickLeaveHours', v)} placeholder="0" />
@@ -329,7 +409,7 @@ function Builder({ advisorEmail, onSignOut }) {
               <span style={{ color: INK_SOFT }}>Monthly pension</span>
               <span style={{ fontFamily: FONT_MONO, fontWeight: 700, color: NAVY, ...tnum }}>{formatCurrency(data.pensionUnreduced)}<span style={{ color: INK_FAINT, fontWeight: 400, fontSize: '0.78rem' }}> /mo</span></span>
             </div>
-            <p style={hintText}>{(SYSTEMS[data.system] || SYSTEMS.fers).short} · High-3 {formatCurrency(data.high3)} · {data.yos || 0} yrs{data.system === 'fers' ? ` × ${(data.multiplier * 100).toFixed(1)}%` : ''}{data.enhanced ? ' (62 + 20 kicker)' : ''}.</p>
+            <p style={hintText}>{(SYSTEMS[data.system] || SYSTEMS.fers).short} · High-3 {formatCurrency(data.high3)} · {fmtYM(data.compSvc)} computation service{data.system === 'fers' ? ` × ${(data.multiplier * 100).toFixed(1)}%` : ''}{data.enhanced ? ' (62 + 20 kicker)' : ''}{data.mraReduction > 0 ? ` · −${data.elig.reductionPct}% MRA+10` : ''}.</p>
             <div>
               <div style={{ ...labelText, marginBottom: 6 }}>Survivor benefit elected</div>
               <div style={{ display: 'flex', gap: 6 }}>
@@ -402,6 +482,18 @@ function Builder({ advisorEmail, onSignOut }) {
             <Field label="Self-managed growth rate %" value={tsp.growthPct} onChange={(v) => setT('growthPct', v)} />
           </FormGroup>
 
+          <FormGroup title="Health plan">
+            <label style={labelText}>Plan ({client.agencyKey === 'usps' ? 'PSHB' : 'FEHB'})
+              <select value={client.fehbPlanId} onChange={(e) => setC('fehbPlanId', e.target.value)} style={selectStyle}>
+                <option value="">Not entered</option>
+                {HEALTH.plans.filter((p) => p.program === (client.agencyKey === 'usps' ? 'PSHB' : 'FEHB')).map((p) => <option key={p.id} value={p.id}>{p.carrier} · {p.option}</option>)}
+              </select>
+            </label>
+            <Seg label="Enrollment" value={client.fehbEnroll} onChange={(v) => setC('fehbEnroll', v)} options={[['self', 'Self'], ['selfPlusOne', 'Self+1'], ['family', 'Family']]} />
+            <Field label="Enrolled in FEHB/PSHB since" type="date" value={client.fehbSince} onChange={(v) => setC('fehbSince', v)} />
+            <p style={hintText}>{data.health.plan ? `2027 premium ${formatCurrency(data.health.premium)}/mo · pension after premium ${formatCurrency(data.health.netPension)}/mo` : 'Pick a plan to show premiums, deductible and Medicare details.'}</p>
+          </FormGroup>
+
           <FormGroup title="FEGLI (page 2)">
             <Check label="Carry FEGLI into retirement" checked={fegli.keepInRetirement} onChange={() => setFg('keepInRetirement', !fegli.keepInRetirement)} />
             {fegli.keepInRetirement && (
@@ -420,14 +512,21 @@ function Builder({ advisorEmail, onSignOut }) {
 
         {/* PREVIEW / the deliverable (page 1 + FEGLI page 2) */}
         <div style={{ padding: '32px 24px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, background: PAPER }}>
-          <SummaryDoc client={client} pension={pension} ss={ss} tsp={tsp} data={data} />
+          {!ready ? <EmptyState missing={missing} /> : <>
+          <SummaryDoc client={client} pension={pension} ss={ss} tsp={tsp} data={data} sections={sections} />
+          {sections.process && (
+            <div data-pdf-page style={{ width: '100%', maxWidth: 760 }}>
+              <ProcessCard client={client} data={data} />
+            </div>
+          )}
           <div data-pdf-page style={{ width: '100%', maxWidth: 760, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
-            <FegliPage client={client} data={data} />
-            <ClosingCard client={client} data={data} />
+            {sections.fegli && <FegliPage client={client} data={data} />}
+            <ClosingCard client={client} data={data} sections={sections} />
           </div>
           <div data-pdf-page style={{ width: '100%', maxWidth: 760 }}>
-            <DisclosuresCard client={client} />
+            <DisclosuresCard client={client} sections={sections} />
           </div>
+          </>}
         </div>
       </div>
 
@@ -449,15 +548,23 @@ function Builder({ advisorEmail, onSignOut }) {
 function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
   const n = (x) => Number(x) || 0
 
-  const ageNow = computeAge({ birthDate: client.birthdate, asOfDate: todayYm() })
-  const ageAtRet = computeAge({ birthDate: client.birthdate, asOfDate: client.retireDate })
-  const yos = n(client.yearsOfService)
+  // Exact dates: age and service are computed from DOB, SCD and the retirement date.
+  const today = todayISO()
+  const hasDates = !!(parseISO(client.birthdate) && parseISO(client.retireDate) && parseISO(client.scd))
+  const ageYMD = parseISO(client.birthdate) && parseISO(client.retireDate) ? diffYMD(client.birthdate, client.retireDate) : null
+  const ageNow = parseISO(client.birthdate) ? ymdToYears(diffYMD(client.birthdate, today)) : null
+  const ageAtRet = ageYMD ? ymdToYears(ageYMD) : null
+  const svc = hasDates ? diffYMD(client.scd, client.retireDate) : { y: 0, m: 0, d: 0 }
+  const yos = ymdToYears(svc)
   // Unused sick leave is added to service for the ANNUITY COMPUTATION only — it
-  // does not count toward eligibility or the FERS 1.1% threshold. 2,087 hrs = 1 yr.
+  // does not count toward eligibility or the FERS 1.1% threshold. Full months only.
+  const compSvc = computationService(svc, client.sickLeaveHours)
   const sickYears = n(client.sickLeaveHours) / 2087
-  const pensionYos = yos + sickYears
+  const pensionYos = compSvc.years
   const sickLabel = sickYears <= 0 ? '' : sickYears >= 1 ? formatYearsMonths(sickYears) : `${Math.round(sickYears * 12)} mo`
   const system = client.system || 'fers'
+  const elig = classifyRetirement({ system, birth: client.birthdate, scd: client.scd, retire: client.retireDate })
+  const mraISO = mraDate(client.birthdate)
   const salary = n(client.salary)
   // High-3 basis: explicit entry (for clients within ~2 years of retiring) else salary.
   const high3 = n(client.high3) > 0 ? n(client.high3) : salary
@@ -514,7 +621,11 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
     survivorReceives = pensionUnreduced * surv.survivorPct
     survNote = surv.note
   }
-  const electedPension = pensionUnreduced * (1 - reductionFrac)
+  // MRA+10 early retirement: 5/12 of 1% per month under 62, unless postponed.
+  const mraReduction = elig.type === 'mra10' && client.mra10Choice !== 'postpone' ? elig.reductionPct / 100 : 0
+  const pensionStartISO = elig.type === 'mra10' && client.mra10Choice === 'postpone' ? elig.postponeDate
+    : elig.type === 'deferred' ? elig.postponeDate : client.retireDate
+  const electedPension = pensionUnreduced * (1 - mraReduction) * (1 - reductionFrac)
 
   // Social Security — first row = the planned claim used in the comparison.
   const ssRows = (ss || []).map((r) => ({ age: n(r.age), monthly: n(r.monthly) })).filter((r) => r.monthly > 0 || r.age > 0)
@@ -527,12 +638,8 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
   // before 62 with an immediate annuity. CSRS never receives it.
   const birthYear = client.birthdate ? parseInt(client.birthdate.split('-')[0], 10) : 0
   const mra = mraForBirthYear(birthYear)
-  let supplementEligible = false
-  if (ageAtRet != null && ageAtRet < 62 && yos > 0) {
-    if (system === 'fers') supplementEligible = (yos >= 30 && ageAtRet >= mra) || (yos >= 20 && ageAtRet >= 60)
-    else if (system === 'special') supplementEligible = yos >= 25 || (yos >= 20 && ageAtRet >= 50)
-    // csrs: never
-  }
+  // Supplement only with an immediate unreduced annuity before 62 (never CSRS, never MRA+10).
+  const supplementEligible = !!elig.supplementEligible && mra > 0
   const supplement = supplementEligible ? ssAt62 * (Math.min(40, Math.floor(yos)) / 40) : 0
 
   // Income stages in retirement (only when the Supplement applies; SS may begin later than 62).
@@ -615,14 +722,89 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
     for (const b of FEGLI_RATES.slice(startIdx, startIdx + 5)) {
       const repAge = Math.max(b.min, fegliAgeNow)
       const adj = applyReductionFactors(monthlyPremium({ age: repAge, ...fegliInputs }), fegliElections, repAge, repAge >= fegliRetAge, { salary, basic: fegliInputs.basic })
-      fegliTable.push({ interval: b.label, basic: adj.basic, optionA: adj.optionA, optionB: adj.optionB, optionC: adj.optionC, total: adj.total })
+      fegliTable.push({ interval: b.label + (repAge < fegliRetAge ? ' (working)' : ''), basic: adj.basic, optionA: adj.optionA, optionB: adj.optionB, optionC: adj.optionC, total: adj.total })
     }
     for (let age = fegliRetAge; age <= 90; age++) {
       fegliTotal += applyReductionFactors(monthlyPremium({ age, ...fegliInputs }), fegliElections, age, true, { salary, basic: fegliInputs.basic }).total * 12
     }
   }
 
+  // ---- Health plan (2027 premiums) + net pension ----
+  const plan = HEALTH.plans.find((p) => p.id === client.fehbPlanId) || null
+  const enroll = client.fehbEnroll || 'self'
+  const premium = plan && plan.premium ? n(plan.premium[enroll]) : 0
+  const netPension = electedPension - premium
+  const fehbYears = parseISO(client.fehbSince) && parseISO(client.retireDate) ? ymdToYears(diffYMD(client.fehbSince, client.retireDate)) : null
+  const fehb5Date = parseISO(client.fehbSince) ? addYears(client.fehbSince, 5) : null
+  const health = { plan, enroll, premium, netPension, fehbYears, fehb5Date, premiumExceeds: plan && premium > electedPension }
+
+  // ---- Key dates ----
+  const by = parseISO(client.birthdate)?.y || 0
+  const keyDates = hasDates ? [
+    { label: 'MRA', date: mraISO },
+    { label: 'Retire', date: client.retireDate, strong: true },
+    { label: 'Age 62', date: addYears(client.birthdate, 62), note: system === 'fers' ? 'COLAs begin; Supplement ends' : '' },
+    { label: 'Age 65', date: addYears(client.birthdate, 65), note: 'Medicare' },
+    { label: 'SS full age', date: addMonths(client.birthdate, ssFraMonths(by)) },
+    { label: `RMDs (${rmdAge(by)})`, date: addYears(client.birthdate, rmdAge(by)) },
+  ] : []
+
+  // ---- Readiness checklist (status: ok | warn | info) ----
+  const ready = []
+  if (hasDates) {
+    if (elig.type === 'immediate') ready.push({ s: 'ok', t: `Eligible for an immediate, unreduced pension on ${fmtLong(client.retireDate)}.` })
+    else if (elig.type === 'mra10') ready.push({ s: 'warn', t: client.mra10Choice === 'postpone'
+      ? `Early (MRA+10) retirement: pension postponed to ${fmtLong(elig.postponeDate)} (age ${elig.postponeAge}) to avoid the ${elig.reductionPct}% reduction. No FERS Supplement.`
+      : `Early (MRA+10) retirement: pension reduced ${elig.reductionPct}% for life. Postponing to age ${elig.postponeAge} removes it. Full pension date if you keep working: ${elig.earliestUnreduced ? fmtLong(elig.earliestUnreduced) : '—'}.` })
+    else if (elig.type === 'deferred') ready.push({ s: 'warn', t: `Not yet eligible for an immediate pension on this date — a deferred pension would start ${elig.postponeDate ? fmtLong(elig.postponeDate) : 'later'} without health or life insurance. Earliest immediate date: ${elig.earliestUnreduced ? fmtLong(elig.earliestUnreduced) : '—'}.` })
+    else ready.push({ s: 'warn', t: 'Under 5 years of service: no pension yet on this date.' })
+
+    if (fehbYears != null) ready.push(fehbYears >= 5
+      ? { s: 'ok', t: `Health coverage carries into retirement: enrolled ${Math.floor(fehbYears)}+ years before retiring (5-year rule met).` }
+      : { s: 'warn', t: `Health coverage 5-year rule not met until ${fmtLong(fehb5Date)}. Retiring earlier means losing your federal health plan.` })
+    else ready.push({ s: 'info', t: 'Confirm you have been in your federal health plan for the 5 years before retiring.' })
+    if (health.premiumExceeds) ready.push({ s: 'warn', t: `Your 2027 health premium (${formatCurrency(premium)}/mo) is more than your pension. Compare plans or enrollment type at Open Season.` })
+
+    if (client.married) ready.push(survKey === 'none'
+      ? { s: 'warn', t: 'No survivor election: your spouse would lose your federal health plan if you die first, and needs to consent in writing.' }
+      : { s: 'ok', t: `Survivor election (${survLabel}) keeps your spouse's health coverage after your death.` })
+
+    const pb = partBWindow(client.birthdate, client.retireDate)
+    if (pb) ready.push({ s: 'info', t: pb.kind === 'sep'
+      ? `Medicare Part B: enroll by ${fmtLong(pb.end)} (8 months after you retire) to avoid a permanent penalty. Optional with ${client.agencyKey === 'usps' ? 'PSHB if you were 64+ on 1/1/2025; otherwise required for postal annuitants' : 'FEHB'}.`
+      : client.agencyKey === 'usps'
+        ? `Medicare at 65 (${fmtLong(pb.d65)}): Part A is free. Postal Service Health Benefits requires Part B for Medicare-eligible retirees (unless you were 64+ on 1/1/2025). Enroll in your window, ${fmtShort(pb.start)}–${fmtShort(pb.end)}.`
+        : cmp(client.retireDate, pb.d65) < 0
+          ? `Medicare at 65 (${fmtLong(pb.d65)}): Part A is free. Part B is optional with FEHB, but if you want it, enroll in your window (${fmtShort(pb.start)}–${fmtShort(pb.end)}); signing up later adds a permanent penalty.`
+          : `Medicare at 65 (${fmtLong(pb.d65)}): Part A is free; Part B is optional with FEHB while working, and you get 8 months after retiring to add it.` })
+
+    const al = n(client.annualLeaveHours)
+    if (al > 240 && cmp(client.retireDate, LEAVE_YEAR.end) > 0) ready.push({ s: 'warn', t: `${Math.round(al)} hours of annual leave: anything over 240 is lost after ${fmtLong(LEAVE_YEAR.end)}. Schedule it by ${fmtLong(LEAVE_YEAR.scheduleBy)}.` })
+    else if (al > 0) ready.push({ s: 'ok', t: `${Math.round(al)} hours of annual leave pay out as a lump sum (about ${formatCurrency(annualLeavePayout)}, taxable).` })
+
+    const age55Year = by + 55
+    const retYear = parseISO(client.retireDate).y
+    if (system !== 'csrs') ready.push(retYear >= age55Year
+      ? { s: 'ok', t: 'TSP: separating in or after the year you turn 55 lets you withdraw without the 10% early-withdrawal penalty (taxes still apply).' }
+      : { s: 'info', t: 'TSP: withdrawals before 59½ may carry a 10% penalty because you separate before the year you turn 55.' })
+    if (system === 'fers' && elig.type === 'immediate' && ageAtRet < 62) ready.push({ s: 'info', t: 'FERS cost-of-living adjustments start at age 62.' })
+  }
+
+  // ---- Agency process timeline ----
+  const agency = AGENCIES[client.agencyKey] || AGENCIES.other
+  // Annuity starts the day after separation; it is paid on the 1st of the following month.
+  const startD = hasDates ? parseISO(addDaysISO(pensionStartISO || client.retireDate, pensionStartISO && pensionStartISO !== client.retireDate ? 0 : 1)) : null
+  const firstPayISO = startD ? addMonths(`${startD.y}-${String(startD.m).padStart(2, '0')}-01`, 1) : null
+  const process = hasDates ? [
+    { when: addMonths(client.retireDate, -12), t: 'Request an official annuity estimate; attend pre-retirement counseling; confirm your service history (SF-50s) is complete.' },
+    { when: addDaysISO(client.retireDate, -Math.max(182, agency.leadDays + 30)), t: 'Ask HR to start your retirement application (ORA) and choose your survivor, health and life insurance elections.' },
+    { when: addDaysISO(client.retireDate, -agency.leadDays), t: `Application submitted and certified (at least ${agency.leadDays} days before your date).` },
+    { when: client.retireDate, t: 'Retire. Final pay and annual-leave lump sum follow from payroll.' },
+    { when: firstPayISO, t: 'First pension payment (interim, typically 60–80% of your estimate) until OPM finalizes it.' },
+  ] : []
+
   return {
+    svc, compSvc, ageYMD, elig, mraISO, mraReduction, pensionStartISO, health, keyDates, ready, agency, process, today,
     ageNow, ageAtRet, yos, pensionYos, sickYears, sickLabel, system, salary, high3, enhanced, multiplier, csrsCapped, pensionUnreduced, surv, survLabel, reductionFrac, survNote, electedPension, survivorReceives,
     ssRows, primarySs, ssClaimAge, supplementEligible, supplement, stages,
     currentMonthly, grossMonthly, netTakeHome, usingNet, goalMonthly, usingGoal, target, retirementMonthly, gapMonthly, replacement, annualLeavePayout,
@@ -633,7 +815,7 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
 }
 
 /* ============================ the deliverable document ============================ */
-function SummaryDoc({ client, pension, data }) {
+function SummaryDoc({ client, pension, data, sections = {} }) {
   const pct = Math.round(data.replacement * 100)
   const covered = data.gapMonthly <= 0
   return (
@@ -658,9 +840,19 @@ function SummaryDoc({ client, pension, data }) {
         {[client.agency, client.state].filter(Boolean).join(' · ')}
       </div>
       <div style={{ marginTop: 7, fontFamily: FONT_MONO, fontSize: '0.72rem', color: INK_FAINT, letterSpacing: '0.02em', lineHeight: 1.5 }}>
-        {[(SYSTEMS[data.system] || SYSTEMS.fers).label, data.ageAtRet != null ? `age ${Math.floor(data.ageAtRet)} at retirement` : null, `${client.yearsOfService || 0} yrs of service`, `retiring ${fmtMonthYear(client.retireDate)}`, `High-3 ${formatCurrency(data.high3)}`].filter(Boolean).join('  ·  ')}
+        {[(SYSTEMS[data.system] || SYSTEMS.fers).label, data.ageAtRet != null ? `age ${Math.floor(data.ageAtRet)} at retirement` : null, `${fmtYM(data.svc)} of service`, `retiring ${fmtLong(client.retireDate)}`, `High-3 ${formatCurrency(data.high3)}`].filter(Boolean).join('  ·  ')}
       </div>
       <div style={{ height: 2, background: `linear-gradient(90deg, ${MAROON}, ${NAVY} 60%, transparent)`, marginTop: 16 }} />
+      {data.keyDates.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${data.keyDates.length}, 1fr)`, gap: 6, marginTop: 14 }}>
+          {data.keyDates.map((k) => (
+            <div key={k.label} style={{ padding: '7px 8px', borderRadius: 7, border: `1px solid ${k.strong ? MAROON : rules.ink}`, background: k.strong ? colors.accentPale : SURFACE, textAlign: 'center' }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: '0.56rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: k.strong ? OXBLOOD_INK : INK_FAINT }}>{k.label}</div>
+              <div style={{ fontFamily: FONT_MONO, fontSize: '0.74rem', fontWeight: 700, color: NAVY, ...tnum }}>{fmtShort(k.date)}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* personal bottom line */}
       <div className="summary-section" style={{ marginTop: 22, padding: '22px 24px', borderRadius: 12, background: `linear-gradient(150deg, ${NAVY_DARK}, ${NAVY})`, color: '#fff' }}>
@@ -671,20 +863,38 @@ function SummaryDoc({ client, pension, data }) {
           <div>
             <div style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: STEEL }}>Income in retirement</div>
             <div style={{ fontFamily: FONT_SERIF, fontSize: '2.3rem', fontWeight: 600, lineHeight: 1, ...tnum }}>{formatCurrency(data.retirementMonthly)}<span style={{ fontFamily: FONT_MONO, fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)', fontWeight: 400 }}> /mo</span></div>
-            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.78)', marginTop: 3 }}>≈ {pct}% of your {data.usingGoal ? 'goal' : data.usingNet ? 'take-home' : 'current pay'} · pension + Social Security</div>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.78)', marginTop: 3 }}>{sections.income ? <>≈ {pct}% of your {data.usingGoal ? 'goal' : data.usingNet ? 'take-home' : 'current pay'} · </> : null}pension + Social Security{data.ssClaimAge && data.ageAtRet != null && data.ssClaimAge > Math.floor(data.ageAtRet) ? ` (from age ${data.ssClaimAge})` : ''}</div>
           </div>
           <div style={{ flex: 1, minWidth: 240, fontSize: '0.92rem', lineHeight: 1.55, color: 'rgba(255,255,255,0.9)' }}>
-            You're set to retire <strong>{fmtMonthYear(client.retireDate)}</strong> at age <strong>{data.ageAtRet != null ? Math.floor(data.ageAtRet) : '—'}</strong>.{' '}
-            {covered
-              ? <>Your pension and Social Security already cover your income — your TSP is a bonus.</>
-              : <>Your TSP can close the remaining <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap with a guaranteed-income option for life.</>}{' '}
-            And your <strong>FEHB health coverage can continue for life</strong> (5-year rule).
+            You're set to retire <strong>{fmtLong(client.retireDate)}</strong> at age <strong>{data.ageYMD ? `${data.ageYMD.y} and ${data.ageYMD.m} mo` : '—'}</strong> with <strong>{fmtYM(data.svc)}</strong> of service.{' '}
+            {sections.income ? (covered
+              ? <>Your pension and Social Security already cover your income{sections.tsp ? ' — your TSP is a bonus' : ''}.</>
+              : sections.tsp
+                ? (data.enough
+                  ? <>Your TSP can close the remaining <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap with a guaranteed-income option for life.</>
+                  : <>Your TSP could cover about <strong>{formatCurrency(data.incomeProvided)}/mo</strong> of the <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap with a guaranteed-income option for life.</>)
+                : <>That leaves about <strong>{formatCurrency(data.gapMonthly)}/mo</strong> to cover from savings.</>) : null}{' '}
+            {data.elig.type === 'deferred' || data.elig.type === 'not-eligible'
+              ? <>A deferred pension does <strong>not</strong> carry your federal health coverage into retirement.</>
+              : data.health.fehbYears == null || data.health.fehbYears >= 5
+              ? <>Your federal health coverage can continue for life{data.health.fehbYears == null ? ' (5-year rule)' : ''}.</>
+              : <>Your health coverage needs <strong>5 years</strong> of enrollment before you retire.</>}
           </div>
         </div>
       </div>
 
+      {sections.pension && <>
       {/* pension + survivor */}
       <Section title="Your pension">
+        {(data.elig.type === 'mra10' || data.elig.type === 'deferred') && (
+          <div style={{ marginBottom: 10, padding: '8px 12px', borderRadius: 7, border: `1px solid ${MAROON}`, background: colors.accentPale, fontSize: '0.8rem', color: OXBLOOD_INK, lineHeight: 1.45 }}>
+            {data.elig.type === 'mra10'
+              ? (data.mraReduction > 0
+                  ? <>Early (MRA+10) retirement: shown <strong>reduced {data.elig.reductionPct}%</strong> for being under 62. Postponing to age {data.elig.postponeAge} ({fmtLong(data.elig.postponeDate)}) removes the reduction.</>
+                  : <>Early (MRA+10) retirement, <strong>postponed</strong>: the pension starts {fmtLong(data.elig.postponeDate)} with no reduction. Health coverage resumes when it starts.</>)
+              : <>Leaving before retirement eligibility: a <strong>deferred</strong> pension starts {data.elig.postponeDate ? fmtLong(data.elig.postponeDate) : 'later'}, without FEHB or FEGLI.</>}
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
           <span style={{ fontFamily: FONT_SERIF, fontSize: '2rem', fontWeight: 600, color: NAVY, ...tnum }}>{formatCurrency(data.electedPension)}</span>
           <span style={{ fontFamily: FONT_MONO, fontSize: '0.78rem', color: INK_SOFT }}>/ mo</span>
@@ -712,6 +922,8 @@ function SummaryDoc({ client, pension, data }) {
         </p>
       </Section>
 
+      </>}
+      {sections.ss && <>
       {/* social security */}
       <Section title="Social Security">
         {data.ssRows.length <= 1 ? (
@@ -744,6 +956,8 @@ function SummaryDoc({ client, pension, data }) {
         </p>
       </Section>
 
+      </>}
+      {sections.income && <>
       {/* income before & after + the gap */}
       <Section title={data.usingGoal ? 'Your retirement income vs. your goal' : 'Your income — today vs. retirement'}>
         {data.stages.length > 0 && (
@@ -796,6 +1010,8 @@ function SummaryDoc({ client, pension, data }) {
         </p>
       </Section>
 
+      </>}
+      {sections.tsp && <>
       {/* TSP — closing the gap */}
       <Section title="Your TSP — closing the gap">
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginBottom: 14 }}>
@@ -849,47 +1065,72 @@ function SummaryDoc({ client, pension, data }) {
         )}
         <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 8, border: `1px solid ${rules.brass}`, background: SURFACE }}>
           <p style={{ fontSize: '0.78rem', color: INK_SOFT, margin: 0, lineHeight: 1.55 }}>
-            <strong style={{ color: OXBLOOD_INK }}>About "guaranteed income for life":</strong> this is a feature of a fixed annuity issued by an insurance company — not a TSP or federal benefit. Any guarantee depends on the issuing insurer's claims-paying ability and is <strong>not</strong> insured by the U.S. government, the TSP, or the FDIC. Converting TSP savings to guaranteed income means moving money out of the TSP, which is generally hard to reverse and may carry tax effects, surrender charges, and reduced liquidity. Figures are illustrative — not a quote or a contract. The self-managed comparison above is hypothetical and uses only the single growth and withdrawal rate shown. See the full disclosures on the final page.
+            <strong style={{ color: OXBLOOD_INK }}>About "guaranteed income for life":</strong> this is a feature of a fixed annuity issued by an insurance company — not a TSP or federal benefit. Any guarantee depends on the issuing insurer's claims-paying ability and is <strong>not</strong> insured by the U.S. government, the TSP, or the FDIC. Converting TSP savings to guaranteed income means moving money out of the TSP, which is generally hard to reverse and may carry tax effects, surrender charges, and reduced liquidity. Income shown is based on one insurer's fixed indexed annuity income rider (rate table as of June 2026), including a 10% bonus and a 10% simple annual roll-up while income is deferred; these raise only the base used to calculate income, not the cash value you could withdraw. Other products and current rates will differ. Figures are illustrative — not a quote or a contract. The self-managed comparison above is hypothetical and uses only the single growth and withdrawal rate shown. See the full disclosures on the final page.
           </p>
         </div>
       </Section>
 
+      </>}
+      {sections.health && <>
       {/* health coverage — FEHB + Medicare */}
       <Section title="Your health coverage in retirement">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-          <div style={{ background: SURFACE, border: `1px solid ${rules.ink}`, borderRadius: 8, padding: '14px 16px' }}>
-            <div style={{ fontFamily: FONT_SERIF, fontSize: '1rem', fontWeight: 600, color: NAVY, marginBottom: 4 }}>FEHB — kept for life</div>
-            <p style={{ fontSize: '0.85rem', color: INK_SOFT, margin: 0, lineHeight: 1.5 }}>Enrolled the <strong>5 years</strong> before you retire? Your federal health plan continues for life at the <strong>same premium</strong> active employees pay — one of the most valuable benefits you carry into retirement.</p>
-          </div>
-          <div style={{ background: SURFACE, border: `1px solid ${rules.ink}`, borderRadius: 8, padding: '14px 16px' }}>
-            <div style={{ fontFamily: FONT_SERIF, fontSize: '1rem', fontWeight: 600, color: NAVY, marginBottom: 4 }}>Medicare at 65</div>
-            <p style={{ fontSize: '0.85rem', color: INK_SOFT, margin: 0, lineHeight: 1.5 }}>Take <strong>Part A</strong> (free) at 65. <strong>Part B</strong> is optional and coordinates with FEHB — weigh its premium (and any IRMAA surcharge at higher incomes) against the added coverage.</p>
-          </div>
-        </div>
+        {data.health.plan ? (() => {
+          const h = data.health, pl = h.plan
+          const SEE = 'See plan brochure'
+          const yes = (v) => (v === true ? 'Yes' : v === 'partial' ? 'Partly' : v === false ? 'No' : SEE)
+          const detailsKnown = !(pl.deductibleSelf == null && pl.medicareWaiver == null)
+          const rows = [
+            ['2027 premium', `${formatCurrency(h.premium)}/mo (${ENROLL_LABEL[h.enroll]})`],
+            ['Deductible (self)', pl.deductibleSelf == null ? SEE : pl.deductibleSelf === 0 ? 'None' : formatCurrency(pl.deductibleSelf)],
+            ['Out-of-pocket max (self)', pl.oopMaxSelf == null ? SEE : formatCurrency(pl.oopMaxSelf)],
+            ['Out-of-network coverage', yes(pl.outOfNetwork)],
+            ['Lowers costs when Medicare pays first', yes(pl.medicareWaiver)],
+            ['Part B premium help', pl.partB && pl.partB.amount ? `Up to ${formatCurrency(pl.partB.amount)}/yr${/only[^.]*advantage/i.test(pl.partB.how || '') ? ' (only with its Medicare Advantage plan)' : ''}` : pl.partB && /PCA/.test(pl.partB.how || '') ? 'Only from its PCA account' : detailsKnown ? 'None' : SEE],
+          ]
+          return (
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 18 }}>
+              <div style={{ background: SURFACE, border: `1px solid ${rules.ink}`, borderRadius: 8, padding: '12px 16px' }}>
+                <div style={{ fontFamily: FONT_SERIF, fontSize: '1rem', fontWeight: 600, color: NAVY, marginBottom: 6 }}>{pl.carrier} · {pl.option}</div>
+                {rows.map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '3px 0', borderBottom: `1px solid ${rules.ink}`, fontSize: '0.8rem' }}>
+                    <span style={{ color: INK_SOFT }}>{k}</span><strong style={{ color: INK, textAlign: 'right', ...tnum }}>{v}</strong>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ background: h.premiumExceeds ? colors.accentPale : SURFACE, border: `1px solid ${h.premiumExceeds ? MAROON : rules.ink}`, borderRadius: 8, padding: '12px 16px' }}>
+                  <div style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: INK_FAINT }}>Pension after health premium</div>
+                  <div style={{ fontFamily: FONT_SERIF, fontSize: '1.5rem', fontWeight: 600, color: h.premiumExceeds ? MAROON : NAVY, ...tnum }}>{formatCurrency(h.netPension)}<span style={{ fontFamily: FONT_MONO, fontSize: '0.72rem', color: INK_SOFT, fontWeight: 400 }}> /mo</span></div>
+                  <div style={{ fontSize: '0.76rem', color: INK_SOFT, lineHeight: 1.4 }}>{formatCurrency(data.electedPension)} pension − {formatCurrency(h.premium)} premium, paid from your pension{h.premiumExceeds ? '. The premium is larger than the pension.' : '.'}</div>
+                </div>
+                <p style={{ fontSize: '0.8rem', color: INK_SOFT, margin: 0, lineHeight: 1.5 }}>{data.elig.type === 'deferred' || data.elig.type === 'not-eligible' ? <>A deferred pension does <strong>not</strong> carry this plan into retirement.</> : <>Your plan continues for life if you were enrolled the <strong>5 years</strong> before retiring.</>} Medicare Part A is free at 65; Part B is {client.agencyKey === 'usps' ? 'required for most postal annuitants' : 'optional'} — see the checklist for your deadline.</p>
+              </div>
+            </div>
+          )
+        })() : (
+          <p style={{ fontSize: '0.85rem', color: INK_SOFT, margin: 0, lineHeight: 1.5 }}>Your federal health plan continues for life if you were enrolled the <strong>5 years</strong> before you retire, at the same premium employees pay. Medicare Part A is free at 65; Part B is optional with FEHB.</p>
+        )}
+        {data.health.plan && <p style={{ fontSize: '0.66rem', color: INK_FAINT, margin: '8px 0 0', fontFamily: FONT_MONO }}>2027 premiums from OPM. Plan details from {HEALTH.asOf.includes('2026') ? '2027 plan sites where posted, otherwise 2026 brochures' : 'plan brochures'}.</p>}
       </Section>
 
+      </>}
+      {sections.readiness && <>
       {/* next steps */}
-      <Section title="Your next steps">
+      <Section title="Your retirement readiness check">
         <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {[
-            'Confirm online access to your TSP.gov and SSA.gov accounts',
-            'Request an official annuity estimate and your latest SF-50 from HR',
-            'Lock in your survivor election — it is difficult to change later',
-            'Confirm FEHB will carry into retirement (the 5-year rule)',
-            'Review FEGLI before the post-65 premium changes',
-            `File ${data.system === 'csrs' ? 'SF-2801' : 'SF-3107'} (retirement application) and update your beneficiary forms ahead of ${fmtMonthYear(client.retireDate)}`,
-          ].map((t) => (
-            <li key={t} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${rules.ink}`, fontSize: '0.88rem', color: INK }}>
-              <span style={{ color: MAROON, flexShrink: 0, marginTop: 5, display: 'flex' }}><Diamond size={7} /></span>
-              {t}
+          {data.ready.map((r, i) => (
+            <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '6px 0', borderBottom: `1px solid ${rules.ink}`, fontSize: '0.84rem', color: INK, lineHeight: 1.45 }}>
+              <span style={{ flexShrink: 0, marginTop: 2, width: 16, height: 16, borderRadius: 8, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.66rem', fontWeight: 700, color: '#fff', background: r.s === 'ok' ? '#2f6b4f' : r.s === 'warn' ? MAROON : NAVY }}>{r.s === 'ok' ? '✓' : r.s === 'warn' ? '!' : 'i'}</span>
+              <span>{r.t}</span>
             </li>
           ))}
         </ul>
         <p style={{ fontSize: '0.72rem', color: INK_FAINT, margin: '10px 0 0', fontFamily: FONT_MONO, letterSpacing: '0.04em' }}>
-          Official resources · tsp.gov · ssa.gov · opm.gov · medicare.gov
+          ✓ on track · ! needs attention · i good to know · Official resources: tsp.gov · ssa.gov · opm.gov · medicare.gov
         </p>
       </Section>
 
+      </>}
       {/* footer / disclaimer */}
       <div style={{ marginTop: 24, paddingTop: 16, borderTop: `1px solid ${rules.ink}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -897,7 +1138,7 @@ function SummaryDoc({ client, pension, data }) {
           <div style={{ fontFamily: FONT_SERIF, fontSize: '0.92rem', fontWeight: 600, color: NAVY }}>{brand.name}</div>
         </div>
         <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: 0, maxWidth: 460, textAlign: 'right' }}>
-          Estimates only — prepared from the figures provided and current federal rules; your official benefits are set by OPM, SSA, the TSP, and your agency. Not financial, tax, or legal advice. "Guaranteed income" is a fixed-annuity feature backed solely by the issuing insurer's claims-paying ability — not guaranteed by the U.S. government, the TSP, or the FDIC. {brand.name} is independent, is not affiliated with OPM or any federal agency, and may be compensated by an insurance carrier if you choose to purchase a product. Full disclosures on the final page.
+          Estimates only — prepared from the figures provided and current federal rules; your official benefits are set by OPM, SSA, the TSP, and your agency. Not financial, tax, or legal advice.{sections.tsp ? <> "Guaranteed income" is a fixed-annuity feature backed solely by the issuing insurer's claims-paying ability — not guaranteed by the U.S. government, the TSP, or the FDIC.</> : null} {brand.name} is independent, is not affiliated with OPM or any federal agency, and may be compensated by an insurance carrier if you choose to purchase a product. Full disclosures on the final page.
         </p>
       </div>
     </div>
@@ -913,7 +1154,7 @@ function FegliPage({ client, data }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
         <img src="/fma-logo-mark.png" alt={brand.name} style={{ height: 44, width: 'auto', display: 'block' }} />
         <div style={{ textAlign: 'right', fontFamily: FONT_MONO, fontSize: '0.68rem', letterSpacing: '0.08em', color: INK_FAINT, textTransform: 'uppercase' }}>
-          Retirement Summary · page 2<br />{client.name || 'Client'}
+          Retirement Summary · FEGLI<br />{client.name || 'Client'}
         </div>
       </div>
       <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -1028,15 +1269,77 @@ function FegliPage({ client, data }) {
   )
 }
 
+/* ===================== Agency retirement process — page 2 ===================== */
+function ProcessCard({ client, data }) {
+  const a = data.agency || {}
+  const cardStyle = { width: '100%', maxWidth: 760, background: WHITE, border: `1px solid ${rules.ink}`, boxShadow: elevation.artifact, padding: '40px 48px', breakBefore: 'page' }
+  const row = { display: 'grid', gridTemplateColumns: '150px 1fr', gap: 14, padding: '9px 0', borderTop: `1px solid ${rules.ink}`, fontSize: '0.88rem', lineHeight: 1.5 }
+  const k = { fontFamily: FONT_MONO, fontSize: '0.64rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_FAINT, paddingTop: 3 }
+  const past = (iso) => cmp(iso, data.today) < 0
+  return (
+    <div data-print-doc style={cardStyle}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+        <img src="/fma-logo-mark.png" alt={brand.name} style={{ height: 44, width: 'auto', display: 'block' }} />
+        <div style={{ textAlign: 'right', fontFamily: FONT_MONO, fontSize: '0.68rem', letterSpacing: '0.08em', color: INK_FAINT, textTransform: 'uppercase' }}>
+          Retirement Summary<br />{client.name || 'Client'}
+        </div>
+      </div>
+      <div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ color: MAROON }}><SealStar size={15} /></span>
+        <span style={{ fontFamily: FONT_MONO, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: OXBLOOD_INK }}>Starting your retirement</span>
+      </div>
+      <h1 style={{ fontFamily: FONT_SERIF, fontSize: '1.7rem', fontWeight: 600, color: NAVY, margin: '8px 0 4px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+        {a.name || 'Your agency'}: when and how to start
+      </h1>
+      <div style={{ height: 2, background: `linear-gradient(90deg, ${MAROON}, ${NAVY} 60%, transparent)`, marginTop: 14 }} />
+
+      <Section title="Who to contact">
+        <div style={row}><div style={k}>Estimates & application</div><div style={{ color: INK }}>{a.portal}</div></div>
+        <div style={row}><div style={k}>Contact</div><div style={{ color: INK }}>{a.contact}</div></div>
+        <div style={row}><div style={k}>Payroll / TSP changes</div><div style={{ color: INK }}>{a.payroll}</div></div>
+        {a.tip ? <div style={{ ...row, borderBottom: `1px solid ${rules.ink}` }}><div style={k}>Good to know</div><div style={{ color: INK }}>{a.tip}</div></div> : null}
+      </Section>
+
+      {data.process && data.process.length ? (
+        <Section title={`Your timeline to ${fmtLong(client.retireDate)}`}>
+          {data.process.map((p, i) => (
+            <div key={i} style={{ ...row, gridTemplateColumns: '150px 1fr' }}>
+              <div style={{ fontFamily: FONT_MONO, fontSize: '0.78rem', fontWeight: 600, color: past(p.when) ? MAROON : NAVY, ...tnum }}>
+                {past(p.when) ? 'Now' : fmtShort(p.when)}
+              </div>
+              <div style={{ color: INK }}>{p.t}</div>
+            </div>
+          ))}
+          {data.process.some((p) => past(p.when)) ? (
+            <p style={{ fontSize: '0.78rem', color: MAROON, margin: '8px 0 0', lineHeight: 1.45 }}>Steps marked "Now" are already due for a {fmtLong(client.retireDate)} retirement. Start them right away.</p>
+          ) : null}
+        </Section>
+      ) : null}
+
+      <Section title="What to expect">
+        <p style={{ fontSize: '0.86rem', color: INK, lineHeight: 1.6, margin: '0 0 8px' }}>{GENERAL_PROCESS.application}</p>
+        <p style={{ fontSize: '0.86rem', color: INK, lineHeight: 1.6, margin: '0 0 8px' }}>{GENERAL_PROCESS.firstPay}</p>
+        <p style={{ fontSize: '0.86rem', color: INK, lineHeight: 1.6, margin: 0 }}>{GENERAL_PROCESS.leave}</p>
+      </Section>
+
+      <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: '22px 0 0', paddingTop: 12, borderTop: `1px solid ${rules.ink}` }}>
+        General guidance compiled from OPM and agency sources as of October 2026. Your HR office sets the exact deadlines and forms; confirm with them before acting.
+      </p>
+    </div>
+  )
+}
+
 // The close — sits after the FEGLI page so it's the final thing the client reads.
-function ClosingCard({ client, data }) {
+function ClosingCard({ client, data, sections = {} }) {
+  const parts = [sections.pension && 'pension', sections.ss && 'Social Security', sections.income && 'your income gap', sections.tsp && 'TSP', sections.health && 'health coverage', sections.process && 'your retirement timeline', sections.fegli && 'FEGLI'].filter(Boolean)
+  const list = parts.length > 1 ? `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}` : (parts[0] || 'your benefits')
   return (
     <div data-print-doc className="summary-section" style={{ width: '100%', maxWidth: 760, background: `linear-gradient(150deg, ${NAVY_DARK}, ${NAVY})`, color: '#fff', borderRadius: 12, padding: '22px 26px', boxShadow: elevation.artifact, display: 'flex', alignItems: 'center', gap: 18, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
       <span style={{ color: STEEL, flexShrink: 0 }}><SealRing size={36} w={1.4} /></span>
       <div>
         <div style={{ fontFamily: FONT_SERIF, fontSize: '1.2rem', fontWeight: 600, marginBottom: 4 }}>Congratulations, {firstName(client.name)} — you're ready to plan with clarity.</div>
         <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.55, color: 'rgba(255,255,255,0.85)' }}>
-          You have a clear, written plan — pension, Social Security, your income gap, TSP, health coverage, and FEGLI, all in one place. That's further than most federal employees ever get.{data.annualLeavePayout > 0 ? <> And don't forget: your unused annual leave pays out as a <strong>one-time {formatCurrency(data.annualLeavePayout)}</strong> lump sum on your final paycheck (taxable, paid once).</> : null}
+          You have a clear, written picture of {list}, all in one place. That's further than most federal employees ever get.{data.annualLeavePayout > 0 ? <> And don't forget: your unused annual leave pays out as a <strong>one-time {formatCurrency(data.annualLeavePayout)}</strong> lump sum on your final paycheck (taxable, paid once).</> : null}
         </p>
       </div>
     </div>
@@ -1046,7 +1349,7 @@ function ClosingCard({ client, data }) {
 // Final page — the full disclosures for an illustration that discusses
 // insurance/annuity products and a potential TSP rollover. Kept as its own
 // page so the required disclosures are complete and legible, not fine print.
-function DisclosuresCard({ client }) {
+function DisclosuresCard({ client, sections = {} }) {
   const cardStyle = { width: '100%', maxWidth: 760, background: WHITE, border: `1px solid ${rules.ink}`, boxShadow: elevation.artifact, padding: '40px 48px' }
   const para = { fontSize: '0.78rem', color: INK_SOFT, lineHeight: 1.6, margin: '0 0 12px' }
   const term = { color: OXBLOOD_INK, fontWeight: 700 }
@@ -1062,11 +1365,23 @@ function DisclosuresCard({ client }) {
 
       <p style={para}><strong style={term}>Figures are estimates.</strong> Pension, survivor, Social Security, FERS Supplement, FEGLI, and income figures depend on your actual High-3, service, elections, and the rules in effect when you retire, and will differ from the amounts shown. The FERS Supplement is subject to an annual earnings test before your full retirement age and ends at age 62.</p>
 
-      <p style={para}><strong style={term}>“Guaranteed income for life.”</strong> Any guaranteed lifetime income shown is a feature of a fixed annuity issued by a life insurance company — not a federal, TSP, or government benefit. Guarantees are subject solely to the claims-paying ability of the issuing insurer and are not insured or guaranteed by the U.S. government, the TSP, the FDIC, or {brand.name}. Amounts are illustrative, are not a quote or a contract, and depend on the product, interest rates, and your age at the time of purchase. Annuities may carry surrender charges and limited liquidity.</p>
+      <p style={para}><strong style={term}>Based on information you provided.</strong> Dates, salary, service, leave balances, Social Security estimates, and coverage elections were provided by you and have not been independently verified. Service and eligibility are calculated from the dates entered; periods of non-creditable, part-time, military, or unpaid service, or a missing deposit, can change your eligibility and benefit. Your official service history is in your SF-50s and your agency's records.</p>
 
-      <p style={para}><strong style={term}>Moving money out of the TSP.</strong> Illustrations that convert TSP savings to guaranteed income assume funds are moved out of the TSP. That decision is generally difficult to reverse, may have tax consequences and surrender charges, and forgoes the TSP's low costs and features. Any self-managed comparison is hypothetical, uses only the single growth rate and withdrawal amount shown, ignores taxes, fees, and market volatility, and is not a prediction of future results.</p>
+      {sections.readiness && <p style={para}><strong style={term}>Readiness check.</strong> The readiness check flags common issues based on the information entered. It is not a complete review of your situation and is not a determination of eligibility by OPM or your agency.</p>}
 
-      <p style={para}><strong style={term}>How we are paid.</strong> {brand.name}'s consultants are licensed life and health insurance producers who place insurance and annuity business through SBIA, an affiliated insurance agency. If you choose to purchase an insurance or annuity product, {brand.name} or SBIA may be compensated by the issuing carrier — never by you directly. You are under no obligation to purchase anything, and doing so is never a condition of this summary. Insurance and annuity products are not available to residents of California, New York, or Arkansas.</p>
+      {sections.health && <p style={para}><strong style={term}>Health coverage and Medicare.</strong> Health premiums shown are 2027 rates published by OPM; deductibles, out-of-pocket maximums, and Medicare coordination features come from plan materials (2027 where published, otherwise 2026 brochures) and may change at each Open Season. Confirm all plan details in the plan's official brochure. Medicare enrollment rules, premiums, and late-enrollment penalties are set by CMS and the Social Security Administration; confirm your enrollment windows at medicare.gov or ssa.gov.</p>}
+
+      {sections.process && <p style={para}><strong style={term}>Retirement process.</strong> Agency contacts, portals, lead times, and processing times are general guidance compiled from public OPM and agency sources and can change. Your agency's HR or benefits office sets your actual deadlines and requirements.</p>}
+
+      <p style={para}><strong style={term}>Taxes.</strong> Pension, Social Security, TSP withdrawals, rollovers, and annuity income may be subject to federal and state income tax. Nothing in this summary is tax advice; consult a qualified tax professional about your situation.</p>
+
+      <p style={para}><strong style={term}>Not investment advice.</strong> Consultants with {brand.name} are licensed insurance producers. They are not registered representatives or investment adviser representatives, and nothing in this summary is a recommendation about TSP investment funds, securities, or any investment allocation.</p>
+
+      {sections.tsp && <p style={para}><strong style={term}>“Guaranteed income for life.”</strong> Any guaranteed lifetime income shown is a feature of a fixed annuity issued by a life insurance company — not a federal, TSP, or government benefit. Guarantees are subject solely to the claims-paying ability of the issuing insurer and are not insured or guaranteed by the U.S. government, the TSP, the FDIC, or {brand.name}. Amounts are illustrative, are not a quote or a contract, and depend on the product, interest rates, and your age at the time of purchase. Annuities may carry surrender charges and limited liquidity, and an income rider may carry an additional annual fee. Income amounts shown are based on one fixed indexed annuity's income rider using its rate table as of June 2026; the bonus and roll-up shown increase only the base used to calculate lifetime income, not the contract's cash value. A fixed indexed annuity is not a stock market investment and does not directly participate in any index.</p>}
+
+      {sections.tsp && <p style={para}><strong style={term}>Moving money out of the TSP.</strong> Illustrations that convert TSP savings to guaranteed income assume funds are moved out of the TSP. That decision is generally difficult to reverse, may have tax consequences and surrender charges, and forgoes the TSP's low costs and features. Any self-managed comparison is hypothetical, uses only the single growth rate and withdrawal amount shown, ignores taxes, fees, and market volatility, and is not a prediction of future results.</p>}
+
+      <p style={para}><strong style={term}>How we are paid.</strong> Consultants with {brand.name} are licensed life and health insurance producers who place insurance and annuity business through SBIA, an affiliated insurance agency. If you choose to purchase an insurance or annuity product, {brand.name} or SBIA may be compensated by the issuing carrier — never by you directly. You are under no obligation to purchase anything, and doing so is never a condition of this summary. Insurance and annuity products are not available to residents of California, New York, or Arkansas.</p>
 
       <p style={para}><strong style={term}>Independence.</strong> {brand.name} is independent and is not affiliated with, endorsed by, or authorized to speak on behalf of OPM, the TSP, the Social Security Administration, or any federal agency.</p>
 
@@ -1083,6 +1398,22 @@ function DisclosuresCard({ client }) {
 }
 
 /* ============================ small pieces ============================ */
+function EmptyState({ missing }) {
+  return (
+    <div style={{ width: '100%', maxWidth: 760, background: WHITE, border: `1px dashed ${rules.ink}`, borderRadius: 12, padding: '40px 44px', textAlign: 'left' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ color: MAROON }}><SealStar size={15} /></span>
+        <span style={{ fontFamily: FONT_MONO, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', color: OXBLOOD_INK }}>New retirement summary</span>
+      </div>
+      <h2 style={{ fontFamily: FONT_SERIF, fontSize: '1.5rem', fontWeight: 600, color: NAVY, margin: '10px 0 6px' }}>Fill in the client's details to build the summary</h2>
+      <p style={{ fontSize: '0.9rem', color: INK_SOFT, margin: '0 0 14px', lineHeight: 1.55 }}>The preview and the Download PDF button turn on once these are entered:</p>
+      <ul style={{ margin: 0, paddingLeft: 20, color: INK, fontSize: '0.9rem', lineHeight: 1.8 }}>
+        {missing.map((m) => <li key={m}>{m}</li>)}
+      </ul>
+    </div>
+  )
+}
+
 function Check({ label, checked, onChange }) {
   return (
     <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: INK, cursor: 'pointer', fontWeight: 600 }}>
@@ -1195,6 +1526,7 @@ const inputBox = { display: 'block', width: '100%', padding: '9px 12px', fontSiz
 const labelText = { fontSize: '0.78rem', fontWeight: 600, color: INK_SOFT, display: 'block' }
 const readout = { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '10px 12px', border: `1px solid ${rules.ink}`, borderRadius: 8, background: SURFACE, fontSize: '0.9rem' }
 const hintText = { fontSize: '0.72rem', color: INK_FAINT, margin: 0, lineHeight: 1.45 }
+const selectStyle = { display: 'block', width: '100%', marginTop: 5, padding: '9px 10px', borderRadius: 7, border: `1px solid ${rules.inkStrong}`, background: WHITE, fontFamily: FONT_SANS, fontSize: '0.85rem', color: INK }
 const metaLabel = { fontFamily: FONT_MONO, fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_FAINT, marginBottom: 2 }
 const thCell = { padding: '0 0 8px', fontWeight: 600 }
 const tdCell = { padding: '9px 0', fontSize: '0.88rem' }
