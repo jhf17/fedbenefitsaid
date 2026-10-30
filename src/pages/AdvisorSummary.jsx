@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts'
+import { AreaChart, Area, BarChart, Bar, LineChart, Line, Legend, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts'
 import Seo from '../components/Seo'
 import { colors, fonts, rules, elevation } from '../constants/theme'
 import { brand } from '../constants/brand'
 import { POSTAL_ADDRESS } from '../config/site'
 import { SealStar, SealRing, Diamond } from '../components/Glyphs'
 import { formatCurrency, computeAge, mraForBirthYear, formatYearsMonths } from '../lib/pensionCalc'
-import { monthlyGuaranteedIncome } from '../data/guaranteedIncomeCalc'
 import { projectDrawdown } from '../lib/tspProjection'
 import { monthlyPremium, applyReductionFactors, basicCoverageForSalary, FEGLI_RATES } from '../data/fegliRates'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
@@ -19,16 +18,24 @@ const SECTION_LABELS = {
   pension: 'Pension & survivor',
   ss: 'Social Security',
   income: 'Income comparison / gap',
-  tsp: 'TSP to guaranteed income',
+  tsp: 'TSP withdrawal strategy',
+  sequence: 'Market timing (sequence of returns)',
   health: 'Health coverage',
   readiness: 'Readiness checklist',
   process: 'Starting your retirement (agency steps)',
   fegli: 'FEGLI page',
 }
 const PRESETS = {
-  snapshot: { label: 'Benefits snapshot', sections: { pension: true, ss: true, income: false, tsp: false, health: true, readiness: true, process: true, fegli: true } },
-  full: { label: 'Full plan', sections: { pension: true, ss: true, income: true, tsp: true, health: true, readiness: true, process: true, fegli: true } },
+  snapshot: { label: 'Benefits snapshot', sections: { pension: true, ss: true, income: false, tsp: false, sequence: false, health: true, readiness: true, process: true, fegli: true } },
+  full: { label: 'Full plan', sections: { pension: true, ss: true, income: true, tsp: true, sequence: true, health: true, readiness: true, process: true, fegli: true } },
 }
+// S&P 500 calendar-year total returns (dividends reinvested), %. Source: S&P Dow
+// Jones Indices data as compiled by NYU Stern (Damodaran, "Historical Returns on
+// Stocks, Bonds and Bills"). 1999–2008 is the worst 10 calendar years since 1940;
+// 1949–1958 the best.
+const SP_WORST = { label: 'S&P 500 worst decade', years: '1999–2008', returns: [21.04, -9.10, -11.89, -22.10, 28.68, 10.88, 4.91, 15.79, 5.49, -37.00] }
+const SP_BEST = { label: 'S&P 500 best decade', years: '1949–1958', returns: [18.79, 31.71, 24.02, 18.37, -0.99, 52.62, 31.56, 6.56, -10.78, 43.36] }
+
 const ENROLL_LABEL = { self: 'Self Only', selfPlusOne: 'Self Plus One', family: 'Self & Family' }
 
 const FONT_SERIF = fonts.serif
@@ -247,7 +254,7 @@ function Builder({ advisorEmail, onSignOut }) {
   })
   const [pension, setPension] = useState({ survivor: 'none' })
   const [ss, setSs] = useState([{ age: '', monthly: '' }])
-  const [tsp, setTsp] = useState({ balance: '', growthPct: 3.5 })
+  const [tsp, setTsp] = useState({ balance: '', growthPct: 5, wdMode: 'gap', wdMonthly: '', wdPct: 4 })
   const [compare, setCompare] = useState({ mode: 'today', goalMonthly: '' })
   const [fegli, setFegli] = useState({
     keepInRetirement: true,
@@ -290,7 +297,9 @@ function Builder({ advisorEmail, onSignOut }) {
     !parseISO(client.retireDate) && 'Retirement date',
     !(Number(client.salary) > 0 || Number(client.high3) > 0) && 'Salary or High-3',
     sections.ss && !(ss || []).some((r) => Number(r.monthly) > 0) && 'Social Security estimate (or turn that section off)',
-    sections.tsp && !(Number(tsp.balance) > 0) && 'TSP balance (or turn that section off)',
+    (sections.tsp || sections.sequence) && !(Number(tsp.balance) > 0) && 'TSP balance (or turn the TSP sections off)',
+    (sections.tsp || sections.sequence) && tsp.wdMode === 'dollar' && !(Number(tsp.wdMonthly) > 0) && 'Monthly TSP withdrawal amount',
+    (sections.tsp || sections.sequence) && tsp.wdMode === 'pct' && !(Number(tsp.wdPct) > 0) && 'TSP withdrawal %',
     sections.income && compare.mode === 'goal' && !(Number(compare.goalMonthly) > 0) && 'Monthly income goal',
     sections.health && !client.fehbPlanId && 'Health plan (or turn that section off)',
     parseISO(client.birthdate) && parseISO(client.scd) && cmp(client.scd, client.birthdate) <= 0 && 'SCD must be after the birthdate',
@@ -308,16 +317,53 @@ function Builder({ advisorEmail, onSignOut }) {
       const [h2c, jspdf] = await Promise.all([import('html2canvas'), import('jspdf')])
       const html2canvas = h2c.default || h2c
       const JsPDF = jspdf.jsPDF || jspdf.default
+      // US Letter, portrait, 30pt margins. Each document card is captured once,
+      // then sliced onto as many Letter pages as it needs, breaking at section
+      // or table-row boundaries so nothing is cut through the middle.
+      const PAGE_W = 612, PAGE_H = 792, M = 30
+      const contentW = PAGE_W - 2 * M, contentH = PAGE_H - 2 * M
+      const SCALE = 2
+      const pdf = new JsPDF({ unit: 'pt', format: 'letter', orientation: 'portrait', compress: true })
+      let firstPage = true
       const pages = [...document.querySelectorAll('[data-pdf-page]')]
-      let pdf
-      for (let i = 0; i < pages.length; i++) {
-        const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false })
-        const w = canvas.width / 2
-        const h = canvas.height / 2
-        const orientation = w >= h ? 'landscape' : 'portrait'
-        if (!pdf) pdf = new JsPDF({ unit: 'px', format: [w, h], orientation, compress: true })
-        else pdf.addPage([w, h], orientation)
-        pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, w, h, undefined, 'FAST')
+      for (const el of pages) {
+        const top0 = el.getBoundingClientRect().top
+        const tops = (sel) => [...el.querySelectorAll(sel)]
+          .map((b) => Math.round((b.getBoundingClientRect().top - top0) * SCALE))
+          .filter((y) => y > 0)
+          .sort((a, b) => a - b)
+        const sectionBreaks = tops('.summary-section, [data-pdf-break]')
+        const rowBreaks = tops('tr')
+        const canvas = await html2canvas(el, {
+          scale: SCALE, backgroundColor: '#ffffff', useCORS: true, logging: false,
+          onclone: (doc) => doc.querySelectorAll('[data-print-doc]').forEach((d) => { d.style.boxShadow = 'none' }),
+        })
+        const pxPerPt = canvas.width / contentW
+        const sliceH = Math.floor(contentH * pxPerPt)
+        let y = 0
+        while (y < canvas.height - 4) {
+          let end = y + sliceH
+          if (end >= canvas.height) end = canvas.height
+          else {
+            // Prefer a whole-section break; fall back to a table row.
+            const okS = sectionBreaks.filter((b) => b > y + sliceH * 0.35 && b <= end)
+            const okR = rowBreaks.filter((b) => b > y + sliceH * 0.35 && b <= end)
+            if (okS.length) end = okS[okS.length - 1]
+            else if (okR.length) end = okR[okR.length - 1]
+          }
+          const h = end - y
+          const slice = document.createElement('canvas')
+          slice.width = canvas.width
+          slice.height = h
+          const ctx = slice.getContext('2d')
+          ctx.fillStyle = '#ffffff'
+          ctx.fillRect(0, 0, slice.width, h)
+          ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h)
+          if (!firstPage) pdf.addPage('letter', 'portrait')
+          firstPage = false
+          pdf.addImage(slice.toDataURL('image/jpeg', 0.92), 'JPEG', M, M, contentW, h / pxPerPt, undefined, 'FAST')
+          y = end
+        }
       }
       const safe = (client.name || 'Client').replace(/[^\w .-]/g, '').trim() || 'Client'
       pdf.save(`Retirement Summary - ${safe}.pdf`)
@@ -479,7 +525,11 @@ function Builder({ advisorEmail, onSignOut }) {
 
           <FormGroup title="TSP">
             <Field label="TSP balance at retirement" value={tsp.balance} onChange={(v) => setT('balance', v)} prefix="$" />
-            <Field label="Self-managed growth rate %" value={tsp.growthPct} onChange={(v) => setT('growthPct', v)} />
+            <Field label="Assumed steady return %" value={tsp.growthPct} onChange={(v) => setT('growthPct', v)} />
+            <Seg label="Withdrawal" value={tsp.wdMode} onChange={(v) => setT('wdMode', v)} options={[['gap', 'Fill the gap'], ['dollar', '$ / month'], ['pct', '% / year']]} />
+            {tsp.wdMode === 'dollar' && <Field label="Withdrawal per month" value={tsp.wdMonthly} onChange={(v) => setT('wdMonthly', v)} prefix="$" />}
+            {tsp.wdMode === 'pct' && <Field label="Withdrawal % of starting balance per year" value={tsp.wdPct} onChange={(v) => setT('wdPct', v)} />}
+            <p style={hintText}>{data.balance > 0 ? `${formatCurrency(data.wdMonthly)}/mo · ${formatCurrency(data.wdAnnual)}/yr · ${(data.wdRate * 100).toFixed(1)}% of the balance${data.wdFallback ? ' (no income gap, so 4% is used)' : ''}` : 'Enter a balance to size the withdrawal.'}</p>
           </FormGroup>
 
           <FormGroup title="Health plan">
@@ -670,32 +720,46 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
   // Annual-leave lump sum — a one-time, taxable payout on the final check (hours × hourly rate).
   const annualLeavePayout = n(client.annualLeaveHours) * (salary / 2087)
 
-  // TSP → guaranteed income (NIA). Linear in balance, so invert to size the fill.
+  // TSP withdrawal strategy — a level withdrawal from the balance at retirement.
   const balance = n(tsp.balance)
-  const niaFull = monthlyGuaranteedIncome(balance, ageNow, ageAtRet) // { monthly, annual, rate }
-  const niaFullMonthly = niaFull.monthly
-
-  let amountUsed = 0, incomeProvided = 0, enough = false, leftover = 0, remainingGap = 0
-  if (gapMonthly > 0 && niaFullMonthly > 0) {
-    if (niaFullMonthly >= gapMonthly) {
-      enough = true
-      incomeProvided = gapMonthly
-      amountUsed = balance * (gapMonthly / niaFullMonthly)
-      leftover = balance - amountUsed
-    } else {
-      enough = false
-      incomeProvided = niaFullMonthly
-      amountUsed = balance
-      remainingGap = gapMonthly - niaFullMonthly
-    }
-  }
-
-  // Self-managed longevity of the amount used, drawing the same annual income.
   const growth = n(tsp.growthPct) / 100
-  const proj = amountUsed > 0
-    ? projectDrawdown({ balance: amountUsed, startAge: Math.round(ageNow), incomeStartAge: Math.round(ageAtRet), annualWithdrawal: incomeProvided * 12, growth, endAge: 95 })
+  const wdMode = tsp.wdMode || 'gap'
+  const wdFallback = wdMode === 'gap' && !(gapMonthly > 0)
+  const wdMonthly = wdMode === 'dollar' ? n(tsp.wdMonthly)
+    : wdMode === 'pct' ? balance * n(tsp.wdPct) / 100 / 12
+    : wdFallback ? balance * 0.04 / 12 : gapMonthly
+  const wdAnnual = wdMonthly * 12
+  const wdRate = balance > 0 ? wdAnnual / balance : 0
+  const retAgeR = Math.round(ageAtRet != null ? ageAtRet : (ageNow != null ? ageNow : 60))
+  const proj = balance > 0 && wdAnnual > 0
+    ? projectDrawdown({ balance, startAge: retAgeR, incomeStartAge: retAgeR, annualWithdrawal: wdAnnual, growth, endAge: 95 })
     : { data: [], runOutAge: null }
-  const lastsYears = proj.runOutAge != null && ageAtRet != null ? Math.max(0, proj.runOutAge - Math.round(ageAtRet)) : null
+  const lastsYears = proj.runOutAge != null ? Math.max(0, proj.runOutAge - retAgeR) : null
+  const balanceAt95 = proj.data.length ? proj.data[proj.data.length - 1].balance : 0
+  const gapAfterTsp = Math.max(0, gapMonthly - wdMonthly)
+
+  // Sequence of returns — the same level withdrawal through four 10-year paths.
+  const neg = SP_WORST.returns.filter((r) => r < 0)
+  const pos = SP_WORST.returns.filter((r) => r >= 0)
+  const seqDefs = [
+    { key: 'steady', label: `Steady ${n(tsp.growthPct)}%`, sub: 'same return every year', returns: Array(10).fill(n(tsp.growthPct)) },
+    { key: 'worst', label: 'Worst decade', sub: `S&P 500, ${SP_WORST.years}`, returns: SP_WORST.returns },
+    { key: 'early', label: 'Losses early', sub: `${SP_WORST.years} returns, down years first`, returns: [...neg, ...pos] },
+    { key: 'late', label: 'Losses late', sub: `same returns, down years last`, returns: [...pos, ...neg] },
+    { key: 'best', label: 'Best decade', sub: `S&P 500, ${SP_BEST.years}`, returns: SP_BEST.returns },
+  ]
+  const sequence = seqDefs.map((d) => {
+    let bal = balance, withdrawn = 0, runOutYear = null
+    const rows = d.returns.map((r, i) => {
+      const take = Math.min(bal, wdAnnual)
+      withdrawn += take
+      bal = (bal - take) * (1 + r / 100)
+      if (bal <= 0.5 && runOutYear == null) { bal = 0; runOutYear = i + 1 }
+      return { year: i + 1, r, value: Math.round(Math.max(0, bal)) }
+    })
+    const avg = (Math.pow(d.returns.reduce((a, r) => a * (1 + r / 100), 1), 1 / d.returns.length) - 1) * 100
+    return { ...d, rows, end: rows[rows.length - 1].value, withdrawn: Math.round(withdrawn), avg, runOutYear }
+  })
 
   // FEGLI — coverage now vs. in retirement + a monthly-cost table by 5-year age
   // bracket starting at the client's current-age bracket. Costs reflect their
@@ -808,7 +872,7 @@ function deriveSummary({ client, pension, ss, tsp, compare, fegli }) {
     ageNow, ageAtRet, yos, pensionYos, sickYears, sickLabel, system, salary, high3, enhanced, multiplier, csrsCapped, pensionUnreduced, surv, survLabel, reductionFrac, survNote, electedPension, survivorReceives,
     ssRows, primarySs, ssClaimAge, supplementEligible, supplement, stages,
     currentMonthly, grossMonthly, netTakeHome, usingNet, goalMonthly, usingGoal, target, retirementMonthly, gapMonthly, replacement, annualLeavePayout,
-    balance, niaFull, niaFullMonthly, amountUsed, incomeProvided, enough, leftover, remainingGap,
+    balance, wdMode, wdFallback, wdMonthly, wdAnnual, wdRate, gapAfterTsp, balanceAt95, retAgeR, sequence,
     proj, growthPct: n(tsp.growthPct), lastsYears,
     fegliKeep, fegliTable, fegliCoverageRows, fegliTotal, fegliInput: fegli,
   }
@@ -870,9 +934,7 @@ function SummaryDoc({ client, pension, data, sections = {} }) {
             {sections.income ? (covered
               ? <>Your pension and Social Security already cover your income{sections.tsp ? ' — your TSP is a bonus' : ''}.</>
               : sections.tsp
-                ? (data.enough
-                  ? <>Your TSP can close the remaining <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap with a guaranteed-income option for life.</>
-                  : <>Your TSP could cover about <strong>{formatCurrency(data.incomeProvided)}/mo</strong> of the <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap with a guaranteed-income option for life.</>)
+                ? <>That leaves about <strong>{formatCurrency(data.gapMonthly)}/mo</strong> to draw from your TSP and savings — your withdrawal strategy is below.</>
                 : <>That leaves about <strong>{formatCurrency(data.gapMonthly)}/mo</strong> to cover from savings.</>) : null}{' '}
             {data.elig.type === 'deferred' || data.elig.type === 'not-eligible'
               ? <>A deferred pension does <strong>not</strong> carry your federal health coverage into retirement.</>
@@ -1012,62 +1074,115 @@ function SummaryDoc({ client, pension, data, sections = {} }) {
 
       </>}
       {sections.tsp && <>
-      {/* TSP — closing the gap */}
-      <Section title="Your TSP — closing the gap">
+      {/* TSP — withdrawal strategy */}
+      <Section title="Your TSP — withdrawal strategy">
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginBottom: 14 }}>
-          <Stat label="TSP balance" value={formatCurrency(data.balance)} />
-          <Stat label="Guaranteed income — for life" value={data.niaFullMonthly > 0 ? `${formatCurrency(data.niaFullMonthly)}/mo` : '—'} sub={`max from full balance${data.niaFull.rate ? ` · ${data.niaFull.rate}% rate` : ''}`} />
+          <Stat label="TSP balance" value={formatCurrency(data.balance)} sub="at retirement" />
+          <Stat label="Withdrawal" value={`${formatCurrency(data.wdMonthly)}/mo`} sub={`${formatCurrency(data.wdAnnual)}/yr · ${(data.wdRate * 100).toFixed(1)}% of balance`} />
+          <Stat label="Lasts" value={data.proj.runOutAge ? `to age ${data.proj.runOutAge}` : 'past 95'} sub={`at a steady ${data.growthPct}% return`} />
         </div>
-
-        {covered ? (
-          <p style={{ fontSize: '0.92rem', color: INK, margin: 0, lineHeight: 1.6 }}>
-            You don't need your TSP to cover income — your guaranteed sources already do. Left invested, or converted to a guaranteed income of up to <strong style={{ color: NAVY }}>{formatCurrency(data.niaFullMonthly)}/mo for life</strong>, it's entirely additional.
-          </p>
-        ) : data.enough ? (
-          <p style={{ fontSize: '0.92rem', color: INK, margin: 0, lineHeight: 1.6 }}>
-            To fill your <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap with income guaranteed <strong>for life</strong>, about{' '}
-            <strong style={{ color: NAVY }}>{formatCurrency(data.amountUsed)}</strong> of your {formatCurrency(data.balance)} TSP would be moved to a guaranteed income —
-            leaving <strong>{formatCurrency(data.leftover)}</strong> invested.
-          </p>
-        ) : (
-          <p style={{ fontSize: '0.92rem', color: INK, margin: 0, lineHeight: 1.6 }}>
-            Your full TSP guarantees up to <strong style={{ color: NAVY }}>{formatCurrency(data.niaFullMonthly)}/mo for life</strong> — the most available. That covers{' '}
-            {formatCurrency(data.niaFullMonthly)} of your {formatCurrency(data.gapMonthly)} gap, leaving <strong style={{ color: MAROON }}>{formatCurrency(data.remainingGap)}/mo</strong> to plan for another way.
-          </p>
-        )}
-
-        {/* self-managed longevity comparison */}
-        {data.amountUsed > 0 && (
-          <div style={{ marginTop: 18 }}>
-            <div style={{ fontFamily: FONT_MONO, fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_FAINT, marginBottom: 8 }}>
-              If you self-managed that {formatCurrency(data.amountUsed)} instead — {data.growthPct}% growth, same {formatCurrency(data.incomeProvided * 12)}/yr withdrawal
-            </div>
-            <div style={{ overflow: 'hidden' }}>
-              <AreaChart width={648} height={180} data={data.proj.data} margin={{ top: 6, right: 12, bottom: 4, left: 6 }}>
-                <defs>
-                  <linearGradient id="balFillDoc" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={NAVY} stopOpacity={0.22} />
-                    <stop offset="100%" stopColor={NAVY} stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="rgba(27,36,53,0.08)" strokeDasharray="3 3" />
-                <XAxis dataKey="age" tick={{ fontSize: 11, fill: INK_SOFT, fontFamily: FONT_SANS }} />
-                <YAxis tick={{ fontSize: 11, fill: INK_SOFT, fontFamily: FONT_SANS }} tickFormatter={(v) => (v >= 1000000 ? `$${(v / 1000000).toFixed(1)}m` : `$${Math.round(v / 1000)}k`)} />
-                <Tooltip formatter={(v) => [formatCurrency(v), 'Balance']} labelFormatter={(l) => `Age ${l}`} contentStyle={{ fontFamily: FONT_SANS, fontSize: '0.82rem', border: `1px solid ${MAROON}`, borderRadius: 8 }} />
-                <Area type="monotone" dataKey="balance" stroke={NAVY} strokeWidth={2.5} fill="url(#balFillDoc)" dot={false} />
-                {data.proj.runOutAge != null && <ReferenceLine x={data.proj.runOutAge} stroke={MAROON} strokeDasharray="4 4" label={{ value: `runs out · ${data.proj.runOutAge}`, fontSize: 10, fill: MAROON, position: 'top' }} />}
-              </AreaChart>
-            </div>
-            <p style={{ fontSize: '0.86rem', color: INK_SOFT, margin: '8px 0 0', lineHeight: 1.5 }}>
-              Drawing it yourself, the money {data.proj.runOutAge ? <>runs out around <strong style={{ color: MAROON }}>age {data.proj.runOutAge}</strong>{data.lastsYears != null ? <> (~{data.lastsYears} years)</> : null}</> : <>is not exhausted by age 95</>}. The guaranteed option pays the same amount <strong style={{ color: NAVY }}>for life</strong>, however long that is.
-            </p>
+        <p style={{ fontSize: '0.92rem', color: INK, margin: 0, lineHeight: 1.6 }}>
+          {data.wdMode === 'gap' && !data.wdFallback
+            ? <>Drawing <strong>{formatCurrency(data.wdMonthly)}/mo</strong> from your TSP fills your <strong>{formatCurrency(data.gapMonthly)}/mo</strong> income gap.</>
+            : <>Drawing <strong>{formatCurrency(data.wdMonthly)}/mo</strong> ({(data.wdRate * 100).toFixed(1)}% of your starting balance each year){data.gapMonthly > 0 ? (data.gapAfterTsp > 0 ? <> covers part of your <strong>{formatCurrency(data.gapMonthly)}/mo</strong> gap, leaving about <strong>{formatCurrency(data.gapAfterTsp)}/mo</strong> uncovered.</> : <> covers your <strong>{formatCurrency(data.gapMonthly)}/mo</strong> income gap.</>) : '.'}</>}{' '}
+          At a steady {data.growthPct}% return, the balance {data.proj.runOutAge ? <>runs out around <strong style={{ color: MAROON }}>age {data.proj.runOutAge}</strong>{data.lastsYears != null ? <> (~{data.lastsYears} years)</> : null}</> : <>is not exhausted by age 95 (about <strong style={{ color: NAVY }}>{formatCurrency(data.balanceAt95)}</strong> remaining)</>}.
+        </p>
+        {data.proj.data.length > 0 && (
+          <div style={{ marginTop: 16, overflow: 'hidden' }}>
+            <AreaChart width={648} height={170} data={data.proj.data} margin={{ top: 6, right: 12, bottom: 4, left: 6 }}>
+              <defs>
+                <linearGradient id="balFillDoc" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={NAVY} stopOpacity={0.22} />
+                  <stop offset="100%" stopColor={NAVY} stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(27,36,53,0.08)" strokeDasharray="3 3" />
+              <XAxis dataKey="age" tick={{ fontSize: 11, fill: INK_SOFT, fontFamily: FONT_SANS }} />
+              <YAxis tick={{ fontSize: 11, fill: INK_SOFT, fontFamily: FONT_SANS }} tickFormatter={kfmt} />
+              <Tooltip formatter={(v) => [formatCurrency(v), 'Balance']} labelFormatter={(l) => `Age ${l}`} contentStyle={{ fontFamily: FONT_SANS, fontSize: '0.82rem', border: `1px solid ${MAROON}`, borderRadius: 8 }} />
+              <Area type="monotone" dataKey="balance" stroke={NAVY} strokeWidth={2.5} fill="url(#balFillDoc)" dot={false} isAnimationActive={false} />
+              {data.proj.runOutAge != null && <ReferenceLine x={data.proj.runOutAge} stroke={MAROON} strokeDasharray="4 4" label={{ value: `runs out · ${data.proj.runOutAge}`, fontSize: 10, fill: MAROON, position: 'top' }} />}
+            </AreaChart>
           </div>
         )}
-        <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 8, border: `1px solid ${rules.brass}`, background: SURFACE }}>
-          <p style={{ fontSize: '0.78rem', color: INK_SOFT, margin: 0, lineHeight: 1.55 }}>
-            <strong style={{ color: OXBLOOD_INK }}>About "guaranteed income for life":</strong> this is a feature of a fixed annuity issued by an insurance company — not a TSP or federal benefit. Any guarantee depends on the issuing insurer's claims-paying ability and is <strong>not</strong> insured by the U.S. government, the TSP, or the FDIC. Converting TSP savings to guaranteed income means moving money out of the TSP, which is generally hard to reverse and may carry tax effects, surrender charges, and reduced liquidity. Income shown is based on one insurer's fixed indexed annuity income rider (rate table as of June 2026), including a 10% bonus and a 10% simple annual roll-up while income is deferred; these raise only the base used to calculate income, not the cash value you could withdraw. Other products and current rates will differ. Figures are illustrative — not a quote or a contract. The self-managed comparison above is hypothetical and uses only the single growth and withdrawal rate shown. See the full disclosures on the final page.
+        <div style={{ marginTop: 14, padding: '12px 16px', borderRadius: 8, border: `1px solid ${MAROON}`, background: colors.accentPale }}>
+          <p style={{ fontSize: '0.9rem', color: INK, margin: 0, lineHeight: 1.55 }}>
+            <strong style={{ color: OXBLOOD_INK }}>Next step:</strong> schedule a follow-up meeting to review alternative income options for your TSP and savings.
           </p>
         </div>
+        <p style={{ fontSize: '0.72rem', color: INK_FAINT, margin: '10px 0 0', lineHeight: 1.45 }}>
+          Hypothetical: a level withdrawal taken at the start of each year and a single steady return. Real returns vary year to year, and taxes, fees and inflation are not included.
+        </p>
+      </Section>
+
+      </>}
+      {sections.sequence && data.balance > 0 && <>
+      {/* sequence of returns */}
+      <Section title="Market timing — why the order of returns matters">
+        <p style={{ fontSize: '0.92rem', color: INK, margin: '0 0 12px', lineHeight: 1.6 }}>
+          Taking the same <strong>{formatCurrency(data.wdAnnual)}/yr</strong> from <strong>{formatCurrency(data.balance)}</strong> for ten years. Down years early in retirement, while you are withdrawing, can do lasting damage. The two middle-right columns use the <strong>same</strong> ten years of returns, with the down years first or last: same average return, very different result.
+        </p>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem', ...tnum }}>
+          <thead>
+            <tr>
+              <th style={seqTh}>Year</th>
+              {data.sequence.map((sc) => (
+                <th key={sc.key} style={{ ...seqTh, textAlign: 'right' }}>
+                  <div style={{ color: NAVY, fontWeight: 700, fontFamily: FONT_SANS, fontSize: '0.76rem', textTransform: 'none', letterSpacing: 0 }}>{sc.label}</div>
+                  <div style={{ fontWeight: 400 }}>{sc.sub}</div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={seqTd}>Start</td>
+              {data.sequence.map((sc) => <td key={sc.key} style={{ ...seqTd, textAlign: 'right' }}>{formatCurrency(data.balance)}</td>)}
+            </tr>
+            {data.sequence[0].rows.map((_, i) => (
+              <tr key={i} style={{ background: i % 2 ? 'transparent' : SURFACE }}>
+                <td style={seqTd}>{i + 1}</td>
+                {data.sequence.map((sc) => {
+                  const r = sc.rows[i]
+                  return (
+                    <td key={sc.key} style={{ ...seqTd, textAlign: 'right', lineHeight: 1.25 }}>
+                      <div style={{ color: INK, fontWeight: 600 }}>{formatCurrency(r.value)}</div>
+                      <div style={{ color: r.r < 0 ? MAROON : INK_FAINT, fontSize: '0.64rem' }}>{r.r > 0 ? '+' : ''}{r.r.toFixed(1)}%</div>
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+            <tr style={{ borderTop: `2px solid ${NAVY}` }}>
+              <td style={{ ...seqTd, fontWeight: 700 }}>After 10 yrs</td>
+              {data.sequence.map((sc) => <td key={sc.key} style={{ ...seqTd, textAlign: 'right', fontWeight: 700, color: sc.key === 'worst' || sc.key === 'early' ? MAROON : NAVY, fontSize: '0.8rem' }}>{formatCurrency(sc.end)}</td>)}
+            </tr>
+            <tr>
+              <td style={seqTd}>Withdrawn</td>
+              {data.sequence.map((sc) => <td key={sc.key} style={{ ...seqTd, textAlign: 'right' }}>{formatCurrency(sc.withdrawn)}</td>)}
+            </tr>
+            <tr>
+              <td style={seqTd}>Avg return</td>
+              {data.sequence.map((sc) => <td key={sc.key} style={{ ...seqTd, textAlign: 'right' }}>{sc.avg.toFixed(1)}%/yr</td>)}
+            </tr>
+          </tbody>
+        </table>
+        <div style={{ marginTop: 14, overflow: 'hidden' }}>
+          <LineChart width={648} height={170} data={[{ year: 0, ...Object.fromEntries(data.sequence.map((sc) => [sc.key, data.balance])) }, ...data.sequence[0].rows.map((_, i) => ({ year: i + 1, ...Object.fromEntries(data.sequence.map((sc) => [sc.key, sc.rows[i].value])) }))]} margin={{ top: 6, right: 12, bottom: 4, left: 6 }}>
+            <CartesianGrid stroke="rgba(27,36,53,0.08)" strokeDasharray="3 3" />
+            <XAxis dataKey="year" tick={{ fontSize: 11, fill: INK_SOFT, fontFamily: FONT_SANS }} />
+            <YAxis tick={{ fontSize: 11, fill: INK_SOFT, fontFamily: FONT_SANS }} tickFormatter={kfmt} />
+            <Legend wrapperStyle={{ fontSize: 11, fontFamily: FONT_SANS }} />
+            <Line type="monotone" dataKey="steady" name={data.sequence[0].label} stroke={INK_FAINT} strokeWidth={2} strokeDasharray="4 3" dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="worst" name="Worst decade" stroke={OXBLOOD_INK} strokeWidth={2} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="early" name="Losses early" stroke={MAROON} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="late" name="Losses late" stroke={NAVY} strokeWidth={2.5} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="best" name="Best decade" stroke={STEEL_DARK} strokeWidth={2} dot={false} isAnimationActive={false} />
+          </LineChart>
+        </div>
+        <p style={{ fontSize: '0.72rem', color: INK_FAINT, margin: '10px 0 0', lineHeight: 1.45 }}>
+          Hypothetical illustration using historical S&amp;P 500 calendar-year total returns with dividends reinvested. Not a prediction of future results; an index cannot be invested in directly, and taxes, fees and inflation are not included. Past performance does not guarantee future results.
+        </p>
       </Section>
 
       </>}
@@ -1138,7 +1253,7 @@ function SummaryDoc({ client, pension, data, sections = {} }) {
           <div style={{ fontFamily: FONT_SERIF, fontSize: '0.92rem', fontWeight: 600, color: NAVY }}>{brand.name}</div>
         </div>
         <p style={{ fontFamily: FONT_MONO, fontSize: '0.6rem', lineHeight: 1.5, color: INK_FAINT, margin: 0, maxWidth: 460, textAlign: 'right' }}>
-          Estimates only — prepared from the figures provided and current federal rules; your official benefits are set by OPM, SSA, the TSP, and your agency. Not financial, tax, or legal advice.{sections.tsp ? <> "Guaranteed income" is a fixed-annuity feature backed solely by the issuing insurer's claims-paying ability — not guaranteed by the U.S. government, the TSP, or the FDIC.</> : null} {brand.name} is independent, is not affiliated with OPM or any federal agency, and may be compensated by an insurance carrier if you choose to purchase a product. Full disclosures on the final page.
+          Estimates only — prepared from the figures provided and current federal rules; your official benefits are set by OPM, SSA, the TSP, and your agency. Not financial, tax, or legal advice.{sections.tsp || sections.sequence ? <> TSP and market illustrations are hypothetical; past performance does not guarantee future results.</> : null} {brand.name} is independent, is not affiliated with OPM or any federal agency, and may be compensated by an insurance carrier if you choose to purchase a product. Full disclosures on the final page.
         </p>
       </div>
     </div>
@@ -1377,9 +1492,9 @@ function DisclosuresCard({ client, sections = {} }) {
 
       <p style={para}><strong style={term}>Not investment advice.</strong> Consultants with {brand.name} are licensed insurance producers. They are not registered representatives or investment adviser representatives, and nothing in this summary is a recommendation about TSP investment funds, securities, or any investment allocation.</p>
 
-      {sections.tsp && <p style={para}><strong style={term}>“Guaranteed income for life.”</strong> Any guaranteed lifetime income shown is a feature of a fixed annuity issued by a life insurance company — not a federal, TSP, or government benefit. Guarantees are subject solely to the claims-paying ability of the issuing insurer and are not insured or guaranteed by the U.S. government, the TSP, the FDIC, or {brand.name}. Amounts are illustrative, are not a quote or a contract, and depend on the product, interest rates, and your age at the time of purchase. Annuities may carry surrender charges and limited liquidity, and an income rider may carry an additional annual fee. Income amounts shown are based on one fixed indexed annuity's income rider using its rate table as of June 2026; the bonus and roll-up shown increase only the base used to calculate lifetime income, not the contract's cash value. A fixed indexed annuity is not a stock market investment and does not directly participate in any index.</p>}
+      {sections.tsp && <p style={para}><strong style={term}>TSP withdrawal illustration.</strong> The withdrawal projection is hypothetical. It assumes a level withdrawal taken at the start of each year and the single steady return shown, and ignores taxes, fees, inflation, and market volatility. It is not a prediction of future results and not a recommendation about TSP investment funds or withdrawal elections. TSP withdrawal options and rules are set by the TSP; see tsp.gov.</p>}
 
-      {sections.tsp && <p style={para}><strong style={term}>Moving money out of the TSP.</strong> Illustrations that convert TSP savings to guaranteed income assume funds are moved out of the TSP. That decision is generally difficult to reverse, may have tax consequences and surrender charges, and forgoes the TSP's low costs and features. Any self-managed comparison is hypothetical, uses only the single growth rate and withdrawal amount shown, ignores taxes, fees, and market volatility, and is not a prediction of future results.</p>}
+      {sections.sequence && <p style={para}><strong style={term}>Market timing illustration.</strong> Uses calendar-year total returns of the S&amp;P 500 index with dividends reinvested for {SP_WORST.years} and {SP_BEST.years}, and the same {SP_WORST.years} returns rearranged with the negative years first or last (source: S&amp;P Dow Jones Indices data as compiled by NYU Stern, Damodaran Online). The steady-return column uses the single rate shown. An index cannot be invested in directly; the TSP C Fund tracks the S&amp;P 500, but actual fund results differ. This hypothetical example is for illustration only, does not represent any specific investment or product, and does not reflect taxes, fees, or inflation. Past performance does not guarantee future results.</p>}
 
       <p style={para}><strong style={term}>How we are paid.</strong> Consultants with {brand.name} are licensed life and health insurance producers who place insurance and annuity business through SBIA, an affiliated insurance agency. If you choose to purchase an insurance or annuity product, {brand.name} or SBIA may be compensated by the issuing carrier — never by you directly. You are under no obligation to purchase anything, and doing so is never a condition of this summary. Insurance and annuity products are not available to residents of California, New York, or Arkansas.</p>
 
@@ -1528,6 +1643,10 @@ const readout = { display: 'flex', justifyContent: 'space-between', alignItems: 
 const hintText = { fontSize: '0.72rem', color: INK_FAINT, margin: 0, lineHeight: 1.45 }
 const selectStyle = { display: 'block', width: '100%', marginTop: 5, padding: '9px 10px', borderRadius: 7, border: `1px solid ${rules.inkStrong}`, background: WHITE, fontFamily: FONT_SANS, fontSize: '0.85rem', color: INK }
 const metaLabel = { fontFamily: FONT_MONO, fontSize: '0.62rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: INK_FAINT, marginBottom: 2 }
+const seqTh = { padding: '0 6px 8px', fontFamily: FONT_MONO, fontSize: '0.58rem', letterSpacing: '0.04em', textTransform: 'uppercase', color: INK_FAINT, textAlign: 'left', verticalAlign: 'bottom', borderBottom: `1px solid ${rules.inkStrong}` }
+const seqTd = { padding: '5px 6px', color: INK_SOFT, whiteSpace: 'nowrap' }
+const STEEL_DARK = '#5b7fa6'
+function kfmt(v) { return v >= 1000000 ? `$${(v / 1000000).toFixed(1)}m` : `$${Math.round(v / 1000)}k` }
 const thCell = { padding: '0 0 8px', fontWeight: 600 }
 const tdCell = { padding: '9px 0', fontSize: '0.88rem' }
 function toolbarBtn(bg, ghost) {
